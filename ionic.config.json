@@ -1,0 +1,7 @@
+{
+  "name": "quantum-ionic",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

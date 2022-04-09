@@ -1,0 +1,144 @@
+.ion-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.verticalLine {
+    height: 5vh;
+    background: transparent;
+    margin: auto;
+}
+
+.verticalLineInOriginalMessage {
+    width:0.5%;
+    height:5vh;
+    background:rgb(255, 0, 0);
+    margin: 1vw;
+}
+
+.verticalLineInComments {
+    width:0.5%;
+    height:5vh;
+    background:rgb(255, 255, 255);
+    margin: 1vw;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1vh;
+}
+
+.quantum_logo {
+    resize: both;
+    height: 7.5vh;
+}
+
+.h3-error {
+    align-items: center;
+    text-align: center;
+}
+
+.ion-image-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: fit-content;
+}
+
+.h2-message {
+    white-space: pre-line;
+}
+
+.navbar_label {
+    zoom: 1.5;
+}
+
+.ion-img-container {
+    max-height: 45vh;
+    max-width: 90vw;
+    height: auto;
+    width: auto;
+}
+
+ion-img {
+    object-fit: cover;
+}
+
+.sign-in-sign-up-list{
+    /* position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); */
+    border-color: rgba(0, 0, 0, 0);
+	background-color: rgba(0, 0, 0, 0);
+    text-align:center;
+}
+
+.home-list{
+    /* position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); */
+    border-color: rgba(0, 0, 0, 0);
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.ion-item-style {
+    background: "transparent";
+}
+
+.ion-paragraph {
+    /* text-align:center; */
+    width: max-content;
+}
+
+.ion-input- {
+    padding-right: 2.5vh;
+}
+
+.ion-title{
+    padding-top: 1vh;
+    text-align: center;
+}
+
+.ion-header {
+    margin-top: constant(safe-area-inset-top);
+    margin-top: env(safe-area-inset-top);
+    text-align: center;
+}
+
+.modal-style {
+    margin-top: constant(safe-area-inset-top);
+    margin-top: env(safe-area-inset-top);
+}
+
+.ion-modal {
+    padding-top: 5vh;
+}
+
+.ion-text-area {
+    padding-top: 10vh;
+    --overflow: hidden;
+}
+
+.no-scroll {
+    --overflow: hidden;
+}
+
+.ion-fab {
+    zoom: 0.75;
+}
+
+ion-content::part(scroll)::-webkit-scrollbar {
+    display: none;
+}
+
+ion-content {
+    overflow: hidden;
+}
+ 
