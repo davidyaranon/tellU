@@ -1,4 +1,5 @@
-import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonItem, IonLabel, IonList, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons, IonCard, 
+IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal, IonToolbar, IonTitle } from '@ionic/react';
 import React, { useEffect, useState  } from 'react';
 import { auth, registerWithEmailAndPassword } from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -13,6 +14,7 @@ import { setUserState } from '../redux/actions';
 
 const Register: React.FC = () => {
     const Toast = useToast();
+    const [passwordModal, setPasswordModal] = useState<boolean>(false);
     const dispatch = useDispatch();
     const [busy, setBusy] = useState<boolean>(false);
     const { setShowTabs } = React.useContext(UIContext);
@@ -23,36 +25,42 @@ const Register: React.FC = () => {
     const [schoolName, setSchoolName] = useState("");
     const [user, loading, error] = useAuthState(auth);
     const history = useHistory();
+    const specialChars = /[#!@?$%]/;
+    const numbers = /[0123456789]/;
+
+    const openPasswordRequirements = () => {
+        setPasswordModal(true);
+    }
+
+    const closeModal = () => {
+        setPasswordModal(false);
+    }
 
     async function register() {
         setBusy(true);
         if (userNameSignUp.trim() === '' || passwordSignUp.trim() === '' || emailSignUp.trim() === '') { 
             Toast.error("Enter a value in each field");  
-        }
-        else if(schoolName.length == 0) {
+        } else if(schoolName.length == 0) {
             Toast.error("Select a university!");
-        }
-        else if(userNameSignUp.trim().length > 15) {
-            Toast.error("Username must be less than 15 characters!");
-        }
-        else if(passwordSignUp !== passwordSignUpCopy) { 
+        } else if(userNameSignUp.trim().length > 15) {
+            Toast.error("Username must be no more than 15 characters!");
+        } else if(passwordSignUp !== passwordSignUpCopy) { 
             Toast.error("Passwords do not match!");
-        }
-        else if(passwordSignUp.length < 8) {
+        } else if(passwordSignUp.length < 8) {
             Toast.error("Password must be 8 or more characters!")
-        }
-        else if(userNameSignUp.includes(' ')) {
+        } else if(userNameSignUp.includes(' ')) {
             Toast.error("Username cannot contain spaces!");
-        }
-        else if(passwordSignUp.includes(' ')) {
+        } else if(passwordSignUp.includes(' ')) {
             Toast.error("Password cannot contain spaces!");
-        }
-        else {
+        } else if(!specialChars.test(passwordSignUp)) {
+            Toast.error("Password must contain at least 1 special character");
+        } else if (!numbers.test(passwordSignUp)) {
+            Toast.error("Password must contain at least 1 number");
+        } else {
             const res = await registerWithEmailAndPassword(userNameSignUp.trim(), emailSignUp.trim(), passwordSignUp, schoolName);
             if ( (typeof(res) === 'string') ) {
                 Toast.error(res);
-            }
-            else {
+            } else {
                 dispatch(setUserState(res!.user.displayName, res!.user.email, false));
                 Toast.success("Registered Successfully");
             }
@@ -82,10 +90,42 @@ const Register: React.FC = () => {
 
                 <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
 
+                <IonModal isOpen={passwordModal} onDidDismiss={closeModal} breakpoints={[0,0.75]} initialBreakpoint={0.75} backdropBreakpoint={0.2} >
+                    <IonContent>
+                        <IonHeader translucent>
+                            <IonToolbar mode='ios'>
+                                <IonTitle> </IonTitle>
+                                <IonButtons slot='end'>
+                                    <IonButton mode='ios' onClick={closeModal}>Close</IonButton>
+                                </IonButtons>
+                            </IonToolbar>
+                        </IonHeader>
+                        <br></br>
+                        <IonTitle >Username</IonTitle>
+                        <IonCard>
+                            <IonItem>
+                                Must be no more than 15 charaters
+                            </IonItem>
+                        </IonCard>
+                        <IonTitle >Password</IonTitle>
+                        <IonCard>
+                            <IonItem>
+                                Must be at least 8 charaters
+                            </IonItem>
+                            <IonItem>
+                                Must contain at least 1 number (0-9)
+                            </IonItem>
+                            <IonItem>
+                                Must contain at least 1 special character (#, !, @, ?, $, %) - no spaces
+                            </IonItem>
+                        </IonCard>
+                    </IonContent>
+                </IonModal>
+
                 <IonList mode='ios' inset={true} className='sign-in-sign-up-list'> 
                     <IonItem class="ion-item-style">
                         <IonLabel position='stacked'>Email</IonLabel>
-                        <IonInput value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} ></IonInput>
+                        <IonInput clearInput={true} value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} ></IonInput>
                     </IonItem>
                     <IonItem class="ion-item-style">
                         <IonLabel position='stacked'>School</IonLabel>
@@ -105,7 +145,7 @@ const Register: React.FC = () => {
                     </IonItem>
                     <IonItem class="ion-item-style">
                     <IonLabel position='stacked'>Username</IonLabel>
-                        <IonInput value={userNameSignUp} type="text" placeholder="quantum1234" id="userNameSignUp" onIonChange={(e: any) => setUserNameSignUp(e.detail.value)} ></IonInput>
+                        <IonInput maxlength={15} clearInput={true} value={userNameSignUp} type="text" placeholder="quantum1234" id="userNameSignUp" onIonChange={(e: any) => setUserNameSignUp(e.detail.value)} ></IonInput>
                     </IonItem>
                     <IonItem class="ion-item-style">
                     <IonLabel position='stacked'>Password</IonLabel>
@@ -117,8 +157,7 @@ const Register: React.FC = () => {
                     </IonItem>
                     <br />
                     <IonButton onClick={register} color="transparent" mode='ios' shape="round" fill="outline" expand="block"  id="signUpButton" >Sign Up</IonButton>
-                    <br />
-                    <br />
+                    <p className='sign-in-sign-up-list'> See credentials requirements <Link to="#" onClick={openPasswordRequirements}>here</Link> </p>
                     <p className='sign-in-sign-up-list'> or <Link to="/landing-page">sign in</Link> to an exising account</p>
                 </IonList>
             </IonContent>

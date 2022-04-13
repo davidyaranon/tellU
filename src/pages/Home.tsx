@@ -1,13 +1,13 @@
-import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonItemDivider,
-  IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, 
-  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, useIonViewWillEnter } 
+import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonCardTitle, IonCard, IonSlides, IonSlide,
+  IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, 
+  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons } 
 from '@ionic/react';
 import React, { useRef, useCallback } from 'react';
 import { RefresherEventDetail } from '@ionic/core';
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment } from '../fbconfig'
-import Header from './Header'
+import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts} from '../fbconfig'
+import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import { useToast } from "@agney/ir-toast";
 import { add, cameraOutline, chatbubblesOutline } from 'ionicons/icons';
@@ -23,8 +23,9 @@ import { chevronDownCircleOutline } from 'ionicons/icons';
 import { v4 as uuidv4 } from 'uuid';
 import { ref, getDownloadURL } from "firebase/storage";
 import { useSelector } from 'react-redux';
-import { useDispatch } from "react-redux"
-import { setUserState } from '../redux/actions';
+import { useHistory } from 'react-router';
+import '../theme/variables.css';
+import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer';
 
 export interface UserPhoto {
   filepath: string,
@@ -34,7 +35,6 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
-  const dispatch = useDispatch();
   const hasLoaded = useSelector( (state: any) => state.user.hasLoaded);
   const [busy, setBusy] = useState<boolean>(false);
   const [photo, setPhoto] = useState<Photo | null>();
@@ -42,6 +42,7 @@ function Home() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showModalPicture, setShowModalPicture] = useState<boolean>(false);
   const [showModalComment, setShowModalComment] = useState<boolean>(false);
+  const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
   const [commentModalPost, setCommentModalPost] = useState("");
   const [commentModalMessage, setCommentModalMessage] = useState("");
   const [modalImgSrc, setModalImgSrc] = useState("");
@@ -55,54 +56,24 @@ function Home() {
   const [message, setMessage] = useState("");
   const [comment, setComment] = useState("");
   const [commentModalUserName, setCommentModalUserName] = useState("");
-  const isInitialMount = useRef(true);
   const [user] = useAuthState(auth);
-  const getPostsFromFirebase : any[] = [];
-  const ionHeaderStyle = {
-    textAlign: 'center',
-    padding: "5vh",
-  };
+  const history = useHistory();
   const ionInputStyle = {
     height: "10vh",
     width: "95vw",
     marginLeft: "2.5vw",
   }
-
-  async function commentAdd() {
-    if(message.trim().length == 0){
-      Toast.error("Input a comment");
-    }
-    else {
-      setBusy(true);
-      const res = addComment(comment.trim());
-    }
+  const sliderOpts = {
+    zoom:true,
+    maxRatio : 2
   }
 
-  async function messageAdd() {
-    if(message.trim().length == 0 && !blob) {
-      Toast.error("Input a message!");
-    }
-    else {
-      setBusy(true);
-      let uniqueId = uuidv4();
-      if(blob) {
-        await sendImage(blob, uniqueId.toString());
-        setBlob(null);
-        setPhoto(null);
-      }
-      const res = await addMessage(message.trim(), blob, uniqueId.toString());
-      if(res == 'false') {
-        Toast.error("Unable to process message :(");
-      }
-      else {
-        Toast.success("Uploaded!");
-        setMessageSent(true);
-        await getAllPosts();
-      }
-      setShowModal(false);
-      setBusy(false);
-    }
-    setMessage("");
+  const handleUpVote = () => {
+    console.log('upvoted!');
+  }
+
+  const handleDownVote = () => {
+    console.log('downvoted!');
   }
 
   const handleChange = (e : any) => {
@@ -119,44 +90,68 @@ function Home() {
     setShowModal(false); 
     messageAdd();
   }
+
   const handleSendComment = () => {
     commentAdd();
+  }
+
+  const handleLoadPosts = () => {
+    setBusy(true);
+    let tempPosts = promiseTimeout(15000, getAllPosts());
+    tempPosts.then((allPosts : any[]) => {
+      if(allPosts && allPosts != []) {
+        setPosts(allPosts);
+      } else {
+        Toast.error("Unable to load posts");
+      }
+      setBusy(false);
+    });
+    tempPosts.catch((err : any) => {
+      Toast.error(err);
+      setBusy(false);
+      setPosts(null);
+      setShowReloadMessage(true);
+    });
+  }
+  
+  async function doRefresh(event: CustomEvent<RefresherEventDetail> ) {
+    handleLoadPosts();
+    setTimeout(() => {
+      event.detail.complete();
+    }, 1000);
   }
 
   function timeout(delay: number) {
     return new Promise( res => setTimeout(res, delay) );
   }
 
-  // const savePicture = async (photo: Photo, fileName: string, blob: any) : Promise<UserPhoto> => {
-  //   const base64Data = await base64FromPath(photo.webPath!);
-  //   const savedFile = await Filesystem.writeFile({
-  //     path: fileName,
-  //     data: base64Data,
-  //     directory: Directory.Data,
-  //   });
+  const promiseTimeout = function(ms : any, promise : any) {
+    let timeout = new Promise((resolve, reject) => {
+      let id = setTimeout(() => {
+        clearTimeout(id);
+        reject('Unable to load posts, request timed out (15 secs)')
+      }, ms)
+    });
+    return Promise.race([
+      promise,
+      timeout
+    ]);
+  }
 
-  //   return {
-  //     filepath: fileName, 
-  //     webviewPath: photo.webPath,
-  //   }
-  // }
+  function showPicture(src : string) {
+    // setModalImgSrc(src);
+    // setShowModalPicture(true);
+    PhotoViewer.show(src);
+  }
 
-  // async function base64FromPath(path: string) : Promise<string> {
-  //   const response = await fetch(path);
-  //   const blob = await response.blob();
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-  //     reader.onerror = reject;
-  //     reader.onload = () => {
-  //       if (typeof reader.result === 'string') {
-  //         resolve(reader.result);
-  //       } else {
-  //         reject('method did not return a string');
-  //       }
-  //     };
-  //     reader.readAsDataURL(blob);
-  //   });
-  // }
+  async function sendImage(blob: any, uniqueId : string) {
+    const res = await uploadImage(blob, uniqueId);
+    if(!res || photo == null || photo?.webPath == null) {
+      Toast.error("unable to select photo");
+    } else {
+      Toast.success("photo uplaoded successfully");
+    }
+  }
 
   async function takePicture() {
     try {
@@ -166,15 +161,12 @@ function Home() {
         source: CameraSource.Camera,
         resultType: CameraResultType.Uri,
       });
-      // const fileName = new Date().getTime() + '.jpeg';
       const res = await fetch(image.webPath!);
       const blobRes = await res.blob();
-      // const savedFileImage = await savePicture(photo!, fileName, blobRes);
       if(blobRes) {
-        if(blobRes.size > 3000000) {
+        if(blobRes.size > 3000000) { // 3MB
           Toast.error("Image too large")
-        }
-        else {
+        } else {
           setBlob(blobRes);
           setPhoto(image);
           setLoading(true);
@@ -183,31 +175,8 @@ function Home() {
         }
       }
     } catch(err : any) {
-      Toast.error(err.message.toString());
+      // Toast.error(err.message.toString());
     }
-  }
-
-  async function sendImage(blob: any, uniqueId : string) {
-    const res = await uploadImage(blob, uniqueId);
-    if(!res || photo == null || photo?.webPath == null) {
-      Toast.error("unable to select photo");
-    }
-    else {
-      Toast.success("photo uplaoded successfully");
-    }
-  }
-
-  // function postComment() {}
-  // leaveUpVote() {}
-  // leaveDownVote() {}
-  // openComments() {}
-
-  const handleUpVote = () => {
-    console.log('upvoted!');
-  }
-
-  const handleDownVote = () => {
-    console.log('downvoted!');
   }
 
   const handleCommentModal = async (post : any, e : any) => {
@@ -244,56 +213,48 @@ function Home() {
     }
   }
 
-  const getAllPosts = useCallback(async()=>{
-    try {
+  async function commentAdd() {
+    if(message.trim().length == 0){
+      Toast.error("Input a comment");
+    } else {
       setBusy(true);
-      if(user && db) { 
-        console.log(user);
-        const allPostsRef = collection(db, "allPosts");
-        const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(250));
-        const querySnapshot = await getDocs(q);
-        const tempArr : any[] = [];
-        const docs = querySnapshot.docs;
-        for(const doc of docs) {
-          let res = "";
-          let url = doc.data().url;
-          if(url.length > 0) {
-            res = await getDownloadURL(ref(storage, url));
-          }
-          tempArr.push({
-            ...doc.data(),
-            key: doc.id,
-            imgSrc: res,
-          });
-        }
-        setPosts(tempArr);
-        console.log(tempArr);
-      }
-      setBusy(false);
-    } catch(err : any) {
-      Toast.error(err.message.toString());
-      setBusy(false);
+      const res = addComment(comment.trim());
     }
-  }, [])
-    
-
-  async function doRefresh(event: CustomEvent<RefresherEventDetail> ) {
-    await getAllPosts();
-    setTimeout(() => {
-      event.detail.complete();
-    }, 2000);
   }
 
-  function showPicture(src : string) {
-    setModalImgSrc(src);
-    setShowModalPicture(true);
+  async function messageAdd() {
+    if(message.trim().length == 0 && !blob) {
+      Toast.error("Input a message!");
+    } else {
+      setBusy(true);
+      let uniqueId = uuidv4();
+      if(blob) {
+        await sendImage(blob, uniqueId.toString());
+        setBlob(null);
+        setPhoto(null);
+      }
+      const res = await addMessage(message.trim(), blob, uniqueId.toString());
+      if(res == 'false') {
+        Toast.error("Unable to process message :(");
+      } else {
+        Toast.success("Uploaded!");
+        setMessageSent(true);
+        handleLoadPosts();
+      }
+      setShowModal(false);
+      setBusy(false);
+    }
+    setMessage("");
   }
 
   useEffect(() => {
-    // if(!hasLoaded) {
-    //   dispatch(setUserState(user!.displayName, user!.email, true));
-    getAllPosts();
-   // }
+    setBusy(true);
+    if(!user) {
+        history.replace("/landing-page");
+    } else{
+      handleLoadPosts();
+      console.log(user);
+    }
   }, []);
 
   if(posts) {
@@ -317,9 +278,9 @@ function Home() {
                     
           <IonModal backdropDismiss={false} isOpen={showModal} >
             <div className='ion-modal'>
-              <IonTextarea maxlength={200} style={ionInputStyle} value={message} placeholder="Start typing..." id="message" onIonChange={(e: any) => { handleChange(e); }} ></IonTextarea>
+              <IonTextarea color='secondary' maxlength={200} style={ionInputStyle} value={message} placeholder="Start typing..." id="message" onIonChange={(e: any) => { handleChange(e); }} ></IonTextarea>
               <IonFab class='ion-fab' horizontal='start'>
-                <IonFabButton onClick={takePicture} mode='ios' color='transparent'>
+                <IonFabButton onClick={takePicture} mode='ios' color='medium'>
                   <IonIcon icon={cameraOutline} />
                 </IonFabButton>
               </IonFab>
@@ -327,7 +288,7 @@ function Home() {
                 <IonButton onClick={() => { setShowModal(false); setPhoto(null); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" > Close </IonButton>
                 <IonButton onClick={() => { handleSendMessage(); }} color="transparent" mode='ios' shape="round" fill="outline" id="message" >Send</IonButton>
               </IonFab>
-              <IonImg src={photo?.webPath} />
+              <IonImg className='ion-image-modal' src={photo?.webPath} />
             </div>
           </IonModal>
           <IonFab vertical="bottom" horizontal="end" slot="fixed" >
@@ -336,13 +297,24 @@ function Home() {
             </IonFabButton>
           </IonFab>
 
-          <IonModal backdropDismiss={false} isOpen={showModalPicture}>
-            <div className='ion-modal'>
-              <IonImg className='ion-image-modal' src={modalImgSrc} />
-              <IonFab horizontal="end">
-                <IonButton onClick={() => { setShowModalPicture(false);}}  color="danger" mode='ios' shape="round" fill="outline" id="close" >X</IonButton>
-              </IonFab>
-            </div>
+          <IonModal backdropDismiss={false} isOpen={showModalPicture }>
+              <IonCard >
+                <IonHeader translucent>
+                  <IonToolbar mode='ios'>
+                      <IonButtons slot='end'>
+                          <IonButton mode='ios' onClick={() => {setShowModalPicture(false)}}>Close</IonButton>
+                      </IonButtons>
+                  </IonToolbar>
+                </IonHeader>
+                <IonSlides options={sliderOpts}>
+                  <IonSlide>
+                    <div className='swiper zoom container'>
+                    <IonImg src={modalImgSrc} />
+                    </div>
+                  </IonSlide>
+                </IonSlides>
+                {/* <IonButton onClick={() => { setShowModalPicture(false);}}  color="danger" mode='ios' shape="round" fill="outline" id="close" >X</IonButton> */}
+              </IonCard>
           </IonModal>
 
           <IonModal backdropDismiss={false} isOpen={showModalComment}>
@@ -381,10 +353,20 @@ function Home() {
                         </IonLabel>
                         <div className='verticalLineInComments'></div>
                       </IonItem>
+                      <IonItem lines='none' mode='ios'>
+                        <IonButton mode='ios' fill='outline' color='medium' onClick={handleUpVote}>
+                          <KeyboardArrowUpIcon />
+                          <p>{comment.upVotes} </p>
+                        </IonButton>
+                        <IonButton mode='ios' fill='outline' color='medium' onClick={handleDownVote}>
+                          <KeyboardArrowDownIcon />
+                          <p>{comment.downVotes} </p>
+                        </IonButton>
+                      </IonItem>
                   </IonList>
                 )
               ) : null}
-              <IonTextarea spellcheck={true} maxlength={200} style={ionInputStyle} value={comment} placeholder="Leave a comment..." id="message" onIonChange={(e: any) => { handleChangeComment(e); }} ></IonTextarea>
+              <IonTextarea color='secondary' spellcheck={true} maxlength={200} style={ionInputStyle} value={comment} placeholder="Leave a comment..." id="message" onIonChange={(e: any) => { handleChangeComment(e); }} ></IonTextarea>
             </div>
           </IonModal>
           
@@ -393,7 +375,9 @@ function Home() {
             <IonList inset={true} mode='ios' key={post.key}>
               <IonItem lines='none' mode='ios' >
                 <IonLabel class="ion-text-wrap" onClick={(e) => {handleCommentModal(post, e)}}>
-                  <p> {post.userName} </p>
+                  <IonText color='medium'>
+                    <p> {post.userName} </p>
+                  </IonText>          
                   <h2 className='h2-message'> {post.message} </h2>
                   {post.url.length > 0 ? (
                   <div className="ion-img-container">
@@ -404,16 +388,16 @@ function Home() {
                 </IonLabel>
               </IonItem>
               <IonItem lines='none' mode='ios'>
-              <IonButton mode='ios' color='transparent' onClick={handleUpVote}>
+              <IonButton mode='ios' fill='outline' color='medium' onClick={handleUpVote}>
                   <KeyboardArrowUpIcon />
                   <p>{post.upVotes} </p>
                 </IonButton>
                 <p>&nbsp;</p>
-                <IonButton mode='ios' color='transparent' onClick={(e) => {handleCommentModal(post, e)}}>
+                <IonButton mode='ios' color='medium' onClick={(e) => {handleCommentModal(post, e)}}>
                   <IonIcon icon={chatbubblesOutline}/>
                   <p>&nbsp; {post.commentAmount} </p>
                 </IonButton>
-                <IonButton mode='ios' color='transparent'>
+                <IonButton mode='ios' fill='outline' color='medium' onClick={handleDownVote}>
                   <KeyboardArrowDownIcon />
                   <p>{post.downVotes} </p>
                 </IonButton>
@@ -421,13 +405,50 @@ function Home() {
             </IonList>
             )
           ) : <div>
-                <h3 className='h3-error'> Unable to load posts, check your internet connection </h3>
+                <h3 className='h3-error'> Unable to load posts, swipe down from top to reload page </h3>
                 <div className='h3-error'>
                   <SignalWifiOff fontSize="large" style={{fontSize: '4.10vh'}}/>
                 </div>
               </div>}
 
         </IonContent>
+      </React.Fragment>
+    );
+  }
+  else if(showReloadMessage) {
+    return (
+      <React.Fragment>
+      <IonContent >
+      <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
+        <IonRefresherContent
+          pullingIcon={chevronDownCircleOutline}
+          pullingText="Pull to refresh"
+          refreshingSpinner="crescent"
+          refreshingText="Refreshing...">
+        </IonRefresherContent>
+      </IonRefresher>
+
+      <IonLoading spinner='dots' message="Please wait..." duration={0} isOpen={busy}></IonLoading>
+
+      <IonHeader class="ion-no-border" style={ionHeaderStyle}>
+        <Header />
+      </IonHeader> 
+
+      <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
+        <IonRefresherContent
+          pullingIcon={chevronDownCircleOutline}
+          pullingText="Pull to refresh"
+          refreshingSpinner="crescent"
+          refreshingText="Refreshing...">
+        </IonRefresherContent>
+      </IonRefresher>
+      <div>
+        <h3 className='h3-error'> Unable to load posts, swipe down from top to reload page </h3>
+        <div className='h3-error'>
+          <SignalWifiOff fontSize="large" style={{fontSize: '4.10vh'}}/>
+        </div>
+      </div>
+      </IonContent>
       </React.Fragment>
     );
   }
@@ -438,6 +459,3 @@ function Home() {
 }
 
 export default React.memo(Home);
-
-//"images/RIOzmEqpRONL6ty5L34KqiAlvwH205f297fa-6dcf-498b-900c-dab69a1a4e93"
-//https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/images%2FRIOzmEqpRONL6ty5L34KqiAlvwH205f297fa-6dcf-498b-900c-dab69a1a4e93

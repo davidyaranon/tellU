@@ -4,6 +4,11 @@ import logo from '../images/React.webp'
 import FCM from '../images/FCM.png'
 import '../App.css';
 
+export const ionHeaderStyle = {
+    textAlign: 'center',
+    padding: "5vh",
+};
+
 class Header extends Component {
     render(){
         return (
@@ -11,7 +16,7 @@ class Header extends Component {
                 <IconButton>
                     <img 
                         className='quantum_logo'
-                        src={FCM}
+                        src={logo}
                         alt="QUANTUM"
                         style={{zoom: 1.5}}
                     />

@@ -2,7 +2,7 @@ import { IonHeader, IonContent, IonLoading } from '@ionic/react';
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from '../fbconfig'
-import Header from './Header'
+import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import { useHistory } from 'react-router';
 
@@ -25,9 +25,9 @@ function Maps() {
     <React.Fragment>
       <IonContent>
         <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
-        <IonHeader class="ion-no-border" style={{padding: "3vh"}}>
+        <IonHeader class="ion-no-border" style={ionHeaderStyle}>
           <Header />
-        </IonHeader> 
+        </IonHeader>
           <p> TAB 3 = MAPS </p>
       </IonContent>
    </React.Fragment>

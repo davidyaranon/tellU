@@ -5,3 +5,7 @@ export const setUserState = (payload_username : any, payload_email : any, hasLoa
 export const setHomeHasLoaded = (hasLoaded : boolean) => {
     return { type: 'SET_HOME_HAS_LOADED', hasLoaded};
 }
+
+export const setDarkMode = (toggled : boolean) => {
+    return { type: 'SET_DARK_MODE', toggled};
+}

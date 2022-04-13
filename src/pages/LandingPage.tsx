@@ -67,7 +67,7 @@ const LandingPage: React.FC = () => {
 
                 <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
                     <IonItem mode='ios' >
-                        <IonInput color="transparent" mode='ios' value={emailSignIn} type="text" placeholder="Email" id="emailSignIn" onIonChange={(e: any) => {setEmailSignIn(e.detail.value);}} ></IonInput>
+                        <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="text" placeholder="Email" id="emailSignIn" onIonChange={(e: any) => {setEmailSignIn(e.detail.value);}} ></IonInput>
                     </IonItem>
                     <IonItem mode='ios' >
                         <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordSignIn} type="password" placeholder="Password" id="passwordSignIn" onIonChange={(e: any) => setPasswordSignIn(e.detail.value)} ></IonInput>

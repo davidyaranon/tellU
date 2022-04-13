@@ -2,7 +2,7 @@ import { IonHeader, IonLoading, IonContent } from '@ionic/react';
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from '../fbconfig'
-import Header from './Header'
+import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import { useHistory } from 'react-router';
 
@@ -35,9 +35,9 @@ function Workshops() {
   return (
     <React.Fragment>
       <IonContent>
-        <IonHeader class="ion-no-border" style={{padding: "3vh"}}>
-          <Header />
-        </IonHeader> 
+        <IonHeader class="ion-no-border" style={ionHeaderStyle}>
+            <Header />
+          </IonHeader>
         <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
         <p> TAB 2 = WORKSHOPS </p>
       </IonContent>

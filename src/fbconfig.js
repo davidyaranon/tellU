@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { serverTimestamp } from '@firebase/firestore'
 import 'firebase/compat/firestore';
-import { getStorage, ref, uploadBytes } from 'firebase/storage';
-import { getFirestore, doc, setDoc, updateDoc, arrayUnion, addDoc, getDoc, collection } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, getDocs,  query, orderBy, limit, doc, getDoc, getFirestore, setDoc, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
 import { getAuth, updateProfile, sendPasswordResetEmail, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -168,5 +168,34 @@ export const addMessage = async (mess, blob, id) => {
   } catch(err){
     console.log(err.message);
     return 'false';
+  }
+}
+
+
+export async function getAllPosts() {
+  try {
+    if(auth.currentUser != null && db) { 
+      const allPostsRef = collection(db, "allPosts");
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(250));
+      const querySnapshot = await getDocs(q);
+      const tempArr = [];
+      const docs = querySnapshot.docs;
+      for(const doc of docs) {
+        let res = "";
+        let url = doc.data().url;
+        if(url.length > 0) {
+          res = await getDownloadURL(ref(storage, url));
+        }
+        tempArr.push({
+          ...doc.data(),
+          key: doc.id,
+          imgSrc: res,
+        });
+      }
+      return tempArr;
+    }
+  } catch(err) {
+    console.log(err);
+    return [];
   }
 }
