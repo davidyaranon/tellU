@@ -97,7 +97,7 @@ function Home() {
 
   const handleLoadPosts = () => {
     setBusy(true);
-    let tempPosts = promiseTimeout(15000, getAllPosts());
+    let tempPosts = promiseTimeout(20000, getAllPosts());
     tempPosts.then((allPosts : any[]) => {
       if(allPosts && allPosts != []) {
         setPosts(allPosts);
@@ -164,7 +164,7 @@ function Home() {
       const res = await fetch(image.webPath!);
       const blobRes = await res.blob();
       if(blobRes) {
-        if(blobRes.size > 3000000) { // 3MB
+        if(blobRes.size > 5_000_000) { // 5MB
           Toast.error("Image too large")
         } else {
           setBlob(blobRes);
@@ -253,7 +253,6 @@ function Home() {
         history.replace("/landing-page");
     } else{
       handleLoadPosts();
-      console.log(user);
     }
   }, []);
 
@@ -288,7 +287,10 @@ function Home() {
                 <IonButton onClick={() => { setShowModal(false); setPhoto(null); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" > Close </IonButton>
                 <IonButton onClick={() => { handleSendMessage(); }} color="transparent" mode='ios' shape="round" fill="outline" id="message" >Send</IonButton>
               </IonFab>
-              <IonImg className='ion-image-modal' src={photo?.webPath} />
+              <br></br><br></br><br></br>
+              <IonCard>
+                <IonImg src={photo?.webPath} />
+              </IonCard>
             </div>
           </IonModal>
           <IonFab vertical="bottom" horizontal="end" slot="fixed" >

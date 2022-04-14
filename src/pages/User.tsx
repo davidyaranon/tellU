@@ -29,7 +29,8 @@ function User() {
   const [editClicked, setEditClicked] = useState<boolean>(false);
   const [editUserClicked, setEditUserClicked] = useState<boolean>(false);
   const [user, loading, error] = useAuthState(auth);
-  const [credentialsModal, setCredentialsModal] = useState(false);
+  const [credentialsModal, setCredentialsModal] = useState<boolean>(false);
+  const [credentialsUserModal, setCredentialsUserModal] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
   const history = useHistory();
 
@@ -76,7 +77,7 @@ function User() {
 
   const handleUserCheckmark = () => {
     if(editableUsername.trim() != username.trim()) {
-      // promptForCredentials();
+      promptForUsernameCredentials();
     } else {
       Toast.error("No changes made");
     }
@@ -85,6 +86,44 @@ function User() {
 
   const promptForCredentials = () => {
     setCredentialsModal(true);
+  }
+
+  const promptForUsernameCredentials = () => {
+    setCredentialsUserModal(true);
+  }
+
+  async function handleUsernameChange() {
+    setBusy(true);
+    if(user && user.displayName) {
+      updateProfile(user, {
+        displayName: editableUsername
+      }).then(() => {
+        if(user && user.uid) {
+          const userDataRef = doc(db, "userData", user.uid);
+          updateDoc(userDataRef, {
+            userName: editableUsername
+          }).then(() => {
+            Toast.success("Updated username");
+            setCredentialsUserModal(false);
+            setBusy(false);
+          }).catch((err) => {
+            Toast.error(err.message.toString());
+            setEditableUsername(username);
+            setBusy(false);
+          });
+        } else {
+          Toast.error("Unable to update username");
+        }
+      }).catch((err) => {
+        Toast.error(err.message.toString());
+        setEditableUsername(username);
+        setBusy(false);
+      });
+    } else {
+      Toast.error("user not defined");
+      setBusy(false);
+      setEditableUsername(username);
+    }
   }
 
   async function handleEmailChange() {
@@ -169,14 +208,14 @@ function User() {
       <IonContent>
         <IonHeader class="ion-no-border" style={ionHeaderStyle}>
           <Header />
-          <IonTitle class='ion-title'> Hello, {username} </IonTitle>
+          <IonTitle class='ion-title'> Hello, {editableUsername} </IonTitle>
         </IonHeader> 
         <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
 
         <IonModal backdropDismiss={false} isOpen={credentialsModal}>
         <div className='ion-modal'>
           <IonHeader mode='ios'> 
-            <IonTitle color='secondary' class='ion-title'> <div>Re-Authentication</div> </IonTitle>
+            <IonTitle color='secondary' class='ion-title'> <div>Re-Authentication for Email Change</div> </IonTitle>
           </IonHeader>
           <div><br></br></div>
           <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
@@ -185,7 +224,26 @@ function User() {
             </IonItem>
             <br />
             <IonButton color="danger" mode='ios' onClick={() => {setCredentialsModal(false); setEditableEmail(email); }} shape="round" fill="outline"  id="cancelButton" >Cancel</IonButton>
-            <IonButton color="transparent" mode='ios' onClick={handleEmailChange} shape="round" fill="outline"  id="signInButton" >Sign In</IonButton>
+            <IonButton color="transparent" mode='ios' onClick={handleEmailChange} shape="round" fill="outline"  id="signInButton" >Authenticate</IonButton>
+            <br/>
+            <br/>
+            </IonList>
+           </div>
+        </IonModal>
+
+        <IonModal backdropDismiss={false} isOpen={credentialsUserModal}>
+        <div className='ion-modal'>
+          <IonHeader mode='ios'> 
+            <IonTitle color='secondary' class='ion-title'> <div>Re-Authentication for Username Change</div> </IonTitle>
+          </IonHeader>
+          <div><br></br></div>
+          <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
+            <IonItem mode='ios' class="ion-item-style" >
+                <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordReAuth} type="password" placeholder="Enter your password again..." id="passwordSignIn" onIonChange={(e: any) => setPasswordReAuth(e.detail.value)} ></IonInput>
+            </IonItem>
+            <br />
+            <IonButton color="danger" mode='ios' onClick={() => {setCredentialsUserModal(false); setEditableUsername(username); }} shape="round" fill="outline"  id="cancelButton" >Cancel</IonButton>
+            <IonButton color="transparent" mode='ios' onClick={handleUsernameChange} shape="round" fill="outline"  id="signInButton" >Authenticate</IonButton>
             <br/>
             <br/>
             </IonList>
@@ -215,7 +273,7 @@ function User() {
               <IonText color='medium'>
                 <p> Username </p>
               </IonText>
-              <IonInput ref={inputRef} readonly={!editUserClicked} value={editableUsername} onIonChange={(e) => {handleChangeUsernameString(e)}}></IonInput>
+              <IonInput maxlength={15} ref={inputRef} readonly={!editUserClicked} value={editableUsername} onIonChange={(e) => {handleChangeUsernameString(e)}}></IonInput>
             </IonLabel>
             {editUserClicked? (
               <div >
@@ -231,6 +289,7 @@ function User() {
             <p> Dark mode </p>
             <IonIcon color='medium' icon={moon} slot='end'/>
             <IonToggle
+              color='primary'
               slot="end"
               name="darkMode"
               checked={darkModeToggled}

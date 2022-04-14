@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { serverTimestamp } from '@firebase/firestore'
 import 'firebase/compat/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, getDocs,  query, orderBy, limit, doc, getDoc, getFirestore, setDoc, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
+import { collection, getDocs,  query, orderBy, limit, doc, getDoc, getFirestore, setDoc, where, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
 import { getAuth, updateProfile, sendPasswordResetEmail, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -168,6 +168,27 @@ export const addMessage = async (mess, blob, id) => {
   } catch(err){
     console.log(err.message);
     return 'false';
+  }
+}
+
+export async function checkUsernameUniqueness(userName) {
+  try {
+    if(db) {
+      const usersRef = collection(db, "userData");
+      const q = query(usersRef, where('userName', '==', userName));
+      const snap = await getDocs(q);
+      if(snap.empty) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      console.log("auth not defined");
+      return false;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
 

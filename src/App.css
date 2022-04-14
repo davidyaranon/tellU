@@ -63,6 +63,48 @@ ion-tab-button {
     zoom: 1.5;
 }
 
+.container {
+    max-width: 90vw;
+    max-height: 30vw;
+    margin: 0 auto;
+}
+
+.aspect-ratio {
+  position: relative;
+}
+
+.aspect-ratio-1-1 {
+  padding-bottom: 100%;
+}
+
+.aspect-ratio-4-3 {
+  padding-bottom: 75%;
+}
+
+.aspect-ratio-16-9 {
+  padding-bottom: 56.25%;
+}
+
+.fit-img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    max-width: 90%;
+    max-height: 30%
+}
+
+.fit-img-bottom {
+  top: auto;
+}
+
+.fit-img-tight {
+  max-width: 100%;
+  max-height: 100%
+}
+
 .ion-img-container {
     max-height: 45vh;
     max-width: 90vw;
@@ -70,9 +112,6 @@ ion-tab-button {
     width: auto;
 }
 
-ion-img {
-    object-fit: cover;
-}
 
 .password-reauthentication {
     text-align: center;

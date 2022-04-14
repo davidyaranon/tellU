@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons, IonCard, 
 IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal, IonToolbar, IonTitle } from '@ionic/react';
 import React, { useEffect, useState  } from 'react';
-import { auth, registerWithEmailAndPassword } from '../fbconfig'
+import { auth, registerWithEmailAndPassword, checkUsernameUniqueness } from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link } from "react-router-dom";
 import Header from "./Header"
@@ -57,13 +57,18 @@ const Register: React.FC = () => {
         } else if (!numbers.test(passwordSignUp)) {
             Toast.error("Password must contain at least 1 number");
         } else {
-            const res = await registerWithEmailAndPassword(userNameSignUp.trim(), emailSignUp.trim(), passwordSignUp, schoolName);
-            if ( (typeof(res) === 'string') ) {
-                Toast.error(res);
+            const isUnique = await checkUsernameUniqueness(userNameSignUp.trim());
+            if (!isUnique) {
+                Toast.error("Username has been taken!");
             } else {
-                dispatch(setUserState(res!.user.displayName, res!.user.email, false));
-                Toast.success("Registered Successfully");
-            }
+                const res = await registerWithEmailAndPassword(userNameSignUp.trim(), emailSignUp.trim(), passwordSignUp, schoolName);
+                if ( (typeof(res) === 'string') ) {
+                    Toast.error(res);
+                } else {
+                    dispatch(setUserState(res!.user.displayName, res!.user.email, false));
+                    Toast.success("Registered Successfully");
+                }
+            } 
         }
         setBusy(false);
     }
