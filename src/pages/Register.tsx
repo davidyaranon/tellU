@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons, IonCard, 
+import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons, IonCard, IonItemDivider,
 IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal, IonToolbar, IonTitle } from '@ionic/react';
 import React, { useEffect, useState  } from 'react';
 import { auth, registerWithEmailAndPassword, checkUsernameUniqueness } from '../fbconfig'
@@ -95,39 +95,42 @@ const Register: React.FC = () => {
 
                 <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
 
-                <IonModal isOpen={passwordModal} onDidDismiss={closeModal} breakpoints={[0,0.75]} initialBreakpoint={0.75} backdropBreakpoint={0.2} >
+                <IonModal showBackdrop={true} isOpen={passwordModal} onDidDismiss={closeModal} breakpoints={[0,0.75]} initialBreakpoint={0.75} backdropBreakpoint={0.2} >
                     <IonContent>
                         <IonHeader translucent>
                             <IonToolbar mode='ios'>
-                                <IonTitle> </IonTitle>
+                                <IonTitle>Sign-up Requirements</IonTitle>
                                 <IonButtons slot='end'>
                                     <IonButton mode='ios' onClick={closeModal}>Close</IonButton>
                                 </IonButtons>
                             </IonToolbar>
                         </IonHeader>
                         <br></br>
-                        <IonTitle >Username</IonTitle>
+                        <IonHeader  mode='ios'><IonTitle >Username</IonTitle></IonHeader>
+                        <br></br>
                         <IonCard>
-                            <IonItem>
-                                Must be no more than 15 charaters
+                            <IonItem lines="none" class="ion-item-style">
+                                - Must be no more than 15 charaters
                             </IonItem>
                         </IonCard>
-                        <IonTitle >Password</IonTitle>
+                        <br></br>
+                        <IonHeader mode='ios'><IonTitle >Password</IonTitle></IonHeader>
+                        <br></br>
                         <IonCard>
-                            <IonItem>
-                                Must be at least 8 charaters
+                            <IonItem lines="none" class="ion-item-style">
+                                - Must be at least 8 charaters
+                            </IonItem >
+                            <IonItem lines="none" class="ion-item-style">
+                                - Must contain at least 1 number (0-9) <wbr></wbr>
                             </IonItem>
-                            <IonItem>
-                                Must contain at least 1 number (0-9)
-                            </IonItem>
-                            <IonItem>
-                                Must contain at least 1 special character (#, !, @, ?, $, %) - no spaces
+                            <IonItem lines="none" class="ion-item-style">
+                                - Must contain at least 1 special character <br></br>&nbsp; (#, !, @, ?, $, %) - no spaces <br></br><wbr></wbr>
                             </IonItem>
                         </IonCard>
                     </IonContent>
                 </IonModal>
 
-                <IonList mode='ios' inset={true} className='sign-in-sign-up-list'> 
+                <IonList  mode='ios' inset={true} className='sign-in-sign-up-list'> 
                     <IonItem class="ion-item-style">
                         <IonLabel position='stacked'>Email</IonLabel>
                         <IonInput clearInput={true} value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} ></IonInput>

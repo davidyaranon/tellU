@@ -220,3 +220,17 @@ export async function getAllPosts() {
     return [];
   }
 }
+
+export const promiseTimeout = function(ms , promise) {
+  let timeout = new Promise((resolve, reject) => {
+    let id = setTimeout(() => {
+      clearTimeout(id);
+      let rejectStr = 'Request timed out (' + ms + ' ms)';
+      reject(rejectStr)
+    }, ms)
+  });
+  return Promise.race([
+    promise,
+    timeout
+  ]);
+}

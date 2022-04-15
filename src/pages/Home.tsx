@@ -6,7 +6,7 @@ import React, { useRef, useCallback } from 'react';
 import { RefresherEventDetail } from '@ionic/core';
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts} from '../fbconfig'
+import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts, promiseTimeout } from '../fbconfig'
 import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import { useToast } from "@agney/ir-toast";
@@ -26,6 +26,7 @@ import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import '../theme/variables.css';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer';
+import defaultMessages from '../components/funnies';
 
 export interface UserPhoto {
   filepath: string,
@@ -58,6 +59,9 @@ function Home() {
   const [commentModalUserName, setCommentModalUserName] = useState("");
   const [user] = useAuthState(auth);
   const history = useHistory();
+  const min = 0;
+  const max = defaultMessages.length - 1;
+  const [loadingMessage, setLoadingMessage] = useState("");
   const ionInputStyle = {
     height: "10vh",
     width: "95vw",
@@ -115,6 +119,7 @@ function Home() {
   }
   
   async function doRefresh(event: CustomEvent<RefresherEventDetail> ) {
+    loadLoadingMessage();
     handleLoadPosts();
     setTimeout(() => {
       event.detail.complete();
@@ -123,19 +128,6 @@ function Home() {
 
   function timeout(delay: number) {
     return new Promise( res => setTimeout(res, delay) );
-  }
-
-  const promiseTimeout = function(ms : any, promise : any) {
-    let timeout = new Promise((resolve, reject) => {
-      let id = setTimeout(() => {
-        clearTimeout(id);
-        reject('Unable to load posts, request timed out (15 secs)')
-      }, ms)
-    });
-    return Promise.race([
-      promise,
-      timeout
-    ]);
   }
 
   function showPicture(src : string) {
@@ -158,7 +150,7 @@ function Home() {
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
-        source: CameraSource.Camera,
+        source: CameraSource.Prompt,
         resultType: CameraResultType.Uri,
       });
       const res = await fetch(image.webPath!);
@@ -247,7 +239,13 @@ function Home() {
     setMessage("");
   }
 
+  const loadLoadingMessage = () => {
+    let rand = Math.floor( min + Math.random() * (max - min) );
+    setLoadingMessage(defaultMessages[rand]);
+  }
+
   useEffect(() => {
+    loadLoadingMessage();
     setBusy(true);
     if(!user) {
         history.replace("/landing-page");
@@ -269,13 +267,13 @@ function Home() {
           </IonRefresherContent>
         </IonRefresher>
 
-        <IonLoading spinner='dots' message="Please wait..." duration={0} isOpen={busy}></IonLoading>
+        <IonLoading spinner='dots' message={loadingMessage} duration={0} isOpen={busy}></IonLoading>
 
           <IonHeader class="ion-no-border" style={ionHeaderStyle}>
             <Header />
           </IonHeader> 
                     
-          <IonModal backdropDismiss={false} isOpen={showModal} >
+          <IonModal swipeToClose={true} backdropDismiss={false} isOpen={showModal} >
             <div className='ion-modal'>
               <IonTextarea color='secondary' maxlength={200} style={ionInputStyle} value={message} placeholder="Start typing..." id="message" onIonChange={(e: any) => { handleChange(e); }} ></IonTextarea>
               <IonFab class='ion-fab' horizontal='start'>
@@ -320,6 +318,7 @@ function Home() {
           </IonModal>
 
           <IonModal backdropDismiss={false} isOpen={showModalComment}>
+            <IonContent>
             <div className='ion-modal'>
               <IonFab horizontal="end">
                 <IonButton onClick={() => { setShowModalComment(false); setComment(""); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" >X</IonButton>
@@ -330,7 +329,9 @@ function Home() {
                 <IonList inset={true}>
                   <IonItem lines='none' >
                     <IonLabel class='ion-text-wrap'>
+                      <IonText color='medium'>
                       <p>{commentModalUserName}</p>
+                      </IonText>
                       <h2 className='h2-message'>{commentModalMessage}</h2>
                     </IonLabel>
                     <div className='verticalLineInOriginalMessage'></div>
@@ -344,7 +345,9 @@ function Home() {
                   <IonList inset={true} key={index}>
                      <IonItem lines='none' >
                         <IonLabel class="ion-text-wrap">
+                          <IonText color='medium'>
                           <p> {comment.userName} </p>
+                          </IonText>
                           <h2 className='h2-message'> {comment.comment} </h2>
                           {comment.url.length > 0 ? (
                           <div className="ion-img-container">
@@ -369,7 +372,12 @@ function Home() {
                 )
               ) : null}
               <IonTextarea color='secondary' spellcheck={true} maxlength={200} style={ionInputStyle} value={comment} placeholder="Leave a comment..." id="message" onIonChange={(e: any) => { handleChangeComment(e); }} ></IonTextarea>
+              <div className='ion-button-container'>
+                <IonButton color="transparent" mode='ios' shape="round" fill="outline" expand="block"  id="signUpButton" >Comment</IonButton>
+              </div>
+              <wbr></wbr><br></br>
             </div>
+            </IonContent>
           </IonModal>
           
           {posts!.length > 0 ? (
@@ -455,7 +463,7 @@ function Home() {
     );
   }
   else {
-    return( <IonLoading spinner='dots' message="Please wait..." duration={0} isOpen={busy}></IonLoading> 
+    return( <IonLoading spinner='dots' message={loadingMessage} duration={0} isOpen={busy}></IonLoading> 
     );
   }
 }

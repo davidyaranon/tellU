@@ -2,7 +2,7 @@ import { IonHeader, IonContent, IonLoading, IonButton, IonInput, IonFab, IonText
 IonTitle, IonToolbar, IonList, IonItem, IonIcon, IonLabel, IonModal, IonToggle, IonText} from '@ionic/react';
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, logout, addMessage, db } from '../fbconfig'
+import { auth, logout, addMessage, db, promiseTimeout, checkUsernameUniqueness } from '../fbconfig'
 import { updateProfile, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { collection, getDocs,  query, orderBy, limit, doc, getDoc, updateDoc, } from 'firebase/firestore';
 import Header, { ionHeaderStyle } from './Header'
@@ -33,6 +33,10 @@ function User() {
   const [credentialsUserModal, setCredentialsUserModal] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
   const history = useHistory();
+
+  const titleStyle = {
+    fontSize: "6.5vw"
+  }
 
   const toggleDarkModeHandler = (isChecked : boolean) => {
     document.body.classList.toggle("dark");
@@ -92,37 +96,49 @@ function User() {
     setCredentialsUserModal(true);
   }
 
-  async function handleUsernameChange() {
+  async function handleUsernameChange() { // update all messages to include updated username + include duplicate username check
     setBusy(true);
-    if(user && user.displayName) {
-      updateProfile(user, {
-        displayName: editableUsername
-      }).then(() => {
-        if(user && user.uid) {
-          const userDataRef = doc(db, "userData", user.uid);
-          updateDoc(userDataRef, {
-            userName: editableUsername
-          }).then(() => {
-            Toast.success("Updated username");
-            setCredentialsUserModal(false);
-            setBusy(false);
-          }).catch((err) => {
-            Toast.error(err.message.toString());
-            setEditableUsername(username);
-            setBusy(false);
-          });
-        } else {
-          Toast.error("Unable to update username");
-        }
-      }).catch((err) => {
-        Toast.error(err.message.toString());
-        setEditableUsername(username);
-        setBusy(false);
-      });
-    } else {
-      Toast.error("user not defined");
-      setBusy(false);
+    const isUnique = await checkUsernameUniqueness(editableUsername.trim());
+    if (!isUnique) {
+      Toast.error("Username has been taken!");
       setEditableUsername(username);
+      setBusy(false);
+      setPasswordReAuth("");
+    } else {
+      if(user && user.displayName) {
+        const usernameChange = promiseTimeout(20000, updateProfile(user, {
+          displayName: editableUsername
+        }));
+        usernameChange.then(() => {
+          if(user && user.uid) {
+            const userDataRef = doc(db, "userData", user.uid);
+            const usernameDocChange = promiseTimeout(20000, updateDoc(userDataRef, {
+              userName: editableUsername
+            }));
+            usernameDocChange.then(() => {
+              Toast.success("Updated username");
+              setCredentialsUserModal(false);
+              setBusy(false);
+            });
+            usernameDocChange.catch((err : any) => {
+              Toast.error(err);
+              setEditableUsername(username);
+              setBusy(false);
+            });
+          } else {
+            Toast.error("Unable to update username");
+          }
+        });
+        usernameChange.catch((err : any) => {
+          Toast.error(err);
+          setEditableUsername(username);
+          setBusy(false);
+        });
+      } else {
+        Toast.error("user not defined");
+        setBusy(false);
+        setEditableUsername(username);
+      }
     }
   }
 
@@ -177,12 +193,18 @@ function User() {
   }
 
   async function loadLogout() {
-    const res = await logout();
-    if(res == 'true') {
-      Toast.success("Logging out...");
-    } else {
-      Toast.error(res);
-    }
+    let promise = promiseTimeout(10000, logout());
+    promise.then((loggedOut : any) => {
+      if(loggedOut == 'true') {
+        Toast.success("Logging out...");
+      } else {
+        Toast.error("Unable to logout");
+      }
+    });
+    promise.catch((err : any) => {
+      Toast.error(err);
+    })
+    
   }
   useEffect(() => {
     setBusy(true);
@@ -208,7 +230,14 @@ function User() {
       <IonContent>
         <IonHeader class="ion-no-border" style={ionHeaderStyle}>
           <Header />
-          <IonTitle class='ion-title'> Hello, {editableUsername} </IonTitle>
+          <IonToolbar mode='ios'>
+            <IonTitle size='small' style={titleStyle}> Hello 
+              <IonText color='primary'>
+                &nbsp;{editableUsername}
+              </IonText>
+            </IonTitle>
+          </IonToolbar>
+          
         </IonHeader> 
         <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
 
@@ -242,7 +271,7 @@ function User() {
                 <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordReAuth} type="password" placeholder="Enter your password again..." id="passwordSignIn" onIonChange={(e: any) => setPasswordReAuth(e.detail.value)} ></IonInput>
             </IonItem>
             <br />
-            <IonButton color="danger" mode='ios' onClick={() => {setCredentialsUserModal(false); setEditableUsername(username); }} shape="round" fill="outline"  id="cancelButton" >Cancel</IonButton>
+            <IonButton color="danger" mode='ios' onClick={() => {setCredentialsUserModal(false); setEditableUsername(username); setPasswordReAuth(""); }} shape="round" fill="outline"  id="cancelButton" >Cancel</IonButton>
             <IonButton color="transparent" mode='ios' onClick={handleUsernameChange} shape="round" fill="outline"  id="signInButton" >Authenticate</IonButton>
             <br/>
             <br/>
@@ -297,8 +326,10 @@ function User() {
             />
           </IonItem>
         </IonList>
-        <IonButton onClick={loadLogout} color="danger" mode='ios' shape="round" fill="outline" expand='full' id="logout" >Logout</IonButton>
-        <IonButton color="danger" mode='ios' shape="round" fill="outline" expand='full'  id="deleteAccount" >Delete Account</IonButton>
+        <div className='ion-button-container'>
+          <IonButton onClick={loadLogout} color="danger" mode='ios' shape="round" fill="outline" expand='full' id="logout" >Logout</IonButton>
+          <IonButton color="danger" mode='ios' shape="round" fill="outline" expand='full'  id="deleteAccount" >Delete Account</IonButton>
+        </div>
       </IonContent>
     </React.Fragment>
 

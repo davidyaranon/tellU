@@ -106,11 +106,20 @@ ion-tab-button {
 }
 
 .ion-img-container {
-    max-height: 45vh;
+    max-height: 25vh;
     max-width: 90vw;
     height: auto;
     width: auto;
 }
+
+.ion-button-container {
+    max-height: 25vh;
+    max-width: 90vw;
+    height: auto;
+    width: auto;
+    margin: 0 auto;
+}
+
 
 
 .password-reauthentication {

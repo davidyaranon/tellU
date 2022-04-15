@@ -106,9 +106,7 @@ const App: React.FunctionComponent = () => {
   const dispatch = useDispatch();
   const darkMode = localStorage.getItem("darkMode") || "false";
   useEffect(() => {
-    const loadUser = async () => {
-      await SplashScreen.hide();
-    }
+    SplashScreen.hide();
     if(darkMode == "false") {
       dispatch(setDarkMode(false));
     } else {
