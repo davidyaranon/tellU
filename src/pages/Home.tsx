@@ -1,9 +1,9 @@
 import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonCardTitle, IonCard, IonSlides, IonSlide,
-  IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, 
+  IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, IonAvatar,
   IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons } 
 from '@ionic/react';
 import React, { useRef, useCallback } from 'react';
-import { RefresherEventDetail } from '@ionic/core';
+import { RefresherEventDetail, setupConfig } from '@ionic/core';
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts, promiseTimeout } from '../fbconfig'
@@ -27,6 +27,8 @@ import { useHistory } from 'react-router';
 import '../theme/variables.css';
 import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer';
 import defaultMessages from '../components/funnies';
+import Avatar from 'react-avatar';
+import logo from '../images/pumpkinTest.jpg'
 
 export interface UserPhoto {
   filepath: string,
@@ -43,6 +45,7 @@ function Home() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showModalPicture, setShowModalPicture] = useState<boolean>(false);
   const [showModalComment, setShowModalComment] = useState<boolean>(false);
+  const [commentModalPhotoUrl, setCommentModalPhotoUrl] = useState("");
   const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
   const [commentModalPost, setCommentModalPost] = useState("");
   const [commentModalMessage, setCommentModalMessage] = useState("");
@@ -137,11 +140,11 @@ function Home() {
   }
 
   async function sendImage(blob: any, uniqueId : string) {
-    const res = await uploadImage(blob, uniqueId);
-    if(!res || photo == null || photo?.webPath == null) {
+    const res = await uploadImage("images", blob, uniqueId);
+    if(res == false || photo == null || photo?.webPath == null) {
       Toast.error("unable to select photo");
     } else {
-      Toast.success("photo uplaoded successfully");
+      Toast.success("photo uploaded successfully");
     }
   }
 
@@ -192,6 +195,7 @@ function Home() {
               imgSrc: res,
             });
           }
+          setCommentModalPhotoUrl(post.photoURL);
           setCommentModalMessage(post.message);
           setCommentModalUserName(post.userName);
           setComments(tempCommentsArr);
@@ -250,6 +254,7 @@ function Home() {
     if(!user) {
         history.replace("/landing-page");
     } else{
+      console.log(user);
       handleLoadPosts();
     }
   }, []);
@@ -258,9 +263,10 @@ function Home() {
     return (
       <React.Fragment>
         <IonContent >
+          
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
+        <br></br><br></br><br></br>
           <IonRefresherContent
-            pullingIcon={chevronDownCircleOutline}
             pullingText="Pull to refresh"
             refreshingSpinner="crescent"
             refreshingText="Refreshing...">
@@ -272,7 +278,7 @@ function Home() {
           <IonHeader class="ion-no-border" style={ionHeaderStyle}>
             <Header />
           </IonHeader> 
-                    
+                         
           <IonModal swipeToClose={true} backdropDismiss={false} isOpen={showModal} >
             <div className='ion-modal'>
               <IonTextarea color='secondary' maxlength={200} style={ionInputStyle} value={message} placeholder="Start typing..." id="message" onIonChange={(e: any) => { handleChange(e); }} ></IonTextarea>
@@ -330,8 +336,14 @@ function Home() {
                   <IonItem lines='none' >
                     <IonLabel class='ion-text-wrap'>
                       <IonText color='medium'>
-                      <p>{commentModalUserName}</p>
+                      <p>
+                        <IonAvatar> 
+                            <IonImg src={commentModalPhotoUrl}></IonImg>
+                        </IonAvatar> 
+                        {commentModalUserName}
+                      </p>
                       </IonText>
+                      <wbr></wbr>
                       <h2 className='h2-message'>{commentModalMessage}</h2>
                     </IonLabel>
                     <div className='verticalLineInOriginalMessage'></div>
@@ -346,8 +358,14 @@ function Home() {
                      <IonItem lines='none' >
                         <IonLabel class="ion-text-wrap">
                           <IonText color='medium'>
-                          <p> {comment.userName} </p>
+                          <p> 
+                            <IonAvatar> 
+                              <IonImg src={comment?.photoURL!}></IonImg>
+                            </IonAvatar> 
+                            {comment.userName} 
+                          </p>
                           </IonText>
+                          <wbr></wbr>
                           <h2 className='h2-message'> {comment.comment} </h2>
                           {comment.url.length > 0 ? (
                           <div className="ion-img-container">
@@ -386,13 +404,20 @@ function Home() {
               <IonItem lines='none' mode='ios' >
                 <IonLabel class="ion-text-wrap" onClick={(e) => {handleCommentModal(post, e)}}>
                   <IonText color='medium'>
-                    <p> {post.userName} </p>
-                  </IonText>          
-                  <h2 className='h2-message'> {post.message} </h2>
+                    <p> 
+                      <IonAvatar class='posts-avatar'> 
+                        <IonImg src={post?.photoURL!}>
+                        </IonImg>
+                      </IonAvatar> 
+                      {post.userName} 
+                    </p>
+                  </IonText> 
+                  <wbr></wbr>         
+                  <h2> {post.message} </h2>
                   {post.url.length > 0 ? (
                   <div className="ion-img-container">
                     <br></br>
-                    <IonImg onClick={() => {showPicture(post.imgSrc)}} src={post.imgSrc}/>
+                    <IonImg className='ion-img-style' onClick={() => {showPicture(post.imgSrc)}} src={post.imgSrc}/>
                   </div>
                   ) : null}
                 </IonLabel>

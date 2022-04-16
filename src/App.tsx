@@ -47,6 +47,7 @@ import { App as androidApp } from '@capacitor/app';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useDispatch } from "react-redux"
 import { setDarkMode} from './redux/actions';
+import { animationBuilder } from './components/animationBuilder';
 
 setupIonicReact();
 
@@ -70,7 +71,7 @@ const RoutingSystem: React.FunctionComponent = () => {
     <IonReactRouter>
       <IonPage id="app">
         <IonTabs>
-            <IonRouterOutlet>
+            <IonRouterOutlet animation={animationBuilder}>
               <Route path="/:tab(home)" exact={true}> <Home /> </Route>
               <Route path="/:tab(workshops)" component={Workshops} exact={true} />
               <Route path="/:tab(maps)" component={Maps} exact={true} />

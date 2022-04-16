@@ -10,6 +10,20 @@ ion-tab-button {
     --color-selected: #61DBFB;
 }
 
+.user-avatar {
+    height: 90px;
+    width: 90px;
+    display: inline-block;
+    margin: 20px;
+    border: 1px solid rgb(119, 119, 119);
+    overflow: hidden;  
+}
+
+.posts-avatar {
+    border: 1px solid rgb(119, 119, 119);
+    overflow: hidden;  
+}
+
 .verticalLine {
     height: 5vh;
     background: transparent;
@@ -19,7 +33,7 @@ ion-tab-button {
 .verticalLineInOriginalMessage {
     width:0.5%;
     height:5vh;
-    background:rgb(255, 0, 0);
+    background:#61DBFB;
     margin: 1vw;
 }
 
@@ -55,8 +69,21 @@ ion-tab-button {
     width: fit-content;
 }
 
+.ion-item-div {
+    display:flex;
+}
+
+.ion-item-p{
+    display:block;
+}
+
+.ion-avater-item {
+    padding: 20%;
+}
+
 .h2-message {
     white-space: pre-line;
+    font-weight: bold;
 }
 
 .navbar_label {
@@ -110,6 +137,25 @@ ion-tab-button {
     max-width: 90vw;
     height: auto;
     width: auto;
+    overflow: hidden;
+    border-radius: 5%;
+    text-align: center;
+    justify-content: center;
+}
+
+.ion-img-style {
+    overflow: hidden;
+    border-radius: 5%;
+}
+
+.x-check-buttons {
+    padding-left: 10vw;
+}
+
+.list-avatar{
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
 .ion-button-container {

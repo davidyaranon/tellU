@@ -25,14 +25,16 @@ function timeout(delay) {
   return new Promise( res => setTimeout(res, delay) );
 }
 
-export async function uploadImage(blob, url) {
+export async function uploadImage(location, blob, url) {
   try {
     const currentUserUid = auth.currentUser.uid;
-    const storageRef = ref(storage, "images/" + auth.currentUser.uid.toString() + url);
+    const storageRef = ref(storage, location + "/" + currentUserUid.toString() + url);
     const res = await uploadBytes(storageRef, blob).then((snapshot) => {
-      // console.log('uploaded file somehow lol');
+      return true;
+    }).catch((err) => {
+      console.log(err);
+      return false;
     });
-    return true;
   } catch(err) {
     console.log(err.message);
     return false;
@@ -54,7 +56,8 @@ export async function registerWithEmailAndPassword (name, email, password, schoo
       if(res) {
         const user = res.user;
         await updateProfile(user, {
-          'displayName': name
+          'displayName': name,
+          'photoURL' : 'https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd',
         })
         try {
           await setDoc(doc(db, "userData", user.uid.toString()), {
@@ -155,6 +158,7 @@ export const addMessage = async (mess, blob, id) => {
           upVotes: 0,
           downVotes: 0,
           comments: [],
+          photoURL: auth.currentUser.photoURL,
         });
         return 'true';
       }
