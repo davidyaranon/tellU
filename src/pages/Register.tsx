@@ -1,11 +1,12 @@
 import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons, IonCard, IonItemDivider,
 IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal, IonToolbar, IonTitle } from '@ionic/react';
 import React, { useEffect, useState  } from 'react';
-import { auth, registerWithEmailAndPassword, checkUsernameUniqueness } from '../fbconfig'
+import { auth, registerWithEmailAndPassword, checkUsernameUniqueness, db } from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link } from "react-router-dom";
 import Header from "./Header"
 import '../App.css'
+import { doc, getDoc } from "firebase/firestore";
 import { useHistory } from 'react-router';
 import UIContext from '../my-context'
 import { useToast } from "@agney/ir-toast";
@@ -65,7 +66,7 @@ const Register: React.FC = () => {
                 if ( (typeof(res) === 'string') ) {
                     Toast.error(res);
                 } else {
-                    dispatch(setUserState(res!.user.displayName, res!.user.email, false));
+                    dispatch(setUserState(res!.user.displayName, res!.user.email, false, schoolName));
                     Toast.success("Registered Successfully");
                 }
             } 
@@ -75,8 +76,21 @@ const Register: React.FC = () => {
     useEffect(() => {
         setBusy(true);
         if(user) {
-            dispatch(setUserState(user.displayName, user.email, false));
-            history.replace("/home");
+            let school = "";
+            const userRef = doc(db, "userData", user.uid);
+            getDoc(userRef).then((userSnap) => {
+              if(userSnap.exists()) {
+                school = userSnap.data().school;
+              }
+              dispatch(setUserState(user.displayName, user.email, false, school));
+              setBusy(false);
+              history.replace("/home");
+            }).catch((err) => {
+              console.log(err);
+              dispatch(setUserState(user.displayName, user.email, false, ""));
+              setBusy(false);
+              history.replace("/home");
+            });
         }
         setShowTabs(false);
         setBusy(false);

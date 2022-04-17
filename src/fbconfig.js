@@ -134,7 +134,11 @@ export const addComment = async (comment) => {
   }
 }
 
-export const addMessage = async (mess, blob, id) => {
+export const addMarker = async (lat, long) => {
+
+}
+
+export const addMessage = async (mess, blob, id, pos, school) => {
   try {
     if(auth.currentUser != null) {
       if(auth.currentUser.uid != null) {
@@ -142,6 +146,21 @@ export const addMessage = async (mess, blob, id) => {
         const userListOfPosts = doc(db, "userData", auth.currentUser.uid);
         const snap = await getDoc(userListOfPosts);
         var url = "";
+        let lat = 0;
+        let long = 0;
+        if(pos) {
+          lat = pos.coords.latitude;
+          long = pos.coords.longitude;
+          await addDoc(collection(db, "mapMarkers"), {
+            userName: name,
+            timestamp: serverTimestamp(), 
+            message: mess, 
+            url: url,
+            uid: auth.currentUser.uid,
+            location: [lat, long],
+            school: school
+          });
+        }
         if(blob) { 
           url = 'images/' + auth.currentUser.uid.toString() + id;
         }
@@ -159,6 +178,7 @@ export const addMessage = async (mess, blob, id) => {
           downVotes: 0,
           comments: [],
           photoURL: auth.currentUser.photoURL,
+          location: [lat, long],
         });
         return 'true';
       }

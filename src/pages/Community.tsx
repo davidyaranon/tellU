@@ -1,4 +1,7 @@
-import { IonHeader, IonLoading, IonContent } from '@ionic/react';
+import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonCardTitle, IonCard, IonSlides, IonSlide,
+  IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, IonAvatar,
+  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonSearchbar } 
+from '@ionic/react';
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from '../fbconfig'
@@ -6,21 +9,12 @@ import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import { useHistory } from 'react-router';
 
-function Workshops() {
+function Community() {
   const [user, loading, error] = useAuthState(auth);
   const [busy, setBusy] = useState<boolean>(false);
+  const [searchText, setSearchText] = useState<string>("");
   const history = useHistory();
-  const fetchUserName = async () => {
-    try {
-      // const q = query(collection(db, "users"), where("uid", "==", user?.uid));
-      // const doc = await getDocs(q);
-      // const data = doc.docs[0].data();
-      // setName(data.name);
-    } catch (err) {
-      console.error(err);
-      alert("An error occured while fetching user data");
-    }
-  };
+
   useEffect(() => {
     setBusy(true);
     if(!user) {
@@ -30,19 +24,22 @@ function Workshops() {
     {
         setBusy(false);
     }
-    fetchUserName();
   }, [user, loading]);
   return (
     <React.Fragment>
       <IonContent>
         <IonHeader class="ion-no-border" style={ionHeaderStyle}>
-            <Header />
+            <IonToolbar style={{marginTop: "5%"}} mode='ios'>
+            <IonSearchbar mode='ios' placeholder='Search for posts/users' inputMode='search' value={searchText} onIonChange={e => setSearchText(e.detail.value!)}></IonSearchbar>
+            </IonToolbar>
           </IonHeader>
         <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
-        <p> TAB 2 = WORKSHOPS </p>
+
+
+
       </IonContent>
     </React.Fragment>
   );
 }
 
-export default React.memo(Workshops);
+export default React.memo(Community);

@@ -1,7 +1,8 @@
 import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonItem, IonLabel, IonList } from '@ionic/react';
 import React, { useEffect, useState  } from 'react';
-import { auth, logInWithEmailAndPassword} from '../fbconfig'
+import { auth, logInWithEmailAndPassword, db} from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import Header from "./Header"
 import '../App.css'
@@ -30,8 +31,18 @@ const LandingPage: React.FC = () => {
             const res = await logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn);
             if (!res) {Toast.error("Invalid email/password!");}
             else { 
-                dispatch(setUserState(res.user.displayName, res.user.email, false));
-                Toast.success("Logged In!"); 
+                let school = "";
+                const userRef = doc(db, "userData", res.user.uid);
+                getDoc(userRef).then((userSnap) => {
+                  if(userSnap.exists()) {
+                    school = userSnap.data().school;
+                  }
+                  dispatch(setUserState(res.user.displayName, res.user.email, false, school));
+                  Toast.success("Logged In!"); 
+                }).catch((err) => {
+                  console.log(err);
+                  dispatch(setUserState(res.user.displayName, res.user.email, false, ""));
+                });
             }
         }
         setBusy(false);
@@ -40,12 +51,22 @@ const LandingPage: React.FC = () => {
     useEffect(() => {
         setBusy(true);
         if(user) {
-            dispatch(setUserState(user.displayName, user.email, false));
-            history.replace("/home");
-            setBusy(false);
-        }
-        else
-        {
+            let school = "";
+            const userRef = doc(db, "userData", user.uid);
+            getDoc(userRef).then((userSnap) => {
+              if(userSnap.exists()) {
+                school = userSnap.data().school;
+              }
+              dispatch(setUserState(user.displayName, user.email, false, school));
+              setBusy(false);
+              history.replace("/home");
+            }).catch((err) => {
+              console.log(err);
+              dispatch(setUserState(user.displayName, user.email, false, ""));
+              setBusy(false);
+              history.replace("/home");
+            });
+        } else {
             setBusy(false);
         }
         setShowTabs(false);

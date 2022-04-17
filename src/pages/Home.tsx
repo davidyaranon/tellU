@@ -1,16 +1,18 @@
 import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonCardTitle, IonCard, IonSlides, IonSlide,
-  IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, IonAvatar,
-  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons } 
+  IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, IonAvatar, IonCheckbox,
+  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonRow, IonCol } 
 from '@ionic/react';
 import React, { useRef, useCallback } from 'react';
 import { RefresherEventDetail, setupConfig } from '@ionic/core';
+import { Geolocation, Geoposition } from '@awesome-cordova-plugins/geolocation';
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts, promiseTimeout } from '../fbconfig'
 import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
+import IconButton from '@mui/material/IconButton';
 import { useToast } from "@agney/ir-toast";
-import { add, cameraOutline, chatbubblesOutline } from 'ionicons/icons';
+import { add, cameraOutline, chatbubblesOutline, locationOutline } from 'ionicons/icons';
 import SignalWifiOff from '@mui/icons-material/SignalWifiOff';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -38,8 +40,10 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
+  const schoolName = useSelector( (state: any) => state.user.school);
   const hasLoaded = useSelector( (state: any) => state.user.hasLoaded);
   const [busy, setBusy] = useState<boolean>(false);
+  const [gettingLocation, setGettingLocation] = useState<boolean>(false);
   const [photo, setPhoto] = useState<Photo | null>();
   const Toast = useToast();
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -64,6 +68,7 @@ function Home() {
   const history = useHistory();
   const min = 0;
   const max = defaultMessages.length - 1;
+  const [position, setPosition] = useState<Geoposition>();
   const [loadingMessage, setLoadingMessage] = useState("");
   const ionInputStyle = {
     height: "10vh",
@@ -102,6 +107,22 @@ function Home() {
     commentAdd();
   }
 
+  const getLocation = async () => {
+    setGettingLocation(true);
+    try {
+        const position = await Geolocation.getCurrentPosition();
+        setPosition(position);
+        setGettingLocation(false);
+    } catch (e : any) {
+        Toast.error(e.message.toString());
+        setGettingLocation(false);
+    }
+  }
+
+  const addLocation = () => {
+    getLocation();
+  }
+
   const handleLoadPosts = () => {
     setBusy(true);
     let tempPosts = promiseTimeout(20000, getAllPosts());
@@ -111,7 +132,9 @@ function Home() {
       } else {
         Toast.error("Unable to load posts");
       }
-      setBusy(false);
+      timeout(2500).then(() => {
+        setBusy(false);
+      });
     });
     tempPosts.catch((err : any) => {
       Toast.error(err);
@@ -229,7 +252,7 @@ function Home() {
         setBlob(null);
         setPhoto(null);
       }
-      const res = await addMessage(message.trim(), blob, uniqueId.toString());
+      const res = await addMessage(message.trim(), blob, uniqueId.toString(), position, schoolName);
       if(res == 'false') {
         Toast.error("Unable to process message :(");
       } else {
@@ -275,19 +298,35 @@ function Home() {
 
         <IonLoading spinner='dots' message={loadingMessage} duration={0} isOpen={busy}></IonLoading>
 
+        <IonLoading spinner='dots' message="Getting Location..." duration={0} isOpen={gettingLocation}></IonLoading>
+
+
           <IonHeader class="ion-no-border" style={ionHeaderStyle}>
             <Header />
           </IonHeader> 
                          
-          <IonModal swipeToClose={true} backdropDismiss={false} isOpen={showModal} >
+          <IonModal backdropDismiss={false} isOpen={showModal} >
             <div className='ion-modal'>
               <IonTextarea color='secondary' maxlength={200} style={ionInputStyle} value={message} placeholder="Start typing..." id="message" onIonChange={(e: any) => { handleChange(e); }} ></IonTextarea>
               <IonFab class='ion-fab' horizontal='start'>
-                <IonFabButton onClick={takePicture} mode='ios' color='medium'>
-                  <IonIcon icon={cameraOutline} />
-                </IonFabButton>
+                <IonRow>
+                  <IonCol>
+                    <IconButton onClick={takePicture} >
+                      <IonFabButton mode='ios' color='medium'>
+                        <IonIcon icon={cameraOutline} />
+                      </IonFabButton>
+                    </IconButton>
+                  </IonCol>
+                  <IonCol>
+                    <IconButton onClick={addLocation}>
+                      <IonFabButton  mode='ios' color='medium'>
+                       <IonIcon icon={locationOutline} />
+                      </IonFabButton>
+                    </IconButton>
+                  </IonCol>
+                </IonRow>
               </IonFab>
-              <IonFab horizontal="end">
+              <IonFab style={{top: "15.7vh"}} horizontal="end">
                 <IonButton onClick={() => { setShowModal(false); setPhoto(null); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" > Close </IonButton>
                 <IonButton onClick={() => { handleSendMessage(); }} color="transparent" mode='ios' shape="round" fill="outline" id="message" >Send</IonButton>
               </IonFab>
@@ -337,7 +376,7 @@ function Home() {
                     <IonLabel class='ion-text-wrap'>
                       <IonText color='medium'>
                       <p>
-                        <IonAvatar> 
+                        <IonAvatar class='posts-avatar'> 
                             <IonImg src={commentModalPhotoUrl}></IonImg>
                         </IonAvatar> 
                         {commentModalUserName}
@@ -359,7 +398,7 @@ function Home() {
                         <IonLabel class="ion-text-wrap">
                           <IonText color='medium'>
                           <p> 
-                            <IonAvatar> 
+                            <IonAvatar class='posts-avatar'> 
                               <IonImg src={comment?.photoURL!}></IonImg>
                             </IonAvatar> 
                             {comment.userName} 
@@ -488,7 +527,7 @@ function Home() {
     );
   }
   else {
-    return( <IonLoading spinner='dots' message={loadingMessage} duration={0} isOpen={busy}></IonLoading> 
+    return( <IonLoading spinner='dots' duration={0} isOpen={busy}></IonLoading> 
     );
   }
 }

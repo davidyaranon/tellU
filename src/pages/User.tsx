@@ -157,33 +157,43 @@ import { IonHeader, IonContent, IonLoading, IonButton, IonInput, IonFab, IonText
         setPasswordReAuth("");
       } else {
         if(user && user.displayName) {
-          const usernameChange = promiseTimeout(20000, updateProfile(user, {
-            displayName: editableUsername
-          }));
-          usernameChange.then(() => {
-            if(user && user.uid) {
-              const userDataRef = doc(db, "userData", user.uid);
-              const usernameDocChange = promiseTimeout(20000, updateDoc(userDataRef, {
-                userName: editableUsername
-              }));
-              usernameDocChange.then(() => {
-                Toast.success("Updated username");
-                setCredentialsUserModal(false);
-                setBusy(false);
-              });
-              usernameDocChange.catch((err : any) => {
-                Toast.error(err);
-                setEditableUsername(username);
-                setBusy(false);
-              });
-            } else {
-              Toast.error("Unable to update username");
-            }
-          });
-          usernameChange.catch((err : any) => {
-            Toast.error(err);
-            setEditableUsername(username);
+          const credentials = EmailAuthProvider.credential(
+            user.email!,
+            passwordReAuth
+          );
+          reauthenticateWithCredential(user, credentials).then(() => {
+            const usernameChange = promiseTimeout(20000, updateProfile(user, {
+              displayName: editableUsername
+            }));
+            usernameChange.then(() => {
+              if(user && user.uid) {
+                const userDataRef = doc(db, "userData", user.uid);
+                const usernameDocChange = promiseTimeout(20000, updateDoc(userDataRef, {
+                  userName: editableUsername
+                }));
+                usernameDocChange.then(() => {
+                  Toast.success("Updated username");
+                  setCredentialsUserModal(false);
+                  setBusy(false);
+                });
+                usernameDocChange.catch((err : any) => {
+                  Toast.error(err);
+                  setEditableUsername(username);
+                  setBusy(false);
+                });
+              } else {
+                Toast.error("Unable to update username");
+              }
+            });
+            usernameChange.catch((err : any) => {
+              Toast.error(err);
+              setEditableUsername(username);
+              setBusy(false);
+            });
+          }).catch((err) => {
+            Toast.error(err.message.toString());
             setBusy(false);
+            setEditableUsername(username);
           });
         } else {
           Toast.error("user not defined");

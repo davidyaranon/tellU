@@ -26,7 +26,7 @@ import './theme/variables.css';
 import './App.css'
 
 import Home from './pages/Home';
-import Workshops from './pages/Workshops';
+import Community from './pages/Community';
 import Maps from './pages/Maps';
 import User from './pages/User';
 import LandingPage from './pages/LandingPage';
@@ -42,6 +42,7 @@ import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import GroupsIcon from '@mui/icons-material/Groups';
 import MapIcon from '@mui/icons-material/Map';
 import { db, getCurrentUser, auth, getAllPosts } from './fbconfig';
+import { doc, getDoc } from "firebase/firestore";
 import { setUserState } from './redux/actions';
 import { App as androidApp } from '@capacitor/app';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
@@ -73,7 +74,7 @@ const RoutingSystem: React.FunctionComponent = () => {
         <IonTabs>
             <IonRouterOutlet animation={animationBuilder}>
               <Route path="/:tab(home)" exact={true}> <Home /> </Route>
-              <Route path="/:tab(workshops)" component={Workshops} exact={true} />
+              <Route path="/:tab(Community)" component={Community} exact={true} />
               <Route path="/:tab(maps)" component={Maps} exact={true} />
               <Route path="/:tab(user)" exact={true} > <User/> </Route>
               <Route path="/landing-page" exact={true}> <LandingPage /> </Route>
@@ -85,7 +86,7 @@ const RoutingSystem: React.FunctionComponent = () => {
               <IonTabButton tab="home" href="/home">
                 <HomeTwoToneIcon fontSize="large" style={{fontSize: '4.10vh'}}/>
               </IonTabButton>
-              <IonTabButton tab="workshops" href="/workshops">
+              <IonTabButton tab="community" href="/community">
                 <GroupsIcon fontSize="large" style={{fontSize: '4.10vh'}} />
               </IonTabButton>
               <IonTabButton tab="maps" href="/maps">
@@ -116,14 +117,25 @@ const App: React.FunctionComponent = () => {
     }
     getCurrentUser().then( (user : any)  => {
       if(user) {
-        dispatch(setUserState(user.displayName, user.email, false));
-        setBusy(false);
-        window.history.replaceState({}, "", "/home");
+        let school = "";
+        const userRef = doc(db, "userData", user.uid);
+        getDoc(userRef).then((userSnap) => {
+          if(userSnap.exists()) {
+            school = userSnap.data().school;
+          }
+          dispatch(setUserState(user.displayName, user.email, false, school));
+          setBusy(false);
+          window.history.replaceState({}, "", "/home");
+        }).catch((err) => {
+          console.log(err);
+          dispatch(setUserState(user.displayName, user.email, false, ""));
+          setBusy(false);
+          window.history.replaceState({}, "", "/home");
+        });
       } else {
         setBusy(false);
         window.history.replaceState({}, "", "/landing-page");
       }
-      setBusy(false);
     });
   }, [])
     return(
