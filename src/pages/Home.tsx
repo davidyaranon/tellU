@@ -1,6 +1,6 @@
-import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonCardTitle, IonCard, IonSlides, IonSlide,
+import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonCardTitle, IonCard, IonSlides, IonSlide, IonItemDivider,
   IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, IonAvatar, IonCheckbox,
-  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonRow, IonCol } 
+  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonRow, IonCol, IonListHeader } 
 from '@ionic/react';
 import React, { useRef, useCallback } from 'react';
 import { RefresherEventDetail, setupConfig } from '@ionic/core';
@@ -63,12 +63,20 @@ function Home() {
   const [comments, setComments] = useState<any[] | null>(null);
   const [message, setMessage] = useState("");
   const [comment, setComment] = useState("");
+  const [generalChecked, setGeneralChecked] = useState<boolean>(true);
+  const [locationChecked, setLocationChecked] = useState<boolean>(false);
+  const [buySellChecked, setBuySellChecked] = useState<boolean>(false);
+  const [alertChecked, setAlertChecked] = useState<boolean>(false);
+  const [sightingChecked, setSightingChecked] = useState<boolean>(false);
+  const [eventsChecked, setEventsChecked] = useState<boolean>(false);
+  const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
+  const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [commentModalUserName, setCommentModalUserName] = useState("");
   const [user] = useAuthState(auth);
   const history = useHistory();
   const min = 0;
   const max = defaultMessages.length - 1;
-  const [position, setPosition] = useState<Geoposition>();
+  const [position, setPosition] = useState<Geoposition | null>();
   const [loadingMessage, setLoadingMessage] = useState("");
   const ionInputStyle = {
     height: "10vh",
@@ -98,29 +106,91 @@ function Home() {
     setComment(currComment);
   }
 
-  const handleSendMessage = () => {
+  const handlePostOptions = () => {
+    setLocationPinModal(true);
+  }
+
+  const handleSendMessage = async () =>{
+    setLocationPinModal(false);
     setShowModal(false); 
     messageAdd();
+    setGeneralChecked(true);
   }
 
   const handleSendComment = () => {
     commentAdd();
   }
 
+  const getColor = (postType : string) => {
+    switch (postType) {
+      case "general":
+        return "#61DBFB";
+      case "alert":
+        return "#ff3e3e";
+      case "buy/Sell":
+        return "#179b59";
+      case "event":
+        return "#fc4ad3";
+      case "sighting":
+        return "#3344ff";
+      default:
+        break;
+    }
+  }
+
+  const handleCheckboxChange = (checkbox : string) => {
+    switch (checkbox) {
+      case "general":
+        setAlertChecked(false);
+        setBuySellChecked(false);
+        setEventsChecked(false);
+        setSightingChecked(false);
+        break;
+      case "alert":
+        setGeneralChecked(false);
+        setBuySellChecked(false);
+        setEventsChecked(false);
+        setSightingChecked(false);
+        break;
+      case "buySell":
+        setAlertChecked(false);
+        setGeneralChecked(false);
+        setEventsChecked(false);
+        setSightingChecked(false);
+        break;
+      case "event":
+        setAlertChecked(false);
+        setBuySellChecked(false);
+        setGeneralChecked(false);
+        setSightingChecked(false);
+        break;
+      case "sighting":
+        setAlertChecked(false);
+        setBuySellChecked(false);
+        setEventsChecked(false);
+        setGeneralChecked(false);
+        break;
+      default:
+        break;
+    }
+  }
+
+  const locationOptions = {
+    enableHighAccuracy : true,
+    timeout: 5000,
+  }
+
   const getLocation = async () => {
     setGettingLocation(true);
     try {
-        const position = await Geolocation.getCurrentPosition();
-        setPosition(position);
+        const pos = await Geolocation.getCurrentPosition(locationOptions);
+        setPosition(pos);
+        console.log(pos.coords);
         setGettingLocation(false);
     } catch (e : any) {
         Toast.error(e.message.toString());
         setGettingLocation(false);
     }
-  }
-
-  const addLocation = () => {
-    getLocation();
   }
 
   const handleLoadPosts = () => {
@@ -242,8 +312,11 @@ function Home() {
   }
 
   async function messageAdd() {
+
     if(message.trim().length == 0 && !blob) {
       Toast.error("Input a message!");
+    } else if(!eventsChecked && !buySellChecked && !alertChecked && !sightingChecked && !generalChecked){
+      Toast.error("Select a post type");
     } else {
       setBusy(true);
       let uniqueId = uuidv4();
@@ -252,18 +325,17 @@ function Home() {
         setBlob(null);
         setPhoto(null);
       }
-      const res = await addMessage(message.trim(), blob, uniqueId.toString(), position, schoolName);
+      const res = await addMessage(message.trim(), blob, uniqueId.toString(), position, schoolName, checkboxSelection);
       if(res == 'false') {
         Toast.error("Unable to process message :(");
       } else {
         Toast.success("Uploaded!");
         setMessageSent(true);
+        setMessage("");
         handleLoadPosts();
       }
-      setShowModal(false);
       setBusy(false);
     }
-    setMessage("");
   }
 
   const loadLoadingMessage = () => {
@@ -304,11 +376,58 @@ function Home() {
           <IonHeader class="ion-no-border" style={ionHeaderStyle}>
             <Header />
           </IonHeader> 
+
+          <IonModal showBackdrop={true} isOpen={locationPinModal} onDidDismiss={() => {setLocationPinModal(false); handleCheckboxChange("general"); }} breakpoints={[0,0.75]} initialBreakpoint={0.75} backdropBreakpoint={0.2} >
+              <IonContent>
+                  <IonHeader translucent>
+                      <IonToolbar mode='ios'>
+                          <IonTitle>Post</IonTitle>
+                          <IonButtons slot='end'>
+                              <IonButton mode='ios' onClick={() => {setLocationPinModal(false)}}>Close</IonButton>
+                          </IonButtons>
+                      </IonToolbar>
+                  </IonHeader>
+                  <br></br>
+                <IonList inset={true} mode='ios'>
+                <IonListHeader>Post Type</IonListHeader>
+                <IonItem lines='none' mode='ios' >
+                  <IonLabel>General</IonLabel>
+                  <IonCheckbox id='generalCheckbox' checked={generalChecked} slot='start' onIonChange={(e) => {handleCheckboxChange("general"); setGeneralChecked(e.detail.checked); if(e.detail.checked) setCheckboxSelection("general"); }}></IonCheckbox>
+                </IonItem>
+                <IonItem lines='none' mode='ios'>
+                  <IonLabel>Alert</IonLabel>
+                  <IonCheckbox id='alertCheckbox' checked={alertChecked} slot='start' onIonChange={(e) => {handleCheckboxChange("alert"); setAlertChecked(e.detail.checked); if(e.detail.checked) setCheckboxSelection("alert");}}></IonCheckbox>
+                </IonItem>
+                <IonItem lines='none' mode='ios'>
+                  <IonLabel>Buy/Sell</IonLabel>
+                  <IonCheckbox id='buySellCheckbox' checked={buySellChecked} slot='start' onIonChange={(e) => { handleCheckboxChange("buySell"); setBuySellChecked(e.detail.checked); if(e.detail.checked) setCheckboxSelection("buy/Sell");}}></IonCheckbox>
+                </IonItem>
+                <IonItem lines='none' mode='ios'>
+                  <IonLabel>Sighting</IonLabel>
+                  <IonCheckbox id='sightingCheckbox' checked={sightingChecked} slot='start' onIonChange={(e) => {handleCheckboxChange("sighting"); setSightingChecked(e.detail.checked); if(e.detail.checked) setCheckboxSelection("sighting");}}></IonCheckbox>
+                </IonItem>
+                <IonItem lines='none' mode='ios'>
+                  <IonLabel>Event</IonLabel>
+                  <IonCheckbox id='eventCheckbox' checked={eventsChecked} slot='start' onIonChange={(e) => {handleCheckboxChange("event"); setEventsChecked(e.detail.checked); if(e.detail.checked) setCheckboxSelection("event");}}></IonCheckbox>
+                </IonItem>
+              </IonList>
+              <IonList inset={true} mode='ios'>
+                <IonItem mode='ios' lines='none'>
+                  <IonLabel> Add pin to map?* </IonLabel>
+                  <IonCheckbox slot='start' checked={locationChecked} onIonChange={e => { setLocationChecked(e.detail.checked); if(e.detail.checked) getLocation(); else setPosition(null); }} />
+                </IonItem>
+              </IonList>
+              <div className='ion-button-container'>
+                <p> *Adding a pin uses your current location</p>
+                <IonButton onClick={() => { handleSendMessage(); }} expand='full' color="transparent" mode='ios' shape="round" fill="outline" id="message" >Send</IonButton>
+              </div>
+              </IonContent>
+            </IonModal>
+
                          
           <IonModal backdropDismiss={false} isOpen={showModal} >
             <div className='ion-modal'>
               <IonTextarea color='secondary' maxlength={200} style={ionInputStyle} value={message} placeholder="Start typing..." id="message" onIonChange={(e: any) => { handleChange(e); }} ></IonTextarea>
-              <IonFab class='ion-fab' horizontal='start'>
                 <IonRow>
                   <IonCol>
                     <IconButton onClick={takePicture} >
@@ -317,20 +436,12 @@ function Home() {
                       </IonFabButton>
                     </IconButton>
                   </IonCol>
-                  <IonCol>
-                    <IconButton onClick={addLocation}>
-                      <IonFabButton  mode='ios' color='medium'>
-                       <IonIcon icon={locationOutline} />
-                      </IonFabButton>
-                    </IconButton>
-                  </IonCol>
                 </IonRow>
+                <IonFab style={{top: "15.7vh"}} horizontal="end">
+                <IonButton onClick={() => { setPhoto(null); setBlob(null); setShowModal(false); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" > Close </IonButton>
+                <IonButton onClick={() => { handlePostOptions(); }} color="transparent" mode='ios' shape="round" fill="outline" id="message" >Send</IonButton>
               </IonFab>
-              <IonFab style={{top: "15.7vh"}} horizontal="end">
-                <IonButton onClick={() => { setShowModal(false); setPhoto(null); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" > Close </IonButton>
-                <IonButton onClick={() => { handleSendMessage(); }} color="transparent" mode='ios' shape="round" fill="outline" id="message" >Send</IonButton>
-              </IonFab>
-              <br></br><br></br><br></br>
+                <br></br><br></br><br></br>
               <IonCard>
                 <IonImg src={photo?.webPath} />
               </IonCard>
@@ -358,7 +469,6 @@ function Home() {
                     </div>
                   </IonSlide>
                 </IonSlides>
-                {/* <IonButton onClick={() => { setShowModalPicture(false);}}  color="danger" mode='ios' shape="round" fill="outline" id="close" >X</IonButton> */}
               </IonCard>
           </IonModal>
 
@@ -443,13 +553,26 @@ function Home() {
               <IonItem lines='none' mode='ios' >
                 <IonLabel class="ion-text-wrap" onClick={(e) => {handleCommentModal(post, e)}}>
                   <IonText color='medium'>
-                    <p> 
-                      <IonAvatar class='posts-avatar'> 
-                        <IonImg src={post?.photoURL!}>
-                        </IonImg>
-                      </IonAvatar> 
-                      {post.userName} 
-                    </p>
+                    <IonRow>
+                      <IonCol size='6'>
+                        <p> 
+                          <IonAvatar class='posts-avatar'> 
+                            <IonImg src={post?.photoURL!}>
+                            </IonImg>
+                          </IonAvatar> 
+                          {post.userName} 
+                        </p>
+                      </IonCol>
+                      <IonCol >
+                        {post.postType ? 
+                        (
+                          <IonFab horizontal='end'>
+                            <p style={{fontWeight:"bold", color:getColor(post.postType)}}>{post.postType.toUpperCase()}</p>
+                          </IonFab>
+                        ) 
+                        : (null) }
+                      </IonCol>
+                    </IonRow>
                   </IonText> 
                   <wbr></wbr>         
                   <h2> {post.message} </h2>

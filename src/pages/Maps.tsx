@@ -2,16 +2,18 @@ import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteSc
   IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, IonAvatar,
   IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonSearchbar } 
 from '@ionic/react';
+import { schoolOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from "react";
 import { auth, db } from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
-import { doc, getDoc, collection, query, where, getDocs, } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { serverTimestamp } from '@firebase/firestore'
 import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import { useHistory } from 'react-router';
 import { useSelector } from 'react-redux';
 import { Map, Marker, ZoomControl } from "pigeon-maps"
+import { IconButton } from '@mui/material';
 import { string } from 'prop-types';
 
 const schoolInfo = {
@@ -37,36 +39,65 @@ function Maps() {
   const [searchText, setSearchText] = useState<string>("");
   const [center, setCenter] = useState<[number, number]>([37.250458, -120.350249]);
   const [zoom, setZoom] = useState(6);
+  const [defaultLat, setDefaultLat] = useState(0);
+  const [defaultLong, setDefaultLong] = useState(0);
+  const [defaultZoom, setDefaultZoom] = useState(0);
   const [markers, setMarkers] = useState<any[] | null>(null);
   const history = useHistory();
+  const getMarkerColor = (postType : string) => {
+    switch (postType) {
+      case "general":
+        return "#61DBFB";
+      case "alert":
+        return "#ff3e3e";
+      case "buy/Sell":
+        return "#179b59";
+      case "event":
+        return "#fc4ad3";
+      case "sighting":
+        return "#3344ff";
+      default:
+        break;
+    }
+  }
   const getSchoolLocation = () => {
     if(schoolInfo[schoolName as keyof typeof schoolInfo] !== undefined) {
       const latitude = schoolInfo[schoolName as keyof typeof schoolInfo][0];
       const longitude = schoolInfo[schoolName as keyof typeof schoolInfo][1];
       const schoolZoom = schoolInfo[schoolName as keyof typeof schoolInfo][2];
+      setDefaultLat(latitude);
+      setDefaultLong(longitude);
       setCenter([latitude, longitude]);
       setZoom(schoolZoom);
+      setDefaultZoom(schoolZoom);
     }
   }
   const getMapMarkers = async () => {
     setBusy(true);
     const markersRef = collection(db, "mapMarkers");
-    const todayTwelveAm = new Date();
-    todayTwelveAm.setHours(0,0,0,0);
-    const todayTwelvePm = new Date();
-    todayTwelvePm.setHours(24,0,0,0);
-    console.log(todayTwelveAm);
-    console.log(todayTwelvePm);
-    const q = query(markersRef, where("school", "==", schoolName), where("timestamp", ">", todayTwelveAm), where("timestamp", "<", todayTwelvePm));
+    const yesterday = new Date();
+    yesterday.setHours(0,0,0,0);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const tomorrow = new Date();
+    tomorrow.setHours(24,0,0,0);
+    tomorrow.setDate(yesterday.getDate() + 2);
+    console.log(yesterday);
+    console.log(tomorrow);
+    const q = query(markersRef, where("school", "==", schoolName), where("timestamp", ">", yesterday), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"), limit(50));
     const querySnapshot = await getDocs(q);
     const tempMarkers : any[] = [];
     querySnapshot.forEach((doc) => {
+      console.log(doc.data());
       tempMarkers.push({
         data: doc.data(),
       })
     });
     setMarkers(tempMarkers);
     setBusy(false);
+  }
+  const setDefaultCenter = () => {
+    setCenter([defaultLat, defaultLong]);
+    setZoom(defaultZoom);
   }
   useEffect(() => {
     setBusy(true);
@@ -93,9 +124,16 @@ function Maps() {
 
         <Map center={center} zoom={zoom} onBoundsChanged={({ center, zoom }) => { setCenter(center); setZoom(zoom); }}>
           <ZoomControl style={{top : "85vh"}} />
+          <IonFab style={{bottom: "3vh"}} class='ion-fab' horizontal='end' vertical='bottom'>
+            <IonFabButton color='light' mode='ios'>
+              <IconButton onClick={setDefaultCenter}>
+                <IonIcon color='' icon={schoolOutline} />
+              </IconButton>
+            </IonFabButton>
+          </IonFab>
           {markers ? (
             markers.map((marker, index) =>{
-              return <Marker color='red' key={index} anchor={[marker.data.location[0], marker.data.location[1]]} width={50} />
+              return <Marker color={getMarkerColor(marker.data.postType)} key={index} anchor={[marker.data.location[0], marker.data.location[1]]} width={50} />
             })
           ) : (null)}
         </Map>

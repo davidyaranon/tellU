@@ -10,6 +10,32 @@ ion-tab-button {
     --color-selected: #61DBFB;
 }
 
+ion-checkbox {
+    --background: #ffffff;
+}
+
+#generalCheckbox {
+    --background-checked: #61DBFB;
+    --border-color-checked: #FFFFFF;
+}
+#alertCheckbox {
+    --background-checked: #ff3e3e;
+    --border-color-checked: #FFFFFF;
+}
+#buySellCheckbox {
+    --background-checked: #179b59;
+    --border-color-checked: #FFFFFF;
+}
+#sightingCheckbox {
+    --background-checked: #3344ff;
+    --border-color-checked: #FFFFFF;
+}
+#eventCheckbox {
+    --background-checked: #fc4ad3;
+    --border-color-checked: #FFFFFF;
+}
+
+
 .overlaySearch {
 
 	position: absolute;

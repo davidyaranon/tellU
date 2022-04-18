@@ -138,7 +138,7 @@ export const addMarker = async (lat, long) => {
 
 }
 
-export const addMessage = async (mess, blob, id, pos, school) => {
+export const addMessage = async (mess, blob, id, pos, school, postType="general") => {
   try {
     if(auth.currentUser != null) {
       if(auth.currentUser.uid != null) {
@@ -149,6 +149,7 @@ export const addMessage = async (mess, blob, id, pos, school) => {
         let lat = 0;
         let long = 0;
         if(pos) {
+          console.log('location given');
           lat = pos.coords.latitude;
           long = pos.coords.longitude;
           await addDoc(collection(db, "mapMarkers"), {
@@ -158,14 +159,15 @@ export const addMessage = async (mess, blob, id, pos, school) => {
             url: url,
             uid: auth.currentUser.uid,
             location: [lat, long],
-            school: school
+            school: school,
+            postType: postType
           });
         }
         if(blob) { 
           url = 'images/' + auth.currentUser.uid.toString() + id;
         }
         await updateDoc(userListOfPosts, {
-          listOfPosts: arrayUnion({timestamp: snap.data().listOfPosts.length, message: mess, url: url, uid: auth.currentUser.uid, comments: [{timestamp: 0, message: "", url: ""}], upVotes: 0, downVotes: 0})
+          listOfPosts: arrayUnion({timestamp: snap.data().listOfPosts.length, message: mess, url: url, uid: auth.currentUser.uid, comments: [{timestamp: 0, message: "", url: ""}], upVotes: 0, downVotes: 0, postType : postType})
         });
         await addDoc(collection(db, "allPosts"), {
           userName: name,
@@ -179,6 +181,7 @@ export const addMessage = async (mess, blob, id, pos, school) => {
           comments: [],
           photoURL: auth.currentUser.photoURL,
           location: [lat, long],
+          postType: postType
         });
         return 'true';
       }
