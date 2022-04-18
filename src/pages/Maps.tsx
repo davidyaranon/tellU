@@ -12,7 +12,7 @@ import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import { useHistory } from 'react-router';
 import { useSelector } from 'react-redux';
-import { Map, Marker, ZoomControl } from "pigeon-maps"
+import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps"
 import { IconButton } from '@mui/material';
 import { string } from 'prop-types';
 
@@ -44,6 +44,9 @@ function Maps() {
   const [defaultZoom, setDefaultZoom] = useState(0);
   const [markers, setMarkers] = useState<any[] | null>(null);
   const history = useHistory();
+  const showMarkerInfo = (e : any, index : any) => {
+    
+  }
   const getMarkerColor = (postType : string) => {
     switch (postType) {
       case "general":
@@ -123,7 +126,7 @@ function Maps() {
         {/* </IonHeader> */}
 
         <Map center={center} zoom={zoom} onBoundsChanged={({ center, zoom }) => { setCenter(center); setZoom(zoom); }}>
-          <ZoomControl style={{top : "85vh"}} />
+          <ZoomControl style={{top : "80vh"}} />
           <IonFab style={{bottom: "3vh"}} class='ion-fab' horizontal='end' vertical='bottom'>
             <IonFabButton color='light' mode='ios'>
               <IconButton onClick={setDefaultCenter}>
@@ -133,7 +136,7 @@ function Maps() {
           </IonFab>
           {markers ? (
             markers.map((marker, index) =>{
-              return <Marker color={getMarkerColor(marker.data.postType)} key={index} anchor={[marker.data.location[0], marker.data.location[1]]} width={50} />
+              return <Marker onClick={ e => showMarkerInfo(e, index) } color={getMarkerColor(marker.data.postType)} key={index} anchor={[marker.data.location[0], marker.data.location[1]]} width={50} />
             })
           ) : (null)}
         </Map>

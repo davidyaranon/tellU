@@ -51,7 +51,7 @@ function Home() {
   const [showModalComment, setShowModalComment] = useState<boolean>(false);
   const [commentModalPhotoUrl, setCommentModalPhotoUrl] = useState("");
   const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
-  const [commentModalPost, setCommentModalPost] = useState("");
+  const [commentModalPostType, setCommentModalPostType] = useState("");
   const [commentModalMessage, setCommentModalMessage] = useState("");
   const [modalImgSrc, setModalImgSrc] = useState("");
   const [photos, setPhotos] = useState<Photo | null>();
@@ -289,6 +289,11 @@ function Home() {
             });
           }
           setCommentModalPhotoUrl(post.photoURL);
+          if(post.postType) {
+            setCommentModalPostType(post.postType.replace('/', ''));
+          } else {
+            setCommentModalPostType("general");
+          }
           setCommentModalMessage(post.message);
           setCommentModalUserName(post.userName);
           setComments(tempCommentsArr);
@@ -347,6 +352,7 @@ function Home() {
     loadLoadingMessage();
     setBusy(true);
     if(!user) {
+      setBusy(false);
         history.replace("/landing-page");
     } else{
       console.log(user);
@@ -374,7 +380,7 @@ function Home() {
 
 
           <IonHeader class="ion-no-border" style={ionHeaderStyle}>
-            <Header />
+            <Header schoolName={schoolName}/>
           </IonHeader> 
 
           <IonModal showBackdrop={true} isOpen={locationPinModal} onDidDismiss={() => {setLocationPinModal(false); handleCheckboxChange("general"); }} breakpoints={[0,0.75]} initialBreakpoint={0.75} backdropBreakpoint={0.2} >
@@ -389,7 +395,7 @@ function Home() {
                   </IonHeader>
                   <br></br>
                 <IonList inset={true} mode='ios'>
-                <IonListHeader>Post Type</IonListHeader>
+                <IonListHeader mode='ios'>Post Type</IonListHeader>
                 <IonItem lines='none' mode='ios' >
                   <IonLabel>General</IonLabel>
                   <IonCheckbox id='generalCheckbox' checked={generalChecked} slot='start' onIonChange={(e) => {handleCheckboxChange("general"); setGeneralChecked(e.detail.checked); if(e.detail.checked) setCheckboxSelection("general"); }}></IonCheckbox>
@@ -428,16 +434,12 @@ function Home() {
           <IonModal backdropDismiss={false} isOpen={showModal} >
             <div className='ion-modal'>
               <IonTextarea color='secondary' maxlength={200} style={ionInputStyle} value={message} placeholder="Start typing..." id="message" onIonChange={(e: any) => { handleChange(e); }} ></IonTextarea>
-                <IonRow>
-                  <IonCol>
-                    <IconButton onClick={takePicture} >
-                      <IonFabButton mode='ios' color='medium'>
-                        <IonIcon icon={cameraOutline} />
-                      </IonFabButton>
-                    </IconButton>
-                  </IonCol>
-                </IonRow>
-                <IonFab style={{top: "15.7vh"}} horizontal="end">
+              <IconButton onClick={takePicture} >
+                <IonFabButton mode='ios' color='medium'>
+                  <IonIcon icon={cameraOutline} />
+                </IonFabButton>
+              </IconButton>
+              <IonFab style={{top: "15.7vh"}} horizontal="end">
                 <IonButton onClick={() => { setPhoto(null); setBlob(null); setShowModal(false); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" > Close </IonButton>
                 <IonButton onClick={() => { handlePostOptions(); }} color="transparent" mode='ios' shape="round" fill="outline" id="message" >Send</IonButton>
               </IonFab>
@@ -495,7 +497,7 @@ function Home() {
                       <wbr></wbr>
                       <h2 className='h2-message'>{commentModalMessage}</h2>
                     </IonLabel>
-                    <div className='verticalLineInOriginalMessage'></div>
+                    <div id={commentModalPostType}></div>
                   </IonItem>
                 </IonList>
                 <div className='verticalLine'></div>
@@ -523,7 +525,7 @@ function Home() {
                           </div>
                           ) : null}
                         </IonLabel>
-                        <div className='verticalLineInComments'></div>
+                        <div></div>
                       </IonItem>
                       <IonItem lines='none' mode='ios'>
                         <IonButton mode='ios' fill='outline' color='medium' onClick={handleUpVote}>
@@ -551,7 +553,7 @@ function Home() {
             posts?.map((post) => 
             <IonList inset={true} mode='ios' key={post.key}>
               <IonItem lines='none' mode='ios' >
-                <IonLabel class="ion-text-wrap" onClick={(e) => {handleCommentModal(post, e)}}>
+                <IonLabel class="ion-text-wrap">
                   <IonText color='medium'>
                     <IonRow>
                       <IonCol size='6'>
@@ -564,7 +566,7 @@ function Home() {
                         </p>
                       </IonCol>
                       <IonCol >
-                        {post.postType ? 
+                        {post.postType && post.postType != "general" ? 
                         (
                           <IonFab horizontal='end'>
                             <p style={{fontWeight:"bold", color:getColor(post.postType)}}>{post.postType.toUpperCase()}</p>
@@ -575,7 +577,7 @@ function Home() {
                     </IonRow>
                   </IonText> 
                   <wbr></wbr>         
-                  <h2> {post.message} </h2>
+                  <h3 style={{marginLeft: "2.5%"}}> {post.message} </h3>
                   {post.url.length > 0 ? (
                   <div className="ion-img-container">
                     <br></br>

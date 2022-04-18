@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonItem, IonLabel, IonList } from '@ionic/react';
+import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonItem, IonLabel, IonSpinner, IonList } from '@ionic/react';
 import React, { useEffect, useState  } from 'react';
 import { auth, logInWithEmailAndPassword, db} from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -11,6 +11,7 @@ import UIContext from '../my-context'
 import { useToast } from "@agney/ir-toast";
 import { useDispatch } from "react-redux"
 import { setUserState } from '../redux/actions';
+import { timeout } from 'workbox-core/_private';
 
 const LandingPage: React.FC = () => {
     const dispatch = useDispatch();
@@ -76,32 +77,36 @@ const LandingPage: React.FC = () => {
         }
     }, [user, loading]);
 
-    return (
-        <React.Fragment>
-            <IonContent >
-
-                <IonHeader class="ion-no-border" style={{padding: "3vh"}}>
-                  <Header />
-                </IonHeader>
-
-                <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
-
-                <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
-                    <IonItem mode='ios' >
-                        <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="text" placeholder="Email" id="emailSignIn" onIonChange={(e: any) => {setEmailSignIn(e.detail.value);}} ></IonInput>
-                    </IonItem>
-                    <IonItem mode='ios' >
-                        <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordSignIn} type="password" placeholder="Password" id="passwordSignIn" onIonChange={(e: any) => setPasswordSignIn(e.detail.value)} ></IonInput>
-                    </IonItem>
-                    <br />
-                    <IonButton color="transparent" mode='ios' onClick={logIn} shape="round" fill="outline" expand="block" id="signInButton" >Sign In</IonButton>
-                    <br/>
-                    <br/>
-                </IonList>
-                <p className='sign-in-sign-up-list'> or <Link to="/register">register</Link> for an account</p>
-            </IonContent>
-        </React.Fragment>
-    )
+    if(busy) {
+        return (<IonSpinner class='ion-spinner' name="dots" color="primary" />);
+    }
+    else {
+        return (
+            <React.Fragment>
+                <IonContent >
+    
+                    <IonHeader class="ion-no-border" style={{padding: "3vh"}}>
+                      <Header />
+                    </IonHeader>
+    
+                    <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
+                        <IonItem mode='ios' >
+                            <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="text" placeholder="Email" id="emailSignIn" onIonChange={(e: any) => {setEmailSignIn(e.detail.value);}} ></IonInput>
+                        </IonItem>
+                        <IonItem mode='ios' >
+                            <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordSignIn} type="password" placeholder="Password" id="passwordSignIn" onIonChange={(e: any) => setPasswordSignIn(e.detail.value)} ></IonInput>
+                        </IonItem>
+                        <br />
+                        <IonButton color="transparent" mode='ios' onClick={logIn} shape="round" fill="outline" expand="block" id="signInButton" >Sign In</IonButton>
+                        <br/>
+                        <br/>
+                    </IonList>
+                    <p className='sign-in-sign-up-list'> or <Link to="/register">register</Link> for an account</p>
+                </IonContent>
+            </React.Fragment>
+        )
+    }
+    
 }
 
 export default React.memo(LandingPage);

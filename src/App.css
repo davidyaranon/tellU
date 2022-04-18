@@ -18,21 +18,51 @@ ion-checkbox {
     --background-checked: #61DBFB;
     --border-color-checked: #FFFFFF;
 }
+#general{
+    width:0.5%;
+    height:5vh;
+    background:#61DBFB;
+    margin: 1vw;
+}
 #alertCheckbox {
     --background-checked: #ff3e3e;
     --border-color-checked: #FFFFFF;
+}
+#alert{
+    width:0.5%;
+    height:5vh;
+    background:#ff3e3e;
+    margin: 1vw;
 }
 #buySellCheckbox {
     --background-checked: #179b59;
     --border-color-checked: #FFFFFF;
 }
+#buySell{
+    width:0.5%;
+    height:5vh;
+    background:#179b59;
+    margin: 1vw;
+}
 #sightingCheckbox {
     --background-checked: #3344ff;
     --border-color-checked: #FFFFFF;
 }
+#sighting{
+    width:0.5%;
+    height:5vh;
+    background:#3344ff;
+    margin: 1vw;
+}
 #eventCheckbox {
     --background-checked: #fc4ad3;
     --border-color-checked: #FFFFFF;
+}
+#event{
+    width:0.5%;
+    height:5vh;
+    background:#fc4ad3;
+    margin: 1vw;
 }
 
 
@@ -65,6 +95,7 @@ ion-checkbox {
 .posts-avatar {
     border: 1px solid rgb(119, 119, 119);
     overflow: hidden;  
+    zoom: 0.75;
 }
 
 .verticalLine {
@@ -182,7 +213,6 @@ ion-checkbox {
     width: auto;
     overflow: hidden;
     border-radius: 5%;
-    text-align: center;
     justify-content: center;
 }
 

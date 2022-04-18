@@ -74,7 +74,7 @@ const RoutingSystem: React.FunctionComponent = () => {
         <IonTabs>
             <IonRouterOutlet animation={animationBuilder}>
               <Route path="/:tab(home)" exact={true}> <Home /> </Route>
-              <Route path="/:tab(Community)" component={Community} exact={true} />
+              <Route path="/:tab(community)" component={Community} exact={true} />
               <Route path="/:tab(maps)" component={Maps} exact={true} />
               <Route path="/:tab(user)" exact={true} > <User/> </Route>
               <Route path="/landing-page" exact={true}> <LandingPage /> </Route>
