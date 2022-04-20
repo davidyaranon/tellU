@@ -16,7 +16,7 @@ import { IonHeader, IonContent, IonLoading, IonButton, IonInput, IonFab, IonText
   import { updateEmail } from "firebase/auth";
   import { useDispatch } from "react-redux"
   import { setDarkMode} from '../redux/actions';
-  
+  import FadeIn from 'react-fade-in';
   
   function User() {
     const Toast = useToast();
@@ -280,6 +280,8 @@ import { IonHeader, IonContent, IonLoading, IonButton, IonInput, IonFab, IonText
             setEditableUsername(user.displayName!);
             setBusy(false);
           }
+          return () => {
+          };
       }
     }, [user]);
     if(loading) {
@@ -296,6 +298,7 @@ import { IonHeader, IonContent, IonLoading, IonButton, IonInput, IonFab, IonText
             <IonImg className='user-image' src={profilePhoto}></IonImg>
           </IonAvatar>
           </IonToolbar>
+          <FadeIn>
             <IonToolbar mode='ios'>
               <IonTitle size='small' style={titleStyle}> Hello 
                 <IonText color='primary'>
@@ -303,7 +306,8 @@ import { IonHeader, IonContent, IonLoading, IonButton, IonInput, IonFab, IonText
                 </IonText>
               </IonTitle>
             </IonToolbar>
-            
+          </FadeIn>
+
           </IonHeader> 
           <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
   

@@ -11,7 +11,6 @@ import UIContext from '../my-context'
 import { useToast } from "@agney/ir-toast";
 import { useDispatch } from "react-redux"
 import { setUserState } from '../redux/actions';
-import { timeout } from 'workbox-core/_private';
 
 const LandingPage: React.FC = () => {
     const dispatch = useDispatch();

@@ -9,7 +9,7 @@ import { createStore } from "redux";
 import reducer from './redux/reducer';
 
 const store = createStore(reducer);
-
+window.screen.orientation.lock('portrait');
 ReactDOM.render(
     <Provider store={store}>
       <UIProvider>

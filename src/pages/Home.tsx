@@ -31,7 +31,8 @@ import { PhotoViewer } from '@awesome-cordova-plugins/photo-viewer';
 import defaultMessages from '../components/funnies';
 import Avatar from 'react-avatar';
 import logo from '../images/pumpkinTest.jpg'
-
+import FadeIn from 'react-fade-in';
+  
 export interface UserPhoto {
   filepath: string,
   webviewPath?: string;
@@ -132,7 +133,7 @@ function Home() {
       case "event":
         return "#fc4ad3";
       case "sighting":
-        return "#3344ff";
+        return "#eed202";
       default:
         break;
     }
@@ -195,7 +196,7 @@ function Home() {
 
   const handleLoadPosts = () => {
     setBusy(true);
-    let tempPosts = promiseTimeout(20000, getAllPosts());
+    let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
     tempPosts.then((allPosts : any[]) => {
       if(allPosts && allPosts != []) {
         setPosts(allPosts);
@@ -330,7 +331,7 @@ function Home() {
         setBlob(null);
         setPhoto(null);
       }
-      const res = await addMessage(message.trim(), blob, uniqueId.toString(), position, schoolName, checkboxSelection);
+      const res = await addMessage(message, blob, uniqueId.toString(), position, schoolName, checkboxSelection);
       if(res == 'false') {
         Toast.error("Unable to process message :(");
       } else {
@@ -354,37 +355,37 @@ function Home() {
     if(!user) {
       setBusy(false);
         history.replace("/landing-page");
-    } else{
+    } else if(schoolName){
       console.log(user);
       handleLoadPosts();
     }
-  }, []);
+  }, [schoolName]);
 
   if(posts) {
     return (
       <React.Fragment>
         <IonContent >
-          
-        <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
+        
+          <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
         <br></br><br></br><br></br>
           <IonRefresherContent
             pullingText="Pull to refresh"
             refreshingSpinner="crescent"
             refreshingText="Refreshing...">
           </IonRefresherContent>
-        </IonRefresher>
+          </IonRefresher>
 
-        <IonLoading spinner='dots' message={loadingMessage} duration={0} isOpen={busy}></IonLoading>
+          <IonLoading spinner='dots' message={loadingMessage} duration={0} isOpen={busy}></IonLoading>
 
-        <IonLoading spinner='dots' message="Getting Location..." duration={0} isOpen={gettingLocation}></IonLoading>
+          <IonLoading spinner='dots' message="Getting Location..." duration={0} isOpen={gettingLocation}></IonLoading>
 
-
-          <IonHeader class="ion-no-border" style={ionHeaderStyle}>
-            <Header schoolName={schoolName}/>
-          </IonHeader> 
-
-          <IonModal showBackdrop={true} isOpen={locationPinModal} onDidDismiss={() => {setLocationPinModal(false); handleCheckboxChange("general"); }} breakpoints={[0,0.75]} initialBreakpoint={0.75} backdropBreakpoint={0.2} >
-              <IonContent>
+          <FadeIn>
+            <IonHeader class="ion-no-border" style={ionHeaderStyle}>
+              <Header schoolName={schoolName}/>
+            </IonHeader> 
+          </FadeIn>
+          <IonModal showBackdrop={true} isOpen={locationPinModal} onDidDismiss={() => {setLocationPinModal(false); handleCheckboxChange("general"); }} breakpoints={[0,0.9]} initialBreakpoint={0.9} backdropBreakpoint={0.2} >
+              <IonContent> 
                   <IonHeader translucent>
                       <IonToolbar mode='ios'>
                           <IonTitle>Post</IonTitle>
@@ -395,7 +396,7 @@ function Home() {
                   </IonHeader>
                   <br></br>
                 <IonList inset={true} mode='ios'>
-                <IonListHeader mode='ios'>Post Type</IonListHeader>
+                <IonListHeader mode='ios'>Select One</IonListHeader>
                 <IonItem lines='none' mode='ios' >
                   <IonLabel>General</IonLabel>
                   <IonCheckbox id='generalCheckbox' checked={generalChecked} slot='start' onIonChange={(e) => {handleCheckboxChange("general"); setGeneralChecked(e.detail.checked); if(e.detail.checked) setCheckboxSelection("general"); }}></IonCheckbox>
@@ -449,6 +450,7 @@ function Home() {
               </IonCard>
             </div>
           </IonModal>
+
           <IonFab vertical="bottom" horizontal="end" slot="fixed" >
             <IonFabButton onClick={() => {setShowModal(true); }}>
               <IonIcon icon={add} />
@@ -494,6 +496,11 @@ function Home() {
                         {commentModalUserName}
                       </p>
                       </IonText>
+                      {/* {commentModalPostType != "general"  ? (
+                      <IonFab vertical='top' horizontal='end'>
+                        <p style={{fontWeight:"bold", color:getColor(commentModalPostType)}}>{commentModalPostType.toUpperCase()}</p>
+                      </IonFab>
+                      ) : (null) } */}
                       <wbr></wbr>
                       <h2 className='h2-message'>{commentModalMessage}</h2>
                     </IonLabel>
@@ -577,7 +584,7 @@ function Home() {
                     </IonRow>
                   </IonText> 
                   <wbr></wbr>         
-                  <h3 style={{marginLeft: "2.5%"}}> {post.message} </h3>
+                  <h3 className='h2-message' style={{marginLeft: "2.5%"}}> {post.message} </h3>
                   {post.url.length > 0 ? (
                   <div className="ion-img-container">
                     <br></br>
@@ -594,7 +601,7 @@ function Home() {
                 <p>&nbsp;</p>
                 <IonButton mode='ios' color='medium' onClick={(e) => {handleCommentModal(post, e)}}>
                   <IonIcon icon={chatbubblesOutline}/>
-                  <p>&nbsp; {post.commentAmount} </p>
+                  <p>&nbsp; {post.comments.length} </p>
                 </IonButton>
                 <IonButton mode='ios' fill='outline' color='medium' onClick={handleDownVote}>
                   <KeyboardArrowDownIcon />

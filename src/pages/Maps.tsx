@@ -3,7 +3,7 @@ import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteSc
   IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonSearchbar } 
 from '@ionic/react';
 import { schoolOutline } from 'ionicons/icons';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { auth, db } from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
@@ -32,6 +32,7 @@ const schoolInfo = {
 
 
 function Maps() {
+  const isMountedComponent = useRef(true);
   const schoolName = useSelector( (state: any) => state.user.school);
   const [user, loading, error] = useAuthState(auth);
   const [busy, setBusy] = useState<boolean>(false);
@@ -58,7 +59,7 @@ function Maps() {
       case "event":
         return "#fc4ad3";
       case "sighting":
-        return "#3344ff";
+        return "#eed202";
       default:
         break;
     }
@@ -84,14 +85,13 @@ function Maps() {
     const tomorrow = new Date();
     tomorrow.setHours(24,0,0,0);
     tomorrow.setDate(yesterday.getDate() + 2);
-    console.log(yesterday);
-    console.log(tomorrow);
     const q = query(markersRef, where("school", "==", schoolName), where("timestamp", ">", yesterday), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"), limit(50));
     const querySnapshot = await getDocs(q);
     const tempMarkers : any[] = [];
     querySnapshot.forEach((doc) => {
       console.log(doc.data());
       tempMarkers.push({
+        key: doc.id,
         data: doc.data(),
       })
     });
@@ -113,6 +113,8 @@ function Maps() {
       getMapMarkers();
       setBusy(false);
     }
+    return () => {
+    };
   }, [user]);
   return (
     <React.Fragment>

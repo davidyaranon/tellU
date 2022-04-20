@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { serverTimestamp } from '@firebase/firestore'
 import 'firebase/compat/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, getDocs,  query, orderBy, limit, doc, getDoc, getFirestore, setDoc, where, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
+import { collection, getDocs, startAfter, query, orderBy, limit, doc, getDoc, getFirestore, setDoc, where, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
 import { getAuth, updateProfile, sendPasswordResetEmail, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -65,7 +65,8 @@ export async function registerWithEmailAndPassword (name, email, password, schoo
             listOfPosts: [],
             userEmail: email,
             uid: user.uid,
-            school: school
+            school: school,
+            timestamp: serverTimestamp(),
           });
         } catch(docErr) {
           console.log(docErr);
@@ -169,7 +170,7 @@ export const addMessage = async (mess, blob, id, pos, school, postType="general"
         await updateDoc(userListOfPosts, {
           listOfPosts: arrayUnion({timestamp: snap.data().listOfPosts.length, message: mess, url: url, uid: auth.currentUser.uid, comments: [{timestamp: 0, message: "", url: ""}], upVotes: 0, downVotes: 0, postType : postType})
         });
-        await addDoc(collection(db, "allPosts"), {
+        await addDoc(collection(db, "schoolPosts", school.replace(/\s+/g, ''), "allPosts"), {
           userName: name,
           timestamp: serverTimestamp(), 
           message: mess, 
@@ -220,10 +221,10 @@ export async function checkUsernameUniqueness(userName) {
 }
 
 
-export async function getAllPosts() {
+export async function getAllPosts(schoolName) {
   try {
     if(auth.currentUser != null && db) { 
-      const allPostsRef = collection(db, "allPosts");
+      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ''), "allPosts");
       const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(250));
       const querySnapshot = await getDocs(q);
       const tempArr = [];
@@ -260,4 +261,84 @@ export const promiseTimeout = function(ms , promise) {
     promise,
     timeout
   ]);
+}
+
+export const getUsers = async () => {
+  try {
+    if(auth && db) {
+      const usersRef = collection(db, "userData");
+      const q = query(usersRef, orderBy("userName", "asc"), limit(2));
+      const querySnapshot = await getDocs(q);
+      let userList = [];
+      let lastKey = "";
+      const docs = querySnapshot.docs;
+      for(const doc of docs) {
+        userList.push({
+          key: doc.id,
+          data: doc.data(),
+        });
+        lastKey = doc.data().userName;
+      }
+      return { userList, lastKey };
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const getNextBatchUsers = async (key) => {
+  try {
+    if(auth && db) {
+      const usersRef = collection(db, "userData");
+      const q = query(usersRef, orderBy("userName", "asc"), startAfter(key), limit(2));
+      const querySnapshot = await getDocs(q);
+      let userList = [];
+      let lastKey = "";
+      const docs = querySnapshot.docs;
+      for(const doc of docs) {
+        console.log(doc);
+        userList.push({
+          key: doc.id,
+          data: doc.data(),
+        });
+        lastKey = doc.data().userName;
+      }
+      return { userList, lastKey };
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const getTopPostsWithinPastDay = async (schoolName) => {
+  try{
+    if(auth && db) {
+      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ''), "allPosts");
+      const yesterday = new Date();
+      yesterday.setHours(0,0,0,0);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const tomorrow = new Date();
+      tomorrow.setHours(24,0,0,0);
+      tomorrow.setDate(yesterday.getDate() + 2);
+      const q = query(allPostsRef, orderBy("upVotes", "desc"), limit(10));
+      const querySnapshot = await getDocs(q);
+      const topPosts = [];
+      const docs = querySnapshot.docs;
+      for(const doc of docs) {
+        let url = doc.data().url;
+        let res = "";
+        if(url.length > 0) {
+          res = await getDownloadURL(ref(storage, url));
+        }
+        topPosts.push({
+          key: doc.id,
+          data: doc.data(),
+          imgSrc: res,
+        });
+      }
+      return topPosts;
+    }
+  } catch(err) {
+    console.log(err);
+  }
 }

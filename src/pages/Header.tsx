@@ -15,7 +15,7 @@ class Header extends Component<any, any>{
     render(){
         return (
 
-            <div className='header'>
+            <IonHeader style={{textAlign: "center"}}>
                 <IconButton>
                     <img 
                         className='quantum_logo'
@@ -24,10 +24,8 @@ class Header extends Component<any, any>{
                         style={{zoom: 1.5}}
                     />
                 </IconButton>
-                <IonFab horizontal='end'>
-                    <p style={{fontWeight:"bold"}}>{this.props.schoolName}</p>
-                </IonFab>
-            </div>
+                <p style={{fontWeight:"bold"}}>{this.props.schoolName}</p>
+            </IonHeader>
         )
     }
 }

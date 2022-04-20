@@ -27,6 +27,7 @@ const Register: React.FC = () => {
     const [user, loading, error] = useAuthState(auth);
     const history = useHistory();
     const specialChars = /[#!@?$%]/;
+    const capitalLetters = /[ABCDEFGHIJKLMNOPQRSTUVWXYZ]/;
     const numbers = /[0123456789]/;
 
     const openPasswordRequirements = () => {
@@ -53,9 +54,10 @@ const Register: React.FC = () => {
             Toast.error("Username cannot contain spaces!");
         } else if(passwordSignUp.includes(' ')) {
             Toast.error("Password cannot contain spaces!");
-        } else if(!specialChars.test(passwordSignUp)) {
-            Toast.error("Password must contain at least 1 special character");
-        } else if (!numbers.test(passwordSignUp)) {
+        } else if(!capitalLetters.test(passwordSignUp)) {
+            Toast.error("Password must contain at least 1 capital character");
+        } 
+        else if (!numbers.test(passwordSignUp)) {
             Toast.error("Password must contain at least 1 number");
         } else {
             const isUnique = await checkUsernameUniqueness(userNameSignUp.trim());
@@ -138,7 +140,10 @@ const Register: React.FC = () => {
                                 - Must contain at least 1 number (0-9) <wbr></wbr>
                             </IonItem>
                             <IonItem lines="none" class="ion-item-style">
-                                - Must contain at least 1 special character <br></br>&nbsp; (#, !, @, ?, $, %) - no spaces <br></br><wbr></wbr>
+                                - Must contain a capital letter
+                            </IonItem>
+                            <IonItem lines="none" class="ion-item-style">
+                                - No spaces <br></br><wbr></wbr>
                             </IonItem>
                         </IonCard>
                     </IonContent>

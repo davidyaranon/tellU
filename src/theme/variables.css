@@ -176,7 +176,7 @@ body {
  */
 
 .ios body.dark {
-  --ion-background-color: #000000;
+  --ion-background-color: #121212;
   --ion-background-color-rgb: 0,0,0;
 
   --ion-text-color: #ffffff;
@@ -204,7 +204,7 @@ body {
   
   --ion-item-background: #282828;
 
-  --ion-toolbar-background: #000000;
+  --ion-toolbar-background: #121212;
 
   --ion-tab-bar-background: #1f1f1f;
 

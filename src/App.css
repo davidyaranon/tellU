@@ -45,13 +45,13 @@ ion-checkbox {
     margin: 1vw;
 }
 #sightingCheckbox {
-    --background-checked: #3344ff;
+    --background-checked: #eed202;
     --border-color-checked: #FFFFFF;
 }
 #sighting{
     width:0.5%;
     height:5vh;
-    background:#3344ff;
+    background:#eed202;
     margin: 1vw;
 }
 #eventCheckbox {
@@ -98,6 +98,12 @@ ion-checkbox {
     zoom: 0.75;
 }
 
+.ion-card-community {
+    width: 55vw;
+    min-height: 35vh;
+    display: inline-block;
+}
+
 .verticalLine {
     height: 5vh;
     background: transparent;
@@ -120,8 +126,6 @@ ion-checkbox {
 
 .header {
     display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 1vh;
 }
 
