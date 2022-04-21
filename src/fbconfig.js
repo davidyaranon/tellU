@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import 'firebase/compat/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { WriteBatch, serverTimestamp, increment, collection, getDocs, startAfter, query, orderBy, limit, doc, getDoc, getFirestore, setDoc, where, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
+import { WriteBatch, deleteField, serverTimestamp, increment, collection, getDocs, startAfter, query, orderBy, limit, doc, getDoc, getFirestore, setDoc, where, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
 import { getAuth, updateProfile, sendPasswordResetEmail, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -174,11 +174,11 @@ export const addMessage = async (mess, blob, id, pos, school, postType="general"
           timestamp: serverTimestamp(), 
           message: mess, 
           url: url,
+          likes: {},
           uid: auth.currentUser.uid,
           commentAmount: 0,
           upVotes: 0,
           downVotes: 0,
-          interactions: 0,
           comments: [],
           photoURL: auth.currentUser.photoURL,
           location: [lat, long],
@@ -343,18 +343,31 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
   }
 }
 
-export const upVote = async (postUid, schoolName, postKey) => {
+export const upVote = async (schoolName, postKey,) => {
   try {
     if(auth && auth.currentUser) {
       const userUid = auth.currentUser.uid;
       const postDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ''), "allPosts", postKey);
-      await updateDoc(postDocRef, {
-        upVotes: increment(1)
-      });
-      const likesDislikesDoc = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ''), "likesDislikes", postUid+'_'+userUid);
-      await setDoc(likesDislikesDoc, {
-        state : 1,
-      });
+      const snap = await getDoc(postDocRef);
+      if(snap.exists) {
+        if(snap.data().likes[userUid]) {
+          console.log("in map, removing like");
+          await updateDoc(postDocRef, {
+            [`likes.${userUid}`] : deleteField(),
+            upVotes: increment(-1),
+          });
+          return -1;
+        } else {
+          console.log("not in map, adding like");
+          setDoc(postDocRef, {
+            likes: {[`${userUid}`] : true},
+            upVotes: increment(1),
+          }, 
+          { merge: true }
+          );
+          return 1;
+        }
+      }
     }
   } catch(err) {
     console.log(err);

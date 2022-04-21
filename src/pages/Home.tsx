@@ -12,7 +12,7 @@ import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import IconButton from '@mui/material/IconButton';
 import { useToast } from "@agney/ir-toast";
-import { add, cameraOutline, chatbubblesOutline, locationOutline } from 'ionicons/icons';
+import { add, cameraOutline, chatbubblesOutline, locationOutline, volumeLowSharp } from 'ionicons/icons';
 import SignalWifiOff from '@mui/icons-material/SignalWifiOff';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -74,6 +74,7 @@ function Home() {
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [commentModalUserName, setCommentModalUserName] = useState("");
   const [commentModalImgSrc, setCommentModalImgSrc] = useState("");
+  const [disabledButton, setDisabledButton] = useState<number>(-1);
   const [user] = useAuthState(auth);
   const history = useHistory();
   const min = 0;
@@ -90,8 +91,22 @@ function Home() {
     maxRatio : 2
   }
 
-  const handleUpVote = async (postUid : string, postKey : string) => {
-    // await upVote(postUid, schoolName, postKey);
+  const handleUpVote = async (postKey : string, index : number) => {
+    const val = await upVote(schoolName, postKey);
+    if(val === 1) {
+      // increase upvote counter
+      console.log("upvote added");
+    } else if(val === -1) {
+      console.log("upvote removed");
+    } else {
+      Toast.error("Unable to like post");
+    }
+    if(posts && val) {
+      let tempPosts : any[] = [...posts];
+      tempPosts[index].upVotes += val;
+      setPosts(tempPosts);
+      setDisabledButton(-1);
+    }
   }
 
   const handleDownVote = () => {
@@ -569,7 +584,7 @@ function Home() {
           </IonModal>
           
           {posts!.length > 0 ? (
-            posts?.map((post) => 
+            posts?.map((post, index) => 
             <IonList inset={true} mode='ios' key={post.key}>
               <IonItem lines='none' mode='ios' >
                 <IonLabel class="ion-text-wrap">
@@ -606,7 +621,7 @@ function Home() {
                 </IonLabel>
               </IonItem>
               <IonItem lines='none' mode='ios'>
-              <IonButton mode='ios' fill='outline' color='medium' onClick={() => {handleUpVote(post.uid, post.key)}}>
+              <IonButton disabled={disabledButton === index} mode='ios' fill='outline' color='medium' onClick={() => {setDisabledButton(index); handleUpVote(post.key, index)}}>
                   <KeyboardArrowUpIcon />
                   <p>{post.upVotes} </p>
                 </IonButton>
