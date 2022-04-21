@@ -1,8 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { serverTimestamp } from '@firebase/firestore'
 import 'firebase/compat/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, getDocs, startAfter, query, orderBy, limit, doc, getDoc, getFirestore, setDoc, where, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
+import { WriteBatch, serverTimestamp, increment, collection, getDocs, startAfter, query, orderBy, limit, doc, getDoc, getFirestore, setDoc, where, updateDoc, arrayUnion, addDoc } from 'firebase/firestore';
 import { getAuth, updateProfile, sendPasswordResetEmail, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -170,7 +169,7 @@ export const addMessage = async (mess, blob, id, pos, school, postType="general"
         await updateDoc(userListOfPosts, {
           listOfPosts: arrayUnion({timestamp: snap.data().listOfPosts.length, message: mess, url: url, uid: auth.currentUser.uid, comments: [{timestamp: 0, message: "", url: ""}], upVotes: 0, downVotes: 0, postType : postType})
         });
-        await addDoc(collection(db, "schoolPosts", school.replace(/\s+/g, ''), "allPosts"), {
+        const docRef = await addDoc(collection(db, "schoolPosts", school.replace(/\s+/g, ''), "allPosts"), {
           userName: name,
           timestamp: serverTimestamp(), 
           message: mess, 
@@ -179,6 +178,7 @@ export const addMessage = async (mess, blob, id, pos, school, postType="general"
           commentAmount: 0,
           upVotes: 0,
           downVotes: 0,
+          interactions: 0,
           comments: [],
           photoURL: auth.currentUser.photoURL,
           location: [lat, long],
@@ -320,7 +320,7 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
       const tomorrow = new Date();
       tomorrow.setHours(24,0,0,0);
       tomorrow.setDate(yesterday.getDate() + 2);
-      const q = query(allPostsRef, orderBy("upVotes", "desc"), limit(10));
+      const q = query(allPostsRef, orderBy("interactions", "desc"), limit(10));
       const querySnapshot = await getDocs(q);
       const topPosts = [];
       const docs = querySnapshot.docs;
@@ -337,6 +337,24 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
         });
       }
       return topPosts;
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const upVote = async (postUid, schoolName, postKey) => {
+  try {
+    if(auth && auth.currentUser) {
+      const userUid = auth.currentUser.uid;
+      const postDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ''), "allPosts", postKey);
+      await updateDoc(postDocRef, {
+        upVotes: increment(1)
+      });
+      const likesDislikesDoc = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ''), "likesDislikes", postUid+'_'+userUid);
+      await setDoc(likesDislikesDoc, {
+        state : 1,
+      });
     }
   } catch(err) {
     console.log(err);

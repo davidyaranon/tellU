@@ -1,13 +1,13 @@
 import { IonContent, IonHeader, IonRefresher, IonRefresherContent, IonInfiniteScroll, IonCardTitle, IonCard, IonSlides, IonSlide, IonItemDivider,
   IonInfiniteScrollContent,  IonModal, IonImg, IonList, IonItem, IonLabel, IonTextarea, IonLoading, IonText, IonAvatar, IonCheckbox,
-  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonRow, IonCol, IonListHeader } 
+  IonInput, IonActionSheet, IonButton, IonIcon, IonRippleEffect, IonFab, IonFabButton, IonToolbar, IonTitle, IonButtons, IonRow, IonCol, IonListHeader, IonCardContent } 
 from '@ionic/react';
 import React, { useRef, useCallback } from 'react';
 import { RefresherEventDetail, setupConfig } from '@ionic/core';
 import { Geolocation, Geoposition } from '@awesome-cordova-plugins/geolocation';
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts, promiseTimeout } from '../fbconfig'
+import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts, promiseTimeout, upVote } from '../fbconfig'
 import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import IconButton from '@mui/material/IconButton';
@@ -73,6 +73,7 @@ function Home() {
   const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [commentModalUserName, setCommentModalUserName] = useState("");
+  const [commentModalImgSrc, setCommentModalImgSrc] = useState("");
   const [user] = useAuthState(auth);
   const history = useHistory();
   const min = 0;
@@ -89,8 +90,8 @@ function Home() {
     maxRatio : 2
   }
 
-  const handleUpVote = () => {
-    console.log('upvoted!');
+  const handleUpVote = async (postUid : string, postKey : string) => {
+    // await upVote(postUid, schoolName, postKey);
   }
 
   const handleDownVote = () => {
@@ -200,6 +201,7 @@ function Home() {
     tempPosts.then((allPosts : any[]) => {
       if(allPosts && allPosts != []) {
         setPosts(allPosts);
+        console.log(allPosts);
       } else {
         Toast.error("Unable to load posts");
       }
@@ -298,6 +300,7 @@ function Home() {
           setCommentModalMessage(post.message);
           setCommentModalUserName(post.userName);
           setComments(tempCommentsArr);
+          setCommentModalImgSrc(post.imgSrc);
         }
         setBusy(false);
       } catch(err : any){
@@ -379,7 +382,7 @@ function Home() {
 
           <IonLoading spinner='dots' message="Getting Location..." duration={0} isOpen={gettingLocation}></IonLoading>
 
-          <FadeIn>
+          <FadeIn transitionDuration={1500}>
             <IonHeader class="ion-no-border" style={ionHeaderStyle}>
               <Header schoolName={schoolName}/>
             </IonHeader> 
@@ -483,7 +486,7 @@ function Home() {
                 <IonButton onClick={() => { setShowModalComment(false); setComment(""); }}  color="danger" mode='ios' shape="round" fill="outline" id="close" >X</IonButton>
               </IonFab>
               <br></br><br></br><br></br>
-              {commentModalMessage && commentModalMessage.length > 0 ? (
+              {commentModalUserName ? (
                 <div>
                 <IonList inset={true}>
                   <IonItem lines='none' >
@@ -508,8 +511,17 @@ function Home() {
                   </IonItem>
                 </IonList>
                 <div className='verticalLine'></div>
+                {commentModalImgSrc && commentModalImgSrc.length > 0 ? (
+                <IonCard style={{bottom: "7.5vh"}}>
+                  <IonCardContent>
+                    <IonImg onClick={() => {PhotoViewer.show(commentModalImgSrc)}} src={commentModalImgSrc}></IonImg>
+                  </IonCardContent>
+                </IonCard>
+              ) : (null)}   
                 </div>
               ) : null}
+              <p style={{textAlign: "center"}}>Comments</p>
+              <br></br>
               {comments && comments.length > 0? (
                 comments?.map((comment, index) => 
                   <IonList inset={true} key={index}>
@@ -535,7 +547,7 @@ function Home() {
                         <div></div>
                       </IonItem>
                       <IonItem lines='none' mode='ios'>
-                        <IonButton mode='ios' fill='outline' color='medium' onClick={handleUpVote}>
+                        <IonButton mode='ios' fill='outline' color='medium'>
                           <KeyboardArrowUpIcon />
                           <p>{comment.upVotes} </p>
                         </IonButton>
@@ -594,7 +606,7 @@ function Home() {
                 </IonLabel>
               </IonItem>
               <IonItem lines='none' mode='ios'>
-              <IonButton mode='ios' fill='outline' color='medium' onClick={handleUpVote}>
+              <IonButton mode='ios' fill='outline' color='medium' onClick={() => {handleUpVote(post.uid, post.key)}}>
                   <KeyboardArrowUpIcon />
                   <p>{post.upVotes} </p>
                 </IonButton>

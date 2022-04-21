@@ -284,6 +284,8 @@ import { IonHeader, IonContent, IonLoading, IonButton, IonInput, IonFab, IonText
           };
       }
     }, [user]);
+
+    
     if(loading) {
       return (
         <IonLoading message="Please wait..." duration={0} isOpen={busy}></IonLoading>
