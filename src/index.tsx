@@ -1,22 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import reportWebVitals from './reportWebVitals';
-import { UIProvider } from './my-context';
-import { Provider } from 'react-redux';
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import reportWebVitals from "./reportWebVitals";
+import { UIProvider } from "./my-context";
+import { Provider } from "react-redux";
 import { createStore } from "redux";
-import reducer from './redux/reducer';
+import reducer from "./redux/reducer";
 
 const store = createStore(reducer);
-window.screen.orientation.lock('portrait');
+window.screen.orientation.lock("portrait");
 ReactDOM.render(
-    <Provider store={store}>
-      <UIProvider>
-        <App />
-      </UIProvider>
-    </Provider>,
-  document.getElementById('root')
+  <Provider store={store}>
+    <UIProvider>
+      <App />
+    </UIProvider>
+  </Provider>,
+  document.getElementById("root")
 );
 
 // If you want your app to work offline and load faster, you can change
