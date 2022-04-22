@@ -175,6 +175,7 @@ export const addMessage = async (mess, blob, id, pos, school, postType="general"
           message: mess, 
           url: url,
           likes: {},
+          dislikes: {},
           uid: auth.currentUser.uid,
           commentAmount: 0,
           upVotes: 0,
@@ -343,7 +344,7 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
   }
 }
 
-export const upVote = async (schoolName, postKey,) => {
+export const upVote = async (schoolName, postKey) => {
   try {
     if(auth && auth.currentUser) {
       const userUid = auth.currentUser.uid;
@@ -351,20 +352,67 @@ export const upVote = async (schoolName, postKey,) => {
       const snap = await getDoc(postDocRef);
       if(snap.exists) {
         if(snap.data().likes[userUid]) {
-          console.log("in map, removing like");
           await updateDoc(postDocRef, {
             [`likes.${userUid}`] : deleteField(),
             upVotes: increment(-1),
           });
           return -1;
         } else {
-          console.log("not in map, adding like");
-          setDoc(postDocRef, {
-            likes: {[`${userUid}`] : true},
-            upVotes: increment(1),
-          }, 
-          { merge: true }
-          );
+          if(snap.data().dislikes[userUid]){
+            await updateDoc(postDocRef, {
+              [`dislikes.${userUid}`] : deleteField(),
+              likes: {[`${userUid}`] : true},
+              upVotes: increment(1),
+              downVotes: increment(-1),
+            });
+          } else {
+            await setDoc(postDocRef, {
+              likes: {[`${userUid}`] : true},
+              upVotes: increment(1),
+            }, 
+            { merge: true }
+            );
+          }
+          return 1;
+        }
+      }
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const downVote = async (schoolName, postKey) => {
+  try {
+    if(auth && auth.currentUser) {
+      const userUid = auth.currentUser.uid;
+      const postDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ''), "allPosts", postKey);
+      const snap = await getDoc(postDocRef);
+      if(snap.exists) {
+        if(snap.data().dislikes[userUid]) {
+          await updateDoc(postDocRef, {
+            [`dislikes.${userUid}`] : deleteField(),
+            downVotes: increment(-1),
+          });
+          return -1;
+        } else {
+          if(snap.data().likes[userUid]) {
+            await updateDoc(postDocRef, {
+              dislikes: {[`${userUid}`] : true},
+              downVotes: increment(1),
+              [`likes.${userUid}`] : deleteField(),
+              upVotes: increment(-1),
+            }, 
+            { merge: true }
+            );
+          } else {
+            await setDoc(postDocRef, {
+              dislikes: {[`${userUid}`] : true},
+              downVotes: increment(1),
+            }, 
+            { merge: true }
+            );
+          }
           return 1;
         }
       }

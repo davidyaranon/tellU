@@ -7,7 +7,7 @@ import { RefresherEventDetail, setupConfig } from '@ionic/core';
 import { Geolocation, Geoposition } from '@awesome-cordova-plugins/geolocation';
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts, promiseTimeout, upVote } from '../fbconfig'
+import { db, auth, getCurrentUser, logout, addMessage, storage, uploadImage, addComment, getAllPosts, promiseTimeout, upVote, downVote } from '../fbconfig'
 import Header, { ionHeaderStyle } from './Header'
 import '../App.css';
 import IconButton from '@mui/material/IconButton';
@@ -74,7 +74,7 @@ function Home() {
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [commentModalUserName, setCommentModalUserName] = useState("");
   const [commentModalImgSrc, setCommentModalImgSrc] = useState("");
-  const [disabledButton, setDisabledButton] = useState<number>(-1);
+  const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [user] = useAuthState(auth);
   const history = useHistory();
   const min = 0;
@@ -93,24 +93,52 @@ function Home() {
 
   const handleUpVote = async (postKey : string, index : number) => {
     const val = await upVote(schoolName, postKey);
-    if(val === 1) {
-      // increase upvote counter
-      console.log("upvote added");
-    } else if(val === -1) {
-      console.log("upvote removed");
+    if(val && (val === 1 || val === -1)) {
+      if(posts && user) {
+        let tempPosts : any[] = [...posts];
+        tempPosts[index].upVotes += val;
+        if(tempPosts[index].likes[user.uid]) {
+          delete tempPosts[index].likes[user.uid];
+        } else {
+          if(tempPosts[index].dislikes[user.uid]) {
+            delete tempPosts[index].dislikes[user.uid];
+            tempPosts[index].downVotes -= 1;
+          }
+          tempPosts[index].likes[user.uid] = true;
+        }
+        setPosts(tempPosts);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtons(-1);
+        });
+      }
     } else {
-      Toast.error("Unable to like post");
-    }
-    if(posts && val) {
-      let tempPosts : any[] = [...posts];
-      tempPosts[index].upVotes += val;
-      setPosts(tempPosts);
-      setDisabledButton(-1);
+      Toast.error("Unable to like post :(");
     }
   }
 
-  const handleDownVote = () => {
-    console.log('downvoted!');
+  const handleDownVote = async (postKey : string, index : number) => {
+    const val = await downVote(schoolName, postKey);
+    if(val && (val === 1 || val === -1)) {
+      if(posts && user) {
+        let tempPosts : any[] = [...posts];
+        tempPosts[index].downVotes += val;
+        if(tempPosts[index].dislikes[user.uid]) {
+          delete tempPosts[index].dislikes[user.uid];
+        } else {
+          if(tempPosts[index].likes[user.uid]) {
+            delete tempPosts[index].likes[user.uid];
+            tempPosts[index].upVotes -= 1;
+          }
+          tempPosts[index].dislikes[user.uid] = true;
+        }
+        setPosts(tempPosts);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtons(-1);
+        });
+      }
+    } else {
+      Toast.error("Unable to dislike post :(");
+    }
   }
 
   const handleChange = (e : any) => {
@@ -566,7 +594,7 @@ function Home() {
                           <KeyboardArrowUpIcon />
                           <p>{comment.upVotes} </p>
                         </IonButton>
-                        <IonButton mode='ios' fill='outline' color='medium' onClick={handleDownVote}>
+                        <IonButton mode='ios' fill='outline' color='medium'>
                           <KeyboardArrowDownIcon />
                           <p>{comment.downVotes} </p>
                         </IonButton>
@@ -621,7 +649,7 @@ function Home() {
                 </IonLabel>
               </IonItem>
               <IonItem lines='none' mode='ios'>
-              <IonButton disabled={disabledButton === index} mode='ios' fill='outline' color='medium' onClick={() => {setDisabledButton(index); handleUpVote(post.key, index)}}>
+              <IonButton disabled={disabledLikeButtons === index} mode='ios' fill='outline' color={posts && user && posts[index].likes[user.uid] !== undefined ? ("primary") : ("medium")} onClick={() => {setDisabledLikeButtons(index); handleUpVote(post.key, index)}}>
                   <KeyboardArrowUpIcon />
                   <p>{post.upVotes} </p>
                 </IonButton>
@@ -630,7 +658,7 @@ function Home() {
                   <IonIcon icon={chatbubblesOutline}/>
                   <p>&nbsp; {post.comments.length} </p>
                 </IonButton>
-                <IonButton mode='ios' fill='outline' color='medium' onClick={handleDownVote}>
+                <IonButton disabled={disabledLikeButtons === index} mode='ios' fill='outline' color={posts && user && posts[index].dislikes[user.uid] !== undefined ? ("danger") : ("medium")} onClick={() => {setDisabledLikeButtons(index); handleDownVote(post.key, index)}}>
                   <KeyboardArrowDownIcon />
                   <p>{post.downVotes} </p>
                 </IonButton>

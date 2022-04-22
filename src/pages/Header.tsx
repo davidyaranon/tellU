@@ -15,7 +15,7 @@ class Header extends Component<any, any>{
     render(){
         return (
 
-            <IonHeader style={{textAlign: "center"}}>
+            <IonHeader class="ion-no-border" style={{textAlign: "center"}}>
                 <IconButton>
                     <img 
                         className='quantum_logo'
