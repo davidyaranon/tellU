@@ -129,7 +129,8 @@ function Maps() {
 
         <Map center={center} zoom={zoom} onBoundsChanged={({ center, zoom }) => { setCenter(center); setZoom(zoom); }}>
           <ZoomControl style={{top : "80vh"}} />
-          <IonFab style={{bottom: "3vh"}} class='ion-fab' horizontal='end' vertical='bottom'>
+          <IonFab class='ion-fab' horizontal='end' vertical='bottom'>
+            <p style={{fontSize:"1em", color:"black"}}>{schoolName}</p>
             <IonFabButton color='light' mode='ios'>
               <IconButton onClick={setDefaultCenter}>
                 <IonIcon color='' icon={schoolOutline} />

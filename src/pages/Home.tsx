@@ -59,6 +59,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL } from "firebase/storage";
 import defaultMessages from "../components/funnies";
 import { RefresherEventDetail } from "@ionic/core";
+import MapIcon from "@mui/icons-material/Map";
 import Header, { ionHeaderStyle } from "./Header";
 import IconButton from "@mui/material/IconButton";
 import { useEffect, useState } from "react";
@@ -66,10 +67,12 @@ import { useToast } from "@agney/ir-toast";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { v4 as uuidv4 } from "uuid";
+import classNames from 'classnames';
 import "../theme/variables.css";
 import React from "react";
 
 import FadeIn from "react-fade-in";
+import { ClassNames } from "@emotion/react";
 
 export interface UserPhoto {
   filepath: string;
@@ -107,6 +110,8 @@ function Home() {
   const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
+  const [likeAnimation, setLikeAnimation] = useState<number>(-1);
+  const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const [user] = useAuthState(auth);
   const [commentModalPostIndex, setCommentModalPostIndex] =
     useState<number>(-1);
@@ -292,9 +297,7 @@ function Home() {
       } else {
         Toast.error("Unable to load posts");
       }
-      timeout(2500).then(() => {
-        setBusy(false);
-      });
+      setBusy(false);
     });
     tempPosts.catch((err: any) => {
       Toast.error(err);
@@ -601,7 +604,7 @@ function Home() {
                 </IonItem>
               </IonList>
               <div className="ion-button-container">
-                <p> *Adding a pin uses your current location</p>
+                <p> *Adding a pin uses your current location, if you want to adjust the pin you can in the {<MapIcon/>} tab</p>
                 <IonButton
                   onClick={() => {
                     handleSendMessage();
@@ -623,7 +626,7 @@ function Home() {
             <div className="ion-modal">
               <IonTextarea
                 color="secondary"
-                maxlength={200}
+                maxlength={250}
                 style={ionInputStyle}
                 value={message}
                 placeholder="Start typing..."
@@ -768,6 +771,8 @@ function Home() {
                       </IonItem>
                       <IonItem lines="none" mode="ios">
                         <IonButton
+                          onAnimationEnd={() => {setLikeAnimation(-1)}}
+                          className={likeAnimation === commentModalPostIndex ? ("likeAnimation") : ("")}
                           disabled={
                             disabledLikeButtons === commentModalPostIndex
                           }
@@ -782,6 +787,7 @@ function Home() {
                               : "medium"
                           }
                           onClick={() => {
+                            setLikeAnimation(commentModalPostIndex);
                             setDisabledLikeButtons(commentModalPostIndex);
                             handleUpVote(
                               commentModalPost.key,
@@ -794,6 +800,8 @@ function Home() {
                         </IonButton>
                         <p>&nbsp;</p>
                         <IonButton
+                          onAnimationEnd={() => {setDislikeAnimation(-1)}}
+                          className={dislikeAnimation === commentModalPostIndex ? ("likeAnimation") : ("")}
                           disabled={
                             disabledLikeButtons === commentModalPostIndex
                           }
@@ -808,6 +816,7 @@ function Home() {
                               : "medium"
                           }
                           onClick={() => {
+                            setDislikeAnimation(commentModalPostIndex);
                             setDisabledLikeButtons(commentModalPostIndex);
                             handleDownVote(
                               commentModalPost.key,
@@ -912,7 +921,8 @@ function Home() {
 
           {posts!.length > 0 ? (
             posts?.map((post, index) => (
-              <IonList inset={true} mode="ios" key={post.key}>
+              <FadeIn  key={post.key}>
+              <IonList inset={true} mode="ios">
                 <IonItem lines="none" mode="ios">
                   <IonLabel class="ion-text-wrap">
                     <IonText color="medium">
@@ -962,6 +972,8 @@ function Home() {
                 </IonItem>
                 <IonItem lines="none" mode="ios">
                   <IonButton
+                    onAnimationEnd={() => {setLikeAnimation(-1)}}
+                    className={likeAnimation === post.key ? ("likeAnimation") : ("")}
                     disabled={disabledLikeButtons === index}
                     mode="ios"
                     fill="outline"
@@ -973,6 +985,7 @@ function Home() {
                         : "medium"
                     }
                     onClick={() => {
+                      setLikeAnimation(post.key);
                       setDisabledLikeButtons(index);
                       handleUpVote(post.key, index);
                     }}
@@ -992,6 +1005,8 @@ function Home() {
                     <p>&nbsp; {post.comments.length} </p>
                   </IonButton>
                   <IonButton
+                    onAnimationEnd={() => {setDislikeAnimation(-1)}}
+                    className={dislikeAnimation === post.key ? ("likeAnimation") : ("")}
                     disabled={disabledLikeButtons === index}
                     mode="ios"
                     fill="outline"
@@ -1003,6 +1018,7 @@ function Home() {
                         : "medium"
                     }
                     onClick={() => {
+                      setDislikeAnimation(post.key);
                       setDisabledLikeButtons(index);
                       handleDownVote(post.key, index);
                     }}
@@ -1012,6 +1028,7 @@ function Home() {
                   </IonButton>
                 </IonItem>
               </IonList>
+              </FadeIn>
             ))
           ) : (
             <div>

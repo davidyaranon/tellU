@@ -46,7 +46,7 @@ import {
   chevronForward,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, getTopPostsWithinPastDay } from "../fbconfig";
+import { auth, downVote, getTopPostsWithinPastDay, upVote } from "../fbconfig";
 import Header, { ionHeaderStyle } from "./Header";
 import "../App.css";
 import { useHistory } from "react-router";
@@ -72,6 +72,13 @@ function Community() {
   const [commentModalPost, setCommentModalPost] = useState<any | null>(null);
   const [lastKey, setLastKey] = useState<string>("");
   const [userList, setUserList] = useState<any[]>([]);
+  const [commentModalPostUpvotes, setCommentModalPostUpvotes] =
+    useState<number>(-1);
+  const [commentModalPostDownvotes, setCommentModalPostDownvotes] =
+    useState<number>(-1);
+  const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
+  const [likeAnimation, setLikeAnimation] = useState<number>(-1);
+  const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const history = useHistory();
   const topPostsCache = localStorage.getItem("topPosts") || "false";
   const ionInputStyle = {
@@ -79,6 +86,9 @@ function Community() {
     width: "95vw",
     marginLeft: "2.5vw",
   };
+  function timeout(delay: number) {
+    return new Promise((res) => setTimeout(res, delay));
+  }
   const getColor = (postType: string) => {
     switch (postType) {
       case "general":
@@ -93,6 +103,58 @@ function Community() {
         return "#eed202";
       default:
         break;
+    }
+  };
+  const handleUpVote = async (postKey: string, index: number) => {
+    const val = await upVote(schoolName, postKey);
+    if (val && (val === 1 || val === -1)) {
+      if (topPosts && user) {
+        let tempPosts: any[] = [...topPosts];
+        tempPosts[index].data.upVotes += val;
+        setCommentModalPostUpvotes(commentModalPostUpvotes + val);
+        if (tempPosts[index].data.likes[user.uid]) {
+          delete tempPosts[index].data.likes[user.uid];
+        } else {
+          if (tempPosts[index].data.dislikes[user.uid]) {
+            delete tempPosts[index].data.dislikes[user.uid];
+            tempPosts[index].data.downVotes -= 1;
+            setCommentModalPostDownvotes(commentModalPostDownvotes - 1);
+          }
+          tempPosts[index].data.likes[user.uid] = true;
+        }
+        setTopPosts(tempPosts);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtons(-1);
+        });
+      }
+    } else {
+      Toast.error("Unable to like post :(");
+    }
+  };
+  const handleDownVote = async (postKey: string, index: number) => {
+    const val = await downVote(schoolName, postKey);
+    if (val && (val === 1 || val === -1)) {
+      if (topPosts && user) {
+        let tempPosts: any[] = [...topPosts];
+        setCommentModalPostDownvotes(commentModalPostDownvotes + val);
+        tempPosts[index].data.downVotes += val;
+        if (tempPosts[index].data.dislikes[user.uid]) {
+          delete tempPosts[index].data.dislikes[user.uid];
+        } else {
+          if (tempPosts[index].data.likes[user.uid]) {
+            delete tempPosts[index].data.likes[user.uid];
+            tempPosts[index].data.upVotes -= 1;
+            setCommentModalPostUpvotes(commentModalPostUpvotes - 1);
+          }
+          tempPosts[index].data.dislikes[user.uid] = true;
+        }
+        setTopPosts(tempPosts);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtons(-1);
+        });
+      }
+    } else {
+      Toast.error("Unable to dislike post :(");
     }
   };
   const fetchMoreUserData = (key: string) => {
@@ -125,7 +187,7 @@ function Community() {
       history.replace("/landing-page");
     } else {
       if (schoolName) {
-        if(topPostsCache != "false") {
+        if (topPostsCache != "false") {
           setTopPosts(JSON.parse(topPostsCache));
         }
         getTopPostsWithinPastDay(schoolName).then((res: any) => {
@@ -188,7 +250,9 @@ function Community() {
                         <IonText color="medium">
                           <p>
                             <IonAvatar class="posts-avatar">
-                              <IonImg src={commentModalPost.data.photoURL}></IonImg>
+                              <IonImg
+                                src={commentModalPost.data.photoURL}
+                              ></IonImg>
                             </IonAvatar>
                             {commentModalPost.data.userName}
                           </p>
@@ -199,13 +263,16 @@ function Community() {
                     </IonFab>
                     ) : (null) } */}
                         <wbr></wbr>
-                        <h2 className="h2-message">{commentModalPost.data.message}</h2>
+                        <h2 className="h2-message">
+                          {commentModalPost.data.message}
+                        </h2>
                       </IonLabel>
                       <div id={commentModalPost.data.postType}></div>
                     </IonItem>
                   </IonList>
                   <div className="verticalLine"></div>
-                  {commentModalPost.imgSrc && commentModalPost.imgSrc.length > 0 ? (
+                  {commentModalPost.imgSrc &&
+                  commentModalPost.imgSrc.length > 0 ? (
                     <IonCard style={{ bottom: "7.5vh" }}>
                       <IonCardContent>
                         <IonImg
@@ -295,23 +362,23 @@ function Community() {
 
         <Swiper slidesPerView={1.5}>
           {topPosts && topPosts.length > 0
-            ? topPosts.map((post) => {
+            ? topPosts.map((post, index) => {
                 return (
                   <SwiperSlide key={post.key}>
-                    <IonCard
-                      onClick={() => {
-                        handleCardClick(post);
-                      }}
-                      className="ion-card-community"
-                      mode="ios"
-                    >
-                      <IonCardContent>
+                    <IonCard className="ion-card-community" mode="ios">
+                      <IonCardContent
+                        style={{ minHeight: "60vh" }}
+                        onClick={() => {
+                          handleCardClick(post);
+                        }}
+                      >
                         {post.data.postType &&
                         post.data.postType != "general" ? (
-                          <IonFab horizontal="end">
+                          <IonFab horizontal="end" vertical="top">
                             <p
                               style={{
                                 fontWeight: "bold",
+                                fontSize: "2.5vw",
                                 color: getColor(post.data.postType),
                               }}
                             >
@@ -324,7 +391,9 @@ function Community() {
                         </IonCardTitle>
                         <br></br>
                         <IonNote color="medium" className="subtitle">
-                          {post.data.message}
+                          {post.data.message.length > 150
+                            ? post.data.message.substring(0, 150) + "..."
+                            : post.data.message}
                         </IonNote>
                         {post.imgSrc && post.imgSrc.length > 0 ? (
                           <div>
@@ -343,10 +412,31 @@ function Community() {
                         <IonRow>
                           <IonCol size="4">
                             <IonButton
+                              onAnimationEnd={() => {
+                                setLikeAnimation(-1);
+                              }}
+                              className={
+                                likeAnimation === post.key
+                                  ? "likeAnimation"
+                                  : ""
+                              }
+                              disabled={disabledLikeButtons === index}
+                              onClick={() => {
+                                setLikeAnimation(post.key);
+                                setDisabledLikeButtons(index);
+                                handleUpVote(post.key, index);
+                              }}
                               style={{ width: "16vw" }}
                               mode="ios"
                               fill="outline"
-                              color="medium"
+                              color={
+                                topPosts &&
+                                user &&
+                                topPosts[index].data.likes[user.uid] !==
+                                  undefined
+                                  ? "primary"
+                                  : "medium"
+                              }
                             >
                               <KeyboardArrowUpIcon />
                               <p>{post.data.upVotes} </p>
@@ -354,6 +444,11 @@ function Community() {
                           </IonCol>
                           <IonCol size="4">
                             <IonButton
+                              onClick={() => {
+                                setLikeAnimation(post.key);
+                                setDisabledLikeButtons(index);
+                                handleCardClick(post);
+                              }}
                               style={{ width: "16vw" }}
                               mode="ios"
                               color="medium"
@@ -364,10 +459,31 @@ function Community() {
                           </IonCol>
                           <IonCol size="4">
                             <IonButton
+                              onAnimationEnd={() => {
+                                setDislikeAnimation(-1);
+                              }}
+                              className={
+                                dislikeAnimation === post.key
+                                  ? "likeAnimation"
+                                  : ""
+                              }
+                              disabled={disabledLikeButtons === index}
                               style={{ width: "16vw" }}
                               mode="ios"
                               fill="outline"
-                              color="medium"
+                              onClick={() => {
+                                setDislikeAnimation(post.key);
+                                setDisabledLikeButtons(index);
+                                handleDownVote(post.key, index);
+                              }}
+                              color={
+                                topPosts &&
+                                user &&
+                                topPosts[index].data.dislikes[user.uid] !==
+                                  undefined
+                                  ? "danger"
+                                  : "medium"
+                              }
                             >
                               <KeyboardArrowDownIcon />
                               <p>{post.data.downVotes} </p>
