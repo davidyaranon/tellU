@@ -40,6 +40,7 @@ import {
   promiseTimeout,
   upVote,
   downVote,
+  loadComments,
 } from "../fbconfig";
 import {
   Camera,
@@ -67,7 +68,6 @@ import { useToast } from "@agney/ir-toast";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { v4 as uuidv4 } from "uuid";
-import classNames from 'classnames';
 import "../theme/variables.css";
 import React from "react";
 
@@ -135,7 +135,35 @@ function Home() {
     zoom: true,
     maxRatio: 2,
   };
-
+  const handleCommentSubmit = async (postKey: string) => {
+    if (comment.trim().length == 0) {
+      Toast.error("Input a comment");
+    } else {
+      setBusy(true);
+      const commentSent = await addComment(postKey, schoolName, comment);
+      setComment("");
+      if (commentSent) {
+        Toast.success("Comment added");
+        try {
+          // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+          const resComments = await loadComments(postKey, schoolName);
+          if (resComments) {
+            setComments(resComments);
+          } else {
+            Toast.error(
+              "Comments are currently broken on this post, try again later"
+            );
+          }
+        } catch (err: any) {
+          console.log(err);
+          Toast.error(err.message.toString());
+        }
+      } else {
+        Toast.error("Unable to comment on post");
+      }
+      setBusy(false);
+    }
+  };
   const handleUpVote = async (postKey: string, index: number) => {
     const val = await upVote(schoolName, postKey);
     if (val && (val === 1 || val === -1)) {
@@ -209,10 +237,6 @@ function Home() {
     setShowModal(false);
     messageAdd();
     setGeneralChecked(true);
-  };
-
-  const handleSendComment = () => {
-    commentAdd();
   };
 
   const getColor = (postType: string) => {
@@ -358,6 +382,20 @@ function Home() {
   }
 
   const handleCommentModal = async (post: any, e: any, postIndex: number) => {
+    try {
+      // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+      const resComments = await loadComments(post.key, schoolName);
+      if (resComments) {
+        setComments(resComments);
+      } else {
+        Toast.error(
+          "Comments are currently broken on this post, try again later"
+        );
+      }
+    } catch (err: any) {
+      console.log(err);
+      Toast.error(err.message.toString());
+    }
     let elementName = e.target.tagName.toLowerCase();
     if (
       elementName == "h2" ||
@@ -367,42 +405,10 @@ function Home() {
       setCommentModalPostIndex(postIndex);
       setCommentModalPostDownvotes(post.downVotes);
       setCommentModalPostUpvotes(post.upVotes);
+      setCommentModalPost(post);
       setShowModalComment(true);
-      try {
-        setBusy(true);
-        if (user && db) {
-          let tempCommentsArr: any[] = [];
-          for (let i = 0; i < post.comments.length; ++i) {
-            let res = "";
-            let url = post.comments[i].url;
-            if (url.length > 0) {
-              res = await getDownloadURL(ref(storage, url));
-            }
-            tempCommentsArr.push({
-              ...post.comments[i],
-              imgSrc: res,
-            });
-          }
-          setComments(tempCommentsArr);
-          setCommentModalPost(post);
-        }
-        setBusy(false);
-      } catch (err: any) {
-        console.log(err);
-        Toast.error(err.message.toString());
-        setBusy(false);
-      }
     }
   };
-
-  async function commentAdd() {
-    if (message.trim().length == 0) {
-      Toast.error("Input a comment");
-    } else {
-      setBusy(true);
-      const res = addComment(comment.trim());
-    }
-  }
 
   async function messageAdd() {
     if (message.trim().length == 0 && !blob) {
@@ -604,7 +610,11 @@ function Home() {
                 </IonItem>
               </IonList>
               <div className="ion-button-container">
-                <p> *Adding a pin uses your current location, if you want to adjust the pin you can in the {<MapIcon/>} tab</p>
+                <p>
+                  {" "}
+                  *Adding a pin uses your current location, if you want to
+                  adjust the pin you can in the {<MapIcon />} tab
+                </p>
                 <IonButton
                   onClick={() => {
                     handleSendMessage();
@@ -720,6 +730,7 @@ function Home() {
                 <IonFab horizontal="end">
                   <IonButton
                     onClick={() => {
+                      setComments([]);
                       setShowModalComment(false);
                       setComment("");
                     }}
@@ -771,8 +782,14 @@ function Home() {
                       </IonItem>
                       <IonItem lines="none" mode="ios">
                         <IonButton
-                          onAnimationEnd={() => {setLikeAnimation(-1)}}
-                          className={likeAnimation === commentModalPostIndex ? ("likeAnimation") : ("")}
+                          onAnimationEnd={() => {
+                            setLikeAnimation(-1);
+                          }}
+                          className={
+                            likeAnimation === commentModalPostIndex
+                              ? "likeAnimation"
+                              : ""
+                          }
                           disabled={
                             disabledLikeButtons === commentModalPostIndex
                           }
@@ -800,8 +817,14 @@ function Home() {
                         </IonButton>
                         <p>&nbsp;</p>
                         <IonButton
-                          onAnimationEnd={() => {setDislikeAnimation(-1)}}
-                          className={dislikeAnimation === commentModalPostIndex ? ("likeAnimation") : ("")}
+                          onAnimationEnd={() => {
+                            setDislikeAnimation(-1);
+                          }}
+                          className={
+                            dislikeAnimation === commentModalPostIndex
+                              ? "likeAnimation"
+                              : ""
+                          }
                           disabled={
                             disabledLikeButtons === commentModalPostIndex
                           }
@@ -850,6 +873,8 @@ function Home() {
                 {comments && comments.length > 0
                   ? comments?.map((comment, index) => (
                       <IonList inset={true} key={index}>
+                        {" "}
+                        {/*dont do this, change index!*/}
                         <IonItem lines="none">
                           <IonLabel class="ion-text-wrap">
                             <IonText color="medium">
@@ -862,7 +887,7 @@ function Home() {
                             </IonText>
                             <wbr></wbr>
                             <h2 className="h2-message"> {comment.comment} </h2>
-                            {comment.url.length > 0 ? (
+                            {/* {comment.url.length > 0 ? (
                               <div className="ion-img-container">
                                 <br></br>
                                 <IonImg
@@ -872,7 +897,7 @@ function Home() {
                                   src={comment.imgSrc}
                                 />
                               </div>
-                            ) : null}
+                            ) : null} */}
                           </IonLabel>
                           <div></div>
                         </IonItem>
@@ -909,6 +934,9 @@ function Home() {
                     fill="outline"
                     expand="block"
                     id="signUpButton"
+                    onClick={() => {
+                      handleCommentSubmit(commentModalPost.key);
+                    }}
                   >
                     Comment
                   </IonButton>
@@ -921,113 +949,121 @@ function Home() {
 
           {posts!.length > 0 ? (
             posts?.map((post, index) => (
-              <FadeIn  key={post.key}>
-              <IonList inset={true} mode="ios">
-                <IonItem lines="none" mode="ios">
-                  <IonLabel class="ion-text-wrap">
-                    <IonText color="medium">
-                      <IonRow>
-                        <IonCol size="6">
-                          <p>
-                            <IonAvatar class="posts-avatar">
-                              <IonImg src={post?.photoURL!}></IonImg>
-                            </IonAvatar>
-                            {post.userName}
-                          </p>
-                        </IonCol>
-                        <IonCol>
-                          {post.postType && post.postType != "general" ? (
-                            <IonFab horizontal="end">
-                              <p
-                                style={{
-                                  fontWeight: "bold",
-                                  color: getColor(post.postType),
-                                }}
-                              >
-                                {post.postType.toUpperCase()}
-                              </p>
-                            </IonFab>
-                          ) : null}
-                        </IonCol>
-                      </IonRow>
-                    </IonText>
-                    <wbr></wbr>
-                    <h3 className="h2-message" style={{ marginLeft: "2.5%" }}>
-                      {" "}
-                      {post.message}{" "}
-                    </h3>
-                    {post.url.length > 0 ? (
-                      <div className="ion-img-container">
-                        <br></br>
-                        <IonImg
-                          className="ion-img-style"
-                          onClick={() => {
-                            showPicture(post.imgSrc);
-                          }}
-                          src={post.imgSrc}
-                        />
-                      </div>
-                    ) : null}
-                  </IonLabel>
-                </IonItem>
-                <IonItem lines="none" mode="ios">
-                  <IonButton
-                    onAnimationEnd={() => {setLikeAnimation(-1)}}
-                    className={likeAnimation === post.key ? ("likeAnimation") : ("")}
-                    disabled={disabledLikeButtons === index}
-                    mode="ios"
-                    fill="outline"
-                    color={
-                      posts &&
-                      user &&
-                      posts[index].likes[user.uid] !== undefined
-                        ? "primary"
-                        : "medium"
-                    }
-                    onClick={() => {
-                      setLikeAnimation(post.key);
-                      setDisabledLikeButtons(index);
-                      handleUpVote(post.key, index);
-                    }}
-                  >
-                    <KeyboardArrowUpIcon />
-                    <p>{post.upVotes} </p>
-                  </IonButton>
-                  <p>&nbsp;</p>
-                  <IonButton
-                    mode="ios"
-                    color="medium"
-                    onClick={(e) => {
-                      handleCommentModal(post, e, index);
-                    }}
-                  >
-                    <IonIcon icon={chatbubblesOutline} />
-                    <p>&nbsp; {post.comments.length} </p>
-                  </IonButton>
-                  <IonButton
-                    onAnimationEnd={() => {setDislikeAnimation(-1)}}
-                    className={dislikeAnimation === post.key ? ("likeAnimation") : ("")}
-                    disabled={disabledLikeButtons === index}
-                    mode="ios"
-                    fill="outline"
-                    color={
-                      posts &&
-                      user &&
-                      posts[index].dislikes[user.uid] !== undefined
-                        ? "danger"
-                        : "medium"
-                    }
-                    onClick={() => {
-                      setDislikeAnimation(post.key);
-                      setDisabledLikeButtons(index);
-                      handleDownVote(post.key, index);
-                    }}
-                  >
-                    <KeyboardArrowDownIcon />
-                    <p>{post.downVotes} </p>
-                  </IonButton>
-                </IonItem>
-              </IonList>
+              <FadeIn key={post.key}>
+                <IonList inset={true} mode="ios">
+                  <IonItem lines="none" mode="ios">
+                    <IonLabel class="ion-text-wrap">
+                      <IonText color="medium">
+                        <IonRow>
+                          <IonCol size="6">
+                            <p>
+                              <IonAvatar class="posts-avatar">
+                                <IonImg src={post?.photoURL!}></IonImg>
+                              </IonAvatar>
+                              {post.userName}
+                            </p>
+                          </IonCol>
+                          <IonCol>
+                            {post.postType && post.postType != "general" ? (
+                              <IonFab horizontal="end">
+                                <p
+                                  style={{
+                                    fontWeight: "bold",
+                                    color: getColor(post.postType),
+                                  }}
+                                >
+                                  {post.postType.toUpperCase()}
+                                </p>
+                              </IonFab>
+                            ) : null}
+                          </IonCol>
+                        </IonRow>
+                      </IonText>
+                      <wbr></wbr>
+                      <h3 className="h2-message" style={{ marginLeft: "2.5%" }}>
+                        {" "}
+                        {post.message}{" "}
+                      </h3>
+                      {post.url.length > 0 ? (
+                        <div className="ion-img-container">
+                          <br></br>
+                          <IonImg
+                            className="ion-img-style"
+                            onClick={() => {
+                              showPicture(post.imgSrc);
+                            }}
+                            src={post.imgSrc}
+                          />
+                        </div>
+                      ) : null}
+                    </IonLabel>
+                  </IonItem>
+                  <IonItem lines="none" mode="ios">
+                    <IonButton
+                      onAnimationEnd={() => {
+                        setLikeAnimation(-1);
+                      }}
+                      className={
+                        likeAnimation === post.key ? "likeAnimation" : ""
+                      }
+                      disabled={disabledLikeButtons === index}
+                      mode="ios"
+                      fill="outline"
+                      color={
+                        posts &&
+                        user &&
+                        posts[index].likes[user.uid] !== undefined
+                          ? "primary"
+                          : "medium"
+                      }
+                      onClick={() => {
+                        setLikeAnimation(post.key);
+                        setDisabledLikeButtons(index);
+                        handleUpVote(post.key, index);
+                      }}
+                    >
+                      <KeyboardArrowUpIcon />
+                      <p>{post.upVotes} </p>
+                    </IonButton>
+                    <p>&nbsp;</p>
+                    <IonButton
+                      mode="ios"
+                      color="medium"
+                      onClick={(e) => {
+                        handleCommentModal(post, e, index);
+                      }}
+                    >
+                      <IonIcon icon={chatbubblesOutline} />
+                      <p>&nbsp; {post.commentAmount} </p>
+                    </IonButton>
+                    <IonButton
+                      onAnimationEnd={() => {
+                        setDislikeAnimation(-1);
+                      }}
+                      className={
+                        dislikeAnimation === post.key ? "likeAnimation" : ""
+                      }
+                      disabled={disabledLikeButtons === index}
+                      mode="ios"
+                      fill="outline"
+                      color={
+                        posts &&
+                        user &&
+                        posts[index].dislikes[user.uid] !== undefined
+                          ? "danger"
+                          : "medium"
+                      }
+                      onClick={() => {
+                        setDislikeAnimation(post.key);
+                        setDisabledLikeButtons(index);
+                        handleDownVote(post.key, index);
+                      }}
+                    >
+                      <KeyboardArrowDownIcon />
+                      <p>{post.downVotes} </p>
+                    </IonButton>
+                  </IonItem>
+                </IonList>
               </FadeIn>
             ))
           ) : (

@@ -257,11 +257,19 @@ function Community() {
                             {commentModalPost.data.userName}
                           </p>
                         </IonText>
-                        {/* {commentModalPostType != "general"  ? (
-                    <IonFab vertical='top' horizontal='end'>
-                      <p style={{fontWeight:"bold", color:getColor(commentModalPostType)}}>{commentModalPostType.toUpperCase()}</p>
-                    </IonFab>
-                    ) : (null) } */}
+                        {commentModalPost.data.postType &&
+                        commentModalPost.data.postType != "general" ? (
+                          <IonFab vertical="top" horizontal="end">
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                color: getColor(commentModalPost.data.postType),
+                              }}
+                            >
+                              {commentModalPost.data.postType.toUpperCase()}
+                            </p>
+                          </IonFab>
+                        ) : null}
                         <wbr></wbr>
                         <h2 className="h2-message">
                           {commentModalPost.data.message}
@@ -286,7 +294,7 @@ function Community() {
                   ) : null}
                 </div>
               ) : null}
-              <p style={{ textAlign: "center" }}>Comments</p>
+              <p style={{ textAlign: "center",}}>Comments</p>
               <br></br>
               {/* {commentModalPost.comments && commentModalPost.comments.length > 0
                 ? commentModalPost.comments?.map((comment : any, index : number) => (
@@ -399,7 +407,7 @@ function Community() {
                           <div>
                             <br></br>
                             <IonImg
-                              className="ion-img-style"
+                              className="ion-img-container"
                               src={post.imgSrc}
                             />
                             <br></br>
@@ -454,7 +462,7 @@ function Community() {
                               color="medium"
                             >
                               <IonIcon icon={chatbubblesOutline} />
-                              <p>&nbsp; {post.data.comments.length} </p>
+                              <p>&nbsp; {post.data.commentAmount} </p>
                             </IonButton>
                           </IonCol>
                           <IonCol size="4">

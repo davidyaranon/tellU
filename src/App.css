@@ -87,12 +87,12 @@ ion-checkbox {
   text-align: center;
   margin-left: 14%;
   margin-top: 40pt;
-
-  display: flex;
-  flex-direction: row;
+  color: black;
+  background-color: white;
   justify-content: center;
   align-content: center;
   align-items: center;
+  border-radius: 15px;
 }
 
 .user-avatar {

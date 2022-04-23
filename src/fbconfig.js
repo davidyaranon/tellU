@@ -146,28 +146,6 @@ export function getCurrentUser() {
   });
 }
 
-export const addComment = async (comment) => {
-  try {
-    if (auth.currentUser != null) {
-      if (auth.currentUser.uid != null) {
-        var name = auth.currentUser.displayName;
-        const userListOfPosts = doc(db, "userData", auth.currentUser.uid);
-        const snap = await getDoc(userListOfPosts);
-        return "true";
-      } else {
-        console.log("uid missing");
-      }
-    } else {
-      console.log("currentUser missing");
-    }
-  } catch (err) {
-    console.log(err.message);
-    return "false";
-  }
-};
-
-export const addMarker = async (lat, long) => {};
-
 export const addMessage = async (
   mess,
   blob,
@@ -185,6 +163,9 @@ export const addMessage = async (
         var url = "";
         let lat = 0;
         let long = 0;
+        if (blob) {
+          url = "images/" + auth.currentUser.uid.toString() + id;
+        }
         if (pos) {
           console.log("location given");
           lat = pos.coords.latitude;
@@ -194,14 +175,18 @@ export const addMessage = async (
             timestamp: serverTimestamp(),
             message: mess,
             url: url,
+            likes: {},
+            dislikes: {},
             uid: auth.currentUser.uid,
+            commentAmount: 0,
+            upVotes: 0,
+            downVotes: 0,
+            comments: [],
+            photoURL: auth.currentUser.photoURL,
             location: [lat, long],
-            school: school,
             postType: postType,
+            school: school,
           });
-        }
-        if (blob) {
-          url = "images/" + auth.currentUser.uid.toString() + id;
         }
         await updateDoc(userListOfPosts, {
           listOfPosts: arrayUnion({
@@ -228,10 +213,21 @@ export const addMessage = async (
             commentAmount: 0,
             upVotes: 0,
             downVotes: 0,
-            comments: [],
             photoURL: auth.currentUser.photoURL,
             location: [lat, long],
             postType: postType,
+          }
+        );
+        await setDoc(
+          doc(
+            db,
+            "schoolPosts",
+            school.replace(/\s+/g, ""),
+            "comments",
+            docRef.id
+          ),
+          {
+            comments: {},
           }
         );
         return "true";
@@ -497,3 +493,68 @@ export const downVote = async (schoolName, postKey) => {
     console.log(err);
   }
 };
+
+export const addComment = async (postKey, schoolName, commentString) => {
+  try {
+    if (auth && auth.currentUser) {
+      const userUid = auth.currentUser.uid;
+      const userName = auth.currentUser.displayName;
+      const photoURL = auth.currentUser.photoURL;
+      const postRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts",
+        postKey
+      );
+      const postDocRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "comments",
+        postKey
+      );
+      const commentSnap = await getDoc(postDocRef);
+      if (commentSnap.exists && commentSnap.data().commentsArr) {
+        await updateDoc(postDocRef, {
+          commentsArr: arrayUnion({
+            comment: commentString,
+            photoURL: photoURL, 
+            userName: userName,
+            upVotes: 0,
+            downVotes: 0,
+          })
+        });
+        const postSnap = await getDoc(postRef);
+        if(postSnap.exists && postSnap.data().commentAmount) {
+          await updateDoc(postRef, {
+            commentAmount: increment(1),
+          })
+        }
+        return true;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const loadComments = async (postKey, schoolName) => {
+  try {
+    if(auth && auth.currentUser) {
+      const postDocRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "comments",
+        postKey
+      );
+      const snap = await getDoc(postDocRef);
+      if(snap.exists) {
+        return snap.data().commentsArr;
+      }
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
