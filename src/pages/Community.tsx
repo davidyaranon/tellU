@@ -50,7 +50,7 @@ import { auth, downVote, getTopPostsWithinPastDay, upVote } from "../fbconfig";
 import Header, { ionHeaderStyle } from "./Header";
 import "../App.css";
 import { useHistory } from "react-router";
-import { getUsers, getNextBatchUsers } from "../fbconfig";
+import { getUserData, getNextBatchUsers } from "../fbconfig";
 import { ToastProvider, useToast } from "@agney/ir-toast";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCards } from "swiper";
@@ -157,6 +157,9 @@ function Community() {
       Toast.error("Unable to dislike post :(");
     }
   };
+  const handleUserPageNavigation = (uid: string) => {
+    history.push("users/" + uid, { from: "home" });
+  };
   const fetchMoreUserData = (key: string) => {
     if (key && key.length > 0) {
       setBusy(true);
@@ -249,7 +252,14 @@ function Community() {
                       <IonLabel class="ion-text-wrap">
                         <IonText color="medium">
                           <p>
-                            <IonAvatar class="posts-avatar">
+                            <IonAvatar onClick={() => {
+                              //setComments([]);
+                              setShowModalComment(false);
+                              setComment("");
+                              handleUserPageNavigation(
+                                commentModalPost.data.uid
+                              );
+                            }} class="posts-avatar">
                               <IonImg
                                 src={commentModalPost.data.photoURL}
                               ></IonImg>
@@ -279,15 +289,15 @@ function Community() {
                     </IonItem>
                   </IonList>
                   <div className="verticalLine"></div>
-                  {commentModalPost.imgSrc &&
-                  commentModalPost.imgSrc.length > 0 ? (
+                  {commentModalPost.data.imgSrc &&
+                  commentModalPost.data.imgSrc.length > 0 ? (
                     <IonCard style={{ bottom: "7.5vh" }}>
                       <IonCardContent>
                         <IonImg
                           onClick={() => {
-                            PhotoViewer.show(commentModalPost.imgSrc);
+                            PhotoViewer.show(commentModalPost.data.imgSrc);
                           }}
-                          src={commentModalPost.imgSrc}
+                          src={commentModalPost.data.imgSrc}
                         ></IonImg>
                       </IonCardContent>
                     </IonCard>
@@ -403,12 +413,12 @@ function Community() {
                             ? post.data.message.substring(0, 150) + "..."
                             : post.data.message}
                         </IonNote>
-                        {post.imgSrc && post.imgSrc.length > 0 ? (
+                        {post.data.imgSrc && post.data.imgSrc.length > 0 ? (
                           <div>
                             <br></br>
                             <IonImg
                               className="ion-img-container"
-                              src={post.imgSrc}
+                              src={post.data.imgSrc}
                             />
                             <br></br>
                             <br></br>
@@ -453,8 +463,6 @@ function Community() {
                           <IonCol size="4">
                             <IonButton
                               onClick={() => {
-                                setLikeAnimation(post.key);
-                                setDisabledLikeButtons(index);
                                 handleCardClick(post);
                               }}
                               style={{ width: "16vw" }}

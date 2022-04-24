@@ -42,6 +42,7 @@ import User from "./pages/User";
 import LandingPage from "./pages/LandingPage";
 import Register from "./pages/Register";
 import RedirectComponent from "./pages/RedirectComponent";
+import { UserProfile } from "./pages/UserProfile";
 
 import UIContext from "./my-context";
 import { ToastProvider, useToast } from "@agney/ir-toast";
@@ -100,12 +101,13 @@ const RoutingSystem: React.FunctionComponent = () => {
                 <LandingPage />{" "}
               </Route>
               <Route path="/register" component={Register} exact={true} />
+              <Route path="/users/:uid" component={UserProfile} />
               <Route
                 exact
                 path="/"
                 render={() => <Redirect to="/landing-page" />}
               />
-              <Route component={RedirectComponent} />
+              {/* <Route component={RedirectComponent} /> */}
             </IonRouterOutlet>
             <IonTabBar slot="bottom" style={tabBarStyle}>
               <IonTabButton tab="home" href="/home">

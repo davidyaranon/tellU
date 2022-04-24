@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL,} from "firebase/storage";
 import {
   WriteBatch,
   deleteField,
@@ -29,6 +29,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
+import { school } from "ionicons/icons";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
@@ -161,10 +162,12 @@ export const addMessage = async (
         const userListOfPosts = doc(db, "userData", auth.currentUser.uid);
         const snap = await getDoc(userListOfPosts);
         var url = "";
+        let imgSrc = "";
         let lat = 0;
         let long = 0;
         if (blob) {
           url = "images/" + auth.currentUser.uid.toString() + id;
+          imgSrc = await getDownloadURL(ref(storage, url));
         }
         if (pos) {
           console.log("location given");
@@ -186,20 +189,21 @@ export const addMessage = async (
             location: [lat, long],
             postType: postType,
             school: school,
+            imgSrc: imgSrc,
           });
         }
-        await updateDoc(userListOfPosts, {
-          listOfPosts: arrayUnion({
-            timestamp: snap.data().listOfPosts.length,
-            message: mess,
-            url: url,
-            uid: auth.currentUser.uid,
-            comments: [{ timestamp: 0, message: "", url: "" }],
-            upVotes: 0,
-            downVotes: 0,
-            postType: postType,
-          }),
-        });
+        // await updateDoc(userListOfPosts, {
+        //   listOfPosts: arrayUnion({
+        //     timestamp: snap.data().listOfPosts.length,
+        //     message: mess,
+        //     url: url,
+        //     uid: auth.currentUser.uid,
+        //     comments: [{ timestamp: 0, message: "", url: "" }],
+        //     upVotes: 0,
+        //     downVotes: 0,
+        //     postType: postType,
+        //   }),
+        // });
         const docRef = await addDoc(
           collection(db, "schoolPosts", school.replace(/\s+/g, ""), "allPosts"),
           {
@@ -216,6 +220,7 @@ export const addMessage = async (
             photoURL: auth.currentUser.photoURL,
             location: [lat, long],
             postType: postType,
+            imgSrc: imgSrc,
           }
         );
         await setDoc(
@@ -227,7 +232,7 @@ export const addMessage = async (
             docRef.id
           ),
           {
-            comments: {},
+            commentsArr: {},
           }
         );
         return "true";
@@ -278,15 +283,9 @@ export async function getAllPosts(schoolName) {
       const tempArr = [];
       const docs = querySnapshot.docs;
       for (const doc of docs) {
-        let res = "";
-        let url = doc.data().url;
-        if (url.length > 0) {
-          res = await getDownloadURL(ref(storage, url));
-        }
         tempArr.push({
           ...doc.data(),
           key: doc.id,
-          imgSrc: res,
         });
       }
       return tempArr;
@@ -308,23 +307,66 @@ export const promiseTimeout = function (ms, promise) {
   return Promise.race([promise, timeout]);
 };
 
-export const getUsers = async () => {
+export const getUserPosts = async (schoolName, uid) => {
+  try {
+    if(db) {
+      const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(5));
+      const qSnap = await getDocs(q);
+      let userPosts = [];
+      let lastKey = "";
+      const docs = qSnap.docs;
+      for(const doc of docs) {
+        userPosts.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+        lastKey = doc.data().timestamp;
+      }
+      return { userPosts, lastKey };
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const getNextBatchUserPosts = async (schoolName, uid, key) => {
+  try{
+    if(db) {
+      const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(5));
+      const qSnap = await getDocs(q);
+      let userPosts = [];
+      let lastKey = "";
+      const docs = qSnap.docs;
+      for(const doc of docs) {
+        userPosts.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+        lastKey = doc.data().timestamp;
+      }
+      return { userPosts, lastKey };
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const getUserData = async (uid) => {
   try {
     if (auth && db) {
+      let temp = [];
       const usersRef = collection(db, "userData");
-      const q = query(usersRef, orderBy("userName", "asc"), limit(2));
+      const q = query(usersRef, where("uid", "==", uid));
       const querySnapshot = await getDocs(q);
-      let userList = [];
-      let lastKey = "";
       const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        userList.push({
-          key: doc.id,
-          data: doc.data(),
+      for(const doc of docs){
+        temp.push({
+          ...doc.data(),
         });
-        lastKey = doc.data().userName;
       }
-      return { userList, lastKey };
+      return temp;
     }
   } catch (err) {
     console.log(err);
@@ -380,15 +422,9 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
       const topPosts = [];
       const docs = querySnapshot.docs;
       for (const doc of docs) {
-        let url = doc.data().url;
-        let res = "";
-        if (url.length > 0) {
-          res = await getDownloadURL(ref(storage, url));
-        }
         topPosts.push({
           key: doc.id,
           data: doc.data(),
-          imgSrc: res,
         });
       }
       return topPosts;
@@ -523,13 +559,16 @@ export const addComment = async (postKey, schoolName, commentString) => {
             userName: userName,
             upVotes: 0,
             downVotes: 0,
+            uid: userUid,
           })
         });
         const postSnap = await getDoc(postRef);
-        if(postSnap.exists && postSnap.data().commentAmount) {
+        if(postSnap.exists ) {
           await updateDoc(postRef, {
             commentAmount: increment(1),
           })
+        } else {
+          console.log(postSnap.data());
         }
         return true;
       }

@@ -5,6 +5,10 @@
   transform: translate(-50%, -50%);
 }
 
+ion-skeleton-text {
+  --background-rgb: 130, 130, 130;
+}
+
 @keyframes like-animation{
   0% { transform: scale3d(1, 1, 1); }
   30% { transform: scale3d(1.25, 0.75, 1); }

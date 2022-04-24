@@ -1,4 +1,5 @@
 import "../App.css";
+import { Link } from "react-router-dom";
 import {
   IonContent,
   IonHeader,
@@ -28,6 +29,8 @@ import {
   IonCol,
   IonListHeader,
   IonCardContent,
+  IonSpinner,
+  IonNote,
 } from "@ionic/react";
 import {
   db,
@@ -57,7 +60,6 @@ import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
 import { chevronDownCircleOutline } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { ref, getDownloadURL } from "firebase/storage";
 import defaultMessages from "../components/funnies";
 import { RefresherEventDetail } from "@ionic/core";
 import MapIcon from "@mui/icons-material/Map";
@@ -70,9 +72,9 @@ import { useHistory } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import "../theme/variables.css";
 import React from "react";
-
 import FadeIn from "react-fade-in";
-import { ClassNames } from "@emotion/react";
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en.json'
 
 export interface UserPhoto {
   filepath: string;
@@ -82,6 +84,7 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
+  const timeAgo = new TimeAgo('en-US')
   const schoolName = useSelector((state: any) => state.user.school);
   const hasLoaded = useSelector((state: any) => state.user.hasLoaded);
   const [busy, setBusy] = useState<boolean>(false);
@@ -112,6 +115,7 @@ function Home() {
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
+  const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
   const [user] = useAuthState(auth);
   const [commentModalPostIndex, setCommentModalPostIndex] =
     useState<number>(-1);
@@ -135,6 +139,9 @@ function Home() {
     zoom: true,
     maxRatio: 2,
   };
+  const handleUserPageNavigation = (uid: string) => {
+    history.push("users/" + uid, { from: "home" });
+  };
   const handleCommentSubmit = async (postKey: string) => {
     if (comment.trim().length == 0) {
       Toast.error("Input a comment");
@@ -144,15 +151,20 @@ function Home() {
       setComment("");
       if (commentSent) {
         Toast.success("Comment added");
+        if (posts) {
+          let tempPosts: any[] = [...posts];
+          tempPosts[commentModalPostIndex].commentAmount += 1;
+          setPosts(tempPosts);
+        }
         try {
           // load comments from /schoolPosts/{schoolName}/comments/{post.key}
           const resComments = await loadComments(postKey, schoolName);
-          if (resComments) {
-            setComments(resComments);
-          } else {
+          if (resComments == null || resComments == undefined) {
             Toast.error(
               "Comments are currently broken on this post, try again later"
             );
+          } else {
+            setComments(resComments);
           }
         } catch (err: any) {
           console.log(err);
@@ -237,6 +249,13 @@ function Home() {
     setShowModal(false);
     messageAdd();
     setGeneralChecked(true);
+  };
+
+  const getDate = (timestamp: any) => {
+    const time = new Date(
+      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+    );
+    return timeAgo.format(time);
   };
 
   const getColor = (postType: string) => {
@@ -382,20 +401,6 @@ function Home() {
   }
 
   const handleCommentModal = async (post: any, e: any, postIndex: number) => {
-    try {
-      // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-      const resComments = await loadComments(post.key, schoolName);
-      if (resComments) {
-        setComments(resComments);
-      } else {
-        Toast.error(
-          "Comments are currently broken on this post, try again later"
-        );
-      }
-    } catch (err: any) {
-      console.log(err);
-      Toast.error(err.message.toString());
-    }
     let elementName = e.target.tagName.toLowerCase();
     if (
       elementName == "h2" ||
@@ -406,7 +411,25 @@ function Home() {
       setCommentModalPostDownvotes(post.downVotes);
       setCommentModalPostUpvotes(post.upVotes);
       setCommentModalPost(post);
-      setShowModalComment(true);
+    }
+    setCommentsLoading(true);
+    setShowModalComment(true);
+    try {
+      // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+      const resComments = await loadComments(post.key, schoolName);
+      if (resComments != null && resComments != undefined) {
+        console.log(resComments);
+        setComments(resComments);
+        setCommentsLoading(false);
+      } else {
+        console.log(resComments);
+        Toast.error(
+          "Comments are currently broken on this post, try again later"
+        );
+      }
+    } catch (err: any) {
+      console.log(err);
+      Toast.error(err.message.toString());
     }
   };
 
@@ -753,7 +776,17 @@ function Home() {
                         <IonLabel class="ion-text-wrap">
                           <IonText color="medium">
                             <p>
-                              <IonAvatar class="posts-avatar">
+                              <IonAvatar
+                                onClick={() => {
+                                  setComments([]);
+                                  setShowModalComment(false);
+                                  setComment("");
+                                  handleUserPageNavigation(
+                                    commentModalPost.uid
+                                  );
+                                }}
+                                class="posts-avatar"
+                              >
                                 <IonImg
                                   src={commentModalPost.photoURL}
                                 ></IonImg>
@@ -870,50 +903,85 @@ function Home() {
                 ) : null}
                 <p style={{ textAlign: "center" }}>Comments</p>
                 <br></br>
-                {comments && comments.length > 0
-                  ? comments?.map((comment, index) => (
-                      <IonList inset={true} key={index}>
-                        {" "}
-                        {/*dont do this, change index!*/}
-                        <IonItem lines="none">
-                          <IonLabel class="ion-text-wrap">
-                            <IonText color="medium">
-                              <p>
-                                <IonAvatar class="posts-avatar">
-                                  <IonImg src={comment?.photoURL!}></IonImg>
-                                </IonAvatar>
-                                {comment.userName}
-                              </p>
-                            </IonText>
-                            <wbr></wbr>
-                            <h2 className="h2-message"> {comment.comment} </h2>
-                            {/* {comment.url.length > 0 ? (
-                              <div className="ion-img-container">
-                                <br></br>
-                                <IonImg
-                                  onClick={() => {
-                                    showPicture(comment.imgSrc);
-                                  }}
-                                  src={comment.imgSrc}
-                                />
-                              </div>
-                            ) : null} */}
-                          </IonLabel>
-                          <div></div>
-                        </IonItem>
-                        <IonItem lines="none" mode="ios">
-                          <IonButton mode="ios" fill="outline" color="medium">
-                            <KeyboardArrowUpIcon />
-                            <p>{comment.upVotes} </p>
-                          </IonButton>
-                          <IonButton mode="ios" fill="outline" color="medium">
-                            <KeyboardArrowDownIcon />
-                            <p>{comment.downVotes} </p>
-                          </IonButton>
-                        </IonItem>
-                      </IonList>
-                    ))
-                  : null}
+                {commentsLoading && !comments ? (
+                  <div
+                    style={{
+                      alignItems: "center",
+                      textAlign: "center",
+                      justifyContent: "center",
+                      display: "flex",
+                    }}
+                  >
+                    <IonSpinner color="primary" />
+                  </div>
+                ) : (
+                  <div>
+                    {comments && comments.length > 0
+                      ? comments?.map((comment: any, index) => (
+                          <IonList inset={true} key={index}>
+                            {" "}
+                            {/*dont do this, change index!*/}
+                            <IonItem lines="none">
+                              <IonLabel class="ion-text-wrap">
+                                <IonText color="medium">
+                                  <p>
+                                    <IonAvatar
+                                      onClick={() => {
+                                        setComments([]);
+                                        setShowModalComment(false);
+                                        setComment("");
+                                        handleUserPageNavigation(comment.uid);
+                                      }}
+                                      class="posts-avatar"
+                                    >
+                                      <IonImg src={comment?.photoURL!}></IonImg>
+                                    </IonAvatar>
+                                    {comment.userName}
+                                  </p>
+                                </IonText>
+                                <wbr></wbr>
+                                <h2 className="h2-message">
+                                  {" "}
+                                  {comment.comment}{" "}
+                                </h2>
+                                {/* {comment.url.length > 0 ? (
+                                    <div className="ion-img-container">
+                                      <br></br>
+                                      <IonImg
+                                        onClick={() => {
+                                          showPicture(comment.imgSrc);
+                                        }}
+                                        src={comment.imgSrc}
+                                      />
+                                    </div>
+                                  ) : null} */}
+                              </IonLabel>
+                              <div></div>
+                            </IonItem>
+                            <IonItem lines="none" mode="ios">
+                              <IonButton
+                                mode="ios"
+                                fill="outline"
+                                color="medium"
+                              >
+                                <KeyboardArrowUpIcon />
+                                <p>{comment.upVotes} </p>
+                              </IonButton>
+                              <IonButton
+                                mode="ios"
+                                fill="outline"
+                                color="medium"
+                              >
+                                <KeyboardArrowDownIcon />
+                                <p>{comment.downVotes} </p>
+                              </IonButton>
+                            </IonItem>
+                          </IonList>
+                        ))
+                      : null}
+                  </div>
+                )}
+
                 <IonTextarea
                   color="secondary"
                   spellcheck={true}
@@ -957,7 +1025,12 @@ function Home() {
                         <IonRow>
                           <IonCol size="6">
                             <p>
-                              <IonAvatar class="posts-avatar">
+                              <IonAvatar
+                                onClick={() => {
+                                  handleUserPageNavigation(post.uid);
+                                }}
+                                class="posts-avatar"
+                              >
                                 <IonImg src={post?.photoURL!}></IonImg>
                               </IonAvatar>
                               {post.userName}
@@ -976,6 +1049,9 @@ function Home() {
                                 </p>
                               </IonFab>
                             ) : null}
+                            <IonFab style={{bottom: "1vh"}} horizontal="end">
+                            <IonNote style={{fontSize: "0.85em"}}>{getDate(post.timestamp)}</IonNote>
+                            </IonFab>
                           </IonCol>
                         </IonRow>
                       </IonText>

@@ -180,15 +180,9 @@ function Maps() {
     const tempMarkers: any[] = [];
     const docs = querySnapshot.docs;
     for (const doc of docs) {
-      let res = "";
-      let url = doc.data().url;
-      if (url.length > 0) {
-        res = await getDownloadURL(ref(storage, url));
-      }
       tempMarkers.push({
         ...doc.data(),
         key: doc.id,
-        imgSrc: res,
       });
     }
     console.log(tempMarkers);
@@ -457,7 +451,7 @@ function Maps() {
                     </p>
                   </IonFab>
                   <p>{markers[overlayIndex].message}</p>
-                  {markers[overlayIndex].imgSrc.length > 0 ? (
+                  {markers[overlayIndex].imgSrc && markers[overlayIndex].imgSrc.length > 0 ? (
                     <IonImg
                       class="ion-img-container"
                       src={markers[overlayIndex].imgSrc}

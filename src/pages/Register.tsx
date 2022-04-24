@@ -221,7 +221,7 @@ const Register: React.FC = () => {
             <IonSelect
               value={schoolName}
               placeholder="University of California"
-              onIonChange={(e: any) => {console.log("L"); setSchoolName(e.detail.value)}}
+              onIonChange={(e: any) => {setSchoolName(e.detail.value)}}
             >
               <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
               <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
