@@ -32,10 +32,12 @@ import {
   IonCardContent,
   IonSelect,
   IonSelectOption,
+  IonRow,
+  IonCol,
 } from "@ionic/react";
-import { schoolOutline } from "ionicons/icons";
+import { arrowBack, schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState, useRef } from "react";
-import { auth, db, storage } from "../fbconfig";
+import { auth, db, downVote, loadComments, storage, upVote } from "../fbconfig";
 import { getDownloadURL, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
@@ -58,6 +60,9 @@ import { IconButton } from "@mui/material";
 import { string } from "prop-types";
 import { useToast } from "@agney/ir-toast";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import ForumIcon from "@mui/icons-material/Forum";
 
 const schoolInfo = {
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
@@ -93,6 +98,14 @@ function Maps() {
   const [showModalComment, setShowModalComment] = useState<boolean>(false);
   const [comment, setComment] = useState<string>("");
   const history = useHistory();
+  const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
+  const [likeAnimation, setLikeAnimation] = useState<number>(-1);
+  const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
+  const [commentModalPostUpvotes, setCommentModalPostUpvotes] =
+    useState<number>(-1);
+  const [commentModalPostDownvotes, setCommentModalPostDownvotes] =
+    useState<number>(-1);
+  const [comments, setComments] = useState<any[] | null>(null);
   const ionInputStyle = {
     height: "10vh",
     width: "95vw",
@@ -118,6 +131,89 @@ function Maps() {
         break;
     }
   };
+  const handleDownVote = async (postKey: string, index: number) => {
+    const val = await downVote(schoolName, postKey);
+    if (val && (val === 1 || val === -1)) {
+      if (markers && user) {
+        let tempPosts: any[] = [...markers];
+        setCommentModalPostDownvotes(commentModalPostDownvotes + val);
+        tempPosts[index].downVotes += val;
+        if (tempPosts[index].dislikes[user.uid]) {
+          delete tempPosts[index].dislikes[user.uid];
+        } else {
+          if (tempPosts[index].likes[user.uid]) {
+            delete tempPosts[index].likes[user.uid];
+            tempPosts[index].upVotes -= 1;
+            setCommentModalPostUpvotes(commentModalPostUpvotes - 1);
+          }
+          tempPosts[index].dislikes[user.uid] = true;
+        }
+        setMarkers(tempPosts);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtons(-1);
+        });
+      }
+    } else {
+      Toast.error("Unable to dislike post :(");
+    }
+  };
+  const handleUpVote = async (postKey: string, index: number) => {
+    const val = await upVote(schoolName, postKey);
+    if (val && (val === 1 || val === -1)) {
+      if (markers && user) {
+        let tempPosts: any[] = [...markers];
+        tempPosts[index].upVotes += val;
+        setCommentModalPostUpvotes(commentModalPostUpvotes + val);
+        if (tempPosts[index].likes[user.uid]) {
+          delete tempPosts[index].likes[user.uid];
+        } else {
+          if (tempPosts[index].dislikes[user.uid]) {
+            delete tempPosts[index].dislikes[user.uid];
+            tempPosts[index].downVotes -= 1;
+            setCommentModalPostDownvotes(commentModalPostDownvotes - 1);
+          }
+          tempPosts[index].likes[user.uid] = true;
+        }
+        setMarkers(tempPosts);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtons(-1);
+        });
+      }
+    } else {
+      Toast.error("Unable to like post :(");
+    }
+  };
+  const handleCardClick = async () => {
+    if (markers && overlayIndex != -1) {
+      setCommentModalPostDownvotes(markers[overlayIndex].downVotes);
+      setCommentModalPostUpvotes(markers[overlayIndex].upVotes);
+      setCommentModalPost(markers[overlayIndex]);
+      //setCommentsLoading(true);
+      setShowModalComment(true);
+      try {
+        // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+        const resComments = await loadComments(
+          markers[overlayIndex].key,
+          schoolName
+        );
+        if (resComments != null && resComments != undefined) {
+          setComments(resComments);
+          console.log(markers[overlayIndex]);
+          console.log(overlayIndex);
+          //setCommentsLoading(false);
+        } else {
+          console.log(resComments);
+          Toast.error(
+            "Comments are currently broken on this post, try again later"
+          );
+        }
+      } catch (err: any) {
+        console.log(err);
+        Toast.error(err.message.toString());
+      }
+    }
+  };
+
   const getSchoolLocation = () => {
     if (schoolInfo[schoolName as keyof typeof schoolInfo] !== undefined) {
       const latitude = schoolInfo[schoolName as keyof typeof schoolInfo][0];
@@ -160,39 +256,49 @@ function Maps() {
     }
   };
   const getMapMarkers = async () => {
-    setBusy(true);
-    const markersRef = collection(db, "mapMarkers");
-    const yesterday = new Date();
-    yesterday.setHours(0, 0, 0, 0);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const tomorrow = new Date();
-    tomorrow.setHours(24, 0, 0, 0);
-    tomorrow.setDate(yesterday.getDate() + 2);
-    const q = query(
-      markersRef,
-      where("school", "==", schoolName),
-      where("timestamp", ">", yesterday),
-      where("timestamp", "<", tomorrow),
-      orderBy("timestamp", "desc"),
-      limit(100)
-    );
-    const querySnapshot = await getDocs(q);
-    const tempMarkers: any[] = [];
-    const docs = querySnapshot.docs;
-    for (const doc of docs) {
-      tempMarkers.push({
-        ...doc.data(),
-        key: doc.id,
-      });
+    if (schoolName) {
+      setBusy(true);
+      const markersRef = collection(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts"
+      );
+      const yesterday = new Date();
+      yesterday.setHours(0, 0, 0, 0);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const tomorrow = new Date();
+      tomorrow.setHours(24, 0, 0, 0);
+      tomorrow.setDate(yesterday.getDate() + 2);
+      const q = query(
+        markersRef,
+        where("marker", "==", true),
+        where("timestamp", ">", yesterday),
+        where("timestamp", "<", tomorrow),
+        orderBy("timestamp", "desc"),
+        limit(100)
+      );
+      const querySnapshot = await getDocs(q);
+      const tempMarkers: any[] = [];
+      const docs = querySnapshot.docs;
+      for (const doc of docs) {
+        tempMarkers.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+      }
+      console.log(tempMarkers);
+      setMarkers(tempMarkers);
+      setMarkersCopy(tempMarkers);
+      setBusy(false);
     }
-    console.log(tempMarkers);
-    setMarkers(tempMarkers);
-    setMarkersCopy(tempMarkers);
-    setBusy(false);
   };
   const setDefaultCenter = () => {
     setCenter([defaultLat, defaultLong]);
     setZoom(defaultZoom);
+  };
+  const handleUserPageNavigation = (uid: string) => {
+    history.push("home/about/" + uid);
   };
   useEffect(() => {
     setBusy(true);
@@ -203,7 +309,7 @@ function Maps() {
       getMapMarkers();
       setBusy(false);
     }
-  }, [user]);
+  }, [user, schoolName]);
   return (
     <React.Fragment>
       <IonContent fullscreen={true}>
@@ -237,21 +343,18 @@ function Maps() {
         <IonModal backdropDismiss={false} isOpen={showModalComment}>
           <IonContent>
             <div className="ion-modal">
-              <IonFab horizontal="end">
-                <IonButton
-                  onClick={() => {
-                    setShowModalComment(false);
-                    setComment("");
-                  }}
-                  color="danger"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  id="close"
-                >
-                  X
-                </IonButton>
-              </IonFab>
+              <IonToolbar mode="ios">
+                <IonButtons slot="start">
+                  <IonButton
+                    onClick={() => {
+                      setShowModalComment(false);
+                      setComment("");
+                    }}
+                  >
+                    <IonIcon icon={arrowBack}></IonIcon> Back
+                  </IonButton>
+                </IonButtons>
+              </IonToolbar>
               <br></br>
               <br></br>
               <br></br>
@@ -262,10 +365,16 @@ function Maps() {
                       <IonLabel class="ion-text-wrap">
                         <IonText color="medium">
                           <p>
-                            <IonAvatar class="posts-avatar">
-                              <IonImg
-                                src={commentModalPost.photoURL}
-                              ></IonImg>
+                            <IonAvatar
+                              onClick={() => {
+                                setComments([]);
+                                setShowModalComment(false);
+                                setComment("");
+                                handleUserPageNavigation(commentModalPost.uid);
+                              }}
+                              class="posts-avatar"
+                            >
+                              <IonImg src={commentModalPost.photoURL}></IonImg>
                             </IonAvatar>
                             {commentModalPost.userName}
                           </p>
@@ -276,19 +385,83 @@ function Maps() {
                             <p
                               style={{
                                 fontWeight: "bold",
-                                color: getMarkerColor(commentModalPost.postType),
+                                color: getMarkerColor(
+                                  commentModalPost.postType
+                                ),
                               }}
                             >
                               {commentModalPost.postType.toUpperCase()}
                             </p>
                           </IonFab>
                         ) : null}
-                        <wbr></wbr>
                         <h2 className="h2-message">
                           {commentModalPost.message}
                         </h2>
                       </IonLabel>
                       <div id={commentModalPost.postType}></div>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios">
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setLikeAnimation(-1);
+                        }}
+                        className={
+                          likeAnimation === overlayIndex ? "likeAnimation" : ""
+                        }
+                        disabled={disabledLikeButtons === overlayIndex}
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          overlayIndex != -1 &&
+                          user &&
+                          markers && 
+                          markers[overlayIndex] &&
+                          "likes" in markers[overlayIndex] &&
+                          markers[overlayIndex].likes[user.uid] == undefined
+                            ? "medium"
+                            : "primary"
+                        }
+                        onClick={() => {
+                          setLikeAnimation(overlayIndex);
+                          setDisabledLikeButtons(overlayIndex);
+                          handleUpVote(commentModalPost.key, overlayIndex);
+                        }}
+                      >
+                        <KeyboardArrowUpIcon />
+                        <p>{commentModalPostUpvotes} </p>
+                      </IonButton>
+                      <p>&nbsp;</p>
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setDislikeAnimation(-1);
+                        }}
+                        className={
+                          dislikeAnimation === overlayIndex
+                            ? "likeAnimation"
+                            : ""
+                        }
+                        disabled={disabledLikeButtons === overlayIndex}
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          overlayIndex != -1 &&
+                          user &&
+                          markers && 
+                          markers[overlayIndex] &&
+                          "dislikes" in markers[overlayIndex] &&
+                          markers[overlayIndex].dislikes[user.uid] == undefined
+                            ? "medium"
+                            : "danger"
+                        }
+                        onClick={() => {
+                          setDislikeAnimation(overlayIndex);
+                          setDisabledLikeButtons(overlayIndex);
+                          handleDownVote(commentModalPost.key, overlayIndex);
+                        }}
+                      >
+                        <KeyboardArrowDownIcon />
+                        <p>{commentModalPostDownvotes} </p>
+                      </IonButton>
                     </IonItem>
                   </IonList>
                   <div className="verticalLine"></div>
@@ -308,33 +481,40 @@ function Maps() {
                 </div>
               ) : null}
               <p style={{ textAlign: "center" }}>Comments</p>
-              <br></br>
-              {/* {commentModalPost.comments && commentModalPost.comments.length > 0
-                ? commentModalPost.comments?.map((comment : any, index : number) => (
+              {comments && comments.length > 0
+                ? comments?.map((comment: any, index) => (
                     <IonList inset={true} key={index}>
+                      {" "}
                       <IonItem lines="none">
                         <IonLabel class="ion-text-wrap">
                           <IonText color="medium">
                             <p>
-                              <IonAvatar class="posts-avatar">
+                              <IonAvatar
+                                onClick={() => {
+                                  setComments([]);
+                                  setShowModalComment(false);
+                                  setComment("");
+                                  handleUserPageNavigation(comment.uid);
+                                }}
+                                class="posts-avatar"
+                              >
                                 <IonImg src={comment?.photoURL!}></IonImg>
                               </IonAvatar>
                               {comment.userName}
                             </p>
                           </IonText>
-                          <wbr></wbr>
                           <h2 className="h2-message"> {comment.comment} </h2>
-                          {comment.url && comment.url.length > 0 ? (
-                            <div className="ion-img-container">
-                              <br></br>
-                              <IonImg
-                                onClick={() => {
-                                  PhotoViewer.show(comment.imgSrc);
-                                }}
-                                src={comment.imgSrc}
-                              />
-                            </div>
-                          ) : null}
+                          {/* {comment.url.length > 0 ? (
+                                    <div className="ion-img-container">
+                                      <br></br>
+                                      <IonImg
+                                        onClick={() => {
+                                          showPicture(comment.imgSrc);
+                                        }}
+                                        src={comment.imgSrc}
+                                      />
+                                    </div>
+                                  ) : null} */}
                         </IonLabel>
                         <div></div>
                       </IonItem>
@@ -350,7 +530,8 @@ function Maps() {
                       </IonItem>
                     </IonList>
                   ))
-                : null} */}
+                : null}
+
               <IonTextarea
                 color="secondary"
                 spellcheck={true}
@@ -405,9 +586,12 @@ function Maps() {
             ? markers.map((marker, index) => {
                 return (
                   <Marker
-                    style={{opacity : "90%"}}
+                    style={{ opacity: "90%" }}
                     onClick={(e) => {
-                      setCenter([marker.location[0] - 0.005, marker.location[1]]);
+                      setCenter([
+                        marker.location[0] - 0.005,
+                        marker.location[1],
+                      ]);
                       setOverlayIndex(-1);
                       setOverlayIndex(index);
                     }}
@@ -429,10 +613,9 @@ function Maps() {
             >
               <IonCard
                 onClick={() => {
-                  setCommentModalPost(markers[overlayIndex]);
-                  setShowModalComment(true);
+                  handleCardClick();
                 }}
-                style={{ width: "50vw", opacity: "90%" }}
+                style={{ width: "55vw", opacity: "90%" }}
                 mode="ios"
               >
                 <IonCardContent>
@@ -450,14 +633,81 @@ function Maps() {
                       {markers[overlayIndex].postType.toUpperCase()}
                     </p>
                   </IonFab>
-                  <p>{markers[overlayIndex].message}</p>
-                  {markers[overlayIndex].imgSrc && markers[overlayIndex].imgSrc.length > 0 ? (
+                  <p>
+                    {markers[overlayIndex].message.length > 140
+                      ? markers[overlayIndex].message.substring(0, 140) + "..."
+                      : markers[overlayIndex].message}
+                  </p>
+                  {markers[overlayIndex].imgSrc &&
+                  markers[overlayIndex].imgSrc.length > 0 ? (
                     <IonImg
                       class="ion-img-container"
                       src={markers[overlayIndex].imgSrc}
                     />
                   ) : null}
                 </IonCardContent>
+                <br></br>
+                <br></br>
+                <br></br>
+                <IonFab vertical="bottom">
+                  <IonRow>
+                    <IonCol size="4">
+                      <IonButton
+                        disabled={true}
+                        style={{ width: "16vw" }}
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          markers &&
+                          user &&
+                          markers[overlayIndex].likes[user.uid] !== undefined
+                            ? "primary"
+                            : "medium"
+                        }
+                      >
+                        <KeyboardArrowUpIcon />
+                        <p>{markers[overlayIndex].upVotes} </p>
+                      </IonButton>
+                    </IonCol>
+                    <IonCol size="4">
+                      <IonButton
+                        disabled={true}
+                        style={{ width: "16vw" }}
+                        mode="ios"
+                        color="medium"
+                      >
+                        <ForumIcon />
+                        <p>{markers[overlayIndex].commentAmount} </p>
+                      </IonButton>
+                    </IonCol>
+                    <IonCol size="4">
+                      <IonButton
+                        disabled={true}
+                        style={{ width: "16vw" }}
+                        mode="ios"
+                        fill="outline"
+                        onClick={() => {
+                          setDislikeAnimation(markers[overlayIndex].key);
+                          setDisabledLikeButtons(overlayIndex);
+                          handleDownVote(
+                            markers[overlayIndex].key,
+                            overlayIndex
+                          );
+                        }}
+                        color={
+                          markers &&
+                          user &&
+                          markers[overlayIndex].dislikes[user.uid] !== undefined
+                            ? "danger"
+                            : "medium"
+                        }
+                      >
+                        <KeyboardArrowDownIcon />
+                        <p>{markers[overlayIndex].downVotes} </p>
+                      </IonButton>
+                    </IonCol>
+                  </IonRow>
+                </IonFab>
               </IonCard>
             </Overlay>
           ) : null}

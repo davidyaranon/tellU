@@ -207,6 +207,23 @@ ion-checkbox {
   padding-bottom: 56.25%;
 }
 
+ion-toolbar {
+  --border-style: none;
+}
+
+.swiper-pagination {
+  bottom: 97% !important;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #61DBFB !important;
+}
+
+.swiper-pagination-bullet {
+  background-color: #898989 !important;
+}
+
+
 .fit-img {
   position: absolute;
   top: 0;

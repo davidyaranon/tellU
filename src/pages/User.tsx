@@ -17,6 +17,8 @@ import {
   IonModal,
   IonToggle,
   IonText,
+  IonCardContent,
+  IonCard,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -62,6 +64,10 @@ import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setDarkMode } from "../redux/actions";
 import FadeIn from "react-fade-in";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper";
+import "swiper/css";
+import "swiper/css/pagination";
 
 function User() {
   const Toast = useToast();
@@ -160,6 +166,7 @@ function User() {
         if (blobRes.size > 5_000_000) {
           // 5MB
           Toast.error("Image too large");
+          setBusy(false);
         } else {
           uploadImage("profilePictures", blobRes, "photoURL").then(
             (hasUploaded) => {
@@ -236,6 +243,7 @@ function User() {
                 );
                 usernameDocChange.then(() => {
                   Toast.success("Updated username");
+                  setUsername(editableUsername);
                   setCredentialsUserModal(false);
                   setBusy(false);
                 });
@@ -498,132 +506,150 @@ function User() {
           </div>
         </IonModal>
 
-        <IonList mode="ios" inset={true}>
-          <IonItem mode="ios">
-            <IonLabel mode="ios">
-              <IonText color="medium">
-                <p> Email </p>
-              </IonText>
-              <IonInput
-                ref={inputRef}
-                readonly={!editClicked}
-                value={editableEmail}
-                onIonChange={(e) => {
-                  handleChangeEmailString(e);
-                }}
-              ></IonInput>
-            </IonLabel>
-            {editClicked ? (
-              <div>
-                <IonButton color="danger" slot="end" onClick={handleX}>
-                  {" "}
-                  X{" "}
-                </IonButton>
-                <IonButton color="success" slot="end" onClick={handleCheckmark}>
-                  {" "}
-                  &#10003;{" "}
-                </IonButton>
-              </div>
-            ) : (
-              <IonButton
-                disabled={editClicked}
-                onClick={handleEdit}
-                color="medium"
-                slot="end"
-              >
-                {" "}
-                Edit{" "}
-              </IonButton>
-            )}
-          </IonItem>
-          <IonItem mode="ios">
-            <IonLabel mode="ios">
-              <IonText color="medium">
-                <p> Username </p>
-              </IonText>
-              <IonInput
-                maxlength={15}
-                ref={inputRef}
-                readonly={!editUserClicked}
-                value={editableUsername}
-                onIonChange={(e) => {
-                  handleChangeUsernameString(e);
-                }}
-              ></IonInput>
-            </IonLabel>
-            {editUserClicked ? (
-              <div>
-                <IonButton color="danger" slot="end" onClick={handleUserX}>
-                  {" "}
-                  X{" "}
-                </IonButton>
+        <Swiper
+          pagination={{ dynamicBullets: true }}
+          modules={[Pagination]}
+          slidesPerView={1}
+        >
+          <SwiperSlide>
+            <IonList mode="ios" inset={true}>
+              <IonItem mode="ios">
+                <IonLabel mode="ios">
+                  <IonText color="medium">
+                    <p> Email </p>
+                  </IonText>
+                  <IonInput
+                    ref={inputRef}
+                    readonly={!editClicked}
+                    value={editableEmail}
+                    onIonChange={(e) => {
+                      handleChangeEmailString(e);
+                    }}
+                  ></IonInput>
+                </IonLabel>
+                {editClicked ? (
+                  <div>
+                    <IonButton color="danger" slot="end" onClick={handleX}>
+                      {" "}
+                      X{" "}
+                    </IonButton>
+                    <IonButton
+                      color="success"
+                      slot="end"
+                      onClick={handleCheckmark}
+                    >
+                      {" "}
+                      &#10003;{" "}
+                    </IonButton>
+                  </div>
+                ) : (
+                  <IonButton
+                    disabled={editClicked}
+                    onClick={handleEdit}
+                    color="medium"
+                    slot="end"
+                  >
+                    {" "}
+                    Edit{" "}
+                  </IonButton>
+                )}
+              </IonItem>
+              <IonItem mode="ios">
+                <IonLabel mode="ios">
+                  <IonText color="medium">
+                    <p> Username </p>
+                  </IonText>
+                  <IonInput
+                    maxlength={15}
+                    ref={inputRef}
+                    readonly={!editUserClicked}
+                    value={editableUsername}
+                    onIonChange={(e) => {
+                      handleChangeUsernameString(e);
+                    }}
+                  ></IonInput>
+                </IonLabel>
+                {editUserClicked ? (
+                  <div>
+                    <IonButton color="danger" slot="end" onClick={handleUserX}>
+                      {" "}
+                      X{" "}
+                    </IonButton>
+                    <IonButton
+                      color="success"
+                      slot="end"
+                      onClick={handleUserCheckmark}
+                    >
+                      {" "}
+                      &#10003;{" "}
+                    </IonButton>
+                  </div>
+                ) : (
+                  <IonButton
+                    disabled={editUserClicked}
+                    onClick={handleUserEdit}
+                    color="medium"
+                    slot="end"
+                  >
+                    {" "}
+                    Edit{" "}
+                  </IonButton>
+                )}
+              </IonItem>
+              <IonItem mode="ios">
+                <p>Profile Picture</p>
                 <IonButton
-                  color="success"
+                  onClick={handleProfilePictureEdit}
+                  color="medium"
                   slot="end"
-                  onClick={handleUserCheckmark}
                 >
                   {" "}
-                  &#10003;{" "}
+                  Edit{" "}
                 </IonButton>
-              </div>
-            ) : (
+              </IonItem>
+              <IonItem mode="ios">
+                <p> Dark mode </p>
+                <IonIcon color="medium" icon={moon} slot="end" />
+                <IonToggle
+                  color="primary"
+                  slot="end"
+                  name="darkMode"
+                  checked={darkModeToggled}
+                  onIonChange={(e) => toggleDarkModeHandler(e.detail.checked)}
+                />
+              </IonItem>
+            </IonList>
+            <div className="ion-button-container">
               <IonButton
-                disabled={editUserClicked}
-                onClick={handleUserEdit}
-                color="medium"
-                slot="end"
+                onClick={loadLogout}
+                color="danger"
+                mode="ios"
+                shape="round"
+                fill="outline"
+                expand="full"
+                id="logout"
               >
-                {" "}
-                Edit{" "}
+                Logout
               </IonButton>
-            )}
-          </IonItem>
-          <IonItem mode="ios">
-            <p>Profile Picture</p>
-            <IonButton
-              onClick={handleProfilePictureEdit}
-              color="medium"
-              slot="end"
-            >
-              {" "}
-              Edit{" "}
-            </IonButton>
-          </IonItem>
-          <IonItem mode="ios">
-            <p> Dark mode </p>
-            <IonIcon color="medium" icon={moon} slot="end" />
-            <IonToggle
-              color="primary"
-              slot="end"
-              name="darkMode"
-              checked={darkModeToggled}
-              onIonChange={(e) => toggleDarkModeHandler(e.detail.checked)}
-            />
-          </IonItem>
-        </IonList>
-        <div className="ion-button-container">
-          <IonButton
-            onClick={loadLogout}
-            color="danger"
-            mode="ios"
-            shape="round"
-            fill="outline"
-            expand="full"
-            id="logout"
-          >
-            Logout
-          </IonButton>
-          <IonButton
-            color="danger"
-            mode="ios"
-            shape="round"
-            fill="outline"
-            expand="full"
-            id="deleteAccount"
-          >
-            Delete Account
-          </IonButton>
-        </div>
+              <IonButton
+                disabled={true}
+                color="danger"
+                mode="ios"
+                shape="round"
+                fill="outline"
+                expand="full"
+                id="deleteAccount"
+              >
+                Delete Account
+              </IonButton>
+            </div>
+          </SwiperSlide>
+          <SwiperSlide>
+            <IonCard>
+              <IonCardContent></IonCardContent>
+            </IonCard>
+          </SwiperSlide>
+        </Swiper>
       </IonContent>
     </React.Fragment>
   );

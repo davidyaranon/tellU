@@ -86,6 +86,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                 {" "}
                 <Home />{" "}
               </Route>
+              <Route path="/:tab(home)/about/:uid" component={UserProfile} />
               <Route
                 path="/:tab(community)"
                 component={Community}
@@ -101,7 +102,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                 <LandingPage />{" "}
               </Route>
               <Route path="/register" component={Register} exact={true} />
-              <Route path="/users/:uid" component={UserProfile} />
+              <Route path="/404" component={RedirectComponent} />
               <Route
                 exact
                 path="/"

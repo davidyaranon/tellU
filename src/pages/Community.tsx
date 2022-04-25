@@ -40,22 +40,32 @@ import {
 import React, { useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import ForumIcon from "@mui/icons-material/Forum";
 import {
+  arrowBack,
   chatbubblesOutline,
   chevronBack,
   chevronForward,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, downVote, getTopPostsWithinPastDay, upVote } from "../fbconfig";
+import {
+  addComment,
+  auth,
+  downVote,
+  getTopPostsWithinPastDay,
+  loadComments,
+  upVote,
+} from "../fbconfig";
 import Header, { ionHeaderStyle } from "./Header";
 import "../App.css";
 import { useHistory } from "react-router";
 import { getUserData, getNextBatchUsers } from "../fbconfig";
 import { ToastProvider, useToast } from "@agney/ir-toast";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCards } from "swiper";
+import { Pagination } from "swiper";
 import { useSelector } from "react-redux";
 import "swiper/css";
+import "swiper/css/pagination";
 import FadeIn from "react-fade-in";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 // import 'swiper/css/effect-cards';
@@ -72,23 +82,30 @@ function Community() {
   const [commentModalPost, setCommentModalPost] = useState<any | null>(null);
   const [lastKey, setLastKey] = useState<string>("");
   const [userList, setUserList] = useState<any[]>([]);
+  const [comments, setComments] = useState<any[] | null>(null);
+  const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
+  const [likeAnimation, setLikeAnimation] = useState<number>(-1);
+  const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
+  const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
+  const history = useHistory();
+  const topPostsCache = localStorage.getItem("topPosts") || "false";
   const [commentModalPostUpvotes, setCommentModalPostUpvotes] =
     useState<number>(-1);
   const [commentModalPostDownvotes, setCommentModalPostDownvotes] =
     useState<number>(-1);
-  const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
-  const [likeAnimation, setLikeAnimation] = useState<number>(-1);
-  const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
-  const history = useHistory();
-  const topPostsCache = localStorage.getItem("topPosts") || "false";
+  const [commentModalPostIndex, setCommentModalPostIndex] =
+    useState<number>(-1);
+
   const ionInputStyle = {
     height: "10vh",
     width: "95vw",
     marginLeft: "2.5vw",
   };
+
   function timeout(delay: number) {
     return new Promise((res) => setTimeout(res, delay));
   }
+
   const getColor = (postType: string) => {
     switch (postType) {
       case "general":
@@ -105,6 +122,42 @@ function Community() {
         break;
     }
   };
+
+  const handleCommentSubmit = async (postKey: string) => {
+    if (comment.trim().length == 0) {
+      Toast.error("Input a comment");
+    } else {
+      setBusy(true);
+      const commentSent = await addComment(postKey, schoolName, comment);
+      setComment("");
+      if (commentSent) {
+        Toast.success("Comment added");
+        if (topPosts) {
+          let tempPosts: any[] = [...topPosts];
+          tempPosts[commentModalPostIndex].commentAmount += 1;
+          setTopPosts(tempPosts);
+        }
+        try {
+          // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+          const resComments = await loadComments(postKey, schoolName);
+          if (resComments == null || resComments == undefined) {
+            Toast.error(
+              "Comments are currently broken on this post, try again later"
+            );
+          } else {
+            setComments(resComments);
+          }
+        } catch (err: any) {
+          console.log(err);
+          Toast.error(err.message.toString());
+        }
+      } else {
+        Toast.error("Unable to comment on post");
+      }
+      setBusy(false);
+    }
+  };
+
   const handleUpVote = async (postKey: string, index: number) => {
     const val = await upVote(schoolName, postKey);
     if (val && (val === 1 || val === -1)) {
@@ -131,6 +184,7 @@ function Community() {
       Toast.error("Unable to like post :(");
     }
   };
+
   const handleDownVote = async (postKey: string, index: number) => {
     const val = await downVote(schoolName, postKey);
     if (val && (val === 1 || val === -1)) {
@@ -157,9 +211,11 @@ function Community() {
       Toast.error("Unable to dislike post :(");
     }
   };
+
   const handleUserPageNavigation = (uid: string) => {
-    history.push("users/" + uid, { from: "home" });
+    history.push("home/about/" + uid);
   };
+
   const fetchMoreUserData = (key: string) => {
     if (key && key.length > 0) {
       setBusy(true);
@@ -175,15 +231,38 @@ function Community() {
         });
     }
   };
-  const handleCardClick = (post: any) => {
-    console.log(post);
+
+  const handleCardClick = async (post: any, postIndex: number) => {
+    setCommentModalPostIndex(postIndex);
+    setCommentModalPostDownvotes(post.data.downVotes);
+    setCommentModalPostUpvotes(post.data.upVotes);
     setCommentModalPost(post);
+    setCommentsLoading(true);
     setShowModalComment(true);
+    try {
+      // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+      const resComments = await loadComments(post.key, schoolName);
+      if (resComments != null && resComments != undefined) {
+        console.log(resComments);
+        setComments(resComments);
+        setCommentsLoading(false);
+      } else {
+        console.log(resComments);
+        Toast.error(
+          "Comments are currently broken on this post, try again later"
+        );
+      }
+    } catch (err: any) {
+      console.log(err);
+      Toast.error(err.message.toString());
+    }
   };
+
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
     setComment(currComment);
   };
+
   useEffect(() => {
     setBusy(true);
     if (!user) {
@@ -227,24 +306,18 @@ function Community() {
         <IonModal backdropDismiss={false} isOpen={showModalComment}>
           <IonContent>
             <div className="ion-modal">
-              <IonFab horizontal="end">
-                <IonButton
-                  onClick={() => {
-                    setShowModalComment(false);
-                    setComment("");
-                  }}
-                  color="danger"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  id="close"
-                >
-                  X
-                </IonButton>
-              </IonFab>
-              <br></br>
-              <br></br>
-              <br></br>
+              <IonToolbar mode="ios">
+                <IonButtons slot="start">
+                  <IonButton
+                    onClick={() => {
+                      setShowModalComment(false);
+                      setComment("");
+                    }}
+                  >
+                    <IonIcon icon={arrowBack}></IonIcon> Back
+                  </IonButton>
+                </IonButtons>
+              </IonToolbar>
               {commentModalPost && commentModalPost.data ? (
                 <div>
                   <IonList inset={true}>
@@ -252,14 +325,17 @@ function Community() {
                       <IonLabel class="ion-text-wrap">
                         <IonText color="medium">
                           <p>
-                            <IonAvatar onClick={() => {
-                              //setComments([]);
-                              setShowModalComment(false);
-                              setComment("");
-                              handleUserPageNavigation(
-                                commentModalPost.data.uid
-                              );
-                            }} class="posts-avatar">
+                            <IonAvatar
+                              onClick={() => {
+                                //setComments([]);
+                                setShowModalComment(false);
+                                setComment("");
+                                handleUserPageNavigation(
+                                  commentModalPost.data.uid
+                                );
+                              }}
+                              class="posts-avatar"
+                            >
                               <IonImg
                                 src={commentModalPost.data.photoURL}
                               ></IonImg>
@@ -280,12 +356,80 @@ function Community() {
                             </p>
                           </IonFab>
                         ) : null}
-                        <wbr></wbr>
                         <h2 className="h2-message">
                           {commentModalPost.data.message}
                         </h2>
                       </IonLabel>
                       <div id={commentModalPost.data.postType}></div>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios">
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setLikeAnimation(-1);
+                        }}
+                        className={
+                          likeAnimation === commentModalPostIndex
+                            ? "likeAnimation"
+                            : ""
+                        }
+                        disabled={disabledLikeButtons === commentModalPostIndex}
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          topPosts &&
+                          user &&
+                          topPosts[commentModalPostIndex].data.likes[
+                            user.uid
+                          ] !== undefined
+                            ? "primary"
+                            : "medium"
+                        }
+                        onClick={() => {
+                          setLikeAnimation(commentModalPostIndex);
+                          setDisabledLikeButtons(commentModalPostIndex);
+                          handleUpVote(
+                            commentModalPost.key,
+                            commentModalPostIndex
+                          );
+                        }}
+                      >
+                        <KeyboardArrowUpIcon />
+                        <p>{commentModalPostUpvotes} </p>
+                      </IonButton>
+                      <p>&nbsp;</p>
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setDislikeAnimation(-1);
+                        }}
+                        className={
+                          dislikeAnimation === commentModalPostIndex
+                            ? "likeAnimation"
+                            : ""
+                        }
+                        disabled={disabledLikeButtons === commentModalPostIndex}
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          topPosts &&
+                          user &&
+                          topPosts[commentModalPostIndex].data.dislikes[
+                            user.uid
+                          ] !== undefined
+                            ? "danger"
+                            : "medium"
+                        }
+                        onClick={() => {
+                          setDislikeAnimation(commentModalPostIndex);
+                          setDisabledLikeButtons(commentModalPostIndex);
+                          handleDownVote(
+                            commentModalPost.key,
+                            commentModalPostIndex
+                          );
+                        }}
+                      >
+                        <KeyboardArrowDownIcon />
+                        <p>{commentModalPostDownvotes} </p>
+                      </IonButton>
                     </IonItem>
                   </IonList>
                   <div className="verticalLine"></div>
@@ -304,22 +448,29 @@ function Community() {
                   ) : null}
                 </div>
               ) : null}
-              <p style={{ textAlign: "center",}}>Comments</p>
+              <p style={{ textAlign: "center" }}>Comments</p>
               <br></br>
-              {/* {commentModalPost.comments && commentModalPost.comments.length > 0
-                ? commentModalPost.comments?.map((comment : any, index : number) => (
+              {comments && comments.length > 0
+                ? comments?.map((comment: any, index: number) => (
                     <IonList inset={true} key={index}>
                       <IonItem lines="none">
                         <IonLabel class="ion-text-wrap">
                           <IonText color="medium">
                             <p>
-                              <IonAvatar class="posts-avatar">
+                              <IonAvatar
+                                onClick={() => {
+                                  setComments([]);
+                                  setShowModalComment(false);
+                                  setComment("");
+                                  handleUserPageNavigation(comment.uid);
+                                }}
+                                class="posts-avatar"
+                              >
                                 <IonImg src={comment?.photoURL!}></IonImg>
                               </IonAvatar>
                               {comment.userName}
                             </p>
                           </IonText>
-                          <wbr></wbr>
                           <h2 className="h2-message"> {comment.comment} </h2>
                           {comment.url && comment.url.length > 0 ? (
                             <div className="ion-img-container">
@@ -347,7 +498,7 @@ function Community() {
                       </IonItem>
                     </IonList>
                   ))
-                : null} */}
+                : null}
               <IonTextarea
                 color="secondary"
                 spellcheck={true}
@@ -368,6 +519,9 @@ function Community() {
                   fill="outline"
                   expand="block"
                   id="signUpButton"
+                  onClick={() => {
+                    handleCommentSubmit(commentModalPost.key);
+                  }}
                 >
                   Comment
                 </IonButton>
@@ -378,16 +532,20 @@ function Community() {
           </IonContent>
         </IonModal>
 
-        <Swiper slidesPerView={1.5}>
+        <Swiper
+          pagination={{ dynamicBullets: true }}
+          modules={[Pagination]}
+          slidesPerView={1.5}
+        >
           {topPosts && topPosts.length > 0
             ? topPosts.map((post, index) => {
                 return (
                   <SwiperSlide key={post.key}>
-                    <IonCard className="ion-card-community" mode="ios">
+                    <IonCard mode="ios">
                       <IonCardContent
                         style={{ minHeight: "60vh" }}
                         onClick={() => {
-                          handleCardClick(post);
+                          handleCardClick(post, index);
                         }}
                       >
                         {post.data.postType &&
@@ -463,13 +621,13 @@ function Community() {
                           <IonCol size="4">
                             <IonButton
                               onClick={() => {
-                                handleCardClick(post);
+                                handleCardClick(post, index);
                               }}
                               style={{ width: "16vw" }}
                               mode="ios"
                               color="medium"
                             >
-                              <IonIcon icon={chatbubblesOutline} />
+                              <ForumIcon />
                               <p>&nbsp; {post.data.commentAmount} </p>
                             </IonButton>
                           </IonCol>

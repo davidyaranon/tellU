@@ -165,6 +165,7 @@ export const addMessage = async (
         let imgSrc = "";
         let lat = 0;
         let long = 0;
+        let marker = false;
         if (blob) {
           url = "images/" + auth.currentUser.uid.toString() + id;
           imgSrc = await getDownloadURL(ref(storage, url));
@@ -173,37 +174,8 @@ export const addMessage = async (
           console.log("location given");
           lat = pos.coords.latitude;
           long = pos.coords.longitude;
-          await addDoc(collection(db, "mapMarkers"), {
-            userName: name,
-            timestamp: serverTimestamp(),
-            message: mess,
-            url: url,
-            likes: {},
-            dislikes: {},
-            uid: auth.currentUser.uid,
-            commentAmount: 0,
-            upVotes: 0,
-            downVotes: 0,
-            comments: [],
-            photoURL: auth.currentUser.photoURL,
-            location: [lat, long],
-            postType: postType,
-            school: school,
-            imgSrc: imgSrc,
-          });
+          marker = true;
         }
-        // await updateDoc(userListOfPosts, {
-        //   listOfPosts: arrayUnion({
-        //     timestamp: snap.data().listOfPosts.length,
-        //     message: mess,
-        //     url: url,
-        //     uid: auth.currentUser.uid,
-        //     comments: [{ timestamp: 0, message: "", url: "" }],
-        //     upVotes: 0,
-        //     downVotes: 0,
-        //     postType: postType,
-        //   }),
-        // });
         const docRef = await addDoc(
           collection(db, "schoolPosts", school.replace(/\s+/g, ""), "allPosts"),
           {
@@ -221,6 +193,7 @@ export const addMessage = async (
             location: [lat, long],
             postType: postType,
             imgSrc: imgSrc,
+            marker: marker,
           }
         );
         await setDoc(

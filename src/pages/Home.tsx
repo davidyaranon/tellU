@@ -53,8 +53,14 @@ import {
 } from "@capacitor/camera";
 import { Geolocation, Geoposition } from "@awesome-cordova-plugins/geolocation";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { add, cameraOutline, chatbubblesOutline } from "ionicons/icons";
+import {
+  add,
+  arrowBack,
+  cameraOutline,
+  chatbubblesOutline,
+} from "ionicons/icons";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import ForumIcon from "@mui/icons-material/Forum";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
@@ -73,8 +79,8 @@ import { v4 as uuidv4 } from "uuid";
 import "../theme/variables.css";
 import React from "react";
 import FadeIn from "react-fade-in";
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en.json'
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en.json";
 
 export interface UserPhoto {
   filepath: string;
@@ -84,7 +90,7 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
-  const timeAgo = new TimeAgo('en-US')
+  const timeAgo = new TimeAgo("en-US");
   const schoolName = useSelector((state: any) => state.user.school);
   const hasLoaded = useSelector((state: any) => state.user.hasLoaded);
   const [busy, setBusy] = useState<boolean>(false);
@@ -140,7 +146,7 @@ function Home() {
     maxRatio: 2,
   };
   const handleUserPageNavigation = (uid: string) => {
-    history.push("users/" + uid, { from: "home" });
+    history.push("home/about/" + uid);
   };
   const handleCommentSubmit = async (postKey: string) => {
     if (comment.trim().length == 0) {
@@ -400,18 +406,11 @@ function Home() {
     }
   }
 
-  const handleCommentModal = async (post: any, e: any, postIndex: number) => {
-    let elementName = e.target.tagName.toLowerCase();
-    if (
-      elementName == "h2" ||
-      elementName == "ion-button" ||
-      elementName == "p"
-    ) {
-      setCommentModalPostIndex(postIndex);
-      setCommentModalPostDownvotes(post.downVotes);
-      setCommentModalPostUpvotes(post.upVotes);
-      setCommentModalPost(post);
-    }
+  const handleCommentModal = async (post: any, postIndex: number) => {
+    setCommentModalPostIndex(postIndex);
+    setCommentModalPostDownvotes(post.downVotes);
+    setCommentModalPostUpvotes(post.upVotes);
+    setCommentModalPost(post);
     setCommentsLoading(true);
     setShowModalComment(true);
     try {
@@ -750,25 +749,20 @@ function Home() {
           <IonModal backdropDismiss={false} isOpen={showModalComment}>
             <IonContent>
               <div className="ion-modal">
-                <IonFab horizontal="end">
-                  <IonButton
-                    onClick={() => {
-                      setComments([]);
-                      setShowModalComment(false);
-                      setComment("");
-                    }}
-                    color="danger"
-                    mode="ios"
-                    shape="round"
-                    fill="outline"
-                    id="close"
-                  >
-                    X
-                  </IonButton>
-                </IonFab>
-                <br></br>
-                <br></br>
-                <br></br>
+                <IonToolbar mode="ios">
+                  <IonButtons slot="start">
+                    <IonButton
+                      onClick={() => {
+                        setComments([]);
+                        setShowModalComment(false);
+                        setComment("");
+                      }}
+                    >
+                      <IonIcon icon={arrowBack}></IonIcon> Back
+                    </IonButton>
+                  </IonButtons>
+                </IonToolbar>
+
                 {commentModalPost ? (
                   <div>
                     <IonList inset={true}>
@@ -806,7 +800,6 @@ function Home() {
                               </p>
                             </IonFab>
                           ) : null}
-                          <wbr></wbr>
                           <h2 className="h2-message">
                             {commentModalPost.message}
                           </h2>
@@ -920,7 +913,6 @@ function Home() {
                       ? comments?.map((comment: any, index) => (
                           <IonList inset={true} key={index}>
                             {" "}
-                            {/*dont do this, change index!*/}
                             <IonItem lines="none">
                               <IonLabel class="ion-text-wrap">
                                 <IonText color="medium">
@@ -939,7 +931,6 @@ function Home() {
                                     {comment.userName}
                                   </p>
                                 </IonText>
-                                <wbr></wbr>
                                 <h2 className="h2-message">
                                   {" "}
                                   {comment.comment}{" "}
@@ -1009,7 +1000,7 @@ function Home() {
                     Comment
                   </IonButton>
                 </div>
-                <wbr></wbr>
+
                 <br></br>
               </div>
             </IonContent>
@@ -1049,13 +1040,14 @@ function Home() {
                                 </p>
                               </IonFab>
                             ) : null}
-                            <IonFab style={{bottom: "1vh"}} horizontal="end">
-                            <IonNote style={{fontSize: "0.85em"}}>{getDate(post.timestamp)}</IonNote>
+                            <IonFab style={{ bottom: "1vh" }} horizontal="end">
+                              <IonNote style={{ fontSize: "0.85em" }}>
+                                {getDate(post.timestamp)}
+                              </IonNote>
                             </IonFab>
                           </IonCol>
                         </IonRow>
                       </IonText>
-                      <wbr></wbr>
                       <h3 className="h2-message" style={{ marginLeft: "2.5%" }}>
                         {" "}
                         {post.message}{" "}
@@ -1105,11 +1097,11 @@ function Home() {
                     <IonButton
                       mode="ios"
                       color="medium"
-                      onClick={(e) => {
-                        handleCommentModal(post, e, index);
+                      onClick={() => {
+                        handleCommentModal(post, index);
                       }}
                     >
-                      <IonIcon icon={chatbubblesOutline} />
+                      <ForumIcon />
                       <p>&nbsp; {post.commentAmount} </p>
                     </IonButton>
                     <IonButton
