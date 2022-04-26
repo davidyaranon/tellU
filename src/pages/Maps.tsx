@@ -38,7 +38,7 @@ import {
 } from "@ionic/react";
 import { arrowBack, schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState, useRef } from "react";
-import { auth, db, downVote, loadComments, storage, upVote } from "../fbconfig";
+import { addComment, auth, db, downVote, loadComments, promiseTimeout, storage, upVote } from "../fbconfig";
 import { getDownloadURL, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
@@ -109,10 +109,57 @@ function Maps() {
   const [commentModalPostDownvotes, setCommentModalPostDownvotes] =
     useState<number>(-1);
   const [comments, setComments] = useState<any[] | null>(null);
+  const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
   const ionInputStyle = {
     height: "10vh",
     width: "95vw",
     marginLeft: "2.5vw",
+  };
+  const handleCommentSubmit = async (postKey : string) => {
+    if (comment.trim().length == 0) {
+      Toast.error("Input a comment");
+    } else {
+      setCommentsBusy(true);
+      const hasTimedOut = promiseTimeout(10000, addComment(postKey, schoolName, comment));
+      hasTimedOut.then((commentSent) => {
+        setComment("");
+        if (commentSent) {
+          Toast.success("Comment added");
+          if (markers) {
+            let tempPosts: any[] = [...markers];
+            tempPosts[overlayIndex].commentAmount += 1;
+            setMarkers(tempPosts);
+          }
+          try {
+            // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+            const commentsHasTimedOut = promiseTimeout(10000, loadComments(postKey, schoolName));
+            commentsHasTimedOut.then((resComments) => {
+              if (resComments == null || resComments == undefined) {
+                Toast.error(
+                  "Comments are currently broken on this post, try again later"
+                );
+              } else {
+                setComments(resComments);
+              }
+            });
+            commentsHasTimedOut.catch((err) => {
+              Toast.error(err);
+              setCommentsBusy(false);
+            });
+          } catch (err: any) {
+            console.log(err);
+            Toast.error(err.message.toString());
+          }
+        } else {
+          Toast.error("Unable to comment on post");
+        }
+        setCommentsBusy(false);
+      });
+      hasTimedOut.catch((err) => {
+        Toast.error(err);
+        setCommentsBusy(false);
+      });
+    }
   };
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
@@ -319,6 +366,12 @@ function Maps() {
           message="Loading markers..."
           duration={0}
           isOpen={busy}
+        ></IonLoading>
+        <IonLoading
+          spinner="dots"
+          message="Adding comment"
+          duration={0}
+          isOpen={commentsBusy}
         ></IonLoading>
         {/* <IonHeader class="ion-no-border" style={ionHeaderStyle}> */}
         <div className="overlaySearch">
@@ -583,6 +636,9 @@ function Maps() {
                   fill="outline"
                   expand="block"
                   id="signUpButton"
+                  onClick={() => {
+                    handleCommentSubmit(commentModalPost.key);
+                  }}
                 >
                   Comment
                 </IonButton>

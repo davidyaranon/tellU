@@ -12,6 +12,7 @@ import {
   downVote,
   loadComments,
   addComment,
+  promiseTimeout,
 } from "../fbconfig";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
@@ -30,6 +31,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonLoading,
   IonModal,
   IonNote,
   IonSkeletonText,
@@ -83,6 +85,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     useState<number>(-1);
   const [commentModalPost, setCommentModalPost] = useState<any | null>(null);
   const [showCommentModal, setShowCommentModal] = useState<boolean>(false);
+  const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
   const [comments, setComments] = useState<any[] | null>(null);
   const [comment, setComment] = useState<string>("");
   const Toast = useToast();
@@ -105,34 +108,46 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     if (comment.trim().length == 0) {
       Toast.error("Input a comment");
     } else {
-      setBusy(true);
-      const commentSent = await addComment(postKey, schoolName, comment);
-      setComment("");
-      if (commentSent) {
-        Toast.success("Comment added");
-        if (userPosts) {
-          let tempPosts: any[] = [...userPosts];
-          tempPosts[commentModalPostIndex].commentAmount += 1;
-          setUserPosts(tempPosts);
-        }
-        try {
-          // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-          const resComments = await loadComments(postKey, schoolName);
-          if (resComments == null || resComments == undefined) {
-            Toast.error(
-              "Comments are currently broken on this post, try again later"
-            );
-          } else {
-            setComments(resComments);
+      setCommentsBusy(true);
+      const hasTimedOut = promiseTimeout(10000, addComment(postKey, schoolName, comment));
+      hasTimedOut.then((commentSent) => {
+        setComment("");
+        if (commentSent) {
+          Toast.success("Comment added");
+          if (userPosts) {
+            let tempPosts: any[] = [...userPosts];
+            tempPosts[commentModalPostIndex].commentAmount += 1;
+            setUserPosts(tempPosts);
           }
-        } catch (err: any) {
-          console.log(err);
-          Toast.error(err.message.toString());
+          try {
+            // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+            const commentsHasTimedOut = promiseTimeout(10000, loadComments(postKey, schoolName));
+            commentsHasTimedOut.then((resComments) => {
+              if (resComments == null || resComments == undefined) {
+                Toast.error(
+                  "Comments are currently broken on this post, try again later"
+                );
+              } else {
+                setComments(resComments);
+              }
+            });
+            commentsHasTimedOut.catch((err) => {
+              Toast.error(err);
+              setCommentsBusy(false);
+            });
+          } catch (err: any) {
+            console.log(err);
+            Toast.error(err.message.toString());
+          }
+        } else {
+          Toast.error("Unable to comment on post");
         }
-      } else {
-        Toast.error("Unable to comment on post");
-      }
-      setBusy(false);
+        setCommentsBusy(false);
+      });
+      hasTimedOut.catch((err) => {
+        Toast.error(err);
+        setCommentsBusy(false);
+      });
     }
   };
   const getColor = (postType: string) => {
@@ -336,6 +351,13 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             </IonToolbar>
           </IonHeader>
 
+          <IonLoading
+            spinner="dots"
+            message="Adding comment"
+            duration={0}
+            isOpen={commentsBusy}
+          ></IonLoading>
+          
           <IonModal backdropDismiss={false} isOpen={showCommentModal}>
             <IonContent>
               <div className="ion-modal">
@@ -869,18 +891,21 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     return (
       <React.Fragment>
         <IonContent>
-          <IonToolbar mode="ios">
-            <IonButtons slot="start">
-              <IonButton
-                onClick={() => {
-                  history.replace("/home");
-                }}
-              >
-                <IonIcon icon={arrowBack}></IonIcon>
-                Home
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
+          <IonHeader style={ionHeaderStyle} mode="ios">
+            <IonToolbar mode="ios">
+              <IonButtons slot="start">
+                <IonButton
+                  onClick={() => {
+                    console.log("going home");
+                    history.replace("/home");
+                  }}
+                >
+                  <IonIcon icon={arrowBack}></IonIcon>
+                  Home
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
 
           <FadeIn>
             <IonCard>
