@@ -764,6 +764,7 @@ function Home() {
                 </IonToolbar>
 
                 {commentModalPost ? (
+                  <FadeIn>
                   <div>
                     <IonList inset={true}>
                       <IonItem lines="none">
@@ -804,7 +805,7 @@ function Home() {
                             {commentModalPost.message}
                           </h2>
                         </IonLabel>
-                        <div id={commentModalPost.postType}></div>
+                        <div id={commentModalPost.postType.replace('/','')}></div>
                       </IonItem>
                       <IonItem lines="none" mode="ios">
                         <IonButton
@@ -893,10 +894,11 @@ function Home() {
                       </IonCard>
                     ) : null}
                   </div>
+                  </FadeIn>
                 ) : null}
                 <p style={{ textAlign: "center" }}>Comments</p>
                 <br></br>
-                {commentsLoading && !comments ? (
+                {commentsLoading || !comments ? (
                   <div
                     style={{
                       alignItems: "center",
@@ -908,6 +910,7 @@ function Home() {
                     <IonSpinner color="primary" />
                   </div>
                 ) : (
+                  <FadeIn>
                   <div>
                     {comments && comments.length > 0
                       ? comments?.map((comment: any, index) => (
@@ -971,6 +974,7 @@ function Home() {
                         ))
                       : null}
                   </div>
+                  </FadeIn>
                 )}
 
                 <IonTextarea

@@ -38,7 +38,7 @@ ion-checkbox {
 }
 #general {
   width: 0.5%;
-  height: 5vh;
+  height: 3.5vh;
   background: #61dbfb;
   margin: 1vw;
 }
@@ -48,7 +48,7 @@ ion-checkbox {
 }
 #alert {
   width: 0.5%;
-  height: 5vh;
+  height: 3.5vh;
   background: #ff3e3e;
   margin: 1vw;
 }
@@ -58,7 +58,7 @@ ion-checkbox {
 }
 #buySell {
   width: 0.5%;
-  height: 5vh;
+  height: 3.5vh;
   background: #179b59;
   margin: 1vw;
 }
@@ -68,7 +68,7 @@ ion-checkbox {
 }
 #sighting {
   width: 0.5%;
-  height: 5vh;
+  height: 3.5vh;
   background: #eed202;
   margin: 1vw;
 }
@@ -78,7 +78,7 @@ ion-checkbox {
 }
 #event {
   width: 0.5%;
-  height: 5vh;
+  height: 3.5vh;
   background: #fc4ad3;
   margin: 1vw;
 }

@@ -34,6 +34,7 @@ import {
   IonSelectOption,
   IonRow,
   IonCol,
+  IonSpinner,
 } from "@ionic/react";
 import { arrowBack, schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState, useRef } from "react";
@@ -63,6 +64,7 @@ import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
+import FadeIn from "react-fade-in";
 
 const schoolInfo = {
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
@@ -98,6 +100,7 @@ function Maps() {
   const [showModalComment, setShowModalComment] = useState<boolean>(false);
   const [comment, setComment] = useState<string>("");
   const history = useHistory();
+  const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
@@ -188,7 +191,7 @@ function Maps() {
       setCommentModalPostDownvotes(markers[overlayIndex].downVotes);
       setCommentModalPostUpvotes(markers[overlayIndex].upVotes);
       setCommentModalPost(markers[overlayIndex]);
-      //setCommentsLoading(true);
+      setCommentsLoading(true);
       setShowModalComment(true);
       try {
         // load comments from /schoolPosts/{schoolName}/comments/{post.key}
@@ -198,9 +201,7 @@ function Maps() {
         );
         if (resComments != null && resComments != undefined) {
           setComments(resComments);
-          console.log(markers[overlayIndex]);
-          console.log(overlayIndex);
-          //setCommentsLoading(false);
+          setCommentsLoading(false);
         } else {
           console.log(resComments);
           Toast.error(
@@ -398,7 +399,9 @@ function Maps() {
                           {commentModalPost.message}
                         </h2>
                       </IonLabel>
-                      <div id={commentModalPost.postType}></div>
+                      <div
+                        id={commentModalPost.postType.replace("/", "")}
+                      ></div>
                     </IonItem>
                     <IonItem lines="none" mode="ios">
                       <IonButton
@@ -414,7 +417,7 @@ function Maps() {
                         color={
                           overlayIndex != -1 &&
                           user &&
-                          markers && 
+                          markers &&
                           markers[overlayIndex] &&
                           "likes" in markers[overlayIndex] &&
                           markers[overlayIndex].likes[user.uid] == undefined
@@ -446,7 +449,7 @@ function Maps() {
                         color={
                           overlayIndex != -1 &&
                           user &&
-                          markers && 
+                          markers &&
                           markers[overlayIndex] &&
                           "dislikes" in markers[overlayIndex] &&
                           markers[overlayIndex].dislikes[user.uid] == undefined
@@ -481,30 +484,47 @@ function Maps() {
                 </div>
               ) : null}
               <p style={{ textAlign: "center" }}>Comments</p>
-              {comments && comments.length > 0
-                ? comments?.map((comment: any, index) => (
-                    <IonList inset={true} key={index}>
-                      {" "}
-                      <IonItem lines="none">
-                        <IonLabel class="ion-text-wrap">
-                          <IonText color="medium">
-                            <p>
-                              <IonAvatar
-                                onClick={() => {
-                                  setComments([]);
-                                  setShowModalComment(false);
-                                  setComment("");
-                                  handleUserPageNavigation(comment.uid);
-                                }}
-                                class="posts-avatar"
-                              >
-                                <IonImg src={comment?.photoURL!}></IonImg>
-                              </IonAvatar>
-                              {comment.userName}
-                            </p>
-                          </IonText>
-                          <h2 className="h2-message"> {comment.comment} </h2>
-                          {/* {comment.url.length > 0 ? (
+              {commentsLoading || !comments ? (
+                <div
+                  style={{
+                    alignItems: "center",
+                    textAlign: "center",
+                    justifyContent: "center",
+                    display: "flex",
+                  }}
+                >
+                  <IonSpinner color="primary" />
+                </div>
+              ) : (
+                <FadeIn>
+                  <div>
+                    {comments && comments.length > 0
+                      ? comments?.map((comment: any, index) => (
+                          <IonList inset={true} key={index}>
+                            {" "}
+                            <IonItem lines="none">
+                              <IonLabel class="ion-text-wrap">
+                                <IonText color="medium">
+                                  <p>
+                                    <IonAvatar
+                                      onClick={() => {
+                                        setComments([]);
+                                        setShowModalComment(false);
+                                        setComment("");
+                                        handleUserPageNavigation(comment.uid);
+                                      }}
+                                      class="posts-avatar"
+                                    >
+                                      <IonImg src={comment?.photoURL!}></IonImg>
+                                    </IonAvatar>
+                                    {comment.userName}
+                                  </p>
+                                </IonText>
+                                <h2 className="h2-message">
+                                  {" "}
+                                  {comment.comment}{" "}
+                                </h2>
+                                {/* {comment.url.length > 0 ? (
                                     <div className="ion-img-container">
                                       <br></br>
                                       <IonImg
@@ -515,22 +535,33 @@ function Maps() {
                                       />
                                     </div>
                                   ) : null} */}
-                        </IonLabel>
-                        <div></div>
-                      </IonItem>
-                      <IonItem lines="none" mode="ios">
-                        <IonButton mode="ios" fill="outline" color="medium">
-                          <KeyboardArrowUpIcon />
-                          <p>{comment.upVotes} </p>
-                        </IonButton>
-                        <IonButton mode="ios" fill="outline" color="medium">
-                          <KeyboardArrowDownIcon />
-                          <p>{comment.downVotes} </p>
-                        </IonButton>
-                      </IonItem>
-                    </IonList>
-                  ))
-                : null}
+                              </IonLabel>
+                              <div></div>
+                            </IonItem>
+                            <IonItem lines="none" mode="ios">
+                              <IonButton
+                                mode="ios"
+                                fill="outline"
+                                color="medium"
+                              >
+                                <KeyboardArrowUpIcon />
+                                <p>{comment.upVotes} </p>
+                              </IonButton>
+                              <IonButton
+                                mode="ios"
+                                fill="outline"
+                                color="medium"
+                              >
+                                <KeyboardArrowDownIcon />
+                                <p>{comment.downVotes} </p>
+                              </IonButton>
+                            </IonItem>
+                          </IonList>
+                        ))
+                      : null}
+                  </div>
+                </FadeIn>
+              )}
 
               <IonTextarea
                 color="secondary"
