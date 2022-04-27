@@ -32,9 +32,9 @@ import {
   IonSpinner,
   IonNote,
 } from "@ionic/react";
+import auth from '../fbconfig';
 import {
   db,
-  auth,
   addMessage,
   storage,
   uploadImage,

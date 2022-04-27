@@ -8,7 +8,7 @@ import { any } from 'prop-types';
 
 export const ionHeaderStyle = {
     textAlign: 'center',
-    padding: "2.5vh",
+    padding: "5vh",
 };
 
 class Header extends Component<any, any>{

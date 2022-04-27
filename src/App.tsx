@@ -1,4 +1,4 @@
-import { Route, Redirect } from "react-router-dom";
+import { Route, Redirect, useHistory } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import {
   IonApp,
@@ -52,28 +52,22 @@ import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import AccountCircleTwoToneIcon from "@mui/icons-material/AccountCircleTwoTone";
 import GroupsIcon from "@mui/icons-material/Groups";
 import MapIcon from "@mui/icons-material/Map";
-import { db, getCurrentUser, auth, getAllPosts } from "./fbconfig";
+import { db, getCurrentUser, getAllPosts, promiseTimeout } from "./fbconfig";
+import auth from './fbconfig';
 import { doc, getDoc } from "firebase/firestore";
 import { setUserState } from "./redux/actions";
 import { App as androidApp } from "@capacitor/app";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useDispatch } from "react-redux";
 import { setDarkMode } from "./redux/actions";
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions,} from "@capacitor/keyboard";
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { PushNotificationSchema, PushNotifications, Token, ActionPerformed } from '@capacitor/push-notifications';
 
 setupIonicReact();
 
-androidApp.addListener("backButton", ({ canGoBack }) => {
-  if (!canGoBack) {
-    androidApp.exitApp();
-  } else {
-    window.history.back();
-  }
-});
-
 const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
-  const [user] = useAuthState(auth);
-  const Toast = useToast();
   let tabBarStyle = showTabs ? undefined : { display: "none" };
   useEffect(() => {}, []);
   return (
@@ -139,39 +133,64 @@ const RoutingSystem: React.FunctionComponent = () => {
 
 const App: React.FunctionComponent = () => {
   const [busy, setBusy] = useState(true);
+  const Toast = useToast();
   const dispatch = useDispatch();
+  const history = useHistory();
   const darkMode = localStorage.getItem("darkMode") || "false";
+  const keyStyleOptionsDark : KeyboardStyleOptions  =  {
+    style : KeyboardStyle.Dark
+  }
+  const keyStyleOptionsLight : KeyboardStyleOptions  =  {
+    style : KeyboardStyle.Light
+  }
   useEffect(() => {
-    SplashScreen.hide();
+    console.log("app loading");
     if (darkMode == "false") {
       dispatch(setDarkMode(false));
+      Keyboard.setStyle(keyStyleOptionsLight);
+      StatusBar.setStyle({ style: Style.Dark });
     } else {
       document.body.classList.toggle("dark");
       dispatch(setDarkMode(true));
+      Keyboard.setStyle(keyStyleOptionsDark);
+      StatusBar.setStyle({ style: Style.Dark });
     }
-    getCurrentUser().then((user: any) => {
+    console.log("dispatch loaded");
+    const hasLoadedUser = promiseTimeout(10000, getCurrentUser());
+    hasLoadedUser.then((user : any) => {
+      console.log("user loaded");
       if (user) {
+        console.log("user res");
         let school = "";
         const userRef = doc(db, "userData", user.uid);
-        getDoc(userRef)
-          .then((userSnap) => {
+        const docLoaded = promiseTimeout(10000, getDoc(userRef));
+        docLoaded.then((userSnap) => {
+            console.log("user data loaded, going home");
             if (userSnap.exists()) {
               school = userSnap.data().school;
             }
             dispatch(setUserState(user.displayName, user.email, false, school));
             setBusy(false);
             window.history.replaceState({}, "", "/home");
-          })
-          .catch((err) => {
+          });
+          docLoaded.catch((err) => {
             console.log(err);
             dispatch(setUserState(user.displayName, user.email, false, ""));
             setBusy(false);
             window.history.replaceState({}, "", "/home");
           });
       } else {
+        console.log("no user res");
         setBusy(false);
         window.history.replaceState({}, "", "/landing-page");
       }
+    });
+    hasLoadedUser.catch((err : any) => {
+      console.log("user not loaded?");
+      console.log(err);
+      Toast.error(err);
+      setBusy(false);
+      window.history.replaceState({}, "", "/landing-page");
     });
   }, []);
   return (

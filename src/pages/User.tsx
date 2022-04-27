@@ -27,7 +27,6 @@ import {
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
-  auth,
   storage,
   logout,
   addMessage,
@@ -42,6 +41,7 @@ import {
   addComment,
   loadComments,
 } from "../fbconfig";
+import auth from '../fbconfig';
 import {
   Camera,
   CameraResultType,
@@ -85,6 +85,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { cameraOutline, chatbubblesOutline, arrowBack } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 TimeAgo.addDefaultLocale(en);
 
@@ -171,10 +173,25 @@ function User() {
     }
   };
 
-  const toggleDarkModeHandler = (isChecked: boolean) => {
+  const keyStyleOptionsDark: KeyboardStyleOptions = {
+    style: KeyboardStyle.Dark
+  }
+
+  const keyStyleOptionsLight: KeyboardStyleOptions = {
+    style: KeyboardStyle.Light
+  }
+
+  const toggleDarkModeHandler = async (isChecked: boolean) => {
     document.body.classList.toggle("dark");
     dispatch(setDarkMode(isChecked));
     localStorage.setItem("darkMode", JSON.stringify(isChecked));
+    if (isChecked) {
+      await Keyboard.setStyle(keyStyleOptionsDark);
+      await StatusBar.setStyle({ style: Style.Dark });
+    } else {
+      await Keyboard.setStyle(keyStyleOptionsLight);
+      await StatusBar.setStyle({ style: Style.Light });
+    }
   };
 
   const handleEdit = () => {
@@ -337,7 +354,7 @@ function User() {
       });
     }
   };
-  
+
   async function handleUsernameChange() {
     // update all messages to include updated username + include duplicate username check
     setCredentialsUserModal(false);
@@ -541,7 +558,7 @@ function User() {
       Toast.error("Unable to dislike post :(");
     }
   };
-  
+
   function timeout(delay: number) {
     return new Promise((res) => setTimeout(res, delay));
   }
@@ -556,7 +573,7 @@ function User() {
             setNoMorePosts(true);
           }
         })
-        .catch((err : any) => {
+        .catch((err: any) => {
           Toast.error(err.message.toString());
         });
     } else {
@@ -614,7 +631,7 @@ function User() {
         setEditableUsername(user.displayName!);
         setBusy(false);
       }
-      return () => {};
+      return () => { };
     }
   }, [user]);
 
@@ -652,214 +669,214 @@ function User() {
           isOpen={busy}
         ></IonLoading>
 
-          <IonModal backdropDismiss={false} isOpen={showCommentModal}>
-            <IonContent>
-              <div className="ion-modal">
+        <IonModal backdropDismiss={false} isOpen={showCommentModal}>
+          <IonContent>
+            <div className="ion-modal">
               <IonToolbar mode="ios">
-                  <IonButtons slot="start">
-                    <IonButton
-                      onClick={() => {
-                        setShowCommentModal(false);
-                        setComment("");
-                      }}
-                    >
-                      <IonIcon icon={arrowBack}></IonIcon>
-                      {" "} Back
-                    </IonButton>
-                  </IonButtons>
-                </IonToolbar>
-                {commentModalPost ? (
-                  <div>
-                    <IonList inset={true}>
-                      <IonItem lines="none">
-                        <IonLabel class="ion-text-wrap">
-                          <IonText color="medium">
-                            <p>
-                              <IonAvatar
-                                onClick={() => {
-                                  // setComments([]);
-                                  // setShowCommentModal(false);
-                                  // setComment("");
-                                }}
-                                class="posts-avatar"
-                              >
-                                <IonImg
-                                  src={commentModalPost.photoURL}
-                                ></IonImg>
-                              </IonAvatar>
-                              {commentModalPost.userName}
-                            </p>
-                          </IonText>
-                          {commentModalPost.postType != "general" ? (
-                            <IonFab vertical="top" horizontal="end">
-                              <p
-                                style={{
-                                  fontWeight: "bold",
-                                  color: getColor(commentModalPost.postType),
-                                }}
-                              >
-                                {commentModalPost.postType.toUpperCase()}
-                              </p>
-                            </IonFab>
-                          ) : null}
-                          <h2 className="h2-message">
-                            {commentModalPost.message}
-                          </h2>
-                        </IonLabel>
-                        <div id={commentModalPost.postType}></div>
-                      </IonItem>
-                      <IonItem lines="none" mode="ios">
-                        <IonButton
-                          onAnimationEnd={() => {
-                            setLikeAnimation(-1);
-                          }}
-                          className={
-                            likeAnimation === commentModalPostIndex
-                              ? "likeAnimation"
-                              : ""
-                          }
-                          disabled={
-                            disabledLikeButtons === commentModalPostIndex
-                          }
-                          mode="ios"
-                          fill="outline"
-                          color={
-                            userPosts &&
-                            user &&
-                            userPosts[commentModalPostIndex].likes[user.uid] !==
-                              undefined
-                              ? "primary"
-                              : "medium"
-                          }
-                          onClick={() => {
-                            setLikeAnimation(commentModalPostIndex);
-                            setDisabledLikeButtons(commentModalPostIndex);
-                            handleUpVote(
-                              commentModalPost.key,
-                              commentModalPostIndex
-                            );
-                          }}
-                        >
-                          <KeyboardArrowUpIcon />
-                          <p>{commentModalPostUpvotes} </p>
-                        </IonButton>
-                        <p>&nbsp;</p>
-                        <IonButton
-                          onAnimationEnd={() => {
-                            setDislikeAnimation(-1);
-                          }}
-                          className={
-                            dislikeAnimation === commentModalPostIndex
-                              ? "likeAnimation"
-                              : ""
-                          }
-                          disabled={
-                            disabledLikeButtons === commentModalPostIndex
-                          }
-                          mode="ios"
-                          fill="outline"
-                          color={
-                            userPosts &&
-                            user &&
-                            userPosts[commentModalPostIndex].dislikes[
-                              user.uid
-                            ] !== undefined
-                              ? "danger"
-                              : "medium"
-                          }
-                          onClick={() => {
-                            setDislikeAnimation(commentModalPostIndex);
-                            setDisabledLikeButtons(commentModalPostIndex);
-                            handleDownVote(
-                              commentModalPost.key,
-                              commentModalPostIndex
-                            );
-                          }}
-                        >
-                          <KeyboardArrowDownIcon />
-                          <p>{commentModalPostDownvotes} </p>
-                        </IonButton>
-                      </IonItem>
-                    </IonList>
-                    <div className="verticalLine"></div>
-                    {commentModalPost.imgSrc &&
-                    commentModalPost.imgSrc.length > 0 ? (
-                      <IonCard style={{ bottom: "7.5vh" }}>
-                        <IonCardContent>
-                          <IonImg
-                            onClick={() => {
-                              PhotoViewer.show(commentModalPost.imgSrc);
-                            }}
-                            src={commentModalPost.imgSrc}
-                          ></IonImg>
-                        </IonCardContent>
-                      </IonCard>
-                    ) : null}
-                  </div>
-                ) : null}
-                <p style={{ textAlign: "center" }}>Comments</p>
-                <br></br>
-                {commentsLoading && !comments ? (
-                  <div
-                    style={{
-                      alignItems: "center",
-                      textAlign: "center",
-                      justifyContent: "center",
-                      display: "flex",
+                <IonButtons slot="start">
+                  <IonButton
+                    onClick={() => {
+                      setShowCommentModal(false);
+                      setComment("");
                     }}
                   >
-                    <IonSpinner color="primary" />
-                  </div>
-                ) : (
-                  <div>
-                    {comments && comments.length > 0
-                      ? comments?.map((comment: any, index) => (
-                          <IonList inset={true} key={index}>
-                            {" "}
-                            {/*dont do this, change index!*/}
-                            <IonItem lines="none">
-                              <IonLabel class="ion-text-wrap">
-                                <IonText color="medium">
-                                  {commentModalPost.uid != comment.uid ? (
-                                    <p>
-                                      <IonAvatar
-                                        onClick={() => {
-                                          setShowCommentModal(false);
-                                          handleUserPageNavigation(comment.uid);
-                                        }}
-                                        class="posts-avatar"
-                                      >
-                                        <IonImg
-                                          src={comment?.photoURL!}
-                                        ></IonImg>
-                                      </IonAvatar>
-                                      {comment.userName}
-                                    </p>
-                                  ) : (
-                                    <p>
-                                      <IonAvatar
-                                        // onClick={() => {
-                                        //   setComments([]);
-                                        //   setShowCommentModal(false);
-                                        //   setComment("");
-                                        //   //handleUserPageNavigation(comment.uid);
-                                        // }}
-                                        class="posts-avatar"
-                                      >
-                                        <IonImg
-                                          src={comment?.photoURL!}
-                                        ></IonImg>
-                                      </IonAvatar>
-                                      {comment.userName}
-                                    </p>
-                                  )}
-                                </IonText>
+                    <IonIcon icon={arrowBack}></IonIcon>
+                    {" "} Back
+                  </IonButton>
+                </IonButtons>
+              </IonToolbar>
+              {commentModalPost ? (
+                <div>
+                  <IonList inset={true}>
+                    <IonItem lines="none">
+                      <IonLabel class="ion-text-wrap">
+                        <IonText color="medium">
+                          <p>
+                            <IonAvatar
+                              onClick={() => {
+                                // setComments([]);
+                                // setShowCommentModal(false);
+                                // setComment("");
+                              }}
+                              class="posts-avatar"
+                            >
+                              <IonImg
+                                src={commentModalPost.photoURL}
+                              ></IonImg>
+                            </IonAvatar>
+                            {commentModalPost.userName}
+                          </p>
+                        </IonText>
+                        {commentModalPost.postType != "general" ? (
+                          <IonFab vertical="top" horizontal="end">
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                color: getColor(commentModalPost.postType),
+                              }}
+                            >
+                              {commentModalPost.postType.toUpperCase()}
+                            </p>
+                          </IonFab>
+                        ) : null}
+                        <h2 className="h2-message">
+                          {commentModalPost.message}
+                        </h2>
+                      </IonLabel>
+                      <div id={commentModalPost.postType}></div>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios">
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setLikeAnimation(-1);
+                        }}
+                        className={
+                          likeAnimation === commentModalPostIndex
+                            ? "likeAnimation"
+                            : ""
+                        }
+                        disabled={
+                          disabledLikeButtons === commentModalPostIndex
+                        }
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          userPosts &&
+                            user &&
+                            userPosts[commentModalPostIndex].likes[user.uid] !==
+                            undefined
+                            ? "primary"
+                            : "medium"
+                        }
+                        onClick={() => {
+                          setLikeAnimation(commentModalPostIndex);
+                          setDisabledLikeButtons(commentModalPostIndex);
+                          handleUpVote(
+                            commentModalPost.key,
+                            commentModalPostIndex
+                          );
+                        }}
+                      >
+                        <KeyboardArrowUpIcon />
+                        <p>{commentModalPostUpvotes} </p>
+                      </IonButton>
+                      <p>&nbsp;</p>
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setDislikeAnimation(-1);
+                        }}
+                        className={
+                          dislikeAnimation === commentModalPostIndex
+                            ? "likeAnimation"
+                            : ""
+                        }
+                        disabled={
+                          disabledLikeButtons === commentModalPostIndex
+                        }
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          userPosts &&
+                            user &&
+                            userPosts[commentModalPostIndex].dislikes[
+                            user.uid
+                            ] !== undefined
+                            ? "danger"
+                            : "medium"
+                        }
+                        onClick={() => {
+                          setDislikeAnimation(commentModalPostIndex);
+                          setDisabledLikeButtons(commentModalPostIndex);
+                          handleDownVote(
+                            commentModalPost.key,
+                            commentModalPostIndex
+                          );
+                        }}
+                      >
+                        <KeyboardArrowDownIcon />
+                        <p>{commentModalPostDownvotes} </p>
+                      </IonButton>
+                    </IonItem>
+                  </IonList>
+                  <div className="verticalLine"></div>
+                  {commentModalPost.imgSrc &&
+                    commentModalPost.imgSrc.length > 0 ? (
+                    <IonCard style={{ bottom: "7.5vh" }}>
+                      <IonCardContent>
+                        <IonImg
+                          onClick={() => {
+                            PhotoViewer.show(commentModalPost.imgSrc);
+                          }}
+                          src={commentModalPost.imgSrc}
+                        ></IonImg>
+                      </IonCardContent>
+                    </IonCard>
+                  ) : null}
+                </div>
+              ) : null}
+              <p style={{ textAlign: "center" }}>Comments</p>
+              <br></br>
+              {commentsLoading && !comments ? (
+                <div
+                  style={{
+                    alignItems: "center",
+                    textAlign: "center",
+                    justifyContent: "center",
+                    display: "flex",
+                  }}
+                >
+                  <IonSpinner color="primary" />
+                </div>
+              ) : (
+                <div>
+                  {comments && comments.length > 0
+                    ? comments?.map((comment: any, index) => (
+                      <IonList inset={true} key={index}>
+                        {" "}
+                        {/*dont do this, change index!*/}
+                        <IonItem lines="none">
+                          <IonLabel class="ion-text-wrap">
+                            <IonText color="medium">
+                              {commentModalPost.uid != comment.uid ? (
+                                <p>
+                                  <IonAvatar
+                                    onClick={() => {
+                                      setShowCommentModal(false);
+                                      handleUserPageNavigation(comment.uid);
+                                    }}
+                                    class="posts-avatar"
+                                  >
+                                    <IonImg
+                                      src={comment?.photoURL!}
+                                    ></IonImg>
+                                  </IonAvatar>
+                                  {comment.userName}
+                                </p>
+                              ) : (
+                                <p>
+                                  <IonAvatar
+                                    // onClick={() => {
+                                    //   setComments([]);
+                                    //   setShowCommentModal(false);
+                                    //   setComment("");
+                                    //   //handleUserPageNavigation(comment.uid);
+                                    // }}
+                                    class="posts-avatar"
+                                  >
+                                    <IonImg
+                                      src={comment?.photoURL!}
+                                    ></IonImg>
+                                  </IonAvatar>
+                                  {comment.userName}
+                                </p>
+                              )}
+                            </IonText>
 
-                                <h2 className="h2-message">
-                                  {" "}
-                                  {comment.comment}{" "}
-                                </h2>
-                                {/* {comment.url.length > 0 ? (
+                            <h2 className="h2-message">
+                              {" "}
+                              {comment.comment}{" "}
+                            </h2>
+                            {/* {comment.url.length > 0 ? (
                                     <div className="ion-img-container">
                                       <br></br>
                                       <IonImg
@@ -870,65 +887,65 @@ function User() {
                                       />
                                     </div>
                                   ) : null} */}
-                              </IonLabel>
-                              <div></div>
-                            </IonItem>
-                            <IonItem lines="none" mode="ios">
-                              <IonButton
-                                mode="ios"
-                                fill="outline"
-                                color="medium"
-                              >
-                                <KeyboardArrowUpIcon />
-                                <p>{comment.upVotes} </p>
-                              </IonButton>
-                              <IonButton
-                                mode="ios"
-                                fill="outline"
-                                color="medium"
-                              >
-                                <KeyboardArrowDownIcon />
-                                <p>{comment.downVotes} </p>
-                              </IonButton>
-                            </IonItem>
-                          </IonList>
-                        ))
-                      : null}
-                  </div>
-                )}
-
-                <IonTextarea
-                  color="secondary"
-                  spellcheck={true}
-                  maxlength={200}
-                  style={ionInputStyle}
-                  value={comment}
-                  placeholder="Leave a comment..."
-                  id="message"
-                  onIonChange={(e: any) => {
-                    handleChangeComment(e);
-                  }}
-                ></IonTextarea>
-                <div className="ion-button-container">
-                  <IonButton
-                    color="transparent"
-                    mode="ios"
-                    shape="round"
-                    fill="outline"
-                    expand="block"
-                    id="signUpButton"
-                    onClick={() => {
-                      handleCommentSubmit(commentModalPost.key);
-                    }}
-                  >
-                    Comment
-                  </IonButton>
+                          </IonLabel>
+                          <div></div>
+                        </IonItem>
+                        <IonItem lines="none" mode="ios">
+                          <IonButton
+                            mode="ios"
+                            fill="outline"
+                            color="medium"
+                          >
+                            <KeyboardArrowUpIcon />
+                            <p>{comment.upVotes} </p>
+                          </IonButton>
+                          <IonButton
+                            mode="ios"
+                            fill="outline"
+                            color="medium"
+                          >
+                            <KeyboardArrowDownIcon />
+                            <p>{comment.downVotes} </p>
+                          </IonButton>
+                        </IonItem>
+                      </IonList>
+                    ))
+                    : null}
                 </div>
-                <wbr></wbr>
-                <br></br>
+              )}
+
+              <IonTextarea
+                color="secondary"
+                spellcheck={true}
+                maxlength={200}
+                style={ionInputStyle}
+                value={comment}
+                placeholder="Leave a comment..."
+                id="message"
+                onIonChange={(e: any) => {
+                  handleChangeComment(e);
+                }}
+              ></IonTextarea>
+              <div className="ion-button-container">
+                <IonButton
+                  color="transparent"
+                  mode="ios"
+                  shape="round"
+                  fill="outline"
+                  expand="block"
+                  id="signUpButton"
+                  onClick={() => {
+                    handleCommentSubmit(commentModalPost.key);
+                  }}
+                >
+                  Comment
+                </IonButton>
               </div>
-            </IonContent>
-          </IonModal>
+              <wbr></wbr>
+              <br></br>
+            </div>
+          </IonContent>
+        </IonModal>
 
         <IonModal backdropDismiss={false} isOpen={credentialsModal}>
           <div className="ion-modal">
@@ -1048,335 +1065,336 @@ function User() {
           }}
         >
           <SwiperSlide>
-            <IonHeader style={ionHeaderStyle}>
-              Settings
-            </IonHeader>
-            <IonList mode="ios" inset={true}>
-              <IonItem mode="ios">
-                <IonLabel mode="ios">
-                  <IonText color="medium">
-                    <p> Email </p>
-                  </IonText>
-                  <IonInput
-                    ref={inputRef}
-                    readonly={!editClicked}
-                    value={editableEmail}
-                    onIonChange={(e) => {
-                      handleChangeEmailString(e);
-                    }}
-                  ></IonInput>
-                </IonLabel>
-                {editClicked ? (
-                  <div>
-                    <IonButton color="danger" slot="end" onClick={handleX}>
-                      {" "}
-                      X{" "}
-                    </IonButton>
+            <IonCard className='user-card'>
+              <IonHeader class="ion-no-border" style={{textAlign:"center", padding: "2vh", fontSize:"1.25em"}}>
+                Settings
+              </IonHeader>
+              <IonList mode="ios" inset={true}>
+                <IonItem mode="ios">
+                  <IonLabel mode="ios">
+                    <IonText color="medium">
+                      <p> Email </p>
+                    </IonText>
+                    <IonInput
+                      ref={inputRef}
+                      readonly={!editClicked}
+                      value={editableEmail}
+                      onIonChange={(e) => {
+                        handleChangeEmailString(e);
+                      }}
+                    ></IonInput>
+                  </IonLabel>
+                  {editClicked ? (
+                    <div>
+                      <IonButton color="danger" slot="end" onClick={handleX}>
+                        {" "}
+                        X{" "}
+                      </IonButton>
+                      <IonButton
+                        color="success"
+                        slot="end"
+                        onClick={handleCheckmark}
+                      >
+                        {" "}
+                        &#10003;{" "}
+                      </IonButton>
+                    </div>
+                  ) : (
                     <IonButton
-                      color="success"
+                      disabled={editClicked}
+                      onClick={handleEdit}
+                      color="medium"
                       slot="end"
-                      onClick={handleCheckmark}
                     >
                       {" "}
-                      &#10003;{" "}
+                      Edit{" "}
                     </IonButton>
-                  </div>
-                ) : (
+                  )}
+                </IonItem>
+                <IonItem mode="ios">
+                  <IonLabel mode="ios">
+                    <IonText color="medium">
+                      <p> Username </p>
+                    </IonText>
+                    <IonInput
+                      maxlength={15}
+                      ref={inputRef}
+                      readonly={!editUserClicked}
+                      value={editableUsername}
+                      onIonChange={(e) => {
+                        handleChangeUsernameString(e);
+                      }}
+                    ></IonInput>
+                  </IonLabel>
+                  {editUserClicked ? (
+                    <div>
+                      <IonButton color="danger" slot="end" onClick={handleUserX}>
+                        {" "}
+                        X{" "}
+                      </IonButton>
+                      <IonButton
+                        color="success"
+                        slot="end"
+                        onClick={handleUserCheckmark}
+                      >
+                        {" "}
+                        &#10003;{" "}
+                      </IonButton>
+                    </div>
+                  ) : (
+                    <IonButton
+                      disabled={editUserClicked}
+                      onClick={handleUserEdit}
+                      color="medium"
+                      slot="end"
+                    >
+                      {" "}
+                      Edit{" "}
+                    </IonButton>
+                  )}
+                </IonItem>
+                <IonItem mode="ios">
+                  <p>Profile Picture</p>
                   <IonButton
-                    disabled={editClicked}
-                    onClick={handleEdit}
+                    onClick={handleProfilePictureEdit}
                     color="medium"
                     slot="end"
                   >
                     {" "}
                     Edit{" "}
                   </IonButton>
-                )}
-              </IonItem>
-              <IonItem mode="ios">
-                <IonLabel mode="ios">
-                  <IonText color="medium">
-                    <p> Username </p>
-                  </IonText>
-                  <IonInput
-                    maxlength={15}
-                    ref={inputRef}
-                    readonly={!editUserClicked}
-                    value={editableUsername}
-                    onIonChange={(e) => {
-                      handleChangeUsernameString(e);
-                    }}
-                  ></IonInput>
-                </IonLabel>
-                {editUserClicked ? (
-                  <div>
-                    <IonButton color="danger" slot="end" onClick={handleUserX}>
-                      {" "}
-                      X{" "}
-                    </IonButton>
-                    <IonButton
-                      color="success"
-                      slot="end"
-                      onClick={handleUserCheckmark}
-                    >
-                      {" "}
-                      &#10003;{" "}
-                    </IonButton>
-                  </div>
-                ) : (
-                  <IonButton
-                    disabled={editUserClicked}
-                    onClick={handleUserEdit}
-                    color="medium"
+                </IonItem>
+                <IonItem mode="ios">
+                  <p> Dark mode </p>
+                  <IonIcon color="medium" icon={moon} slot="end" />
+                  <IonToggle
+                    color="primary"
                     slot="end"
-                  >
-                    {" "}
-                    Edit{" "}
-                  </IonButton>
-                )}
-              </IonItem>
-              <IonItem mode="ios">
-                <p>Profile Picture</p>
+                    name="darkMode"
+                    checked={darkModeToggled}
+                    onIonChange={(e) => toggleDarkModeHandler(e.detail.checked)}
+                  />
+                </IonItem>
+              </IonList>
+              <div className="ion-button-container">
                 <IonButton
-                  onClick={handleProfilePictureEdit}
-                  color="medium"
-                  slot="end"
+                  onClick={loadLogout}
+                  color="danger"
+                  mode="ios"
+                  shape="round"
+                  fill="outline"
+                  id="logout"
                 >
-                  {" "}
-                  Edit{" "}
+                  Logout
                 </IonButton>
-              </IonItem>
-              <IonItem mode="ios">
-                <p> Dark mode </p>
-                <IonIcon color="medium" icon={moon} slot="end" />
-                <IonToggle
-                  color="primary"
-                  slot="end"
-                  name="darkMode"
-                  checked={darkModeToggled}
-                  onIonChange={(e) => toggleDarkModeHandler(e.detail.checked)}
-                />
-              </IonItem>
-            </IonList>
-            <div className="ion-button-container">
-              <IonButton
-                onClick={loadLogout}
-                color="danger"
-                mode="ios"
-                shape="round"
-                fill="outline"
-                expand="full"
-                id="logout"
-              >
-                Logout
-              </IonButton>
-              <IonButton
-                disabled={true}
-                color="danger"
-                mode="ios"
-                shape="round"
-                fill="outline"
-                expand="full"
-                id="deleteAccount"
-              >
-                Delete Account
-              </IonButton>
-            </div>
+                <IonButton
+                  disabled={true}
+                  color="danger"
+                  mode="ios"
+                  shape="round"
+                  fill="outline"
+                  id="deleteAccount"
+                >
+                  Delete Account
+                </IonButton>
+              </div>
+            </IonCard>
           </SwiperSlide>
           <SwiperSlide>
-            <IonHeader style={ionHeaderStyle}>
+          <IonCard className='user-card'>
+            <IonHeader class="ion-no-border" style={{textAlign:"center", padding: "2vh", fontSize:"1.25em"}}>
               Your Posts
             </IonHeader>
             <div>
               <>
                 {userPosts && userPosts.length > 0
                   ? userPosts.map((post: any, index: number) => {
-                      if (busy) {
-                        return (
-                          <FadeIn key={post.key}>
-                            <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios">
-                                <IonLabel>
-                                  <IonFab horizontal="end">
-                                    <IonSkeletonText
-                                      animated
-                                      style={{
-                                        fontSize: "0.75em",
-                                        width: "30vw",
-                                      }}
-                                    />
-                                  </IonFab>
-                                  <IonFab horizontal="start">
-                                    <p
-                                      style={{
-                                        fontWeight: "bold",
-                                        color: getColor(post.postType),
-                                      }}
-                                    >
-                                      <IonSkeletonText
-                                        style={{
-                                          width: "30vw",
-                                          height: "1.75em",
-                                        }}
-                                        animated
-                                      />
-                                    </p>
-                                  </IonFab>
-                                  <br></br>
-                                  <h3
-                                    className="h2-message"
-                                    style={{
-                                      marginLeft: "2.5%",
-                                      marginTop: "5%",
-                                    }}
-                                  >
-                                    {" "}
-                                    <IonSkeletonText animated />{" "}
-                                  </h3>
-
-                                  {post.imgSrc && post.imgSrc.length > 0 ? (
-                                    <div>
-                                      <br></br>
-                                      <br></br>
-                                      <IonSkeletonText
-                                        style={{ height: "50vw" }}
-                                        animated
-                                      />
-                                    </div>
-                                  ) : null}
-                                </IonLabel>
-                              </IonItem>
-                            </IonList>
-                          </FadeIn>
-                        );
-                      }
+                    if (busy) {
                       return (
                         <FadeIn key={post.key}>
                           <IonList inset={true} mode="ios">
                             <IonItem lines="none" mode="ios">
                               <IonLabel>
                                 <IonFab horizontal="end">
-                                  <IonNote style={{ fontSize: "0.75em" }}>
-                                    {" "}
-                                    {getDate(post.timestamp)}{" "}
-                                  </IonNote>
+                                  <IonSkeletonText
+                                    animated
+                                    style={{
+                                      fontSize: "0.75em",
+                                      width: "30vw",
+                                    }}
+                                  />
                                 </IonFab>
                                 <IonFab horizontal="start">
-                                  {post.postType != "general" ? (
-                                    <p
+                                  <p
+                                    style={{
+                                      fontWeight: "bold",
+                                      color: getColor(post.postType),
+                                    }}
+                                  >
+                                    <IonSkeletonText
                                       style={{
-                                        fontWeight: "bold",
-                                        color: getColor(post.postType),
+                                        width: "30vw",
+                                        height: "1.75em",
                                       }}
-                                    >
-                                      {post.postType.toUpperCase()}
-                                    </p>
-                                  ) : null}
+                                      animated
+                                    />
+                                  </p>
                                 </IonFab>
                                 <br></br>
                                 <h3
                                   className="h2-message"
                                   style={{
-                                    marginLeft: "4.5%",
+                                    marginLeft: "2.5%",
                                     marginTop: "5%",
                                   }}
                                 >
                                   {" "}
-                                  {post.message}{" "}
+                                  <IonSkeletonText animated />{" "}
                                 </h3>
 
                                 {post.imgSrc && post.imgSrc.length > 0 ? (
                                   <div>
                                     <br></br>
                                     <br></br>
-                                    <IonImg
-                                      className="ion-img-container"
-                                      onClick={() => {
-                                        PhotoViewer.show(post.imgSrc);
-                                      }}
-                                      src={post.imgSrc}
+                                    <IonSkeletonText
+                                      style={{ height: "50vw" }}
+                                      animated
                                     />
                                   </div>
                                 ) : null}
                               </IonLabel>
                             </IonItem>
-                            <FadeIn>
-                              <IonItem lines="none" mode="ios">
-                                <IonButton
-                                  onAnimationEnd={() => {
-                                    setLikeAnimation(-1);
-                                  }}
-                                  className={
-                                    likeAnimation === post.key
-                                      ? "likeAnimation"
-                                      : ""
-                                  }
-                                  disabled={disabledLikeButtons === index}
-                                  mode="ios"
-                                  fill="outline"
-                                  color={
-                                    userPosts &&
-                                    user &&
-                                    userPosts[index].likes[user.uid] !==
-                                      undefined
-                                      ? "primary"
-                                      : "medium"
-                                  }
-                                  onClick={() => {
-                                    setLikeAnimation(post.key);
-                                    setDisabledLikeButtons(index);
-                                    handleUpVote(post.key, index);
-                                  }}
-                                >
-                                  <KeyboardArrowUpIcon />
-                                  <p>{post.upVotes} </p>
-                                </IonButton>
-                                <p>&nbsp;</p>
-                                <IonButton
-                                  mode="ios"
-                                  color="medium"
-                                  onClick={() => {
-                                    handleCommentModal(post, index);
-                                  }}
-                                >
-                                  <ForumIcon />
-                                  <p>&nbsp; {post.commentAmount} </p>
-                                </IonButton>
-                                <IonButton
-                                  onAnimationEnd={() => {
-                                    setDislikeAnimation(-1);
-                                  }}
-                                  className={
-                                    dislikeAnimation === post.key
-                                      ? "likeAnimation"
-                                      : ""
-                                  }
-                                  disabled={disabledLikeButtons === index}
-                                  mode="ios"
-                                  fill="outline"
-                                  color={
-                                    userPosts &&
-                                    user &&
-                                    userPosts[index].dislikes[user.uid] !==
-                                      undefined
-                                      ? "danger"
-                                      : "medium"
-                                  }
-                                  onClick={() => {
-                                    setDislikeAnimation(post.key);
-                                    setDisabledLikeButtons(index);
-                                    handleDownVote(post.key, index);
-                                  }}
-                                >
-                                  <KeyboardArrowDownIcon />
-                                  <p>{post.downVotes} </p>
-                                </IonButton>
-                              </IonItem>
-                            </FadeIn>
                           </IonList>
                         </FadeIn>
                       );
-                    })
+                    }
+                    return (
+                      <FadeIn key={post.key}>
+                        <IonList inset={true} mode="ios">
+                          <IonItem lines="none" mode="ios">
+                            <IonLabel>
+                              <IonFab horizontal="end">
+                                <IonNote style={{ fontSize: "0.75em" }}>
+                                  {" "}
+                                  {getDate(post.timestamp)}{" "}
+                                </IonNote>
+                              </IonFab>
+                              <IonFab horizontal="start">
+                                {post.postType != "general" ? (
+                                  <p
+                                    style={{
+                                      fontWeight: "bold",
+                                      color: getColor(post.postType),
+                                    }}
+                                  >
+                                    {post.postType.toUpperCase()}
+                                  </p>
+                                ) : null}
+                              </IonFab>
+                              <br></br>
+                              <h3
+                                className="h2-message"
+                                style={{
+                                  marginLeft: "4.5%",
+                                  marginTop: "5%",
+                                }}
+                              >
+                                {" "}
+                                {post.message}{" "}
+                              </h3>
+
+                              {post.imgSrc && post.imgSrc.length > 0 ? (
+                                <div>
+                                  <br></br>
+                                  <br></br>
+                                  <IonImg
+                                    className="ion-img-container"
+                                    onClick={() => {
+                                      PhotoViewer.show(post.imgSrc);
+                                    }}
+                                    src={post.imgSrc}
+                                  />
+                                </div>
+                              ) : null}
+                            </IonLabel>
+                          </IonItem>
+                          <FadeIn>
+                            <IonItem lines="none" mode="ios">
+                              <IonButton
+                                onAnimationEnd={() => {
+                                  setLikeAnimation(-1);
+                                }}
+                                className={
+                                  likeAnimation === post.key
+                                    ? "likeAnimation"
+                                    : ""
+                                }
+                                disabled={disabledLikeButtons === index}
+                                mode="ios"
+                                fill="outline"
+                                color={
+                                  userPosts &&
+                                    user &&
+                                    userPosts[index].likes[user.uid] !==
+                                    undefined
+                                    ? "primary"
+                                    : "medium"
+                                }
+                                onClick={() => {
+                                  setLikeAnimation(post.key);
+                                  setDisabledLikeButtons(index);
+                                  handleUpVote(post.key, index);
+                                }}
+                              >
+                                <KeyboardArrowUpIcon />
+                                <p>{post.upVotes} </p>
+                              </IonButton>
+                              <p>&nbsp;</p>
+                              <IonButton
+                                mode="ios"
+                                color="medium"
+                                onClick={() => {
+                                  handleCommentModal(post, index);
+                                }}
+                              >
+                                <ForumIcon />
+                                <p>&nbsp; {post.commentAmount} </p>
+                              </IonButton>
+                              <IonButton
+                                onAnimationEnd={() => {
+                                  setDislikeAnimation(-1);
+                                }}
+                                className={
+                                  dislikeAnimation === post.key
+                                    ? "likeAnimation"
+                                    : ""
+                                }
+                                disabled={disabledLikeButtons === index}
+                                mode="ios"
+                                fill="outline"
+                                color={
+                                  userPosts &&
+                                    user &&
+                                    userPosts[index].dislikes[user.uid] !==
+                                    undefined
+                                    ? "danger"
+                                    : "medium"
+                                }
+                                onClick={() => {
+                                  setDislikeAnimation(post.key);
+                                  setDisabledLikeButtons(index);
+                                  handleDownVote(post.key, index);
+                                }}
+                              >
+                                <KeyboardArrowDownIcon />
+                                <p>{post.downVotes} </p>
+                              </IonButton>
+                            </IonItem>
+                          </FadeIn>
+                        </IonList>
+                      </FadeIn>
+                    );
+                  })
                   : null}
               </>
               <FadeIn>
@@ -1396,17 +1414,19 @@ function User() {
                 </div>
               </FadeIn>
             </div>
+          </IonCard>
           </SwiperSlide>
           <SwiperSlide>
+          <IonCard className='user-card'>
             <div>
-            <IonHeader style={ionHeaderStyle}>
-              Notifications
-            </IonHeader>
-            <IonList mode='ios'>
+              <IonHeader class="ion-no-border" style={{textAlign:"center", padding: "2vh", fontSize:"1.25em"}}>
+                Notifications
+              </IonHeader>
+              <IonList mode='ios'>
 
-            </IonList>
+              </IonList>
             </div>
-
+          </IonCard>
           </SwiperSlide>
         </Swiper>
       </IonContent>

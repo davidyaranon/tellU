@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL,} from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, } from "firebase/storage";
 import {
   WriteBatch,
   deleteField,
@@ -28,8 +28,10 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  initializeAuth,
+  indexedDBLocalPersistence,
 } from "firebase/auth";
-import { school } from "ionicons/icons";
+import { Capacitor } from '@capacitor/core';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
@@ -42,7 +44,16 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
-export const auth = getAuth();
+
+const auth = Capacitor.isNativePlatform
+  ?
+  initializeAuth(app, {
+    persistence: indexedDBLocalPersistence
+  })
+  :
+  getAuth();
+
+export default auth;
 export const db = getFirestore(app);
 export const storage = getStorage();
 
@@ -282,14 +293,14 @@ export const promiseTimeout = function (ms, promise) {
 
 export const getUserPosts = async (schoolName, uid) => {
   try {
-    if(db) {
+    if (db) {
       const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
       const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(5));
       const qSnap = await getDocs(q);
       let userPosts = [];
       let lastKey = "";
       const docs = qSnap.docs;
-      for(const doc of docs) {
+      for (const doc of docs) {
         userPosts.push({
           ...doc.data(),
           key: doc.id,
@@ -298,21 +309,21 @@ export const getUserPosts = async (schoolName, uid) => {
       }
       return { userPosts, lastKey };
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }
 
 export const getNextBatchUserPosts = async (schoolName, uid, key) => {
-  try{
-    if(db) {
+  try {
+    if (db) {
       const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
       const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(5));
       const qSnap = await getDocs(q);
       let userPosts = [];
       let lastKey = "";
       const docs = qSnap.docs;
-      for(const doc of docs) {
+      for (const doc of docs) {
         userPosts.push({
           ...doc.data(),
           key: doc.id,
@@ -321,7 +332,7 @@ export const getNextBatchUserPosts = async (schoolName, uid, key) => {
       }
       return { userPosts, lastKey };
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }
@@ -334,7 +345,7 @@ export const getUserData = async (uid) => {
       const q = query(usersRef, where("uid", "==", uid));
       const querySnapshot = await getDocs(q);
       const docs = querySnapshot.docs;
-      for(const doc of docs){
+      for (const doc of docs) {
         temp.push({
           ...doc.data(),
         });
@@ -528,7 +539,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
         await updateDoc(postDocRef, {
           commentsArr: arrayUnion({
             comment: commentString,
-            photoURL: photoURL, 
+            photoURL: photoURL,
             userName: userName,
             upVotes: 0,
             downVotes: 0,
@@ -536,7 +547,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
           })
         });
         const postSnap = await getDoc(postRef);
-        if(postSnap.exists ) {
+        if (postSnap.exists) {
           await updateDoc(postRef, {
             commentAmount: increment(1),
           })
@@ -553,7 +564,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
 
 export const loadComments = async (postKey, schoolName) => {
   try {
-    if(auth && auth.currentUser) {
+    if (auth && auth.currentUser) {
       const postDocRef = doc(
         db,
         "schoolPosts",
@@ -562,11 +573,11 @@ export const loadComments = async (postKey, schoolName) => {
         postKey
       );
       const snap = await getDoc(postDocRef);
-      if(snap.exists) {
+      if (snap.exists) {
         return snap.data().commentsArr;
       }
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }

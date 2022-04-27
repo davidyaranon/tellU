@@ -2,7 +2,7 @@ import { IonContent, IonHeader, IonRouterLink, IonLoading, IonActionSheet, IonBu
 import React from 'react';
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, } from '../fbconfig'
+import auth from '../fbconfig';
 import Header from './Header'
 import '../App.css';
 import { add, settings, share, person, arrowForwardCircle, arrowBackCircle, arrowUpCircle, logoVimeo, logoFacebook, logoInstagram, logoTwitter } from 'ionicons/icons';

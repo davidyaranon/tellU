@@ -5,6 +5,13 @@
   transform: translate(-50%, -50%);
 }
 
+.user-card {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  background: transparent;
+}
+
 ion-skeleton-text {
   --background-rgb: 130, 130, 130;
 }

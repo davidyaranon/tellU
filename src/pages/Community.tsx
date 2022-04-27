@@ -49,9 +49,9 @@ import {
   chevronForward,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
+import auth from '../fbconfig';
 import {
   addComment,
-  auth,
   downVote,
   getTopPostsWithinPastDay,
   loadComments,

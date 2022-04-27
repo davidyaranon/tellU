@@ -17,8 +17,8 @@ import {
   IonTitle,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
+import auth from '../fbconfig';
 import {
-  auth,
   registerWithEmailAndPassword,
   checkUsernameUniqueness,
   db,
@@ -142,7 +142,7 @@ const Register: React.FC = () => {
   return (
     <React.Fragment>
       <IonContent>
-        <IonHeader class="ion-no-border" style={{ padding: "3vh" }}>
+        <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
           <Header />
         </IonHeader>
 

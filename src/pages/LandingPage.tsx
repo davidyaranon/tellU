@@ -1,6 +1,7 @@
 import { IonContent, IonHeader, IonButton, IonLoading, IonInput, IonItem, IonLabel, IonSpinner, IonList } from '@ionic/react';
 import React, { useEffect, useState  } from 'react';
-import { auth, logInWithEmailAndPassword, db} from '../fbconfig'
+import auth from '../fbconfig';
+import { logInWithEmailAndPassword, db} from '../fbconfig'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
@@ -84,7 +85,7 @@ const LandingPage: React.FC = () => {
             <React.Fragment>
                 <IonContent >
     
-                    <IonHeader class="ion-no-border" style={{padding: "3vh"}}>
+                    <IonHeader class="ion-no-border" style={{padding: "5vh"}}>
                       <Header />
                     </IonHeader>
     

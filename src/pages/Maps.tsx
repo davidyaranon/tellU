@@ -38,7 +38,8 @@ import {
 } from "@ionic/react";
 import { arrowBack, schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState, useRef } from "react";
-import { addComment, auth, db, downVote, loadComments, promiseTimeout, storage, upVote } from "../fbconfig";
+import auth from '../fbconfig';
+import { addComment, db, downVote, loadComments, promiseTimeout, storage, upVote } from "../fbconfig";
 import { getDownloadURL, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
@@ -660,7 +661,7 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ top: "80vh" }} />
+          <ZoomControl style={{ top: "80vh", textAlign: "center"}} />
           <IonFab class="ion-fab" horizontal="end" vertical="bottom">
             <p style={{ fontSize: "1em", color: "black" }}>{schoolName}</p>
             <IonFabButton color="light" mode="ios">

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
+import auth from '../fbconfig';
 import {
-  auth,
   getUserPosts,
   getNextBatchUserPosts,
   getUserData,
