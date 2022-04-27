@@ -49,7 +49,7 @@ import {
   chevronForward,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth from '../fbconfig';
+import auth, { removeComment } from "../fbconfig";
 import {
   addComment,
   downVote,
@@ -69,8 +69,8 @@ import { useSelector } from "react-redux";
 import "swiper/css";
 import "swiper/css/pagination";
 import FadeIn from "react-fade-in";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
-// import 'swiper/css/effect-cards';
 
 function Community() {
   const schoolName = useSelector((state: any) => state.user.school);
@@ -131,7 +131,10 @@ function Community() {
       Toast.error("Input a comment");
     } else {
       setCommentsBusy(true);
-      const hasTimedOut = promiseTimeout(10000, addComment(postKey, schoolName, comment));
+      const hasTimedOut = promiseTimeout(
+        10000,
+        addComment(postKey, schoolName, comment)
+      );
       hasTimedOut.then((commentSent) => {
         setComment("");
         if (commentSent) {
@@ -143,7 +146,10 @@ function Community() {
           }
           try {
             // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-            const commentsHasTimedOut = promiseTimeout(10000, loadComments(postKey, schoolName));
+            const commentsHasTimedOut = promiseTimeout(
+              10000,
+              loadComments(postKey, schoolName)
+            );
             commentsHasTimedOut.then((resComments) => {
               if (resComments == null || resComments == undefined) {
                 Toast.error(
@@ -273,6 +279,42 @@ function Community() {
     }
   };
 
+  const deleteComment = async (index : number) => {
+    setCommentsLoading(true);
+    if(comments && commentModalPost && schoolName) {
+      const commentBeingDeleted = comments[index];
+      const didDelete = promiseTimeout(5000, removeComment(commentBeingDeleted, schoolName, commentModalPost.key));
+      didDelete.then((res) => {
+        if(res) {
+          Toast.success("Comment deleted");
+          if(comments.length == 0) {
+            setComments([]);
+          } else {
+            let tempComments : any[] = [];
+            for(let i = 0; i < comments.length; ++i) {
+              if(i !== index) {
+                tempComments.push(comments[i]);
+              }
+            }
+            setComments(tempComments);
+            console.log(tempComments);
+          }
+          setCommentsLoading(false);
+        } else {
+          Toast.error("Unable to delete comment");
+          setCommentsLoading(false);
+        }
+      });
+      didDelete.catch((err) => {
+        Toast.error(err);
+        setCommentsLoading(false);
+      })
+    } else {
+      Toast.error("Unable to delete comment");
+      setCommentsLoading(false);
+    }
+  };
+
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
     setComment(currComment);
@@ -324,7 +366,7 @@ function Community() {
           message="Adding comment"
           duration={0}
           isOpen={commentsBusy}
-        ></IonLoading> 
+        ></IonLoading>
 
         <IonModal backdropDismiss={false} isOpen={showModalComment}>
           <IonContent>
@@ -386,7 +428,9 @@ function Community() {
                             {commentModalPost.data.message}
                           </h2>
                         </IonLabel>
-                        <div id={commentModalPost.data.postType.replace('/','')}></div>
+                        <div
+                          id={commentModalPost.data.postType.replace("/", "")}
+                        ></div>
                       </IonItem>
                       <IonItem lines="none" mode="ios">
                         <IonButton
@@ -551,6 +595,20 @@ function Community() {
                                 <KeyboardArrowDownIcon />
                                 <p>{comment.downVotes} </p>
                               </IonButton>
+                              {user && user.uid === comment.uid ? (
+                                <IonFab horizontal="end">
+                                  <IonButton
+                                    mode="ios"
+                                    fill="outline"
+                                    color="danger"
+                                    onClick={() => {
+                                      deleteComment(index);
+                                    }}
+                                  >
+                                    <DeleteIcon />
+                                  </IonButton>
+                                </IonFab>
+                              ) : null}
                             </IonItem>
                           </IonList>
                         ))

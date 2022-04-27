@@ -38,8 +38,16 @@ import {
 } from "@ionic/react";
 import { arrowBack, schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState, useRef } from "react";
-import auth from '../fbconfig';
-import { addComment, db, downVote, loadComments, promiseTimeout, storage, upVote } from "../fbconfig";
+import auth, { removeComment } from "../fbconfig";
+import {
+  addComment,
+  db,
+  downVote,
+  loadComments,
+  promiseTimeout,
+  storage,
+  upVote,
+} from "../fbconfig";
 import { getDownloadURL, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
@@ -66,6 +74,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
 import FadeIn from "react-fade-in";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const schoolInfo = {
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
@@ -116,12 +125,53 @@ function Maps() {
     width: "95vw",
     marginLeft: "2.5vw",
   };
-  const handleCommentSubmit = async (postKey : string) => {
+  const deleteComment = async (index: number) => {
+    setCommentsLoading(true);
+    if (comments && commentModalPost && schoolName) {
+      const commentBeingDeleted = comments[index];
+      const didDelete = promiseTimeout(
+        5000,
+        removeComment(commentBeingDeleted, schoolName, commentModalPost.key)
+      );
+      didDelete.then((res) => {
+        if (res) {
+          Toast.success("Comment deleted");
+          if (comments.length == 0) {
+            setComments([]);
+          } else {
+            let tempComments: any[] = [];
+            for (let i = 0; i < comments.length; ++i) {
+              if (i !== index) {
+                tempComments.push(comments[i]);
+              }
+            }
+            setComments(tempComments);
+            console.log(tempComments);
+          }
+          setCommentsLoading(false);
+        } else {
+          Toast.error("Unable to delete comment");
+          setCommentsLoading(false);
+        }
+      });
+      didDelete.catch((err) => {
+        Toast.error(err);
+        setCommentsLoading(false);
+      });
+    } else {
+      Toast.error("Unable to delete comment");
+      setCommentsLoading(false);
+    }
+  };
+  const handleCommentSubmit = async (postKey: string) => {
     if (comment.trim().length == 0) {
       Toast.error("Input a comment");
     } else {
       setCommentsBusy(true);
-      const hasTimedOut = promiseTimeout(10000, addComment(postKey, schoolName, comment));
+      const hasTimedOut = promiseTimeout(
+        10000,
+        addComment(postKey, schoolName, comment)
+      );
       hasTimedOut.then((commentSent) => {
         setComment("");
         if (commentSent) {
@@ -133,7 +183,10 @@ function Maps() {
           }
           try {
             // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-            const commentsHasTimedOut = promiseTimeout(10000, loadComments(postKey, schoolName));
+            const commentsHasTimedOut = promiseTimeout(
+              10000,
+              loadComments(postKey, schoolName)
+            );
             commentsHasTimedOut.then((resComments) => {
               if (resComments == null || resComments == undefined) {
                 Toast.error(
@@ -283,25 +336,40 @@ function Maps() {
     if (filter === "ALL") {
       setMarkers(markersCopy);
     } else {
-      if (filter === "BUY/SELL") {
-        filter = "buy/Sell";
-      } else if (filter === "GENERAL") {
-        filter = filter.toLowerCase();
-      } else {
-        filter = filter.toLowerCase();
-        filter = filter.slice(0, -1);
-      }
-      let tempMarkers: any[] = [];
-      if (markersCopy) {
-        for (const marker of markersCopy) {
-          if (marker.postType == filter) {
-            tempMarkers.push(marker);
+      if(filter == "YOURS") {
+        let tempMarkers: any[] = [];
+        if (markersCopy && user) {
+          for (const marker of markersCopy) {
+            if (marker.uid == user.uid) {
+              tempMarkers.push(marker);
+            }
           }
+          setMarkers(tempMarkers);
+        } else {
+          Toast.error("Unable to filter :(");
         }
-        setMarkers(tempMarkers);
       } else {
-        Toast.error("Unable to filter :(");
+        if (filter === "BUY/SELL") {
+          filter = "buy/Sell";
+        } else if (filter === "GENERAL") {
+          filter = filter.toLowerCase();
+        } else {
+          filter = filter.toLowerCase();
+          filter = filter.slice(0, -1);
+        }
+        let tempMarkers: any[] = [];
+        if (markersCopy) {
+          for (const marker of markersCopy) {
+            if (marker.postType == filter) {
+              tempMarkers.push(marker);
+            }
+          }
+          setMarkers(tempMarkers);
+        } else {
+          Toast.error("Unable to filter :(");
+        }
       }
+
     }
   };
   const getMapMarkers = async () => {
@@ -387,6 +455,7 @@ function Maps() {
             }}
           >
             <IonSelectOption value="ALL">All</IonSelectOption>
+            <IonSelectOption value="YOURS">Yours</IonSelectOption>
             <IonSelectOption value="GENERAL">General</IonSelectOption>
             <IonSelectOption value="ALERTS">Alerts</IonSelectOption>
             <IonSelectOption value="BUY/SELL">Buy/Sell</IonSelectOption>
@@ -609,6 +678,20 @@ function Maps() {
                                 <KeyboardArrowDownIcon />
                                 <p>{comment.downVotes} </p>
                               </IonButton>
+                              {user && user.uid === comment.uid ? (
+                                <IonFab horizontal="end">
+                                  <IonButton
+                                    mode="ios"
+                                    fill="outline"
+                                    color="danger"
+                                    onClick={() => {
+                                      deleteComment(index);
+                                    }}
+                                  >
+                                    <DeleteIcon />
+                                  </IonButton>
+                                </IonFab>
+                              ) : null}
                             </IonItem>
                           </IonList>
                         ))
@@ -661,7 +744,7 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ top: "80vh", textAlign: "center"}} />
+          <ZoomControl style={{ top: "80vh", textAlign: "center" }} />
           <IonFab class="ion-fab" horizontal="end" vertical="bottom">
             <p style={{ fontSize: "1em", color: "black" }}>{schoolName}</p>
             <IonFabButton color="light" mode="ios">

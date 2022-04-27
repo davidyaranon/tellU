@@ -19,7 +19,9 @@ import {
   where,
   updateDoc,
   arrayUnion,
+  arrayRemove,
   addDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -109,7 +111,6 @@ export async function registerWithEmailAndPassword(
       try {
         await setDoc(doc(db, "userData", user.uid.toString()), {
           userName: name,
-          listOfPosts: [],
           userEmail: email,
           uid: user.uid,
           school: school,
@@ -290,6 +291,58 @@ export const promiseTimeout = function (ms, promise) {
   });
   return Promise.race([promise, timeout]);
 };
+
+export const getUserLikedPosts = async (schoolName, uid) => {
+  try {
+    const allPostsRef = collection(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "allPosts"
+    );
+    const q = query(allPostsRef, orderBy("timestamp", "desc"), where(`likes.${uid}`, "==", true), limit(1));
+    const querySnapshot = await getDocs(q);
+    let userLikes = [];
+    let lastKey = "";
+    const docs = querySnapshot.docs;
+    for (const doc of docs) {
+      userLikes.push({
+        ...doc.data(),
+        key: doc.id,
+      });
+      lastKey = doc.data().timestamp;
+    }
+    return { userLikes, lastKey };
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const getUserLikedPostsNextBatch = async (schoolName, uid, key) => {
+  try {
+    const allPostsRef = collection(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "allPosts"
+    );
+    const q = query(allPostsRef, orderBy("timestamp", "desc"), where(`likes.${uid}`, "==", true), startAfter(key), limit(1));
+    const querySnapshot = await getDocs(q);
+    let userLikes = [];
+    let lastKey = "";
+    const docs = querySnapshot.docs;
+    for (const doc of docs) {
+      userLikes.push({
+        ...doc.data(),
+        key: doc.id,
+      });
+      lastKey = doc.data().timestamp;
+    }
+    return { userLikes, lastKey };
+  } catch(err) {
+    console.log(err);
+  }
+}
 
 export const getUserPosts = async (schoolName, uid) => {
   try {
@@ -550,17 +603,78 @@ export const addComment = async (postKey, schoolName, commentString) => {
         if (postSnap.exists) {
           await updateDoc(postRef, {
             commentAmount: increment(1),
-          })
+          });
+          return true;
         } else {
           console.log(postSnap.data());
         }
-        return true;
       }
     }
   } catch (err) {
     console.log(err);
   }
 };
+
+export const removePost = async (postKey, schoolName) => {
+  try {
+    const postRef = doc(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "allPosts",
+      postKey
+    );
+    const postDocRef = doc(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "comments",
+      postKey
+    );
+    await deleteDoc(postRef);
+    await deleteDoc(postDocRef);
+    return true;
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export const removeComment = async (comment, schoolName, postKey) => {
+  try {
+    const postRef = doc(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "allPosts",
+      postKey
+    );
+    const postDocRef = doc(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "comments",
+      postKey
+    );
+    const commentSnap = await getDoc(postDocRef);
+    if(commentSnap.exists) {
+      await updateDoc(postDocRef, {
+        commentsArr: arrayRemove(comment)
+      });
+      const postSnap = await getDoc(postRef);
+        if (postSnap.exists) {
+          await updateDoc(postRef, {
+            commentAmount: increment(-1),
+          });
+          return true;
+        } else {
+          console.log(postSnap.data());
+        }
+    }
+  } catch(err) {
+    console.log(err);
+  }
+  
+}
 
 export const loadComments = async (postKey, schoolName) => {
   try {

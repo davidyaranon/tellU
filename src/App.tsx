@@ -144,7 +144,6 @@ const App: React.FunctionComponent = () => {
     style : KeyboardStyle.Light
   }
   useEffect(() => {
-    console.log("app loading");
     if (darkMode == "false") {
       dispatch(setDarkMode(false));
       Keyboard.setStyle(keyStyleOptionsLight);
@@ -155,17 +154,13 @@ const App: React.FunctionComponent = () => {
       Keyboard.setStyle(keyStyleOptionsDark);
       StatusBar.setStyle({ style: Style.Dark });
     }
-    console.log("dispatch loaded");
     const hasLoadedUser = promiseTimeout(10000, getCurrentUser());
     hasLoadedUser.then((user : any) => {
-      console.log("user loaded");
       if (user) {
-        console.log("user res");
         let school = "";
         const userRef = doc(db, "userData", user.uid);
         const docLoaded = promiseTimeout(10000, getDoc(userRef));
         docLoaded.then((userSnap) => {
-            console.log("user data loaded, going home");
             if (userSnap.exists()) {
               school = userSnap.data().school;
             }
@@ -180,13 +175,11 @@ const App: React.FunctionComponent = () => {
             window.history.replaceState({}, "", "/home");
           });
       } else {
-        console.log("no user res");
         setBusy(false);
         window.history.replaceState({}, "", "/landing-page");
       }
     });
     hasLoadedUser.catch((err : any) => {
-      console.log("user not loaded?");
       console.log(err);
       Toast.error(err);
       setBusy(false);

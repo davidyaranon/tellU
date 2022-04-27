@@ -241,6 +241,9 @@ const Register: React.FC = () => {
               <IonSelectOption value="UC Santa Cruz">
                 UC Santa Cruz
               </IonSelectOption>
+              <IonSelectOption value="Cal Poly Humboldt">
+                Cal Poly Humboldt
+              </IonSelectOption>
               <IonSelectOption disabled={true} value="More schools to come!...">
                 More schools to come!...
               </IonSelectOption>

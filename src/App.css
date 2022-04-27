@@ -10,6 +10,7 @@
   flex-direction: column;
   overflow: scroll;
   background: transparent;
+  box-shadow: none !important;
 }
 
 ion-skeleton-text {
