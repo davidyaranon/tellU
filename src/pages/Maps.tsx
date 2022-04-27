@@ -146,7 +146,7 @@ function Maps() {
               }
             }
             setComments(tempComments);
-            console.log(tempComments);
+            //console.log(tempComments);
           }
           setCommentsLoading(false);
         } else {
@@ -304,7 +304,7 @@ function Maps() {
           setComments(resComments);
           setCommentsLoading(false);
         } else {
-          console.log(resComments);
+          //console.log(resComments);
           Toast.error(
             "Comments are currently broken on this post, try again later"
           );
@@ -336,7 +336,7 @@ function Maps() {
     if (filter === "ALL") {
       setMarkers(markersCopy);
     } else {
-      if(filter == "YOURS") {
+      if (filter == "YOURS") {
         let tempMarkers: any[] = [];
         if (markersCopy && user) {
           for (const marker of markersCopy) {
@@ -404,7 +404,7 @@ function Maps() {
           key: doc.id,
         });
       }
-      console.log(tempMarkers);
+      //console.log(tempMarkers);
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
       setBusy(false);
@@ -504,7 +504,7 @@ function Maps() {
                           </p>
                         </IonText>
                         {commentModalPost.postType &&
-                        commentModalPost.postType != "general" ? (
+                          commentModalPost.postType != "general" ? (
                           <IonFab vertical="top" horizontal="end">
                             <p
                               style={{
@@ -539,11 +539,11 @@ function Maps() {
                         fill="outline"
                         color={
                           overlayIndex != -1 &&
-                          user &&
-                          markers &&
-                          markers[overlayIndex] &&
-                          "likes" in markers[overlayIndex] &&
-                          markers[overlayIndex].likes[user.uid] == undefined
+                            user &&
+                            markers &&
+                            markers[overlayIndex] &&
+                            "likes" in markers[overlayIndex] &&
+                            markers[overlayIndex].likes[user.uid] == undefined
                             ? "medium"
                             : "primary"
                         }
@@ -571,11 +571,11 @@ function Maps() {
                         fill="outline"
                         color={
                           overlayIndex != -1 &&
-                          user &&
-                          markers &&
-                          markers[overlayIndex] &&
-                          "dislikes" in markers[overlayIndex] &&
-                          markers[overlayIndex].dislikes[user.uid] == undefined
+                            user &&
+                            markers &&
+                            markers[overlayIndex] &&
+                            "dislikes" in markers[overlayIndex] &&
+                            markers[overlayIndex].dislikes[user.uid] == undefined
                             ? "medium"
                             : "danger"
                         }
@@ -592,7 +592,7 @@ function Maps() {
                   </IonList>
                   <div className="verticalLine"></div>
                   {commentModalPost.imgSrc &&
-                  commentModalPost.imgSrc.length > 0 ? (
+                    commentModalPost.imgSrc.length > 0 ? (
                     <IonCard style={{ bottom: "7.5vh" }}>
                       <IonCardContent>
                         <IonImg
@@ -623,31 +623,31 @@ function Maps() {
                   <div>
                     {comments && comments.length > 0
                       ? comments?.map((comment: any, index) => (
-                          <IonList inset={true} key={index}>
-                            {" "}
-                            <IonItem lines="none">
-                              <IonLabel class="ion-text-wrap">
-                                <IonText color="medium">
-                                  <p>
-                                    <IonAvatar
-                                      onClick={() => {
-                                        setComments([]);
-                                        setShowModalComment(false);
-                                        setComment("");
-                                        handleUserPageNavigation(comment.uid);
-                                      }}
-                                      class="posts-avatar"
-                                    >
-                                      <IonImg src={comment?.photoURL!}></IonImg>
-                                    </IonAvatar>
-                                    {comment.userName}
-                                  </p>
-                                </IonText>
-                                <h2 className="h2-message">
-                                  {" "}
-                                  {comment.comment}{" "}
-                                </h2>
-                                {/* {comment.url.length > 0 ? (
+                        <IonList inset={true} key={index}>
+                          {" "}
+                          <IonItem lines="none">
+                            <IonLabel class="ion-text-wrap">
+                              <IonText color="medium">
+                                <p>
+                                  <IonAvatar
+                                    onClick={() => {
+                                      setComments([]);
+                                      setShowModalComment(false);
+                                      setComment("");
+                                      handleUserPageNavigation(comment.uid);
+                                    }}
+                                    class="posts-avatar"
+                                  >
+                                    <IonImg src={comment?.photoURL!}></IonImg>
+                                  </IonAvatar>
+                                  {comment.userName}
+                                </p>
+                              </IonText>
+                              <h2 className="h2-message">
+                                {" "}
+                                {comment.comment}{" "}
+                              </h2>
+                              {/* {comment.url.length > 0 ? (
                                     <div className="ion-img-container">
                                       <br></br>
                                       <IonImg
@@ -658,43 +658,43 @@ function Maps() {
                                       />
                                     </div>
                                   ) : null} */}
-                              </IonLabel>
-                              <div></div>
-                            </IonItem>
-                            <IonItem lines="none" mode="ios">
-                              <IonButton
-                                mode="ios"
-                                fill="outline"
-                                color="medium"
-                              >
-                                <KeyboardArrowUpIcon />
-                                <p>{comment.upVotes} </p>
-                              </IonButton>
-                              <IonButton
-                                mode="ios"
-                                fill="outline"
-                                color="medium"
-                              >
-                                <KeyboardArrowDownIcon />
-                                <p>{comment.downVotes} </p>
-                              </IonButton>
-                              {user && user.uid === comment.uid ? (
-                                <IonFab horizontal="end">
-                                  <IonButton
-                                    mode="ios"
-                                    fill="outline"
-                                    color="danger"
-                                    onClick={() => {
-                                      deleteComment(index);
-                                    }}
-                                  >
-                                    <DeleteIcon />
-                                  </IonButton>
-                                </IonFab>
-                              ) : null}
-                            </IonItem>
-                          </IonList>
-                        ))
+                            </IonLabel>
+                            <div></div>
+                          </IonItem>
+                          <IonItem lines="none" mode="ios">
+                            <IonButton
+                              mode="ios"
+                              fill="outline"
+                              color="medium"
+                            >
+                              <KeyboardArrowUpIcon />
+                              <p>{comment.upVotes} </p>
+                            </IonButton>
+                            <IonButton
+                              mode="ios"
+                              fill="outline"
+                              color="medium"
+                            >
+                              <KeyboardArrowDownIcon />
+                              <p>{comment.downVotes} </p>
+                            </IonButton>
+                            {user && user.uid === comment.uid ? (
+                              <IonFab horizontal="end">
+                                <IonButton
+                                  mode="ios"
+                                  fill="outline"
+                                  color="danger"
+                                  onClick={() => {
+                                    deleteComment(index);
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IonButton>
+                              </IonFab>
+                            ) : null}
+                          </IonItem>
+                        </IonList>
+                      ))
                       : null}
                   </div>
                 </FadeIn>
@@ -745,34 +745,26 @@ function Maps() {
           }}
         >
           <ZoomControl style={{ top: "80vh", textAlign: "center" }} />
-          <IonFab class="ion-fab" horizontal="end" vertical="bottom">
-            <p style={{ fontSize: "1em", color: "black" }}>{schoolName}</p>
-            <IonFabButton color="light" mode="ios">
-              <IconButton onClick={setDefaultCenter}>
-                <IonIcon color="" icon={schoolOutline} />
-              </IconButton>
-            </IonFabButton>
-          </IonFab>
           {markers
             ? markers.map((marker, index) => {
-                return (
-                  <Marker
-                    style={{ opacity: "90%" }}
-                    onClick={(e) => {
-                      setCenter([
-                        marker.location[0] - 0.005,
-                        marker.location[1],
-                      ]);
-                      setOverlayIndex(-1);
-                      setOverlayIndex(index);
-                    }}
-                    color={getMarkerColor(marker.postType)}
-                    key={marker.key}
-                    anchor={[marker.location[0], marker.location[1]]}
-                    width={50}
-                  />
-                );
-              })
+              return (
+                <Marker
+                  style={{ opacity: "90%" }}
+                  onClick={(e) => {
+                    setCenter([
+                      marker.location[0] - 0.005,
+                      marker.location[1],
+                    ]);
+                    setOverlayIndex(-1);
+                    setOverlayIndex(index);
+                  }}
+                  color={getMarkerColor(marker.postType)}
+                  key={marker.key}
+                  anchor={[marker.location[0], marker.location[1]]}
+                  width={50}
+                />
+              );
+            })
             : null}
           {markers && overlayIndex != -1 ? (
             <Overlay
@@ -810,7 +802,7 @@ function Maps() {
                       : markers[overlayIndex].message}
                   </p>
                   {markers[overlayIndex].imgSrc &&
-                  markers[overlayIndex].imgSrc.length > 0 ? (
+                    markers[overlayIndex].imgSrc.length > 0 ? (
                     <IonImg
                       class="ion-img-container"
                       src={markers[overlayIndex].imgSrc}
@@ -830,8 +822,8 @@ function Maps() {
                         fill="outline"
                         color={
                           markers &&
-                          user &&
-                          markers[overlayIndex].likes[user.uid] !== undefined
+                            user &&
+                            markers[overlayIndex].likes[user.uid] !== undefined
                             ? "primary"
                             : "medium"
                         }
@@ -867,8 +859,8 @@ function Maps() {
                         }}
                         color={
                           markers &&
-                          user &&
-                          markers[overlayIndex].dislikes[user.uid] !== undefined
+                            user &&
+                            markers[overlayIndex].dislikes[user.uid] !== undefined
                             ? "danger"
                             : "medium"
                         }
@@ -882,6 +874,14 @@ function Maps() {
               </IonCard>
             </Overlay>
           ) : null}
+          <IonFab horizontal="end" vertical="bottom" style={{ right: "25vw" }}>
+            <p style={{ fontSize: "1em", color: "black" }}>{schoolName}</p>
+          </IonFab>
+          <IonFab horizontal="end" vertical="bottom">
+            <IonButton color="light" onClick={setDefaultCenter} mode="ios">
+              <IonIcon icon={schoolOutline} />
+            </IonButton>
+          </IonFab>
         </Map>
       </IonContent>
     </React.Fragment>

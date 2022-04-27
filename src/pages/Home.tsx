@@ -83,6 +83,8 @@ import FadeIn from "react-fade-in";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
 
+TimeAgo.addDefaultLocale(en);
+
 export interface UserPhoto {
   filepath: string;
   webviewPath?: string;
@@ -180,7 +182,7 @@ function Home() {
                   "Comments are currently broken on this post, try again later"
                 );
               } else {
-                console.log(resComments);
+                //console.log(resComments);
                 setComments(resComments);
               }
             });
@@ -357,7 +359,7 @@ function Home() {
               }
             }
             setComments(tempComments);
-            console.log(tempComments);
+            //console.log(tempComments);
           }
           setCommentsLoading(false);
         } else {
@@ -385,7 +387,7 @@ function Home() {
     try {
       const pos = await Geolocation.getCurrentPosition(locationOptions);
       setPosition(pos);
-      console.log(pos.coords);
+      //console.log(pos.coords);
       setGettingLocation(false);
     } catch (e: any) {
       Toast.error(e.message.toString());
@@ -399,7 +401,7 @@ function Home() {
     tempPosts.then((allPosts: any[]) => {
       if (allPosts && allPosts != []) {
         setPosts(allPosts);
-        console.log(allPosts);
+        //console.log(allPosts);
       } else {
         Toast.error("Unable to load posts");
       }
@@ -474,11 +476,11 @@ function Home() {
       // load comments from /schoolPosts/{schoolName}/comments/{post.key}
       const resComments = await loadComments(post.key, schoolName);
       if (resComments != null && resComments != undefined) {
-        console.log(resComments);
+        //console.log(resComments);
         setComments(resComments);
         setCommentsLoading(false);
       } else {
-        console.log(resComments);
+        //console.log(resComments);
         Toast.error(
           "Comments are currently broken on this post, try again later"
         );
@@ -539,7 +541,7 @@ function Home() {
       setBusy(false);
       history.replace("/landing-page");
     } else if (schoolName) {
-      console.log(user);
+      //console.log(user);
       handleLoadPosts();
     }
   }, [schoolName]);

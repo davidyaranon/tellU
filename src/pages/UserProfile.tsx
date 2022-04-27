@@ -54,8 +54,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { cameraOutline, chatbubblesOutline, arrowBack } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
 
-TimeAgo.addDefaultLocale(en);
-
 interface MatchParams {
   uid: string;
 }
@@ -177,11 +175,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       // load comments from /schoolPosts/{schoolName}/comments/{post.key}
       const resComments = await loadComments(post.key, schoolName);
       if (resComments != null && resComments != undefined) {
-        console.log(resComments);
+        //console.log(resComments);
         setComments(resComments);
         setCommentsLoading(false);
       } else {
-        console.log(resComments);
+        //console.log(resComments);
         Toast.error(
           "Comments are currently broken on this post, try again later"
         );
@@ -288,7 +286,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               .then((res: any) => {
                 // first batch
                 if (res.userPosts.length > 0) {
-                  console.log(res.userPosts);
+                  //.log(res.userPosts);
                   setUserPosts(res.userPosts);
                   setLastKey(res.lastKey);
                 } else {
@@ -298,7 +296,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               .catch((err) => {
                 Toast.error(err.message.toString());
               });
-            console.log();
+            //console.log();
             getDownloadURL(ref(storage, "profilePictures/" + uid + "photoURL"))
               .then((url) => {
                 setProfilePhoto(url);
@@ -340,7 +338,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               <IonButtons slot="start">
                 <IonButton
                   onClick={() => {
-                    console.log("going home");
+                    //console.log("going home");
                     history.replace("/home");
                   }}
                 >
@@ -896,7 +894,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               <IonButtons slot="start">
                 <IonButton
                   onClick={() => {
-                    console.log("going home");
+                    //console.log("going home");
                     history.replace("/home");
                   }}
                 >

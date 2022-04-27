@@ -63,6 +63,8 @@ import { setDarkMode } from "./redux/actions";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions,} from "@capacitor/keyboard";
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { PushNotificationSchema, PushNotifications, Token, ActionPerformed } from '@capacitor/push-notifications';
+import { Post } from "./pages/Post";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 
 setupIonicReact();
 
@@ -80,6 +82,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                 {" "}
                 <Home />{" "}
               </Route>
+              <Route path="/:tab(home)/post/:key" component={Post} />
               <Route path="/:tab(home)/about/:uid" component={UserProfile} />
               <Route
                 path="/:tab(community)"
@@ -96,6 +99,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                 <LandingPage />{" "}
               </Route>
               <Route path="/register" component={Register} exact={true} />
+              <Route path="/privacy-policy" component={PrivacyPolicy} />
               <Route path="/404" component={RedirectComponent} />
               <Route
                 exact

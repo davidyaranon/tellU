@@ -313,7 +313,7 @@ export const getUserLikedPosts = async (schoolName, uid) => {
       lastKey = doc.data().timestamp;
     }
     return { userLikes, lastKey };
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }
@@ -339,7 +339,7 @@ export const getUserLikedPostsNextBatch = async (schoolName, uid, key) => {
       lastKey = doc.data().timestamp;
     }
     return { userLikes, lastKey };
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }
@@ -384,6 +384,26 @@ export const getNextBatchUserPosts = async (schoolName, uid, key) => {
         lastKey = doc.data().timestamp;
       }
       return { userPosts, lastKey };
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const getOnePost = async (postKey, schoolName) => {
+  try {
+    if (db) {
+      const postDocRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts",
+        postKey
+      );
+      const snap = await getDoc(postDocRef);
+      if(snap.exists) {
+        return snap.data();
+      }
     }
   } catch (err) {
     console.log(err);
@@ -634,7 +654,7 @@ export const removePost = async (postKey, schoolName) => {
     await deleteDoc(postRef);
     await deleteDoc(postDocRef);
     return true;
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }
@@ -656,24 +676,24 @@ export const removeComment = async (comment, schoolName, postKey) => {
       postKey
     );
     const commentSnap = await getDoc(postDocRef);
-    if(commentSnap.exists) {
+    if (commentSnap.exists) {
       await updateDoc(postDocRef, {
         commentsArr: arrayRemove(comment)
       });
       const postSnap = await getDoc(postRef);
-        if (postSnap.exists) {
-          await updateDoc(postRef, {
-            commentAmount: increment(-1),
-          });
-          return true;
-        } else {
-          console.log(postSnap.data());
-        }
+      if (postSnap.exists) {
+        await updateDoc(postRef, {
+          commentAmount: increment(-1),
+        });
+        return true;
+      } else {
+        console.log(postSnap.data());
+      }
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
-  
+
 }
 
 export const loadComments = async (postKey, schoolName) => {

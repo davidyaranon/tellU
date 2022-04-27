@@ -98,8 +98,6 @@ import {
 } from "@capacitor/keyboard";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
-TimeAgo.addDefaultLocale(en);
-
 function User() {
   const timeAgo = new TimeAgo("en-US");
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
@@ -424,7 +422,7 @@ function User() {
               }
             }
             setComments(tempComments);
-            console.log(tempComments);
+            //console.log(tempComments);
           }
           setCommentsLoading(false);
         } else {
@@ -520,11 +518,11 @@ function User() {
       // load comments from /schoolPosts/{schoolName}/comments/{post.key}
       const resComments = await loadComments(post.key, schoolName);
       if (resComments != null && resComments != undefined) {
-        console.log(resComments);
+        //console.log(resComments);
         setComments(resComments);
         setCommentsLoading(false);
       } else {
-        console.log(resComments);
+        //console.log(resComments);
         Toast.error(
           "Comments are currently broken on this post, try again later"
         );
@@ -721,7 +719,7 @@ function User() {
       );
       hasLoaded.then((res) => {
         if (res.userPosts.length > 0) {
-          console.log(res.userPosts);
+          //console.log(res.userPosts);
           setUserPosts(res.userPosts);
           setLastKey(res.lastKey);
         } else {

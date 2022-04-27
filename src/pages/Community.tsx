@@ -264,11 +264,11 @@ function Community() {
       // load comments from /schoolPosts/{schoolName}/comments/{post.key}
       const resComments = await loadComments(post.key, schoolName);
       if (resComments != null && resComments != undefined) {
-        console.log(resComments);
+        //console.log(resComments);
         setComments(resComments);
         setCommentsLoading(false);
       } else {
-        console.log(resComments);
+        //console.log(resComments);
         Toast.error(
           "Comments are currently broken on this post, try again later"
         );
@@ -297,7 +297,7 @@ function Community() {
               }
             }
             setComments(tempComments);
-            console.log(tempComments);
+            //console.log(tempComments);
           }
           setCommentsLoading(false);
         } else {
@@ -332,7 +332,7 @@ function Community() {
         getTopPostsWithinPastDay(schoolName).then((res: any) => {
           setTopPosts(res);
           localStorage.setItem("topPosts", JSON.stringify(res));
-          console.log(res);
+          //console.log(res);
         });
       }
       setBusy(false);
