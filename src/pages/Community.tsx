@@ -341,8 +341,8 @@ function Community() {
   return (
     <React.Fragment>
       <IonContent>
-        <IonHeader class="ion-no-border" style={ionHeaderStyle}>
-          <IonToolbar style={{ marginTop: "5%" }} mode="ios">
+        <IonHeader class="ion-no-border">
+          <IonToolbar mode="ios">
             <IonTitle>Top Posts</IonTitle>
             <FadeIn transitionDuration={750}>
               <IonFab horizontal="end">
@@ -650,8 +650,6 @@ function Community() {
         </IonModal>
 
         <Swiper
-          pagination={{ dynamicBullets: true }}
-          modules={[Pagination]}
           slidesPerView={1.5}
         >
           {topPosts && topPosts.length > 0

@@ -151,7 +151,7 @@ const App: React.FunctionComponent = () => {
     if (darkMode == "false") {
       dispatch(setDarkMode(false));
       Keyboard.setStyle(keyStyleOptionsLight);
-      StatusBar.setStyle({ style: Style.Dark });
+      StatusBar.setStyle({ style: Style.Light });
     } else {
       document.body.classList.toggle("dark");
       dispatch(setDarkMode(true));

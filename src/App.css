@@ -10,7 +10,8 @@
   flex-direction: column;
   overflow: scroll;
   background: transparent;
-  box-shadow: none !important;
+  box-shadow: none !important; 
+  min-height: 65vh;
 }
 
 ion-skeleton-text {
@@ -108,10 +109,10 @@ ion-checkbox {
 }
 
 .user-avatar {
-  height: 90px;
-  width: 90px;
+  height: 75px;
+  width: 75px;
   display: inline-block;
-  margin: 20px;
+  margin: 5px;
   border: 1px solid rgb(119, 119, 119);
   overflow: hidden;
 }
@@ -220,7 +221,7 @@ ion-toolbar {
 }
 
 .swiper-pagination {
-  bottom: 98% !important;
+  bottom: 97% !important;
 }
 
 .swiper-pagination-bullet-active {

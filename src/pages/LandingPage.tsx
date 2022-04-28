@@ -10,12 +10,13 @@ import '../App.css'
 import { useHistory } from 'react-router';
 import UIContext from '../my-context'
 import { useToast } from "@agney/ir-toast";
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { setUserState } from '../redux/actions';
 
 const LandingPage: React.FC = () => {
     const dispatch = useDispatch();
     const Toast = useToast();
+    const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
     const [busy, setBusy] = useState<boolean>(false);
     const { setShowTabs } = React.useContext(UIContext);
     const [emailSignIn, setEmailSignIn] = useState("");
@@ -86,7 +87,7 @@ const LandingPage: React.FC = () => {
                 <IonContent >
     
                     <IonHeader class="ion-no-border" style={{padding: "5vh"}}>
-                      <Header />
+                      <Header darkMode={darkModeToggled} />
                     </IonHeader>
     
                     <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>

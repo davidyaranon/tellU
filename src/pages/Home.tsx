@@ -82,6 +82,7 @@ import React from "react";
 import FadeIn from "react-fade-in";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
+import UIContext from "../my-context";
 
 TimeAgo.addDefaultLocale(en);
 
@@ -93,7 +94,9 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
+  const { setShowTabs } = React.useContext(UIContext);
   const schoolName = useSelector((state: any) => state.user.school);
   const hasLoaded = useSelector((state: any) => state.user.hasLoaded);
   const [busy, setBusy] = useState<boolean>(false);
@@ -536,6 +539,7 @@ function Home() {
   // }
 
   useEffect(() => {
+    setShowTabs(true);
     setBusy(true);
     if (!user) {
       setBusy(false);
@@ -584,7 +588,7 @@ function Home() {
 
           <FadeIn transitionDuration={1500}>
             <IonHeader class="ion-no-border" style={ionHeaderStyle}>
-              <Header schoolName={schoolName} />
+              <Header darkMode={darkModeToggled} schoolName={schoolName} />
             </IonHeader>
           </FadeIn>
           <IonModal

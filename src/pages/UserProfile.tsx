@@ -333,7 +333,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     return (
       <React.Fragment>
         <IonContent>
-          <IonHeader style={{paddingTop: "5vh"}} mode="ios">
+          <IonHeader mode="ios">
             <IonToolbar mode="ios">
               <IonButtons slot="start">
                 <IonButton

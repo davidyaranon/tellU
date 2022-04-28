@@ -31,11 +31,12 @@ import { doc, getDoc } from "firebase/firestore";
 import { useHistory } from "react-router";
 import UIContext from "../my-context";
 import { useToast } from "@agney/ir-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUserState } from "../redux/actions";
 
 const Register: React.FC = () => {
   const Toast = useToast();
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const [passwordModal, setPasswordModal] = useState<boolean>(false);
   const dispatch = useDispatch();
   const [busy, setBusy] = useState<boolean>(false);
@@ -143,7 +144,7 @@ const Register: React.FC = () => {
     <React.Fragment>
       <IonContent>
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header />
+          <Header darkMode={darkModeToggled} />
         </IonHeader>
 
         <IonLoading
