@@ -161,13 +161,6 @@ function User() {
     }
   };
 
-  const getDate = (timestamp: any) => {
-    const time = new Date(
-      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-    );
-    return timeAgo.format(time);
-  };
-
   const getColor = (postType: string) => {
     switch (postType) {
       case "general":
@@ -403,7 +396,14 @@ function User() {
       Toast.error("Unable to delete post rn");
     }
     setDisabledDeleteButton(false);
-  }
+  };
+
+  const getDate = (timestamp: any) => {
+    const time = new Date(
+      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+    );
+    return timeAgo.format(time);
+  };
 
   const deleteComment = async (index: number) => {
     setCommentsLoading(true);
@@ -843,6 +843,11 @@ function User() {
                             </p>
                           </IonFab>
                         ) : null}
+                        <IonFab style={{ bottom: "1vh" }} horizontal="end">
+                          <IonNote style={{ fontSize: "0.85em" }}>
+                            {getDate(commentModalPost.timestamp)}
+                          </IonNote>
+                        </IonFab>
                         <h2 className="h2-message">
                           {commentModalPost.message}
                         </h2>
@@ -1226,15 +1231,15 @@ function User() {
                       }}
                     ></IonInput>
                   </IonLabel>
-                    <IonButton
-                      disabled={false}
-                      onClick={handleEdit}
-                      color="medium"
-                      slot="end"
-                    >
-                      {" "}
-                      Edit{" "}
-                    </IonButton>
+                  <IonButton
+                    disabled={false}
+                    onClick={handleEdit}
+                    color="medium"
+                    slot="end"
+                  >
+                    {" "}
+                    Edit{" "}
+                  </IonButton>
                 </IonItem>
                 <IonItem mode="ios">
                   <IonLabel mode="ios">
@@ -1251,15 +1256,15 @@ function User() {
                       }}
                     ></IonInput>
                   </IonLabel>
-                    <IonButton
-                      disabled={false}
-                      onClick={handleUserEdit}
-                      color="medium"
-                      slot="end"
-                    >
-                      {" "}
-                      Edit{" "}
-                    </IonButton>
+                  <IonButton
+                    disabled={false}
+                    onClick={handleUserEdit}
+                    color="medium"
+                    slot="end"
+                  >
+                    {" "}
+                    Edit{" "}
+                  </IonButton>
                 </IonItem>
                 <IonItem mode="ios">
                   <p>Profile Picture</p>

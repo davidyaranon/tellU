@@ -35,6 +35,7 @@ import {
   IonRow,
   IonCol,
   IonSpinner,
+  IonNote,
 } from "@ionic/react";
 import { arrowBack, schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState, useRef } from "react";
@@ -75,6 +76,8 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
 import FadeIn from "react-fade-in";
 import DeleteIcon from "@mui/icons-material/Delete";
+import TimeAgo from "javascript-time-ago";
+
 
 const schoolInfo = {
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
@@ -120,6 +123,7 @@ function Maps() {
     useState<number>(-1);
   const [comments, setComments] = useState<any[] | null>(null);
   const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
+  const timeAgo = new TimeAgo("en-US");
   const ionInputStyle = {
     height: "10vh",
     width: "95vw",
@@ -314,6 +318,13 @@ function Maps() {
         Toast.error(err.message.toString());
       }
     }
+  };
+
+  const getDate = (timestamp: any) => {
+    const time = new Date(
+      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+    );
+    return timeAgo.format(time);
   };
 
   const getSchoolLocation = () => {
@@ -518,6 +529,11 @@ function Maps() {
                             </p>
                           </IonFab>
                         ) : null}
+                        <IonFab style={{ bottom: "1vh" }} horizontal="end">
+                          <IonNote style={{ fontSize: "0.85em" }}>
+                            {getDate(commentModalPost.timestamp)}
+                          </IonNote>
+                        </IonFab>
                         <h2 className="h2-message">
                           {commentModalPost.message}
                         </h2>

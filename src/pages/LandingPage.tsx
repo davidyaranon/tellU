@@ -31,7 +31,7 @@ const LandingPage: React.FC = () => {
         }
         else {
             const res = await logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn);
-            if (!res) {Toast.error("Invalid email/password!");}
+            if (!res) {Toast.error("Unable to login");}
             else { 
                 let school = "";
                 const userRef = doc(db, "userData", res.user.uid);

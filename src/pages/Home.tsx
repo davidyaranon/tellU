@@ -84,7 +84,8 @@ import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
 import UIContext from "../my-context";
 
-TimeAgo.addDefaultLocale(en);
+TimeAgo.setDefaultLocale(en.locale);
+TimeAgo.addLocale(en);
 
 export interface UserPhoto {
   filepath: string;
@@ -871,6 +872,11 @@ function Home() {
                                 </p>
                               </IonFab>
                             ) : null}
+                            <IonFab style={{ bottom: "1vh" }} horizontal="end">
+                              <IonNote style={{ fontSize: "0.85em" }}>
+                                {getDate(commentModalPost.timestamp)}
+                              </IonNote>
+                            </IonFab>
                             <h2 className="h2-message">
                               {commentModalPost.message}
                             </h2>

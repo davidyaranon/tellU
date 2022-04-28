@@ -60,7 +60,7 @@ import { App as androidApp } from "@capacitor/app";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useDispatch } from "react-redux";
 import { setDarkMode } from "./redux/actions";
-import { Keyboard, KeyboardStyle, KeyboardStyleOptions,} from "@capacitor/keyboard";
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { PushNotificationSchema, PushNotifications, Token, ActionPerformed } from '@capacitor/push-notifications';
 import { Post } from "./pages/Post";
@@ -71,7 +71,7 @@ setupIonicReact();
 const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
   let tabBarStyle = showTabs ? undefined : { display: "none" };
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <IonReactRouter>
@@ -141,11 +141,11 @@ const App: React.FunctionComponent = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const darkMode = localStorage.getItem("darkMode") || "false";
-  const keyStyleOptionsDark : KeyboardStyleOptions  =  {
-    style : KeyboardStyle.Dark
+  const keyStyleOptionsDark: KeyboardStyleOptions = {
+    style: KeyboardStyle.Dark
   }
-  const keyStyleOptionsLight : KeyboardStyleOptions  =  {
-    style : KeyboardStyle.Light
+  const keyStyleOptionsLight: KeyboardStyleOptions = {
+    style: KeyboardStyle.Light
   }
   useEffect(() => {
     if (darkMode == "false") {
@@ -159,31 +159,31 @@ const App: React.FunctionComponent = () => {
       StatusBar.setStyle({ style: Style.Dark });
     }
     const hasLoadedUser = promiseTimeout(10000, getCurrentUser());
-    hasLoadedUser.then((user : any) => {
+    hasLoadedUser.then((user: any) => {
       if (user) {
         let school = "";
         const userRef = doc(db, "userData", user.uid);
         const docLoaded = promiseTimeout(10000, getDoc(userRef));
         docLoaded.then((userSnap) => {
-            if (userSnap.exists()) {
-              school = userSnap.data().school;
-            }
-            dispatch(setUserState(user.displayName, user.email, false, school));
-            setBusy(false);
-            window.history.replaceState({}, "", "/home");
-          });
-          docLoaded.catch((err) => {
-            console.log(err);
-            dispatch(setUserState(user.displayName, user.email, false, ""));
-            setBusy(false);
-            window.history.replaceState({}, "", "/home");
-          });
+          if (userSnap.exists()) {
+            school = userSnap.data().school;
+          }
+          dispatch(setUserState(user.displayName, user.email, false, school));
+          setBusy(false);
+          window.history.replaceState({}, "", "/home");
+        });
+        docLoaded.catch((err) => {
+          console.log(err);
+          dispatch(setUserState(user.displayName, user.email, false, ""));
+          setBusy(false);
+          window.history.replaceState({}, "", "/home");
+        });
       } else {
         setBusy(false);
         window.history.replaceState({}, "", "/landing-page");
       }
     });
-    hasLoadedUser.catch((err : any) => {
+    hasLoadedUser.catch((err: any) => {
       console.log(err);
       Toast.error(err);
       setBusy(false);
