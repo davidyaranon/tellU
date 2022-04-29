@@ -345,20 +345,20 @@ function Home() {
     }
   };
 
-  const deleteComment = async (index : number) => {
+  const deleteComment = async (index: number) => {
     setCommentsLoading(true);
-    if(comments && commentModalPost && schoolName) {
+    if (comments && commentModalPost && schoolName) {
       const commentBeingDeleted = comments[index];
       const didDelete = promiseTimeout(5000, removeComment(commentBeingDeleted, schoolName, commentModalPost.key));
       didDelete.then((res) => {
-        if(res) {
+        if (res) {
           Toast.success("Comment deleted");
-          if(comments.length == 0) {
+          if (comments.length == 0) {
             setComments([]);
           } else {
-            let tempComments : any[] = [];
-            for(let i = 0; i < comments.length; ++i) {
-              if(i !== index) {
+            let tempComments: any[] = [];
+            for (let i = 0; i < comments.length; ++i) {
+              if (i !== index) {
                 tempComments.push(comments[i]);
               }
             }
@@ -870,13 +870,19 @@ function Home() {
                                 >
                                   {commentModalPost.postType.toUpperCase()}
                                 </p>
+                                <IonNote style={{ fontSize: "0.85em" }}>
+                                  {getDate(commentModalPost.timestamp)}
+                                </IonNote>
                               </IonFab>
-                            ) : null}
-                            <IonFab style={{ bottom: "1vh" }} horizontal="end">
-                              <IonNote style={{ fontSize: "0.85em" }}>
-                                {getDate(commentModalPost.timestamp)}
-                              </IonNote>
-                            </IonFab>
+                            ) :
+                              (
+                                <IonFab vertical="top" horizontal="end">
+                                  <IonNote style={{ fontSize: "0.85em" }}>
+                                    {getDate(commentModalPost.timestamp)}
+                                  </IonNote>
+                                </IonFab>
+                              )}
+
                             <h2 className="h2-message">
                               {commentModalPost.message}
                             </h2>
@@ -902,8 +908,8 @@ function Home() {
                             fill="outline"
                             color={
                               posts &&
-                              user &&
-                              posts[commentModalPostIndex].likes[user.uid] !==
+                                user &&
+                                posts[commentModalPostIndex].likes[user.uid] !==
                                 undefined
                                 ? "primary"
                                 : "medium"
@@ -937,10 +943,10 @@ function Home() {
                             fill="outline"
                             color={
                               posts &&
-                              user &&
-                              posts[commentModalPostIndex].dislikes[
+                                user &&
+                                posts[commentModalPostIndex].dislikes[
                                 user.uid
-                              ] !== undefined
+                                ] !== undefined
                                 ? "danger"
                                 : "medium"
                             }
@@ -960,7 +966,7 @@ function Home() {
                       </IonList>
                       <div className="verticalLine"></div>
                       {commentModalPost.imgSrc &&
-                      commentModalPost.imgSrc.length > 0 ? (
+                        commentModalPost.imgSrc.length > 0 ? (
                         <IonCard style={{ bottom: "7.5vh" }}>
                           <IonCardContent>
                             <IonImg
@@ -993,33 +999,33 @@ function Home() {
                     <div>
                       {comments && comments.length > 0
                         ? comments?.map((comment: any, index) => (
-                            <IonList inset={true} key={index}>
-                              {" "}
-                              <IonItem lines="none">
-                                <IonLabel class="ion-text-wrap">
-                                  <IonText color="medium">
-                                    <p>
-                                      <IonAvatar
-                                        onClick={() => {
-                                          setComments([]);
-                                          setShowModalComment(false);
-                                          setComment("");
-                                          handleUserPageNavigation(comment.uid);
-                                        }}
-                                        class="posts-avatar"
-                                      >
-                                        <IonImg
-                                          src={comment?.photoURL!}
-                                        ></IonImg>
-                                      </IonAvatar>
-                                      {comment.userName}
-                                    </p>
-                                  </IonText>
-                                  <h2 className="h2-message">
-                                    {" "}
-                                    {comment.comment}{" "}
-                                  </h2>
-                                  {/* {comment.url.length > 0 ? (
+                          <IonList inset={true} key={index}>
+                            {" "}
+                            <IonItem lines="none">
+                              <IonLabel class="ion-text-wrap">
+                                <IonText color="medium">
+                                  <p>
+                                    <IonAvatar
+                                      onClick={() => {
+                                        setComments([]);
+                                        setShowModalComment(false);
+                                        setComment("");
+                                        handleUserPageNavigation(comment.uid);
+                                      }}
+                                      class="posts-avatar"
+                                    >
+                                      <IonImg
+                                        src={comment?.photoURL!}
+                                      ></IonImg>
+                                    </IonAvatar>
+                                    {comment.userName}
+                                  </p>
+                                </IonText>
+                                <h2 className="h2-message">
+                                  {" "}
+                                  {comment.comment}{" "}
+                                </h2>
+                                {/* {comment.url.length > 0 ? (
                                     <div className="ion-img-container">
                                       <br></br>
                                       <IonImg
@@ -1030,41 +1036,43 @@ function Home() {
                                       />
                                     </div>
                                   ) : null} */}
-                                </IonLabel>
-                                <div></div>
-                              </IonItem>
-                              <IonItem lines="none" mode="ios">
-                                <IonButton
-                                  mode="ios"
-                                  fill="outline"
-                                  color="medium"
-                                >
-                                  <KeyboardArrowUpIcon />
-                                  <p>{comment.upVotes} </p>
-                                </IonButton>
-                                <IonButton
-                                  mode="ios"
-                                  fill="outline"
-                                  color="medium"
-                                >
-                                  <KeyboardArrowDownIcon />
-                                  <p>{comment.downVotes} </p>
-                                </IonButton>
-                                {user && user.uid === comment.uid ? (
-                                  <IonFab horizontal="end">
-                                    <IonButton
-                                      mode="ios"
-                                      fill="outline"
-                                      color="danger"
-                                      onClick={() => {deleteComment(index);}}
-                                    >
-                                      <DeleteIcon />
-                                    </IonButton>
-                                  </IonFab>
-                                ) : null}
-                              </IonItem>
-                            </IonList>
-                          ))
+                              </IonLabel>
+                              <div></div>
+                            </IonItem>
+                            <IonItem lines="none" mode="ios">
+                              <IonButton
+                                disabled
+                                mode="ios"
+                                fill="outline"
+                                color="medium"
+                              >
+                                <KeyboardArrowUpIcon />
+                                <p>{comment.upVotes} </p>
+                              </IonButton>
+                              <IonButton
+                                disabled
+                                mode="ios"
+                                fill="outline"
+                                color="medium"
+                              >
+                                <KeyboardArrowDownIcon />
+                                <p>{comment.downVotes} </p>
+                              </IonButton>
+                              {user && user.uid === comment.uid ? (
+                                <IonFab horizontal="end">
+                                  <IonButton
+                                    mode="ios"
+                                    fill="outline"
+                                    color="danger"
+                                    onClick={() => { deleteComment(index); }}
+                                  >
+                                    <DeleteIcon />
+                                  </IonButton>
+                                </IonFab>
+                              ) : null}
+                            </IonItem>
+                          </IonList>
+                        ))
                         : null}
                     </div>
                   </FadeIn>
@@ -1176,8 +1184,8 @@ function Home() {
                       fill="outline"
                       color={
                         posts &&
-                        user &&
-                        posts[index].likes[user.uid] !== undefined
+                          user &&
+                          posts[index].likes[user.uid] !== undefined
                           ? "primary"
                           : "medium"
                       }
@@ -1213,8 +1221,8 @@ function Home() {
                       fill="outline"
                       color={
                         posts &&
-                        user &&
-                        posts[index].dislikes[user.uid] !== undefined
+                          user &&
+                          posts[index].dislikes[user.uid] !== undefined
                           ? "danger"
                           : "medium"
                       }

@@ -431,13 +431,17 @@ function Community() {
                               >
                                 {commentModalPost.data.postType.toUpperCase()}
                               </p>
+                              <IonNote style={{ fontSize: "0.85em" }}>
+                                {getDate(commentModalPost.data.timestamp)}
+                              </IonNote>
                             </IonFab>
-                          ) : null}
-                          <IonFab style={{ bottom: "1vh" }} horizontal="end">
-                            <IonNote style={{ fontSize: "0.85em" }}>
-                              {getDate(commentModalPost.data.timestamp)}
-                            </IonNote>
-                          </IonFab>
+                          ) : (
+                            <IonFab vertical="top" horizontal="end">
+                              <IonNote style={{ fontSize: "0.85em" }}>
+                                {getDate(commentModalPost.data.timestamp)}
+                              </IonNote>
+                            </IonFab>
+                          )}
                           <h2 className="h2-message">
                             {commentModalPost.data.message}
                           </h2>
@@ -594,6 +598,7 @@ function Community() {
                           </IonItem>
                           <IonItem lines="none" mode="ios">
                             <IonButton
+                              disabled
                               mode="ios"
                               fill="outline"
                               color="medium"
@@ -602,6 +607,7 @@ function Community() {
                               <p>{comment.upVotes} </p>
                             </IonButton>
                             <IonButton
+                              disabled
                               mode="ios"
                               fill="outline"
                               color="medium"
