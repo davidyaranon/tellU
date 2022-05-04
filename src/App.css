@@ -5,6 +5,18 @@
   transform: translate(-50%, -50%);
 }
 
+ion-fab.fab-horizontal-center {
+  margin-inline-start: -60px;
+}
+
+.load-new-posts {
+  --border-radius: 20px;
+   max-width: unset;
+   min-width: unset;
+   width: 120px;
+   height: 45px;
+}
+
 .user-card {
   display: flex;
   flex-direction: column;
@@ -48,7 +60,7 @@ ion-checkbox {
 #general {
   width: 0.5%;
   height: 3.5vh;
-  background: #61dbfb;
+  background: transparent;
   margin: 1vw;
 }
 #alertCheckbox {
@@ -58,7 +70,7 @@ ion-checkbox {
 #alert {
   width: 0.5%;
   height: 3.5vh;
-  background: #ff3e3e;
+  background: transparent;
   margin: 1vw;
 }
 #buySellCheckbox {
@@ -68,7 +80,7 @@ ion-checkbox {
 #buySell {
   width: 0.5%;
   height: 3.5vh;
-  background: #179b59;
+  background: transparent;
   margin: 1vw;
 }
 #sightingCheckbox {
@@ -78,7 +90,7 @@ ion-checkbox {
 #sighting {
   width: 0.5%;
   height: 3.5vh;
-  background: #eed202;
+  background: transparent;
   margin: 1vw;
 }
 #eventCheckbox {
@@ -88,7 +100,7 @@ ion-checkbox {
 #event {
   width: 0.5%;
   height: 3.5vh;
-  background: #fc4ad3;
+  background: transparent;
   margin: 1vw;
 }
 

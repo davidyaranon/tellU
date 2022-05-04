@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL, } from "firebase/storage";
 import {
+  runTransaction,
   WriteBatch,
   deleteField,
   serverTimestamp,
@@ -89,7 +90,7 @@ export async function logInWithEmailAndPassword(email, password) {
     const res = await signInWithEmailAndPassword(auth, email, password);
     return res;
   } catch (err) {
-    return false;
+    console.log(err);
   }
 }
 
@@ -459,6 +460,33 @@ export const getNextBatchUsers = async (key) => {
   }
 };
 
+export const getTopWeeklyPosts = async (schoolName) => {
+  try{  
+    if(auth && db) {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const tomorrow = new Date();
+      tomorrow.setHours(24, 0, 0, 0);
+      tomorrow.setDate(sevenDaysAgo.getDate() + 9);
+      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts" );
+      const q = query(allPostsRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), limit(15));
+      const querySnapshot = await getDocs(q);
+      let topWeeklyPosts = [];
+      const docs = querySnapshot.docs;
+      for(const doc of docs){
+        topWeeklyPosts.push({
+          key: doc.id,
+          data: doc.data(),
+        });
+      }
+      return topWeeklyPosts;
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
 export const getTopPostsWithinPastDay = async (schoolName) => {
   try {
     if (auth && db) {
@@ -468,13 +496,7 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const yesterday = new Date();
-      yesterday.setHours(0, 0, 0, 0);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const tomorrow = new Date();
-      tomorrow.setHours(24, 0, 0, 0);
-      tomorrow.setDate(yesterday.getDate() + 2);
-      const q = query(allPostsRef, orderBy("upVotes", "desc"), limit(10));
+      const q = query(allPostsRef, orderBy("upVotes", "desc"), limit(15));
       const querySnapshot = await getDocs(q);
       const topPosts = [];
       const docs = querySnapshot.docs;

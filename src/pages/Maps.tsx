@@ -1,14 +1,7 @@
 import {
   IonContent,
-  IonHeader,
-  IonRefresher,
-  IonRefresherContent,
-  IonInfiniteScroll,
   IonCardTitle,
   IonCard,
-  IonSlides,
-  IonSlide,
-  IonInfiniteScrollContent,
   IonModal,
   IonImg,
   IonList,
@@ -18,17 +11,11 @@ import {
   IonLoading,
   IonText,
   IonAvatar,
-  IonInput,
-  IonActionSheet,
   IonButton,
   IonIcon,
-  IonRippleEffect,
   IonFab,
-  IonFabButton,
   IonToolbar,
-  IonTitle,
   IonButtons,
-  IonSearchbar,
   IonCardContent,
   IonSelect,
   IonSelectOption,
@@ -36,9 +23,11 @@ import {
   IonCol,
   IonSpinner,
   IonNote,
+  IonPage,
+  useIonViewDidEnter,
 } from "@ionic/react";
 import { arrowBack, schoolOutline } from "ionicons/icons";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import auth, { removeComment } from "../fbconfig";
 import {
   addComment,
@@ -46,14 +35,10 @@ import {
   downVote,
   loadComments,
   promiseTimeout,
-  storage,
   upVote,
 } from "../fbconfig";
-import { getDownloadURL, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
-  doc,
-  getDoc,
   collection,
   query,
   where,
@@ -61,14 +46,10 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-import { serverTimestamp } from "@firebase/firestore";
-import Header, { ionHeaderStyle } from "./Header";
 import "../App.css";
 import { useHistory } from "react-router";
 import { useSelector } from "react-redux";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
-import { IconButton } from "@mui/material";
-import { string } from "prop-types";
 import { useToast } from "@agney/ir-toast";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -77,6 +58,7 @@ import ForumIcon from "@mui/icons-material/Forum";
 import FadeIn from "react-fade-in";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TimeAgo from "javascript-time-ago";
+import { timeout } from "../components/functions";
 
 
 const schoolInfo = {
@@ -130,6 +112,26 @@ function Maps() {
     width: "95vw",
     marginLeft: "2.5vw",
   };
+
+  useIonViewDidEnter(() => {
+    // setBusy(true);
+    if (!user) {
+      history.replace("/landing-page");
+    } else {
+      // getSchoolLocation();
+      getMapMarkers();
+      // setBusy(false);
+    }
+  }, [user, schoolName]);
+
+  useEffect(() => {
+    if(!user) {
+      history.replace("/landing-page");
+    } else {
+      getSchoolLocation();
+    }
+  }, [user, schoolName])
+
   const deleteComment = async (index: number) => {
     setCommentsLoading(true);
     if (comments && commentModalPost && schoolName) {
@@ -195,7 +197,7 @@ function Maps() {
             commentsHasTimedOut.then((resComments) => {
               if (resComments == null || resComments == undefined) {
                 Toast.error(
-                  "Comments are currently broken on this post, try again later"
+                  "Post has been deleted"
                 );
               } else {
                 setComments(resComments);
@@ -311,7 +313,7 @@ function Maps() {
         } else {
           //console.log(resComments);
           Toast.error(
-            "Comments are currently broken on this post, try again later"
+            "Post has been deleted"
           );
         }
       } catch (err: any) {
@@ -340,9 +342,7 @@ function Maps() {
       setDefaultZoom(schoolZoom);
     }
   };
-  function timeout(delay: number) {
-    return new Promise((res) => setTimeout(res, delay));
-  }
+
   const updateMarkers = (filter: string) => {
     setMarkerFilter(filter);
     if (filter === "ALL") {
@@ -386,7 +386,7 @@ function Maps() {
   };
   const getMapMarkers = async () => {
     if (schoolName) {
-      setBusy(true);
+      // setBusy(true);
       const markersRef = collection(
         db,
         "schoolPosts",
@@ -419,7 +419,7 @@ function Maps() {
       //console.log(tempMarkers);
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
-      setBusy(false);
+      // setBusy(false);
     }
   };
   const setDefaultCenter = () => {
@@ -429,25 +429,16 @@ function Maps() {
   const handleUserPageNavigation = (uid: string) => {
     history.push("home/about/" + uid);
   };
-  useEffect(() => {
-    setBusy(true);
-    if (!user) {
-      history.replace("/landing-page");
-    } else {
-      getSchoolLocation();
-      getMapMarkers();
-      setBusy(false);
-    }
-  }, [user, schoolName]);
+  
   return (
-    <React.Fragment>
+    <IonPage>
       <IonContent fullscreen={true}>
-        <IonLoading
+        {/* <IonLoading
           spinner="dots"
           message="Loading markers..."
           duration={0}
           isOpen={busy}
-        ></IonLoading>
+        ></IonLoading> */}
         <IonLoading
           spinner="dots"
           message="Adding comment"
@@ -844,7 +835,10 @@ function Maps() {
                         mode="ios"
                         fill="outline"
                         color={
-                          markers &&
+                          overlayIndex != -1 &&
+                            markers &&
+                            markers[overlayIndex] &&
+                            "likes" in markers[overlayIndex] &&
                             user &&
                             markers[overlayIndex].likes[user.uid] !== undefined
                             ? "primary"
@@ -882,7 +876,9 @@ function Maps() {
                         }}
                         color={
                           markers &&
+                            overlayIndex != -1 &&
                             user &&
+                            "dislikes" in markers[overlayIndex] &&
                             markers[overlayIndex].dislikes[user.uid] !== undefined
                             ? "danger"
                             : "medium"
@@ -907,7 +903,7 @@ function Maps() {
           </IonFab>
         </Map>
       </IonContent>
-    </React.Fragment>
+    </IonPage>
   );
 }
 

@@ -35,17 +35,16 @@ import {
   IonLoading,
   IonModal,
   IonNote,
+  IonPage,
   IonSkeletonText,
   IonSpinner,
   IonText,
   IonTextarea,
   IonTitle,
   IonToolbar,
+  useIonViewDidEnter,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
-import { ionHeaderStyle } from "./Header";
-import { ref, getDownloadURL } from "firebase/storage";
-import { timeout } from "workbox-core/_private";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
@@ -53,13 +52,14 @@ import en from "javascript-time-ago/locale/en.json";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { cameraOutline, chatbubblesOutline, arrowBack } from "ionicons/icons";
-import ForumIcon from '@mui/icons-material/Forum';
+import { getColor, timeout } from '../components/functions';
 
 interface MatchUserPostParams {
   key: string;
 }
 
-export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
+const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
+  console.log(match.params.key);
   const postKey = match.params.key;
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
@@ -115,7 +115,7 @@ export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             commentsHasTimedOut.then((resComments) => {
               if (resComments == null || resComments == undefined) {
                 Toast.error(
-                  "Comments are currently broken on this post, try again later"
+                  "Post has been deleted"
                 );
               } else {
                 //console.log(resComments);
@@ -212,23 +212,6 @@ export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
-  const getColor = (postType: string) => {
-    switch (postType) {
-      case "general":
-        return "#61DBFB";
-      case "alert":
-        return "#ff3e3e";
-      case "buy/Sell":
-        return "#179b59";
-      case "event":
-        return "#fc4ad3";
-      case "sighting":
-        return "#eed202";
-      default:
-        break;
-    }
-  };
-
   const handleUserPageNavigation = (uid: string) => {
     history.push("home/about/" + uid);
   };
@@ -287,11 +270,7 @@ export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
-  function timeout(delay: number) {
-    return new Promise((res) => setTimeout(res, delay));
-  }
-
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     if (user && schoolName) {
       getPost();
       getPostComments();
@@ -299,14 +278,14 @@ export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }, [user, schoolName]);
 
   return (
-    <React.Fragment>
+    <IonPage>
       <IonContent>
         <div className="ion-modal">
           <IonToolbar mode="ios">
             <IonButtons slot="start">
               <IonButton
                 onClick={() => {
-                  history.replace("/home");
+                  history.go(-1);
                 }}
               >
                 <IonIcon icon={arrowBack}></IonIcon> Back
@@ -373,6 +352,7 @@ export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       color={
                         post &&
                           user &&
+                          "likes" in post &&
                           post.likes[user.uid] !==
                           undefined
                           ? "primary"
@@ -405,6 +385,7 @@ export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       color={
                         post &&
                           user &&
+                          "dislikes" in post &&
                           post.dislikes[
                           user.uid
                           ] !== undefined
@@ -564,6 +545,8 @@ export const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           <br></br>
         </div>
       </IonContent>
-    </React.Fragment>
+    </IonPage>
   )
 }
+
+export default React.memo(Post);

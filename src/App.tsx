@@ -3,17 +3,13 @@ import React, { useState, useEffect } from "react";
 import {
   IonApp,
   IonTabs,
-  IonPage,
   IonRouterOutlet,
   IonSpinner,
   setupIonicReact,
   IonTabBar,
   IonTabButton,
-  IonLoading,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { SplashScreen } from "@capacitor/splash-screen";
-import { Storage } from "@ionic/storage";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -43,30 +39,36 @@ import LandingPage from "./pages/LandingPage";
 import Register from "./pages/Register";
 import RedirectComponent from "./pages/RedirectComponent";
 import { UserProfile } from "./pages/UserProfile";
-
 import UIContext from "./my-context";
 import { ToastProvider, useToast } from "@agney/ir-toast";
-import { useAuthState } from "react-firebase-hooks/auth";
-
 import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import AccountCircleTwoToneIcon from "@mui/icons-material/AccountCircleTwoTone";
 import GroupsIcon from "@mui/icons-material/Groups";
 import MapIcon from "@mui/icons-material/Map";
-import { db, getCurrentUser, getAllPosts, promiseTimeout } from "./fbconfig";
-import auth from './fbconfig';
+import { db, getCurrentUser, promiseTimeout } from "./fbconfig";
 import { doc, getDoc } from "firebase/firestore";
 import { setUserState } from "./redux/actions";
-import { App as androidApp } from "@capacitor/app";
-import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useDispatch } from "react-redux";
 import { setDarkMode } from "./redux/actions";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { PushNotificationSchema, PushNotifications, Token, ActionPerformed } from '@capacitor/push-notifications';
-import { Post } from "./pages/Post";
+import Post from "./pages/Post";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import { PushNotifications } from "@capacitor/push-notifications";
+import { FCM } from "@capacitor-community/fcm";
 
-setupIonicReact();
+// // set up base push notifications with Capacitor
+// await PushNotifications.requestPermissions();
+// await PushNotifications.register();
+
+// // set up Firebase Cloud Messaging topics
+// FCM.subscribeTo({ topic: "test" })
+//   .then((r) => alert(`subscribed to topic`))
+//   .catch((err) => console.log(err));
+
+setupIonicReact({
+  swipeBackEnabled: false,
+});
 
 const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
@@ -75,61 +77,62 @@ const RoutingSystem: React.FunctionComponent = () => {
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <IonReactRouter>
-        <IonPage id="app">
-          <IonTabs>
-            <IonRouterOutlet>
-              <Route path="/:tab(home)" exact={true}>
-                {" "}
-                <Home />{" "}
-              </Route>
-              <Route path="/:tab(home)/post/:key" component={Post} />
-              <Route path="/:tab(home)/about/:uid" component={UserProfile} />
-              <Route
-                path="/:tab(community)"
-                component={Community}
-                exact={true}
+        {/* <IonPage id="app"> */}
+        <IonTabs>
+          <IonRouterOutlet>
+            <Route path="/:tab(home)" exact={true}>
+              {" "}
+              <Home />{" "}
+            </Route>
+            <Route path="/:tab(home)/post/:key" component={Post} />
+            <Route path="/:tab(home)/about/:uid" component={UserProfile} />
+            <Route
+              path="/:tab(community)"
+              component={Community}
+              exact={true}
+            />
+            <Route path="/:tab(maps)" component={Maps} exact={true} />
+            <Route path="/:tab(user)" exact={true}>
+              {" "}
+              <User />{" "}
+            </Route>
+            <Route path="/landing-page" exact={true}>
+              {" "}
+              <LandingPage />{" "}
+            </Route>
+            <Route path="/register" component={Register} exact={true} />
+            <Route path="/privacy-policy" component={PrivacyPolicy} />
+            <Route path="/post/:key" component={Post} />
+            <Route path="/404" component={RedirectComponent} />
+            <Route
+              exact
+              path="/"
+              render={() => <Redirect to="/home" />}
+            />
+            {/* <Route component={RedirectComponent} /> */}
+          </IonRouterOutlet>
+          <IonTabBar slot="bottom" style={tabBarStyle}>
+            <IonTabButton tab="home" href="/home">
+              <HomeTwoToneIcon
+                fontSize="large"
+                style={{ fontSize: "4.10vh" }}
               />
-              <Route path="/:tab(maps)" component={Maps} exact={true} />
-              <Route path="/:tab(user)" exact={true}>
-                {" "}
-                <User />{" "}
-              </Route>
-              <Route path="/landing-page" exact={true}>
-                {" "}
-                <LandingPage />{" "}
-              </Route>
-              <Route path="/register" component={Register} exact={true} />
-              <Route path="/privacy-policy" component={PrivacyPolicy} />
-              <Route path="/404" component={RedirectComponent} />
-              <Route
-                exact
-                path="/"
-                render={() => <Redirect to="/landing-page" />}
+            </IonTabButton>
+            <IonTabButton tab="community" href="/community">
+              <GroupsIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
+            </IonTabButton>
+            <IonTabButton tab="maps" href="/maps">
+              <MapIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
+            </IonTabButton>
+            <IonTabButton tab="user" href="/user">
+              <AccountCircleTwoToneIcon
+                fontSize="large"
+                style={{ fontSize: "4.10vh" }}
               />
-              {/* <Route component={RedirectComponent} /> */}
-            </IonRouterOutlet>
-            <IonTabBar slot="bottom" style={tabBarStyle}>
-              <IonTabButton tab="home" href="/home">
-                <HomeTwoToneIcon
-                  fontSize="large"
-                  style={{ fontSize: "4.10vh" }}
-                />
-              </IonTabButton>
-              <IonTabButton tab="community" href="/community">
-                <GroupsIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
-              </IonTabButton>
-              <IonTabButton tab="maps" href="/maps">
-                <MapIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
-              </IonTabButton>
-              <IonTabButton tab="user" href="/user">
-                <AccountCircleTwoToneIcon
-                  fontSize="large"
-                  style={{ fontSize: "4.10vh" }}
-                />
-              </IonTabButton>
-            </IonTabBar>
-          </IonTabs>
-        </IonPage>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+        {/* </IonPage> */}
       </IonReactRouter>
     </ToastProvider>
   );
@@ -146,6 +149,34 @@ const App: React.FunctionComponent = () => {
   }
   const keyStyleOptionsLight: KeyboardStyleOptions = {
     style: KeyboardStyle.Light
+  }
+  const addListeners = async () => {
+    await PushNotifications.addListener('registration', token => {
+      console.info('Registration token: ', token.value);
+    });
+
+    await PushNotifications.addListener('registrationError', err => {
+      console.error('Registration error: ', err.error);
+    });
+
+    await PushNotifications.addListener('pushNotificationReceived', notification => {
+      console.log('Push notification received: ', notification);
+    });
+
+    await PushNotifications.addListener('pushNotificationActionPerformed', notification => {
+      console.log('Push notification action performed', notification.actionId, notification.inputValue);
+    });
+  }
+  const registerNotifications = async () => {
+    let permStatus = await PushNotifications.checkPermissions();
+
+    if (permStatus.receive === 'prompt') {
+      permStatus = await PushNotifications.requestPermissions();
+    }
+
+    if (permStatus.receive !== 'granted') {
+      throw new Error('User denied permissions!');
+    }
   }
   useEffect(() => {
     if (darkMode == "false") {
@@ -181,7 +212,11 @@ const App: React.FunctionComponent = () => {
       } else {
         setBusy(false);
         window.history.replaceState({}, "", "/landing-page");
+        registerNotifications().then(() => {
+          addListeners();
+        });
       }
+      return () => PushNotifications.removeAllListeners().then(() => console.log("listeners removed"));
     });
     hasLoadedUser.catch((err: any) => {
       console.log(err);

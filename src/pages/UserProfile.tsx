@@ -34,25 +34,28 @@ import {
   IonLoading,
   IonModal,
   IonNote,
+  IonPage,
   IonSkeletonText,
   IonSpinner,
   IonText,
   IonTextarea,
   IonTitle,
   IonToolbar,
+  useIonViewDidEnter,
+  useIonViewWillEnter,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { ionHeaderStyle } from "./Header";
 import { ref, getDownloadURL } from "firebase/storage";
-import { timeout } from "workbox-core/_private";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, chatbubblesOutline, arrowBack } from "ionicons/icons";
+import { cameraOutline, chatbubblesOutline, arrowBack, podiumOutline } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
+import { getColor, timeout } from '../components/functions';
 
 interface MatchParams {
   uid: string;
@@ -123,7 +126,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             commentsHasTimedOut.then((resComments) => {
               if (resComments == null || resComments == undefined) {
                 Toast.error(
-                  "Comments are currently broken on this post, try again later"
+                  "Post has been deleted"
                 );
               } else {
                 setComments(resComments);
@@ -148,22 +151,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       });
     }
   };
-  const getColor = (postType: string) => {
-    switch (postType) {
-      case "general":
-        return "#61DBFB";
-      case "alert":
-        return "#ff3e3e";
-      case "buy/Sell":
-        return "#179b59";
-      case "event":
-        return "#fc4ad3";
-      case "sighting":
-        return "#eed202";
-      default:
-        break;
-    }
-  };
+
   const handleCommentModal = async (post: any, postIndex: number) => {
     setCommentsLoading(true);
     setCommentModalPostIndex(postIndex);
@@ -181,7 +169,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       } else {
         //console.log(resComments);
         Toast.error(
-          "Comments are currently broken on this post, try again later"
+          "Post has been deleted"
         );
       }
     } catch (err: any) {
@@ -189,6 +177,12 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       Toast.error(err.message.toString());
     }
   };
+  // const getSrc = (url : string) => {
+  //   getImgSrc(url).then((src) => {
+  //     return src;
+  //   });
+  //   return "";
+  // }
   const handleUpVote = async (postKey: string, index: number) => {
     const val = await upVote(schoolName, postKey);
     if (val && (val === 1 || val === -1)) {
@@ -215,7 +209,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       Toast.error("Unable to like post :(");
     }
   };
-
+  // const handlePhotoClick = (url : string) => {
+  //   getImgSrc(url).then((src) => {
+  //     PhotoViewer.show(src);
+  //   });
+  // };
   const handleDownVote = async (postKey: string, index: number) => {
     const val = await downVote(schoolName, postKey);
     if (val && (val === 1 || val === -1)) {
@@ -242,6 +240,10 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       Toast.error("Unable to dislike post :(");
     }
   };
+  // const getImgSrc = async (postUrl : string) => {
+  //   const imgSrc = await getDownloadURL(ref(storage, postUrl));
+  //   return imgSrc;
+  // };
   const getDate = (timestamp: any) => {
     const time = new Date(
       timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
@@ -269,10 +271,12 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       setNoMorePosts(true);
     }
   };
-  function timeout(delay: number) {
-    return new Promise((res) => setTimeout(res, delay));
-  }
-  useEffect(() => {
+
+  useIonViewWillEnter(() => {
+    setBusy(true);
+  })
+
+  useIonViewDidEnter(() => {
     setBusy(true);
     if (!user) {
       history.replace("/landing-page");
@@ -285,7 +289,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               .then((res: any) => {
                 // first batch
                 if (res.userPosts.length > 0) {
-                  //.log(res.userPosts);
+                  console.log(res.userPosts);
                   setUserPosts(res.userPosts);
                   setLastKey(res.lastKey);
                 } else {
@@ -330,7 +334,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
   if (!noPostsYet) {
     return (
-      <React.Fragment>
+      <IonPage>
         <IonContent>
           <IonHeader mode="ios">
             <IonToolbar mode="ios">
@@ -338,11 +342,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 <IonButton
                   onClick={() => {
                     //console.log("going home");
-                    history.replace("/home");
+                    history.go(-1);
                   }}
                 >
                   <IonIcon icon={arrowBack}></IonIcon>
-                  Home
+                  Back
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -590,6 +594,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               mode="ios"
                               fill="outline"
                               color="medium"
+                              disabled
                             >
                               <KeyboardArrowUpIcon />
                               <p>{comment.upVotes} </p>
@@ -598,6 +603,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               mode="ios"
                               fill="outline"
                               color="medium"
+                              disabled
                             >
                               <KeyboardArrowDownIcon />
                               <p>{comment.downVotes} </p>
@@ -792,7 +798,23 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                   src={post.imgSrc}
                                 />
                               </div>
-                            ) : null}
+                            ) : (
+                              <>
+                              {post.url.length > 0 ? (
+                                <div>
+                                  <br></br>
+                                  <br></br>
+                                  <IonImg
+                                    className="ion-img-container"
+                                    onClick={() => {
+                                      PhotoViewer.show(post.imgSrc);
+                                    }}
+                                    src={post.imgSrc}
+                                  />
+                                </div>
+                              ) : null}
+                              </>
+                            )}
                           </IonLabel>
                         </IonItem>
                         <FadeIn>
@@ -891,11 +913,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             </FadeIn>
           </div>
         </IonContent>
-      </React.Fragment>
+      </IonPage>
     );
   } else {
     return (
-      <React.Fragment>
+      <IonPage>
         <IonContent>
           <IonHeader mode="ios">
             <IonToolbar mode="ios">
@@ -903,11 +925,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 <IonButton
                   onClick={() => {
                     //console.log("going home");
-                    history.replace("/home");
+                    history.go(-1);
                   }}
                 >
                   <IonIcon icon={arrowBack}></IonIcon>
-                  Home
+                  Back
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -930,7 +952,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             </div>
           </FadeIn>
         </IonContent>
-      </React.Fragment>
+      </IonPage>
     );
   }
 };

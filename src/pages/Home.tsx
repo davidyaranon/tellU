@@ -1,5 +1,4 @@
 import "../App.css";
-import { Link } from "react-router-dom";
 import {
   IonContent,
   IonHeader,
@@ -31,12 +30,13 @@ import {
   IonCardContent,
   IonSpinner,
   IonNote,
+  useIonViewWillEnter,
+  useIonViewWillLeave,
+  IonPage,
 } from "@ionic/react";
 import auth, { removeComment } from "../fbconfig";
 import {
-  db,
   addMessage,
-  storage,
   uploadImage,
   addComment,
   getAllPosts,
@@ -57,7 +57,6 @@ import {
   add,
   arrowBack,
   cameraOutline,
-  chatbubblesOutline,
 } from "ionicons/icons";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
@@ -65,16 +64,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
-import { chevronDownCircleOutline } from "ionicons/icons";
+import { chevronDownCircleOutline, caretUpOutline } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import defaultMessages from "../components/funnies";
 import { RefresherEventDetail } from "@ionic/core";
 import MapIcon from "@mui/icons-material/Map";
 import Header, { ionHeaderStyle } from "./Header";
 import IconButton from "@mui/material/IconButton";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "@agney/ir-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import "../theme/variables.css";
@@ -83,6 +81,7 @@ import FadeIn from "react-fade-in";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
 import UIContext from "../my-context";
+import { getColor, timeout } from '../components/functions';
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -95,11 +94,11 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
+  const [newPosts, setNewPosts] = useState<any[] | null>(null);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
   const { setShowTabs } = React.useContext(UIContext);
   const schoolName = useSelector((state: any) => state.user.school);
-  const hasLoaded = useSelector((state: any) => state.user.hasLoaded);
   const [busy, setBusy] = useState<boolean>(false);
   const [gettingLocation, setGettingLocation] = useState<boolean>(false);
   const [photo, setPhoto] = useState<Photo | null>();
@@ -109,10 +108,7 @@ function Home() {
   const [showModalComment, setShowModalComment] = useState<boolean>(false);
   const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
   const [modalImgSrc, setModalImgSrc] = useState("");
-  const [photos, setPhotos] = useState<Photo | null>();
   const [blob, setBlob] = useState<any | null>(null);
-  const [showActionSheet, setShowActionSheet] = useState(false);
-  const [messageSent, setMessageSent] = useState<boolean>(false);
   const [posts, setPosts] = useState<any[] | null>(null);
   const [comments, setComments] = useState<any[] | null>(null);
   const [message, setMessage] = useState("");
@@ -139,11 +135,41 @@ function Home() {
     useState<number>(-1);
   const [commentModalPost, setCommentModalPost] = useState<any | null>(null);
   const history = useHistory();
-  const min = 0;
-  const max = defaultMessages.length - 1;
   const [position, setPosition] = useState<Geoposition | null>();
-  const [loadingMessage, setLoadingMessage] = useState("");
+  const contentRef = useRef<HTMLIonContentElement | null>(null);
+  const [newPostsLoaded, setNewPostsLoaded] = useState<boolean>(false);
 
+  useIonViewWillEnter(() => {
+    if (posts && schoolName) {
+      setBusy(true);
+      let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
+      tempPosts.then((allPosts: any[]) => {
+        if (allPosts && allPosts != []) { // newly updated posts
+          if (allPosts.length > posts.length) {
+            setNewPostsLoaded(true);
+            setNewPosts(allPosts);
+            console.log("new posts loaded");
+          } else {
+            setPosts(allPosts);
+          }
+        }
+        setBusy(false);
+      });
+      tempPosts.catch((err: any) => {
+        Toast.error(err + "\n Check your internet connection");
+        setBusy(false);
+      });
+    }
+  }, [posts, schoolName]);
+
+  useIonViewWillLeave(() => {
+    // console.log('ionViewWillLeave event fired');
+  });
+
+
+  const scrollToTop = () => {
+    contentRef.current && contentRef.current.scrollToTop(1500);
+  };
   const ionInputStyle = {
     height: "10vh",
     width: "95vw",
@@ -183,7 +209,7 @@ function Home() {
             commentsHasTimedOut.then((resComments) => {
               if (resComments == null || resComments == undefined) {
                 Toast.error(
-                  "Comments are currently broken on this post, try again later"
+                  "Post has been deleted"
                 );
               } else {
                 //console.log(resComments);
@@ -291,23 +317,6 @@ function Home() {
     return timeAgo.format(time);
   };
 
-  const getColor = (postType: string) => {
-    switch (postType) {
-      case "general":
-        return "#61DBFB";
-      case "alert":
-        return "#ff3e3e";
-      case "buy/Sell":
-        return "#179b59";
-      case "event":
-        return "#fc4ad3";
-      case "sighting":
-        return "#eed202";
-      default:
-        break;
-    }
-  };
-
   const handleCheckboxChange = (checkbox: string) => {
     switch (checkbox) {
       case "general":
@@ -394,7 +403,7 @@ function Home() {
       //console.log(pos.coords);
       setGettingLocation(false);
     } catch (e: any) {
-      Toast.error(e.message.toString());
+      Toast.error("Location access denied by user, adjust in iOS Settings");
       setGettingLocation(false);
     }
   };
@@ -405,7 +414,6 @@ function Home() {
     tempPosts.then((allPosts: any[]) => {
       if (allPosts && allPosts != []) {
         setPosts(allPosts);
-        //console.log(allPosts);
       } else {
         Toast.error("Unable to load posts");
       }
@@ -420,14 +428,11 @@ function Home() {
   };
 
   async function doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    setNewPostsLoaded(false);
     handleLoadPosts();
     setTimeout(() => {
       event.detail.complete();
     }, 1000);
-  }
-
-  function timeout(delay: number) {
-    return new Promise((res) => setTimeout(res, delay));
   }
 
   function showPicture(src: string) {
@@ -486,7 +491,7 @@ function Home() {
       } else {
         //console.log(resComments);
         Toast.error(
-          "Comments are currently broken on this post, try again later"
+          "Post has been deleted"
         );
       }
     } catch (err: any) {
@@ -507,7 +512,9 @@ function Home() {
     ) {
       Toast.error("Select a post type");
     } else {
-      setBusy(true);
+      //setBusy(true);
+      //const toast = Toast.create({message: "Uploading..."});
+      //toast.present();
       let uniqueId = uuidv4();
       if (blob) {
         await sendImage(blob, uniqueId.toString());
@@ -523,38 +530,39 @@ function Home() {
         checkboxSelection
       );
       if (res == "false") {
+        //toast.dismiss();
         Toast.error("Unable to process message :(");
       } else {
+        //toast.dismiss();
         Toast.success("Uploaded!");
-        setMessageSent(true);
         setMessage("");
         handleLoadPosts();
       }
-      setBusy(false);
+      //setBusy(false);
     }
   }
 
-  // const loadLoadingMessage = () => {
-  //   let rand = Math.floor( min + Math.random() * (max - min) );
-  //   setLoadingMessage(defaultMessages[rand]);
-  // }
-
-  useEffect(() => {
+  useEffect(() => { // run on app startup
     setShowTabs(true);
     setBusy(true);
     if (!user) {
       setBusy(false);
       history.replace("/landing-page");
     } else if (schoolName) {
-      //console.log(user);
       handleLoadPosts();
     }
   }, [schoolName]);
 
   if (posts) {
     return (
-      <React.Fragment>
-        <IonContent>
+      <IonPage>
+        <IonContent ref={contentRef} scrollEvents={true}>
+          {newPostsLoaded ? (
+            <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
+              <IonFabButton className="load-new-posts" mode="ios" onClick={() => { setNewPostsLoaded(false); setPosts(newPosts); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
+            </IonFab>
+          ) : (null)}
+
           <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
             <br></br>
             <br></br>
@@ -566,12 +574,12 @@ function Home() {
             ></IonRefresherContent>
           </IonRefresher>
 
-          <IonLoading
+          {/* <IonLoading
             spinner="dots"
             message="Loading posts"
             duration={0}
             isOpen={busy}
-          ></IonLoading>
+          ></IonLoading> */}
 
           <IonLoading
             spinner="dots"
@@ -907,8 +915,11 @@ function Home() {
                             mode="ios"
                             fill="outline"
                             color={
-                              posts &&
+                              commentModalPostIndex != -1 &&
+                                posts &&
+                                posts[commentModalPostIndex] &&
                                 user &&
+                                "likes" in posts[commentModalPostIndex] &&
                                 posts[commentModalPostIndex].likes[user.uid] !==
                                 undefined
                                 ? "primary"
@@ -942,8 +953,11 @@ function Home() {
                             mode="ios"
                             fill="outline"
                             color={
-                              posts &&
+                              commentModalPostIndex != -1 &&
+                                posts &&
+                                posts[commentModalPostIndex] &&
                                 user &&
+                                "dislikes" in posts[commentModalPostIndex] &&
                                 posts[commentModalPostIndex].dislikes[
                                 user.uid
                                 ] !== undefined
@@ -1183,8 +1197,11 @@ function Home() {
                       mode="ios"
                       fill="outline"
                       color={
-                        posts &&
+                        index != -1 &&
+                          posts &&
+                          posts[index] &&
                           user &&
+                          "likes" in posts[index] &&
                           posts[index].likes[user.uid] !== undefined
                           ? "primary"
                           : "medium"
@@ -1220,7 +1237,10 @@ function Home() {
                       mode="ios"
                       fill="outline"
                       color={
-                        posts &&
+                        index != -1 &&
+                          posts &&
+                          posts[index] &&
+                          "dislikes" in posts[index] && 
                           user &&
                           posts[index].dislikes[user.uid] !== undefined
                           ? "danger"
@@ -1240,11 +1260,10 @@ function Home() {
               </FadeIn>
             ))
           ) : (
-            <div>
-              <h3 className="h3-error">
-                {" "}
-                Unable to load posts, swipe down from top to reload page{" "}
-              </h3>
+            <div className="h3-error">
+              <IonNote >
+                Unable to load posts, swipe down from top to reload
+              </IonNote>
               <div className="h3-error">
                 <SignalWifiOff
                   fontSize="large"
@@ -1254,11 +1273,11 @@ function Home() {
             </div>
           )}
         </IonContent>
-      </React.Fragment>
+      </IonPage>
     );
   } else if (showReloadMessage) {
     return (
-      <React.Fragment>
+      <IonPage>
         <IonContent>
           <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
             <IonRefresherContent
@@ -1269,12 +1288,12 @@ function Home() {
             ></IonRefresherContent>
           </IonRefresher>
 
-          <IonLoading
+          {/* <IonLoading
             spinner="dots"
             message="Please wait..."
             duration={0}
             isOpen={busy}
-          ></IonLoading>
+          ></IonLoading> */}
 
           <IonHeader class="ion-no-border" style={ionHeaderStyle}>
             <Header />
@@ -1298,10 +1317,14 @@ function Home() {
             </div>
           </div>
         </IonContent>
-      </React.Fragment>
+      </IonPage>
     );
   } else {
-    return <IonLoading spinner="dots" duration={0} isOpen={busy}></IonLoading>;
+    return (
+      <div className="ion-spinner">
+        <IonSpinner color="primary" />
+      </div>
+    )
   }
 }
 

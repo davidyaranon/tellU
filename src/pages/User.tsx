@@ -24,13 +24,14 @@ import {
   IonSpinner,
   IonButtons,
   IonCardTitle,
+  IonPage,
+  useIonViewDidEnter,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
   storage,
   logout,
-  addMessage,
   db,
   promiseTimeout,
   checkUsernameUniqueness,
@@ -43,7 +44,6 @@ import {
   loadComments,
   removeComment,
   removePost,
-  getUserLikedPosts,
   getUserLikedPostsNextBatch,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -52,7 +52,6 @@ import {
   Camera,
   CameraResultType,
   CameraSource,
-  Photo,
 } from "@capacitor/camera";
 import {
   updateProfile,
@@ -60,22 +59,14 @@ import {
   EmailAuthProvider,
 } from "firebase/auth";
 import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
   doc,
-  getDoc,
   updateDoc,
 } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
-import Header, { ionHeaderStyle } from "./Header";
 import "../App.css";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en.json";
 import { useSelector } from "react-redux";
 import { moon } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
@@ -89,7 +80,7 @@ import "swiper/css/pagination";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, chatbubblesOutline, informationCircleOutline, arrowBack } from "ionicons/icons";
+import { informationCircleOutline, arrowBack } from "ionicons/icons";
 import ForumIcon from "@mui/icons-material/Forum";
 import {
   Keyboard,
@@ -97,6 +88,7 @@ import {
   KeyboardStyleOptions,
 } from "@capacitor/keyboard";
 import { StatusBar, Style } from "@capacitor/status-bar";
+import { getColor, timeout } from '../components/functions';
 
 function User() {
   const timeAgo = new TimeAgo("en-US");
@@ -129,16 +121,14 @@ function User() {
   const [userPosts, setUserPosts] = useState<any[] | null>(null);
   const [editableEmail, setEditableEmail] = useState("");
   const [passwordReAuth, setPasswordReAuth] = useState("");
-  const [editClicked, setEditClicked] = useState<boolean>(true);
-  const [editUserClicked, setEditUserClicked] = useState<boolean>(true);
   const [user, loading, error] = useAuthState(auth);
   const [credentialsModal, setCredentialsModal] = useState<boolean>(false);
   const [lastKey, setLastKey] = useState<any>();
   const [lastLikesKey, setLastLikesKey] = useState<any>();
-  const [noPostsYet, setNoPostsYet] = useState<boolean>(false);
   const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(false);
   const [credentialsUserModal, setCredentialsUserModal] =
     useState<boolean>(false);
+  const [loadingUserPosts, setLoadingUserPosts] = useState<boolean>(false);
   const [profilePhoto, setProfilePhoto] = useState("");
   const [busy, setBusy] = useState<boolean>(false);
   const history = useHistory();
@@ -159,23 +149,6 @@ function User() {
       if (commentModalPost.uid != uid) {
         history.push("home/about/" + uid);
       }
-    }
-  };
-
-  const getColor = (postType: string) => {
-    switch (postType) {
-      case "general":
-        return "#61DBFB";
-      case "alert":
-        return "#ff3e3e";
-      case "buy/Sell":
-        return "#179b59";
-      case "event":
-        return "#fc4ad3";
-      case "sighting":
-        return "#eed202";
-      default:
-        break;
     }
   };
 
@@ -209,21 +182,11 @@ function User() {
   };
 
   const handleChangeEmailString = (e: any) => {
-    setEditClicked(false);
     setEditableEmail(e.detail.value);
   };
 
   const handleChangeUsernameString = (e: any) => {
-    setEditUserClicked(false);
     setEditableUsername(e.detail.value);
-  };
-
-  const handleX = () => {
-    setEditClicked(false);
-  };
-
-  const handleUserX = () => {
-    setEditUserClicked(false);
   };
 
   const handleCheckmark = () => {
@@ -234,7 +197,6 @@ function User() {
     } else {
       Toast.error("No changes made");
     }
-    setEditClicked(false);
   };
 
   const handleUserCheckmark = () => {
@@ -243,16 +205,13 @@ function User() {
     } else {
       Toast.error("No changes made");
     }
-    setEditUserClicked(false);
   };
 
   const promptForCredentials = () => {
-    setEditClicked(false);
     setCredentialsModal(true);
   };
 
   const promptForUsernameCredentials = () => {
-    setEditUserClicked(false);
     setCredentialsUserModal(true);
   };
 
@@ -289,6 +248,7 @@ function User() {
                       .then(() => {
                         setProfilePhoto(url);
                         Toast.success("photo uploaded successfully");
+                        localStorage.setItem("profilePhoto", JSON.stringify(url));
                         setBusy(false);
                       })
                       .catch((err) => {
@@ -308,7 +268,7 @@ function User() {
         }
       }
     } catch (err: any) {
-      Toast.error(err.message.toString());
+      // Toast.error(err.message.toString());
       setBusy(false);
     }
   }
@@ -373,7 +333,7 @@ function User() {
 
   const deletePost = async (index: number) => {
     setDisabledDeleteButton(true);
-    if (userPosts && userPosts.length > 0 && schoolName) {
+    if (userPosts && userPosts.length > 0 && schoolName && index >= 0 && index <= userPosts.length) {
       const postBeingDeleted = userPosts[index];
       const didDelete = promiseTimeout(10000, removePost(postBeingDeleted.key, schoolName));
       didDelete.then((res) => {
@@ -649,11 +609,7 @@ function User() {
       Toast.error("Unable to dislike post :(");
     }
   };
-
-  function timeout(delay: number) {
-    return new Promise((res) => setTimeout(res, delay));
-  }
-
+  
   const fetchMorePosts = () => {
     if (lastKey && user) {
       getNextBatchUserPosts(schoolName, user.uid, lastKey)
@@ -669,6 +625,7 @@ function User() {
         });
     } else {
       setNoMorePosts(true);
+      Toast.warning("No more posts");
     }
   };
 
@@ -717,8 +674,8 @@ function User() {
   };
 
   const loadUserPosts = () => {
-    if (userPosts == null && schoolName && user) {
-      // initial load
+    setLoadingUserPosts(true);
+    if (schoolName && user) {
       const hasLoaded = promiseTimeout(
         5000,
         getUserPosts(schoolName, user.uid)
@@ -728,15 +685,23 @@ function User() {
           //console.log(res.userPosts);
           setUserPosts(res.userPosts);
           setLastKey(res.lastKey);
-        } else {
-          setNoPostsYet(true);
+          setLoadingUserPosts(false);
         }
       });
       hasLoaded.catch((err) => {
         Toast.error(err);
       });
     }
+    setLoadingUserPosts(false);
   };
+
+  useIonViewDidEnter(() => {
+    if (!user) {
+      history.replace("/landing-page");
+    } else {
+
+    }
+  }, [user])
 
   useEffect(() => {
     setBusy(true);
@@ -744,7 +709,12 @@ function User() {
       history.replace("/landing-page");
     } else {
       if (!loading && user) {
-        setProfilePhoto(user.photoURL!);
+        let url = localStorage.getItem("profilePhoto") || "false";
+        if (url == "false") {
+          setProfilePhoto(user.photoURL!);
+        } else {
+          setProfilePhoto(url);
+        }
         setEmail(user.email!);
         setEditableEmail(user.email!);
         setUsername(user.displayName!);
@@ -765,7 +735,7 @@ function User() {
     );
   }
   return (
-    <React.Fragment>
+    <IonPage>
       <IonContent>
         <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
           <IonToolbar mode="ios">
@@ -878,6 +848,9 @@ function User() {
                         color={
                           userPosts &&
                             user &&
+                            commentModalPostIndex >= 0 &&
+                            commentModalPostIndex < userPosts.length &&
+                            "likes" in userPosts[commentModalPostIndex] &&
                             userPosts[commentModalPostIndex].likes[user.uid] !==
                             undefined
                             ? "primary"
@@ -911,9 +884,11 @@ function User() {
                         color={
                           userPosts &&
                             user &&
-                            userPosts[commentModalPostIndex].dislikes[
-                            user.uid
-                            ] !== undefined
+                            commentModalPostIndex >= 0 &&
+                            commentModalPostIndex < userPosts.length &&
+                            "dislikes" in userPosts[commentModalPostIndex] &&
+                            userPosts[commentModalPostIndex].dislikes[user.uid] !==
+                            undefined
                             ? "danger"
                             : "medium"
                         }
@@ -1020,18 +995,17 @@ function User() {
                           <div></div>
                         </IonItem>
                         <IonItem lines="none" mode="ios">
-                          <IonButton mode="ios" fill="outline" color="medium">
+                          <IonButton disabled mode="ios" fill="outline" color="medium">
                             <KeyboardArrowUpIcon />
                             <p>{comment.upVotes} </p>
                           </IonButton>
-                          <IonButton mode="ios" fill="outline" color="medium">
+                          <IonButton disabled mode="ios" fill="outline" color="medium">
                             <KeyboardArrowDownIcon />
                             <p>{comment.downVotes} </p>
                           </IonButton>
                           {user && user.uid === comment.uid ? (
                             <IonFab horizontal="end">
                               <IonButton
-                                disabled
                                 mode="ios"
                                 fill="outline"
                                 color="danger"
@@ -1481,7 +1455,10 @@ function User() {
                                   color={
                                     userPosts &&
                                       user &&
-                                      userPosts[index].likes[user.uid] !==
+                                      commentModalPostIndex >= 0 &&
+                                      commentModalPostIndex < userPosts.length &&
+                                      "likes" in userPosts[commentModalPostIndex] &&
+                                      userPosts[commentModalPostIndex].likes[user.uid] !==
                                       undefined
                                       ? "primary"
                                       : "medium"
@@ -1520,6 +1497,7 @@ function User() {
                                   fill="outline"
                                   color={
                                     userPosts &&
+                                    "dislikes" in userPosts[index] &&
                                       user &&
                                       userPosts[index].dislikes[user.uid] !==
                                       undefined
@@ -1556,6 +1534,13 @@ function User() {
                     })
                     : null}
                 </>
+                {loadingUserPosts ? (
+                  <div style={{ textAlign: "center" }}>
+                    <IonSpinner color="primary" />
+                  </div>
+                ) : (
+                  null
+                )}
                 <FadeIn>
                   <div style={{ display: "flex", justifyContent: "center" }}>
                     <IonButton
@@ -1600,7 +1585,7 @@ function User() {
           </SwiperSlide>
         </Swiper>
       </IonContent>
-    </React.Fragment>
+    </IonPage>
   );
 }
 

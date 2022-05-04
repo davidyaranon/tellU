@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
-import { IonToolbar, IonTabBar, IonHeader, IonFab } from '@ionic/react';
+import { IonHeader } from '@ionic/react';
 import IconButton from '@mui/material/IconButton';
-import logo from '../images/React.webp'
-import FCM from '../images/FCM.png'
 import tellU from '../images/tellU.png';
 import tellU_white from '../images/tellU_white.png';
 import tellU_gray from '../images/tellU_gray.png';
 import '../App.css';
-import { any } from 'prop-types';
-
 export const ionHeaderStyle = {
   textAlign: 'center',
   padding: "5vh",

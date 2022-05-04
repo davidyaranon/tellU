@@ -15,6 +15,8 @@ import {
   IonModal,
   IonToolbar,
   IonTitle,
+  IonPage,
+  useIonViewDidEnter,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import auth from '../fbconfig';
@@ -33,6 +35,8 @@ import UIContext from "../my-context";
 import { useToast } from "@agney/ir-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserState } from "../redux/actions";
+import { FCM } from "@capacitor-community/fcm";
+import { PushNotifications } from "@capacitor/push-notifications";
 
 const Register: React.FC = () => {
   const Toast = useToast();
@@ -103,6 +107,13 @@ const Register: React.FC = () => {
         if (typeof res === "string") {
           Toast.error(res);
         } else {
+            FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
+            PushNotifications.register().then(() => {
+              FCM.subscribeTo({ topic: "commentNotifications" }).then(() => {
+                console.log("subscribed to comment notifications");
+              }).catch((err) => { console.error(err); })
+              FCM.getToken().then((r) => { console.log(r.token); }).catch((err) => console.error(err));
+            });
           dispatch(
             setUserState(
               res!.user.displayName,
@@ -123,7 +134,7 @@ const Register: React.FC = () => {
   const handleUsernameInput = (e : any) => {
       setUserNameSignUp(e.detail.value);
   }
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     setBusy(true);
     if (user) {
       let school = "";
@@ -152,7 +163,7 @@ const Register: React.FC = () => {
   }, [user, loading]);
 
   return (
-    <React.Fragment>
+    <IonPage>
       <IonContent>
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
           <Header darkMode={darkModeToggled} />
@@ -320,7 +331,7 @@ const Register: React.FC = () => {
           </p>
         </IonList>
       </IonContent>
-    </React.Fragment>
+    </IonPage>
   );
 };
 
