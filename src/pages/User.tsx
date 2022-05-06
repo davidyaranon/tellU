@@ -26,6 +26,8 @@ import {
   IonCardTitle,
   IonPage,
   useIonViewDidEnter,
+  IonRow,
+  IonCol,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -45,6 +47,10 @@ import {
   removeComment,
   removePost,
   getUserLikedPostsNextBatch,
+  getUserLikedPosts,
+  getYourPolls,
+  pollVote,
+  getPolls,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -109,6 +115,7 @@ function User() {
   const [comments, setComments] = useState<any[] | null>(null);
   const [comment, setComment] = useState<string>("");
   const Toast = useToast();
+  const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
   const dispatch = useDispatch();
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
@@ -126,9 +133,11 @@ function User() {
   const [lastKey, setLastKey] = useState<any>();
   const [lastLikesKey, setLastLikesKey] = useState<any>();
   const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(false);
+  const [noMoreLikes, setNoMoreLikes] = useState<boolean>(false);
   const [credentialsUserModal, setCredentialsUserModal] =
     useState<boolean>(false);
   const [loadingUserPosts, setLoadingUserPosts] = useState<boolean>(false);
+  const [yourPolls, setYourPolls] = useState<any[]>([]);
   const [profilePhoto, setProfilePhoto] = useState("");
   const [busy, setBusy] = useState<boolean>(false);
   const history = useHistory();
@@ -556,8 +565,8 @@ function User() {
       setBusy(false);
     }
   }
-  const handleUpVote = async (postKey: string, index: number) => {
-    const val = await upVote(schoolName, postKey);
+  const handleUpVote = async (postKey: string, index: number, post: any) => {
+    const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
@@ -583,8 +592,8 @@ function User() {
     }
   };
 
-  const handleDownVote = async (postKey: string, index: number) => {
-    const val = await downVote(schoolName, postKey);
+  const handleDownVote = async (postKey: string, index: number, post: any) => {
+    const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
@@ -609,7 +618,14 @@ function User() {
       Toast.error("Unable to dislike post :(");
     }
   };
-  
+
+  const getTimeLeft = (timestamp: any) => {
+    const time = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+    const today = new Date();
+    const ms = today.getTime() - time.getTime();
+    return (7 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (7 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
+  }
+
   const fetchMorePosts = () => {
     if (lastKey && user) {
       getNextBatchUserPosts(schoolName, user.uid, lastKey)
@@ -631,13 +647,61 @@ function User() {
 
   const fetchMoreLikes = () => {
     if (lastLikesKey && user) {
-      getUserLikedPostsNextBatch(schoolName, user.uid, lastLikesKey).then((res: any) => {
+      console.log("clicked");
+      console.log(lastLikesKey);
+      getUserLikedPostsNextBatch(user.uid, lastLikesKey).then((res: any) => {
+        console.log(res);
         setLastLikesKey(res.lastKey);
         setUserLikedPosts(userLikedPosts?.concat(res.userLikes)!);
-      })
-        .catch((err: any) => {
-          Toast.error(err.message.toString());
-        })
+      }).catch((err: any) => {
+        Toast.error(err.message.toString());
+      });
+    } else {
+      setNoMoreLikes(true);
+    }
+  }
+
+  const loadYourPolls = () => {
+    if (user && schoolName) {
+      const yourPollsLoaded = promiseTimeout(10000, getYourPolls(schoolName, user.uid));
+      yourPollsLoaded.then((res) => {
+        if (res) {
+          setYourPolls(res);
+        } else {
+          Toast.error("Something went wrong when loading your polls");
+        }
+      });
+      yourPollsLoaded.catch((err) => {
+        Toast.error(err + "\n Check your internet connection");
+      });
+    }
+  }
+
+
+  const handlePollVote = async (index: number, pollKey: string) => {
+    if (user && schoolName) {
+      setVoteBeingCasted(true);
+      const castedVote = promiseTimeout(5000, pollVote(schoolName, index, pollKey, user.uid));
+      castedVote.then((res) => {
+        if (res) {
+          Toast.success("Vote casted!");
+          const pollsLoaded = promiseTimeout(10000, getYourPolls(schoolName, user.uid));
+          pollsLoaded.then((res) => {
+            setYourPolls(res);
+            setVoteBeingCasted(false);
+          });
+          pollsLoaded.catch((err) => {
+            Toast.error(err + "\n Check your internet connection");
+          });
+        } else {
+          Toast.error("Something went wrong when casting vote");
+        }
+      });
+      castedVote.catch((err) => {
+        Toast.error(err + '\n Check your internet connection');
+      });
+    } else {
+      Toast.error("Something went wrong when casting a vote");
     }
   }
 
@@ -656,21 +720,21 @@ function User() {
   }
 
   const loadUserLikes = () => {
-    // if(userLikedPosts == null && schoolName && user) {
-    //   const hasLoaded = promiseTimeout(
-    //     5000,
-    //     getUserLikedPosts(schoolName, user.uid)
-    //   );
-    //   hasLoaded.then((res) => {
-    //     if(res.userLikes.length > 0) {
-    //       setUserLikedPosts(res.userLikes);
-    //       setLastLikesKey(res.lastKey);
-    //     }
-    //   });
-    //   hasLoaded.catch((err) => {
-    //     Toast.error(err);
-    //   })
-    // }
+    if (schoolName && user) {
+      const hasLoaded = promiseTimeout(
+        5000,
+        getUserLikedPosts(user.uid)
+      );
+      hasLoaded.then((res) => {
+        if (res) {
+          setUserLikedPosts(res.userLikes);
+          setLastLikesKey(res.lastKey);
+        }
+      });
+      hasLoaded.catch((err) => {
+        Toast.error(err);
+      });
+    }
   };
 
   const loadUserPosts = () => {
@@ -742,7 +806,7 @@ function User() {
             <IonButtons slot="end">
               <IonButton
                 onClick={() => {
-                  history.replace("/privacy-policy");
+                  history.push("/privacy-policy");
                 }}
               >
                 <IonIcon icon={informationCircleOutline}></IonIcon>
@@ -861,7 +925,8 @@ function User() {
                           setDisabledLikeButtons(commentModalPostIndex);
                           handleUpVote(
                             commentModalPost.key,
-                            commentModalPostIndex
+                            commentModalPostIndex,
+                            commentModalPost
                           );
                         }}
                       >
@@ -897,7 +962,8 @@ function User() {
                           setDisabledLikeButtons(commentModalPostIndex);
                           handleDownVote(
                             commentModalPost.key,
-                            commentModalPostIndex
+                            commentModalPostIndex,
+                            commentModalPost
                           );
                         }}
                       >
@@ -1181,6 +1247,9 @@ function User() {
                 loadUserPosts();
                 break;
               case 3:
+                loadYourPolls();
+                break;
+              case 4:
                 loadUserLikes();
                 break;
               default:
@@ -1455,18 +1524,17 @@ function User() {
                                   color={
                                     userPosts &&
                                       user &&
-                                      commentModalPostIndex >= 0 &&
-                                      commentModalPostIndex < userPosts.length &&
-                                      "likes" in userPosts[commentModalPostIndex] &&
-                                      userPosts[commentModalPostIndex].likes[user.uid] !==
-                                      undefined
+                                      index >= 0 &&
+                                      index < userPosts.length &&
+                                      "likes" in userPosts[index] &&
+                                      userPosts[index].likes[user.uid] !== undefined
                                       ? "primary"
                                       : "medium"
                                   }
                                   onClick={() => {
                                     setLikeAnimation(post.key);
                                     setDisabledLikeButtons(index);
-                                    handleUpVote(post.key, index);
+                                    handleUpVote(post.key, index, post);
                                   }}
                                 >
                                   <KeyboardArrowUpIcon />
@@ -1497,7 +1565,7 @@ function User() {
                                   fill="outline"
                                   color={
                                     userPosts &&
-                                    "dislikes" in userPosts[index] &&
+                                      "dislikes" in userPosts[index] &&
                                       user &&
                                       userPosts[index].dislikes[user.uid] !==
                                       undefined
@@ -1507,7 +1575,7 @@ function User() {
                                   onClick={() => {
                                     setDislikeAnimation(post.key);
                                     setDisabledLikeButtons(index);
-                                    handleDownVote(post.key, index);
+                                    handleDownVote(post.key, index, post);
                                   }}
                                 >
                                   <KeyboardArrowDownIcon />
@@ -1571,15 +1639,142 @@ function User() {
                     fontSize: "1.25em",
                   }}
                 >
+                  Your Polls
+                </IonHeader>
+
+                {user && yourPolls ? (
+                  <>
+                    {yourPolls.map((poll) => {
+                      return (
+                        <IonCard mode='ios'>
+                          <IonCardContent style={{ minHeight: "60vh" }}>
+                            <p>{poll.userName}</p>
+                            <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
+                            <br />
+                            <IonList lines="full" mode="ios">
+                              {poll.options.map((option: any, index: number) => {
+                                return (
+                                  <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                    {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
+                                  </IonItem>
+                                )
+                              })}
+                            </IonList>
+                            <IonFab vertical="bottom" horizontal="start">
+                              <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                            </IonFab>
+                          </IonCardContent>
+                        </IonCard>
+                      )
+                    })}
+                  </>) : (<IonSpinner color="primary" className="ion-spinner" />)}
+                {yourPolls && yourPolls.length <= 0 ? (
+                  <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
+                ) : (null)}
+              </div>
+            </IonCard>
+          </SwiperSlide>
+          <SwiperSlide>
+            <IonCard className="user-card">
+              <div>
+                <IonHeader
+                  class="ion-no-border"
+                  style={{
+                    textAlign: "center",
+                    padding: "2vh",
+                    fontSize: "1.25em",
+                  }}
+                >
                   Liked Posts
                 </IonHeader>
-                <IonCard>
-                  <IonCardContent>
-                    <IonCardTitle style={{ fontSize: "0.75em" }}>
-                      WORK IN PROGRESS :)
-                    </IonCardTitle>
-                  </IonCardContent>
-                </IonCard>
+                {userLikedPosts ? (
+                  <FadeIn>
+                    <IonList mode="ios" lines="none" inset>
+                      {userLikedPosts.map((post, index) => {
+                        return (
+                          <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
+                            <IonLabel>
+                              <IonText color="medium">
+                                <IonRow>
+                                  <IonCol size="6">
+                                    <p>
+                                      <IonAvatar
+                                        class="posts-avatar"
+                                      >
+                                        <IonImg src={post?.photoURL!}></IonImg>
+                                      </IonAvatar>
+                                      {post.userName}
+                                    </p>
+                                  </IonCol>
+                                  <IonCol>
+                                    {post.postType && post.postType != "general" ? (
+                                      <IonFab horizontal="end">
+                                        <p
+                                          style={{
+                                            fontWeight: "bold",
+                                            color: getColor(post.postType),
+                                          }}
+                                        >
+                                          {post.postType.toUpperCase()}
+                                        </p>
+                                      </IonFab>
+                                    ) : null}
+                                    <IonFab style={{ bottom: "1vh" }} horizontal="end">
+                                      <IonNote style={{ fontSize: "0.85em" }}>
+                                        {getDate(post.timestamp)}
+                                      </IonNote>
+                                    </IonFab>
+                                  </IonCol>
+                                </IonRow>
+                              </IonText>
+                              <h3
+                                className="h2-message"
+                                style={{
+                                  marginLeft: "4.5%",
+                                  marginTop: "5%",
+                                }}
+                              >
+                                {" "}
+                                {post.message}{" "}
+                              </h3>
+                              {post.imgSrc.length > 0 ? (
+                                <div className="ion-img-container">
+                                  <br></br>
+                                  <IonImg
+                                    className="ion-img-style"
+                                    onClick={() => {
+                                      PhotoViewer.show(post.imgSrc);
+                                    }}
+                                    src={post.imgSrc}
+                                  />
+                                </div>
+                              ) : null}
+                            </IonLabel>
+                          </IonItem>
+                        )
+                      })}
+                    </IonList>
+                  </FadeIn>
+                ) : (null)}
+                {userLikedPosts && userLikedPosts.length <= 0 ? (
+                  <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
+                ) : (null)}
+                <FadeIn>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <IonButton
+                      disabled={noMoreLikes}
+                      color="medium"
+                      mode="ios"
+                      fill="outline"
+                      expand="block"
+                      onClick={() => {
+                        fetchMoreLikes();
+                      }}
+                    >
+                      LOAD MORE LIKES{" "}
+                    </IonButton>
+                  </div>
+                </FadeIn>
               </div>
             </IonCard>
           </SwiperSlide>

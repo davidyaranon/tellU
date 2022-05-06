@@ -1,14 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth, { getOnePost, removeComment } from '../fbconfig';
 import {
-  getUserPosts,
-  getNextBatchUserPosts,
-  getUserData,
-  storage,
   upVote,
   downVote,
   loadComments,
@@ -19,28 +15,22 @@ import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import {
   IonAvatar,
-  IonBackButton,
+
   IonButton,
   IonButtons,
   IonCard,
   IonCardContent,
   IonContent,
   IonFab,
-  IonHeader,
   IonIcon,
   IonImg,
   IonItem,
   IonLabel,
   IonList,
-  IonLoading,
-  IonModal,
-  IonNote,
   IonPage,
-  IonSkeletonText,
   IonSpinner,
   IonText,
   IonTextarea,
-  IonTitle,
   IonToolbar,
   useIonViewDidEnter,
 } from "@ionic/react";
@@ -59,7 +49,6 @@ interface MatchUserPostParams {
 }
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
-  console.log(match.params.key);
   const postKey = match.params.key;
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
@@ -216,8 +205,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     history.push("home/about/" + uid);
   };
 
-  const handleUpVote = async () => {
-    const val = await upVote(schoolName, postKey);
+  const handleUpVote = async (post : any) => {
+    const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
         let tempPost = post;
@@ -243,8 +232,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
-  const handleDownVote = async () => {
-    const val = await downVote(schoolName, postKey);
+  const handleDownVote = async (post : any) => {
+    const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
         let tempPost = post;
@@ -361,7 +350,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       onClick={() => {
                         setLikeAnimation(0);
                         setDisabledLikeButtons(0);
-                        handleUpVote();
+                        handleUpVote(post);
                       }}
                     >
                       <KeyboardArrowUpIcon />
@@ -395,7 +384,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       onClick={() => {
                         setDislikeAnimation(0);
                         setDisabledLikeButtons(0);
-                        handleDownVote();
+                        handleDownVote(post);
                       }}
                     >
                       <KeyboardArrowDownIcon />
@@ -513,7 +502,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </div>
             </FadeIn>
           )}
-
+          <FadeIn>
           <IonTextarea
             color="secondary"
             spellcheck={true}
@@ -541,7 +530,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               Comment
             </IonButton>
           </div>
-
+          </FadeIn>
           <br></br>
         </div>
       </IonContent>

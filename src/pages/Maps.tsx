@@ -242,8 +242,8 @@ function Maps() {
         break;
     }
   };
-  const handleDownVote = async (postKey: string, index: number) => {
-    const val = await downVote(schoolName, postKey);
+  const handleDownVote = async (postKey: string, index: number, post : any) => {
+    const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (markers && user) {
         let tempPosts: any[] = [...markers];
@@ -268,8 +268,8 @@ function Maps() {
       Toast.error("Unable to dislike post :(");
     }
   };
-  const handleUpVote = async (postKey: string, index: number) => {
-    const val = await upVote(schoolName, postKey);
+  const handleUpVote = async (postKey: string, index: number, post : any) => {
+    const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (markers && user) {
         let tempPosts: any[] = [...markers];
@@ -445,7 +445,7 @@ function Maps() {
           duration={0}
           isOpen={commentsBusy}
         ></IonLoading>
-        {/* <IonHeader class="ion-no-border" style={ionHeaderStyle}> */}
+
         <div className="overlaySearch">
           <IonLabel> FILTER: </IonLabel>
           <IonSelect
@@ -562,7 +562,7 @@ function Maps() {
                         onClick={() => {
                           setLikeAnimation(overlayIndex);
                           setDisabledLikeButtons(overlayIndex);
-                          handleUpVote(commentModalPost.key, overlayIndex);
+                          handleUpVote(commentModalPost.key, overlayIndex, commentModalPost);
                         }}
                       >
                         <KeyboardArrowUpIcon />
@@ -594,7 +594,7 @@ function Maps() {
                         onClick={() => {
                           setDislikeAnimation(overlayIndex);
                           setDisabledLikeButtons(overlayIndex);
-                          handleDownVote(commentModalPost.key, overlayIndex);
+                          handleDownVote(commentModalPost.key, overlayIndex, commentModalPost);
                         }}
                       >
                         <KeyboardArrowDownIcon />
@@ -866,14 +866,14 @@ function Maps() {
                         style={{ width: "16vw" }}
                         mode="ios"
                         fill="outline"
-                        onClick={() => {
-                          setDislikeAnimation(markers[overlayIndex].key);
-                          setDisabledLikeButtons(overlayIndex);
-                          handleDownVote(
-                            markers[overlayIndex].key,
-                            overlayIndex
-                          );
-                        }}
+                        // onClick={() => {
+                        //   setDislikeAnimation(markers[overlayIndex].key);
+                        //   setDisabledLikeButtons(overlayIndex);
+                        //   handleDownVote(
+                        //     markers[overlayIndex].key,
+                        //     overlayIndex
+                        //   );
+                        //}}
                         color={
                           markers &&
                             overlayIndex != -1 &&

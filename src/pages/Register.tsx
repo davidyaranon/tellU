@@ -179,7 +179,7 @@ const Register: React.FC = () => {
           showBackdrop={true}
           isOpen={passwordModal}
           onDidDismiss={closeModal}
-          breakpoints={[0, 0.75]}
+          breakpoints={[0, 0.75, 0.95]}
           initialBreakpoint={0.75}
           backdropBreakpoint={0.2}
         >

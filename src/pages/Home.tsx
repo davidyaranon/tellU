@@ -57,6 +57,7 @@ import {
   add,
   arrowBack,
   cameraOutline,
+  shareOutline,
 } from "ionicons/icons";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
@@ -67,12 +68,11 @@ import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
 import { chevronDownCircleOutline, caretUpOutline } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { RefresherEventDetail } from "@ionic/core";
-import MapIcon from "@mui/icons-material/Map";
 import Header, { ionHeaderStyle } from "./Header";
 import IconButton from "@mui/material/IconButton";
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "@agney/ir-toast";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import "../theme/variables.css";
@@ -82,6 +82,8 @@ import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
 import UIContext from "../my-context";
 import { getColor, timeout } from '../components/functions';
+import { Share } from '@capacitor/share';
+
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -166,6 +168,13 @@ function Home() {
     // console.log('ionViewWillLeave event fired');
   });
 
+  const sharePost = async (post: any) => {
+    await Share.share({
+      title: 'Let me tellU about this post I saw by' + post.userName,
+      text: post.message,
+      url: 'tellUapp.com/post/' + post.key,
+    });
+  }
 
   const scrollToTop = () => {
     contentRef.current && contentRef.current.scrollToTop(1500);
@@ -235,8 +244,8 @@ function Home() {
       });
     }
   };
-  const handleUpVote = async (postKey: string, index: number) => {
-    const val = await upVote(schoolName, postKey);
+  const handleUpVote = async (postKey: string, index: number, post : any) => {
+    const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (posts && user) {
         let tempPosts: any[] = [...posts];
@@ -262,8 +271,8 @@ function Home() {
     }
   };
 
-  const handleDownVote = async (postKey: string, index: number) => {
-    const val = await downVote(schoolName, postKey);
+  const handleDownVote = async (postKey: string, index: number, post : any) => {
+    const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (posts && user) {
         let tempPosts: any[] = [...posts];
@@ -607,8 +616,8 @@ function Home() {
               setLocationPinModal(false);
               handleCheckboxChange("general");
             }}
-            breakpoints={[0, 0.9]}
-            initialBreakpoint={0.9}
+            breakpoints={[0, 0.95]}
+            initialBreakpoint={0.95}
             backdropBreakpoint={0.2}
           >
             <IonContent>
@@ -627,7 +636,6 @@ function Home() {
                   </IonButtons>
                 </IonToolbar>
               </IonHeader>
-              <br></br>
               <IonList inset={true} mode="ios">
                 <IonListHeader mode="ios">Select One</IonListHeader>
                 <IonItem lines="none" mode="ios">
@@ -711,11 +719,6 @@ function Home() {
                 </IonItem>
               </IonList>
               <div className="ion-button-container">
-                <p>
-                  {" "}
-                  *Adding a pin uses your current location, and is visible for
-                  up to two days in the {<MapIcon />} tab
-                </p>
                 <IonButton
                   onClick={() => {
                     handleSendMessage();
@@ -734,59 +737,58 @@ function Home() {
           </IonModal>
 
           <IonModal backdropDismiss={false} isOpen={showModal}>
-            <div className="ion-modal">
-              <IonTextarea
-                color="secondary"
-                maxlength={250}
-                style={ionInputStyle}
-                value={message}
-                placeholder="Start typing..."
-                id="message"
-                onIonChange={(e: any) => {
-                  handleChange(e);
-                }}
-              ></IonTextarea>
-              <IconButton onClick={takePicture}>
-                <IonFabButton mode="ios" color="medium">
-                  <IonIcon icon={cameraOutline} />
-                </IonFabButton>
-              </IconButton>
-              <IonFab style={{ top: "15.7vh" }} horizontal="end">
-                <IonButton
-                  onClick={() => {
-                    setPhoto(null);
-                    setBlob(null);
-                    setShowModal(false);
-                  }}
-                  color="danger"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  id="close"
-                >
-                  {" "}
-                  Close{" "}
-                </IonButton>
-                <IonButton
-                  onClick={() => {
-                    handlePostOptions();
-                  }}
-                  color="transparent"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
+            <IonContent>
+              <div className="ion-modal">
+                <IonToolbar mode="ios">
+                  <IonButtons slot="start">
+                    <IonButton
+                      onClick={() => {
+                        setPhoto(null);
+                        setBlob(null);
+                        setShowModal(false);
+                      }}
+                    >
+                      <IonIcon icon={arrowBack}></IonIcon> Back
+                    </IonButton>
+                  </IonButtons>
+                </IonToolbar>
+                <br />
+                <IonTextarea
+                  color="secondary"
+                  maxlength={250}
+                  style={ionInputStyle}
+                  value={message}
+                  placeholder="Start typing..."
                   id="message"
-                >
-                  Send
-                </IonButton>
-              </IonFab>
-              <br></br>
-              <br></br>
-              <br></br>
-              <IonCard>
-                <IonImg src={photo?.webPath} />
-              </IonCard>
-            </div>
+                  onIonChange={(e: any) => {
+                    handleChange(e);
+                  }}
+                ></IonTextarea>
+                <IonFab style={{ textAlign: "center", alignItems: "center", alignSelf: "center", display: "flex" }}>
+                  <IonButton onClick={takePicture} mode="ios" color="medium">
+                    <IonIcon icon={cameraOutline} />
+                  </IonButton>
+                  <IonButton
+                    onClick={() => {
+                      handlePostOptions();
+                    }}
+                    color="transparent"
+                    mode="ios"
+                    shape="round"
+                    fill="outline"
+                    id="message"
+                  >
+                    Send
+                  </IonButton>
+                </IonFab>
+                <br></br>
+                <br></br>
+                <br></br>
+                <IonCard>
+                  <IonImg src={photo?.webPath} />
+                </IonCard>
+              </div>
+            </IonContent>
           </IonModal>
 
           <IonFab vertical="bottom" horizontal="end" slot="fixed">
@@ -930,7 +932,8 @@ function Home() {
                               setDisabledLikeButtons(commentModalPostIndex);
                               handleUpVote(
                                 commentModalPost.key,
-                                commentModalPostIndex
+                                commentModalPostIndex,
+                                commentModalPost
                               );
                             }}
                           >
@@ -969,7 +972,8 @@ function Home() {
                               setDisabledLikeButtons(commentModalPostIndex);
                               handleDownVote(
                                 commentModalPost.key,
-                                commentModalPostIndex
+                                commentModalPostIndex,
+                                commentModalPost,
                               );
                             }}
                           >
@@ -1091,7 +1095,7 @@ function Home() {
                     </div>
                   </FadeIn>
                 )}
-
+                <FadeIn>
                 <IonTextarea
                   color="secondary"
                   spellcheck={true}
@@ -1119,7 +1123,7 @@ function Home() {
                     Comment
                   </IonButton>
                 </div>
-
+                </FadeIn>
                 <br></br>
               </div>
             </IonContent>
@@ -1209,7 +1213,7 @@ function Home() {
                       onClick={() => {
                         setLikeAnimation(post.key);
                         setDisabledLikeButtons(index);
-                        handleUpVote(post.key, index);
+                        handleUpVote(post.key, index, post);
                       }}
                     >
                       <KeyboardArrowUpIcon />
@@ -1240,7 +1244,7 @@ function Home() {
                         index != -1 &&
                           posts &&
                           posts[index] &&
-                          "dislikes" in posts[index] && 
+                          "dislikes" in posts[index] &&
                           user &&
                           posts[index].dislikes[user.uid] !== undefined
                           ? "danger"
@@ -1249,11 +1253,14 @@ function Home() {
                       onClick={() => {
                         setDislikeAnimation(post.key);
                         setDisabledLikeButtons(index);
-                        handleDownVote(post.key, index);
+                        handleDownVote(post.key, index, post);
                       }}
                     >
                       <KeyboardArrowDownIcon />
                       <p>{post.downVotes} </p>
+                    </IonButton>
+                    <IonButton color="medium" slot="end" onClick={() => { sharePost(post); }}>
+                      <IonIcon icon={shareOutline} />
                     </IonButton>
                   </IonItem>
                 </IonList>

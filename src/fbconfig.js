@@ -23,6 +23,7 @@ import {
   arrayRemove,
   addDoc,
   deleteDoc,
+  writeBatch,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -111,6 +112,7 @@ export async function registerWithEmailAndPassword(
       });
       try {
         await setDoc(doc(db, "userData", user.uid.toString()), {
+          likes: [],
           userName: name,
           userEmail: email,
           uid: user.uid,
@@ -255,6 +257,26 @@ export async function checkUsernameUniqueness(userName) {
   }
 }
 
+export const getYourPolls = async (schoolName, userUid) => {
+  try {
+    if (auth && db) {
+      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
+      const q = query(pollsRef, where("uid", "==", userUid), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      let yourPolls = [];
+      const docs = querySnapshot.docs;
+      for (const doc of docs) {
+        yourPolls.push({
+          ...doc.data(),
+        });
+      }
+      return yourPolls;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export async function getAllPosts(schoolName) {
   try {
     if (auth.currentUser != null && db) {
@@ -264,7 +286,7 @@ export async function getAllPosts(schoolName) {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(250));
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(300));
       const querySnapshot = await getDocs(q);
       const tempArr = [];
       const docs = querySnapshot.docs;
@@ -293,20 +315,15 @@ export const promiseTimeout = function (ms, promise) {
   return Promise.race([promise, timeout]);
 };
 
-export const getUserLikedPosts = async (schoolName, uid) => {
+export const getUserLikedPosts = async (uid) => {
   try {
-    const allPostsRef = collection(
-      db,
-      "schoolPosts",
-      schoolName.replace(/\s+/g, ""),
-      "allPosts"
-    );
-    const q = query(allPostsRef, orderBy("timestamp", "desc"), where(`likes.${uid}`, "==", true), limit(1));
+    const userLikesRef = collection(db, "userData", uid, "likes");
+    const q = query(userLikesRef, orderBy("timestamp", "desc"), limit(10));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";
     const docs = querySnapshot.docs;
-    for (const doc of docs) {
+    for(const doc of docs){
       userLikes.push({
         ...doc.data(),
         key: doc.id,
@@ -319,20 +336,15 @@ export const getUserLikedPosts = async (schoolName, uid) => {
   }
 }
 
-export const getUserLikedPostsNextBatch = async (schoolName, uid, key) => {
+export const getUserLikedPostsNextBatch = async (uid, key) => {
   try {
-    const allPostsRef = collection(
-      db,
-      "schoolPosts",
-      schoolName.replace(/\s+/g, ""),
-      "allPosts"
-    );
-    const q = query(allPostsRef, orderBy("timestamp", "desc"), where(`likes.${uid}`, "==", true), startAfter(key), limit(1));
+    const userLikesRef = collection(db, "userData", uid, "likes");
+    const q = query(userLikesRef, orderBy("timestamp", "desc"), startAfter(key), limit(10));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";
     const docs = querySnapshot.docs;
-    for (const doc of docs) {
+    for(const doc of docs){
       userLikes.push({
         ...doc.data(),
         key: doc.id,
@@ -349,7 +361,7 @@ export const getUserPosts = async (schoolName, uid) => {
   try {
     if (db) {
       const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(5));
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(10));
       const qSnap = await getDocs(q);
       let userPosts = [];
       let lastKey = "";
@@ -372,7 +384,7 @@ export const getNextBatchUserPosts = async (schoolName, uid, key) => {
   try {
     if (db) {
       const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(5));
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(10));
       const qSnap = await getDocs(q);
       let userPosts = [];
       let lastKey = "";
@@ -402,7 +414,7 @@ export const getOnePost = async (postKey, schoolName) => {
         postKey
       );
       const snap = await getDoc(postDocRef);
-      if(snap.exists) {
+      if (snap.exists) {
         return snap.data();
       }
     }
@@ -422,6 +434,7 @@ export const getUserData = async (uid) => {
       for (const doc of docs) {
         temp.push({
           ...doc.data(),
+          key: doc.id,
         });
       }
       return temp;
@@ -460,21 +473,72 @@ export const getNextBatchUsers = async (key) => {
   }
 };
 
-export const getTopWeeklyPosts = async (schoolName) => {
-  try{  
-    if(auth && db) {
+export const getPolls = async (schoolName) => {
+  try {
+    if (auth && db) {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setHours(0, 0, 0, 0);
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const tomorrow = new Date();
       tomorrow.setHours(24, 0, 0, 0);
       tomorrow.setDate(sevenDaysAgo.getDate() + 9);
-      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts" );
+      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
+      const q = query(pollsRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      let polls = [];
+      const docs = querySnapshot.docs;
+      for (const doc of docs) {
+        polls.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+      }
+      return polls;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const submitPollFb = async (pollText, pollOptions, schoolName, userName, userUid) => {
+  try {
+    if (auth && db) {
+      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
+      await addDoc(pollsRef, {
+        question: pollText,
+        options: pollOptions,
+        userName: userName,
+        timestamp: serverTimestamp(),
+        votes: 0,
+        voteMap: {},
+        results: [0, 0, 0, 0, 0, 0],
+        uid: userUid,
+      }).catch((err) => {
+        console.log(err);
+        return false;
+      });
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const getTopWeeklyPosts = async (schoolName) => {
+  try {
+    if (auth && db) {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const tomorrow = new Date();
+      tomorrow.setHours(24, 0, 0, 0);
+      tomorrow.setDate(sevenDaysAgo.getDate() + 9);
+      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
       const q = query(allPostsRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), limit(15));
       const querySnapshot = await getDocs(q);
       let topWeeklyPosts = [];
       const docs = querySnapshot.docs;
-      for(const doc of docs){
+      for (const doc of docs) {
         topWeeklyPosts.push({
           key: doc.id,
           data: doc.data(),
@@ -482,7 +546,7 @@ export const getTopWeeklyPosts = async (schoolName) => {
       }
       return topWeeklyPosts;
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }
@@ -513,9 +577,37 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
   }
 };
 
-export const upVote = async (schoolName, postKey) => {
+export const pollVote = async (schoolName, index, postKey, userUid) => {
+  try {
+    if (auth && db) {
+      console.log(postKey);
+      console.log(index);
+      console.log(schoolName);
+      console.log(userUid);
+      const pollsDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls", postKey);
+      const snap = await getDoc(pollsDocRef);
+      if (snap.exists) {
+        if ("voteMap" in snap.data() && snap.data().voteMap[userUid] === undefined) {
+          let tempResults = [...snap.data().results];
+          tempResults[index] += 1;
+          await updateDoc(pollsDocRef, {
+            [`voteMap.${userUid}`]: index,
+            votes: increment(1),
+            results: tempResults,
+          }).catch((err) => { console.log(err); });
+          return true;
+        }
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const upVote = async (schoolName, postKey, post) => {
   try {
     if (auth && auth.currentUser) {
+      const batch = writeBatch(db);
       const userUid = auth.currentUser.uid;
       const postDocRef = doc(
         db,
@@ -524,32 +616,47 @@ export const upVote = async (schoolName, postKey) => {
         "allPosts",
         postKey
       );
+      const userLikesDocRef = doc(
+        db,
+        "userData",
+        userUid,
+        "likes",
+        postKey
+      );
       const snap = await getDoc(postDocRef);
       if (snap.exists) {
         if (snap.data().likes[userUid]) {
-          await updateDoc(postDocRef, {
+          batch.update(postDocRef, {
             [`likes.${userUid}`]: deleteField(),
             upVotes: increment(-1),
           });
+          batch.delete(userLikesDocRef);
+          await batch.commit().catch((err) => { console.log(err); });
           return -1;
         } else {
           if (snap.data().dislikes[userUid]) {
-            await updateDoc(postDocRef, {
+            batch.update(postDocRef, {
               [`dislikes.${userUid}`]: deleteField(),
               likes: { [`${userUid}`]: true },
               upVotes: increment(1),
               downVotes: increment(-1),
             });
           } else {
-            await setDoc(
-              postDocRef,
-              {
-                likes: { [`${userUid}`]: true },
-                upVotes: increment(1),
-              },
-              { merge: true }
-            );
+            batch.update(postDocRef, {
+              likes: { [`${userUid}`]: true },
+              upVotes: increment(1),
+            });
           }
+          batch.set(userLikesDocRef, {
+            imgSrc: post.imgSrc,
+            message: post.message,
+            photoURL: post.photoURL,
+            timestamp: post.timestamp,
+            uid: post.uid,
+            userName: post.userName,
+            postType: post.postType,
+          });
+          await batch.commit().catch((err) => { console.log(err); });
           return 1;
         }
       }
@@ -559,10 +666,11 @@ export const upVote = async (schoolName, postKey) => {
   }
 };
 
-export const downVote = async (schoolName, postKey) => {
+export const downVote = async (schoolName, postKey, post) => {
   try {
     if (auth && auth.currentUser) {
       const userUid = auth.currentUser.uid;
+      const batch = writeBatch(db);
       const postDocRef = doc(
         db,
         "schoolPosts",
@@ -570,36 +678,43 @@ export const downVote = async (schoolName, postKey) => {
         "allPosts",
         postKey
       );
+      const userLikesDocRef = doc(
+        db,
+        "userData",
+        userUid,
+        "likes",
+        postKey
+      );
       const snap = await getDoc(postDocRef);
       if (snap.exists) {
         if (snap.data().dislikes[userUid]) {
-          await updateDoc(postDocRef, {
+          batch.update(postDocRef, {
             [`dislikes.${userUid}`]: deleteField(),
             downVotes: increment(-1),
           });
+          await batch.commit().catch((err) => { console.log(err); });
           return -1;
         } else {
           if (snap.data().likes[userUid]) {
-            await updateDoc(
+            batch.update(
               postDocRef,
               {
                 dislikes: { [`${userUid}`]: true },
                 downVotes: increment(1),
                 [`likes.${userUid}`]: deleteField(),
                 upVotes: increment(-1),
-              },
-              { merge: true }
+              }
             );
+            batch.delete(userLikesDocRef);
           } else {
-            await setDoc(
+            batch.update(
               postDocRef,
               {
                 dislikes: { [`${userUid}`]: true },
                 downVotes: increment(1),
-              },
-              { merge: true }
-            );
+              });
           }
+          await batch.commit().catch((err) => { console.log(err); });
           return 1;
         }
       }

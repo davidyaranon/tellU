@@ -183,8 +183,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   //   });
   //   return "";
   // }
-  const handleUpVote = async (postKey: string, index: number) => {
-    const val = await upVote(schoolName, postKey);
+  const handleUpVote = async (postKey: string, index: number, post : any) => {
+    const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
@@ -214,8 +214,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   //     PhotoViewer.show(src);
   //   });
   // };
-  const handleDownVote = async (postKey: string, index: number) => {
-    const val = await downVote(schoolName, postKey);
+  const handleDownVote = async (postKey: string, index: number, post : any) => {
+    const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
@@ -289,7 +289,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               .then((res: any) => {
                 // first batch
                 if (res.userPosts.length > 0) {
-                  console.log(res.userPosts);
+                  // console.log(res.userPosts);
                   setUserPosts(res.userPosts);
                   setLastKey(res.lastKey);
                 } else {
@@ -452,7 +452,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                             setDisabledLikeButtons(commentModalPostIndex);
                             handleUpVote(
                               commentModalPost.key,
-                              commentModalPostIndex
+                              commentModalPostIndex,
+                              commentModalPost
                             );
                           }}
                         >
@@ -488,7 +489,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                             setDisabledLikeButtons(commentModalPostIndex);
                             handleDownVote(
                               commentModalPost.key,
-                              commentModalPostIndex
+                              commentModalPostIndex,
+                              commentModalPost
                             );
                           }}
                         >
@@ -841,7 +843,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               onClick={() => {
                                 setLikeAnimation(post.key);
                                 setDisabledLikeButtons(index);
-                                handleUpVote(post.key, index);
+                                handleUpVote(post.key, index, post);
                               }}
                             >
                               <KeyboardArrowUpIcon />
@@ -881,7 +883,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               onClick={() => {
                                 setDislikeAnimation(post.key);
                                 setDisabledLikeButtons(index);
-                                handleDownVote(post.key, index);
+                                handleDownVote(post.key, index, post);
                               }}
                             >
                               <KeyboardArrowDownIcon />
