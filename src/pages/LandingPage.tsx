@@ -31,6 +31,7 @@ const LandingPage: React.FC = () => {
   async function logIn() {
     if (emailSignIn.trim().length == 0 || passwordSignIn.length == 0) {
       Toast.error("Enter both an email and a password");
+      setLoggingIn(false);
     }
     else {
       const didLogIn = promiseTimeout(10000, logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn));

@@ -803,6 +803,17 @@ function User() {
       <IonContent>
         <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
           <IonToolbar mode="ios">
+            <IonButtons slot="start">
+            <IonButton
+                  onClick={loadLogout}
+                  color="danger"
+                  mode="ios"
+                  fill="outline"
+                  id="logout"
+                >
+                  Logout
+                </IonButton>
+            </IonButtons>
             <IonButtons slot="end">
               <IonButton
                 onClick={() => {
@@ -1262,6 +1273,7 @@ function User() {
               <IonHeader
                 class="ion-no-border"
                 style={{
+                  padding: "2vh",
                   textAlign: "center",
                   fontSize: "1.25em",
                 }}
@@ -1341,28 +1353,6 @@ function User() {
                   />
                 </IonItem>
               </IonList>
-              <div className="ion-button-container">
-                <IonButton
-                  onClick={loadLogout}
-                  color="danger"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  id="logout"
-                >
-                  Logout
-                </IonButton>
-                <IonButton
-                  disabled={true}
-                  color="danger"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  id="deleteAccount"
-                >
-                  Delete Account
-                </IonButton>
-              </div>
             </IonCard>
           </SwiperSlide>
           <SwiperSlide>
@@ -1641,7 +1631,7 @@ function User() {
                 >
                   Your Polls
                 </IonHeader>
-
+                <div>
                 {user && yourPolls ? (
                   <>
                     {yourPolls.map((poll) => {
@@ -1668,6 +1658,7 @@ function User() {
                       )
                     })}
                   </>) : (<IonSpinner color="primary" className="ion-spinner" />)}
+                  </div>
                 {yourPolls && yourPolls.length <= 0 ? (
                   <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
                 ) : (null)}

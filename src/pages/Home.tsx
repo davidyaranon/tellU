@@ -83,6 +83,7 @@ import en from "javascript-time-ago/locale/en.json";
 import UIContext from "../my-context";
 import { getColor, timeout } from '../components/functions';
 import { Share } from '@capacitor/share';
+import Map from "@mui/icons-material/Map";
 
 
 TimeAgo.setDefaultLocale(en.locale);
@@ -320,10 +321,14 @@ function Home() {
   };
 
   const getDate = (timestamp: any) => {
-    const time = new Date(
-      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-    );
-    return timeAgo.format(time);
+    if("seconds" in timestamp && "nanoseconds" in timestamp){
+      const time = new Date(
+        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+      );
+      return timeAgo.format(time);
+    } else {
+      return '';
+    }
   };
 
   const handleCheckboxChange = (checkbox: string) => {
@@ -706,7 +711,7 @@ function Home() {
               </IonList>
               <IonList inset={true} mode="ios">
                 <IonItem mode="ios" lines="none">
-                  <IonLabel> Add pin to map?* </IonLabel>
+                  <IonLabel> Add pin to map?</IonLabel><Map />
                   <IonCheckbox
                     slot="start"
                     checked={locationChecked}
@@ -1129,7 +1134,7 @@ function Home() {
             </IonContent>
           </IonModal>
 
-          {posts!.length > 0 ? (
+          {posts && posts.length > 0 ? (
             posts?.map((post, index) => (
               <FadeIn key={post.key}>
                 <IonList inset={true} mode="ios">
