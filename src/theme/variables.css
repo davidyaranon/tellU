@@ -209,6 +209,8 @@ body {
   --ion-tab-bar-background: #1f1f1f;
 
   --ion-card-background: #2f2f2f;
+
+  --ion-text-area-background: #000000 !important;
   
 }
 

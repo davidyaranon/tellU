@@ -95,6 +95,7 @@ import {
 } from "@capacitor/keyboard";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { getColor, timeout } from '../components/functions';
+import UIContext from "../my-context";
 
 function User() {
   const timeAgo = new TimeAgo("en-US");
@@ -109,6 +110,7 @@ function User() {
     useState<number>(-1);
   const [commentModalPostDownvotes, setCommentModalPostDownvotes] =
     useState<number>(-1);
+  const { setShowTabs } = React.useContext(UIContext);
   const [commentModalPost, setCommentModalPost] = useState<any | null>(null);
   const [showCommentModal, setShowCommentModal] = useState<boolean>(false);
   const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
@@ -397,6 +399,7 @@ function User() {
               }
             }
             setComments(tempComments);
+            Toast.success("Comment deleted");
             //console.log(tempComments);
           }
           setCommentsLoading(false);
@@ -760,6 +763,7 @@ function User() {
   };
 
   useIonViewDidEnter(() => {
+    setShowTabs(true);
     if (!user) {
       history.replace("/landing-page");
     } else {
@@ -804,15 +808,15 @@ function User() {
         <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
           <IonToolbar mode="ios">
             <IonButtons slot="start">
-            <IonButton
-                  onClick={loadLogout}
-                  color="danger"
-                  mode="ios"
-                  fill="outline"
-                  id="logout"
-                >
-                  Logout
-                </IonButton>
+              <IonButton
+                onClick={loadLogout}
+                color="danger"
+                mode="ios"
+                fill="outline"
+                id="logout"
+              >
+                Logout
+              </IonButton>
             </IonButtons>
             <IonButtons slot="end">
               <IonButton
@@ -846,6 +850,28 @@ function User() {
 
         <IonModal backdropDismiss={false} isOpen={showCommentModal}>
           <IonContent>
+            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+              <IonTextarea
+                rows={4}
+                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                color="secondary"
+                spellcheck={true}
+                maxlength={200}
+                value={comment}
+                placeholder="Leave a comment..."
+                id="commentModal"
+                onIonChange={(e: any) => {
+                  handleChangeComment(e);
+                }}
+                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+              ></IonTextarea>
+              <IonRow>
+                <IonCol></IonCol>
+                <IonCol>
+                  <IonButton onClick={() => { handleCommentSubmit(commentModalPost.key); }} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign: "center" }} fill="outline" >Comment</IonButton>
+                </IonCol>
+                <IonCol></IonCol>
+              </IonRow>            </div>
             <div className="ion-modal">
               <IonToolbar mode="ios">
                 <IonButtons slot="start">
@@ -999,8 +1025,7 @@ function User() {
                   ) : null}
                 </div>
               ) : null}
-              <p style={{ textAlign: "center" }}>Comments</p>
-              <br></br>
+
               {commentsLoading && !comments ? (
                 <div
                   style={{
@@ -1100,36 +1125,9 @@ function User() {
                     : null}
                 </div>
               )}
-
-              <IonTextarea
-                color="secondary"
-                spellcheck={true}
-                maxlength={200}
-                style={ionInputStyle}
-                value={comment}
-                placeholder="Leave a comment..."
-                id="message"
-                onIonChange={(e: any) => {
-                  handleChangeComment(e);
-                }}
-              ></IonTextarea>
-              <div className="ion-button-container">
-                <IonButton
-                  color="transparent"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  expand="block"
-                  id="signUpButton"
-                  onClick={() => {
-                    handleCommentSubmit(commentModalPost.key);
-                  }}
-                >
-                  Comment
-                </IonButton>
+              <div style={{ height: "25vh" }}>
+                <p style={{ textAlign: "center" }}>&#183; </p>
               </div>
-              <wbr></wbr>
-              <br></br>
             </div>
           </IonContent>
         </IonModal>
@@ -1632,33 +1630,33 @@ function User() {
                   Your Polls
                 </IonHeader>
                 <div>
-                {user && yourPolls ? (
-                  <>
-                    {yourPolls.map((poll) => {
-                      return (
-                        <IonCard mode='ios'>
-                          <IonCardContent style={{ minHeight: "60vh" }}>
-                            <p>{poll.userName}</p>
-                            <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
-                            <br />
-                            <IonList lines="full" mode="ios">
-                              {poll.options.map((option: any, index: number) => {
-                                return (
-                                  <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
-                                    {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
-                                  </IonItem>
-                                )
-                              })}
-                            </IonList>
-                            <IonFab vertical="bottom" horizontal="start">
-                              <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                            </IonFab>
-                          </IonCardContent>
-                        </IonCard>
-                      )
-                    })}
-                  </>) : (<IonSpinner color="primary" className="ion-spinner" />)}
-                  </div>
+                  {user && yourPolls ? (
+                    <>
+                      {yourPolls.map((poll) => {
+                        return (
+                          <IonCard mode='ios'>
+                            <IonCardContent style={{ minHeight: "60vh" }}>
+                              <p>{poll.userName}</p>
+                              <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
+                              <br />
+                              <IonList lines="full" mode="ios">
+                                {poll.options.map((option: any, index: number) => {
+                                  return (
+                                    <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                      {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
+                                    </IonItem>
+                                  )
+                                })}
+                              </IonList>
+                              <IonFab vertical="bottom" horizontal="start">
+                                <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                              </IonFab>
+                            </IonCardContent>
+                          </IonCard>
+                        )
+                      })}
+                    </>) : (<IonSpinner color="primary" className="ion-spinner" />)}
+                </div>
                 {yourPolls && yourPolls.length <= 0 ? (
                   <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
                 ) : (null)}

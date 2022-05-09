@@ -92,6 +92,7 @@ interface PollAnswer {
 function Community() {
   const schoolName = useSelector((state: any) => state.user.school);
   const Toast = useToast();
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const [topPosts, setTopPosts] = useState<any[]>([]);
   const [topWeeklyPosts, setTopWeeklyPosts] = useState<any[]>([]);
   const timeAgo = new TimeAgo("en-US");
@@ -545,6 +546,29 @@ function Community() {
 
         <IonModal backdropDismiss={false} isOpen={showModalComment}>
           <IonContent>
+          <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+                <IonTextarea
+                  rows={4}
+                  style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                  color="secondary"
+                  spellcheck={true}
+                  maxlength={200}
+                  value={comment}
+                  placeholder="Leave a comment..."
+                  id="commentModal"
+                  onIonChange={(e: any) => {
+                    handleChangeComment(e);
+                  }}
+                  className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+                ></IonTextarea>
+                <IonRow>
+                  <IonCol></IonCol>
+                  <IonCol>
+                  <IonButton onClick={() => {handleCommentSubmit(commentModalPost.key);}} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign:"center" }} fill="outline" >Comment</IonButton>
+                  </IonCol>
+                  <IonCol></IonCol>
+                </IonRow>
+              </div>
             <div className="ion-modal">
               <IonToolbar mode="ios">
                 <IonButtons slot="start">
@@ -717,8 +741,6 @@ function Community() {
                   </div>
                 </FadeIn>
               ) : null}
-              <p style={{ textAlign: "center" }}>Comments</p>
-              <br></br>
               {commentsLoading || !comments ? (
                 <div
                   style={{
@@ -812,40 +834,14 @@ function Community() {
                   </div>
                 </FadeIn>
               )}
-              <IonTextarea
-                color="secondary"
-                spellcheck={true}
-                maxlength={200}
-                style={pollInputStyle}
-                value={comment}
-                placeholder="Leave a comment..."
-                id="message"
-                onIonChange={(e: any) => {
-                  handleChangeComment(e);
-                }}
-              ></IonTextarea>
-              <div className="ion-button-container">
-                <IonButton
-                  color="transparent"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  expand="block"
-                  id="signUpButton"
-                  onClick={() => {
-                    handleCommentSubmit(commentModalPost.key);
-                  }}
-                >
-                  Comment
-                </IonButton>
-              </div>
-              <wbr></wbr>
-              <br></br>
+              <div style={{height: "25vh"}}>
+                  <p style={{textAlign:"center"}}>&#183; </p> 
+                </div>
             </div>
           </IonContent>
         </IonModal>
 
-        {(polls && polls.length <= 0) && ( topPosts && topPosts.length <= 0 )&& ( topWeeklyPosts && topWeeklyPosts.length <= 0 ) ? (
+        {(polls && polls.length <= 0) && (topPosts && topPosts.length <= 0) && (topWeeklyPosts && topWeeklyPosts.length <= 0) ? (
           <>
             <IonSpinner className='ion-spinner' color="primary" />
           </>

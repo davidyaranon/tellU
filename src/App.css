@@ -290,6 +290,14 @@ ion-toolbar {
   left: 0px;
 }
 
+.text-area-dark{
+  background: #121212;
+}
+
+.text-area-light{
+  background: #FFFFFF;
+}
+
 .ion-button-container {
   max-height: 25vh;
   max-width: 90vw;

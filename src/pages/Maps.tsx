@@ -62,7 +62,7 @@ import { timeout } from "../components/functions";
 
 
 const schoolInfo = {
-  "Cal Poly Humboldt" : [40.875130691835615, -124.07857275064532, 16.25],
+  "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 16.25],
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
   "UC Davis": [38.53906813693881, -121.7519863294826, 15],
   "UC Irvine": [33.642798513829284, -117.83657521816043, 14.5],
@@ -78,6 +78,7 @@ const schoolInfo = {
 
 function Maps() {
   const Toast = useToast();
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const [user, loading, error] = useAuthState(auth);
   const [busy, setBusy] = useState<boolean>(false);
@@ -125,7 +126,7 @@ function Maps() {
   }, [user, schoolName]);
 
   useEffect(() => {
-    if(!user) {
+    if (!user) {
       history.replace("/landing-page");
     } else {
       getSchoolLocation();
@@ -242,7 +243,7 @@ function Maps() {
         break;
     }
   };
-  const handleDownVote = async (postKey: string, index: number, post : any) => {
+  const handleDownVote = async (postKey: string, index: number, post: any) => {
     const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (markers && user) {
@@ -268,7 +269,7 @@ function Maps() {
       Toast.error("Unable to dislike post :(");
     }
   };
-  const handleUpVote = async (postKey: string, index: number, post : any) => {
+  const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (markers && user) {
@@ -429,7 +430,7 @@ function Maps() {
   const handleUserPageNavigation = (uid: string) => {
     history.push("home/about/" + uid);
   };
-  
+
   return (
     <IonPage>
       <IonContent fullscreen={true}>
@@ -469,6 +470,28 @@ function Maps() {
 
         <IonModal backdropDismiss={false} isOpen={showModalComment}>
           <IonContent>
+            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+              <IonTextarea
+                rows={4}
+                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                color="secondary"
+                spellcheck={true}
+                maxlength={200}
+                value={comment}
+                placeholder="Leave a comment..."
+                id="commentModal"
+                onIonChange={(e: any) => {
+                  handleChangeComment(e);
+                }}
+                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+              ></IonTextarea>
+              <IonRow>
+                <IonCol></IonCol>
+                <IonCol>
+                  <IonButton onClick={() => { handleCommentSubmit(commentModalPost.key); }} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign: "center" }} fill="outline" >Comment</IonButton>
+                </IonCol>
+                <IonCol></IonCol>
+              </IonRow>              </div>
             <div className="ion-modal">
               <IonToolbar mode="ios">
                 <IonButtons slot="start">
@@ -482,9 +505,7 @@ function Maps() {
                   </IonButton>
                 </IonButtons>
               </IonToolbar>
-              <br></br>
-              <br></br>
-              <br></br>
+
               {commentModalPost ? (
                 <div>
                   <IonList inset={true}>
@@ -618,7 +639,7 @@ function Maps() {
                   ) : null}
                 </div>
               ) : null}
-              <p style={{ textAlign: "center" }}>Comments</p>
+
               {commentsLoading || !comments ? (
                 <div
                   style={{
@@ -713,36 +734,9 @@ function Maps() {
                   </div>
                 </FadeIn>
               )}
-
-              <IonTextarea
-                color="secondary"
-                spellcheck={true}
-                maxlength={200}
-                style={ionInputStyle}
-                value={comment}
-                placeholder="Leave a comment..."
-                id="message"
-                onIonChange={(e: any) => {
-                  handleChangeComment(e);
-                }}
-              ></IonTextarea>
-              <div className="ion-button-container">
-                <IonButton
-                  color="transparent"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  expand="block"
-                  id="signUpButton"
-                  onClick={() => {
-                    handleCommentSubmit(commentModalPost.key);
-                  }}
-                >
-                  Comment
-                </IonButton>
+              <div style={{ height: "25vh" }}>
+                <p style={{ textAlign: "center" }}>&#183; </p>
               </div>
-              <wbr></wbr>
-              <br></br>
             </div>
           </IonContent>
         </IonModal>

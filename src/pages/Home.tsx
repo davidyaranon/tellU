@@ -33,6 +33,8 @@ import {
   useIonViewWillEnter,
   useIonViewWillLeave,
   IonPage,
+  IonInput,
+  IonItemDivider,
 } from "@ionic/react";
 import auth, { removeComment } from "../fbconfig";
 import {
@@ -98,6 +100,7 @@ defineCustomElements(window);
 
 function Home() {
   const [newPosts, setNewPosts] = useState<any[] | null>(null);
+  const pageRef = useRef();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
   const { setShowTabs } = React.useContext(UIContext);
@@ -245,7 +248,7 @@ function Home() {
       });
     }
   };
-  const handleUpVote = async (postKey: string, index: number, post : any) => {
+  const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (posts && user) {
@@ -272,7 +275,7 @@ function Home() {
     }
   };
 
-  const handleDownVote = async (postKey: string, index: number, post : any) => {
+  const handleDownVote = async (postKey: string, index: number, post: any) => {
     const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (posts && user) {
@@ -321,7 +324,7 @@ function Home() {
   };
 
   const getDate = (timestamp: any) => {
-    if("seconds" in timestamp && "nanoseconds" in timestamp){
+    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
       const time = new Date(
         timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
       );
@@ -569,7 +572,7 @@ function Home() {
 
   if (posts) {
     return (
-      <IonPage>
+      <IonPage ref={pageRef}>
         <IonContent ref={contentRef} scrollEvents={true}>
           {newPostsLoaded ? (
             <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
@@ -833,7 +836,31 @@ function Home() {
           </IonModal>
 
           <IonModal backdropDismiss={false} isOpen={showModalComment}>
-            <IonContent>
+            <IonContent >
+              <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+                <IonTextarea
+                  rows={4}
+                  style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                  color="secondary"
+                  spellcheck={true}
+                  maxlength={200}
+                  value={comment}
+                  placeholder="Leave a comment..."
+                  id="commentModal"
+                  onIonChange={(e: any) => {
+                    handleChangeComment(e);
+                  }}
+                  className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+                ></IonTextarea>
+                <IonRow>
+                  <IonCol></IonCol>
+                  <IonCol>
+                  <IonButton onClick={() => {handleCommentSubmit(commentModalPost.key);}} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign:"center" }} fill="outline" >Comment</IonButton>
+                  </IonCol>
+                  <IonCol></IonCol>
+                </IonRow>
+              </div>
+
               <div className="ion-modal">
                 <IonToolbar mode="ios">
                   <IonButtons slot="start">
@@ -1004,8 +1031,7 @@ function Home() {
                     </div>
                   </FadeIn>
                 ) : null}
-                <p style={{ textAlign: "center" }}>Comments</p>
-                <br></br>
+
                 {commentsLoading || !comments ? (
                   <div
                     style={{
@@ -1100,36 +1126,9 @@ function Home() {
                     </div>
                   </FadeIn>
                 )}
-                <FadeIn>
-                <IonTextarea
-                  color="secondary"
-                  spellcheck={true}
-                  maxlength={200}
-                  style={ionInputStyle}
-                  value={comment}
-                  placeholder="Leave a comment..."
-                  id="message"
-                  onIonChange={(e: any) => {
-                    handleChangeComment(e);
-                  }}
-                ></IonTextarea>
-                <div className="ion-button-container">
-                  <IonButton
-                    color="transparent"
-                    mode="ios"
-                    shape="round"
-                    fill="outline"
-                    expand="block"
-                    id="signUpButton"
-                    onClick={() => {
-                      handleCommentSubmit(commentModalPost.key);
-                    }}
-                  >
-                    Comment
-                  </IonButton>
+                <div style={{height: "25vh"}}>
+                  <p style={{textAlign:"center"}}>&#183; </p> 
                 </div>
-                </FadeIn>
-                <br></br>
               </div>
             </IonContent>
           </IonModal>

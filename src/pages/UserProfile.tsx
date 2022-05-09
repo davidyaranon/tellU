@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -18,11 +18,11 @@ import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import {
   IonAvatar,
-  IonBackButton,
   IonButton,
   IonButtons,
   IonCard,
   IonCardContent,
+  IonCol,
   IonContent,
   IonFab,
   IonHeader,
@@ -35,25 +35,23 @@ import {
   IonModal,
   IonNote,
   IonPage,
+  IonRow,
   IonSkeletonText,
   IonSpinner,
   IonText,
   IonTextarea,
-  IonTitle,
   IonToolbar,
   useIonViewDidEnter,
   useIonViewWillEnter,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
-import { ionHeaderStyle } from "./Header";
 import { ref, getDownloadURL } from "firebase/storage";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en.json";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, chatbubblesOutline, arrowBack, podiumOutline } from "ionicons/icons";
+import { arrowBack } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
 import { getColor, timeout } from '../components/functions';
 
@@ -90,6 +88,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [comments, setComments] = useState<any[] | null>(null);
   const [comment, setComment] = useState<string>("");
   const Toast = useToast();
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const titleStyle = {
     fontSize: "6.5vw",
   };
@@ -183,7 +182,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   //   });
   //   return "";
   // }
-  const handleUpVote = async (postKey: string, index: number, post : any) => {
+  const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
@@ -214,7 +213,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   //     PhotoViewer.show(src);
   //   });
   // };
-  const handleDownVote = async (postKey: string, index: number, post : any) => {
+  const handleDownVote = async (postKey: string, index: number, post: any) => {
     const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
@@ -361,6 +360,29 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
           <IonModal backdropDismiss={false} isOpen={showCommentModal}>
             <IonContent>
+              <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+                <IonTextarea
+                  rows={4}
+                  style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                  color="secondary"
+                  spellcheck={true}
+                  maxlength={200}
+                  value={comment}
+                  placeholder="Leave a comment..."
+                  id="commentModal"
+                  onIonChange={(e: any) => {
+                    handleChangeComment(e);
+                  }}
+                  className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+                ></IonTextarea>
+                <IonRow>
+                  <IonCol></IonCol>
+                  <IonCol>
+                    <IonButton onClick={() => { handleCommentSubmit(commentModalPost.key); }} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign: "center" }} fill="outline" >Comment</IonButton>
+                  </IonCol>
+                  <IonCol></IonCol>
+                </IonRow>
+              </div>
               <div className="ion-modal">
                 <IonToolbar mode="ios">
                   <IonButtons slot="start">
@@ -515,8 +537,6 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     ) : null}
                   </div>
                 ) : null}
-                <p style={{ textAlign: "center" }}>Comments</p>
-                <br></br>
                 {commentsLoading && !comments ? (
                   <div
                     style={{
@@ -616,36 +636,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       : null}
                   </div>
                 )}
-
-                <IonTextarea
-                  color="secondary"
-                  spellcheck={true}
-                  maxlength={200}
-                  style={ionInputStyle}
-                  value={comment}
-                  placeholder="Leave a comment..."
-                  id="message"
-                  onIonChange={(e: any) => {
-                    handleChangeComment(e);
-                  }}
-                ></IonTextarea>
-                <div className="ion-button-container">
-                  <IonButton
-                    color="transparent"
-                    mode="ios"
-                    shape="round"
-                    fill="outline"
-                    expand="block"
-                    id="signUpButton"
-                    onClick={() => {
-                      handleCommentSubmit(commentModalPost.key);
-                    }}
-                  >
-                    Comment
-                  </IonButton>
+                <div style={{ height: "25vh" }}>
+                  <p style={{ textAlign: "center" }}>&#183; </p>
                 </div>
-                <wbr></wbr>
-                <br></br>
               </div>
             </IonContent>
           </IonModal>
@@ -802,19 +795,19 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               </div>
                             ) : (
                               <>
-                              {post.url.length > 0 ? (
-                                <div>
-                                  <br></br>
-                                  <br></br>
-                                  <IonImg
-                                    className="ion-img-container"
-                                    onClick={() => {
-                                      PhotoViewer.show(post.imgSrc);
-                                    }}
-                                    src={post.imgSrc}
-                                  />
-                                </div>
-                              ) : null}
+                                {post.url.length > 0 ? (
+                                  <div>
+                                    <br></br>
+                                    <br></br>
+                                    <IonImg
+                                      className="ion-img-container"
+                                      onClick={() => {
+                                        PhotoViewer.show(post.imgSrc);
+                                      }}
+                                      src={post.imgSrc}
+                                    />
+                                  </div>
+                                ) : null}
                               </>
                             )}
                           </IonLabel>

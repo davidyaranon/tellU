@@ -845,7 +845,7 @@ export const loadComments = async (postKey, schoolName) => {
       );
       const snap = await getDoc(postDocRef);
       if (snap.exists) {
-        return snap.data().commentsArr;
+        if(snap.data()) return snap.data().commentsArr;
       }
     }
   } catch (err) {

@@ -36,7 +36,7 @@ const LandingPage: React.FC = () => {
     else {
       const didLogIn = promiseTimeout(10000, logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn));
       didLogIn.then((res) => {
-        if (!res) { Toast.error("Unable to login"); setBusy(false); }
+        if (!res) { Toast.error("Unable to login"); setBusy(false); setLoggingIn(false); }
         else {
           let school = "";
           const userRef = doc(db, "userData", res.user.uid);

@@ -20,6 +20,7 @@ import {
   IonButtons,
   IonCard,
   IonCardContent,
+  IonCol,
   IonContent,
   IonFab,
   IonIcon,
@@ -28,6 +29,7 @@ import {
   IonLabel,
   IonList,
   IonPage,
+  IonRow,
   IonSpinner,
   IonText,
   IonTextarea,
@@ -43,6 +45,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { cameraOutline, chatbubblesOutline, arrowBack } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
+import UIContext from "../my-context";
 
 interface MatchUserPostParams {
   key: string;
@@ -50,6 +53,8 @@ interface MatchUserPostParams {
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
+  const { setShowTabs } = React.useContext(UIContext);
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
   const [busy, setBusy] = useState<boolean>(false);
@@ -139,6 +144,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           setPost(res);
           setPostUpvotes(res.upVotes);
           setPostDownvotes(res.downVotes);
+        } else {
+          Toast.error("Post has been deleted");
         }
       });
       onePost.catch((err) => {
@@ -205,7 +212,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     history.push("home/about/" + uid);
   };
 
-  const handleUpVote = async (post : any) => {
+  const handleUpVote = async (post: any) => {
     const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
@@ -232,7 +239,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
-  const handleDownVote = async (post : any) => {
+  const handleDownVote = async (post: any) => {
     const val = await downVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
@@ -260,6 +267,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   useIonViewDidEnter(() => {
+    setShowTabs(false);
     if (user && schoolName) {
       getPost();
       getPostComments();
@@ -269,6 +277,28 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   return (
     <IonPage>
       <IonContent>
+        <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+          <IonTextarea
+            rows={4}
+            style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+            color="secondary"
+            spellcheck={true}
+            maxlength={200}
+            value={comment}
+            placeholder="Leave a comment..."
+            id="commentModal"
+            onIonChange={(e: any) => {
+              handleChangeComment(e);
+            }}
+            className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+          ></IonTextarea>
+          <IonRow>
+            <IonCol></IonCol>
+            <IonCol>
+              <IonButton onClick={() => { handleCommentSubmit(); }} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign: "center" }} fill="outline" >Comment</IonButton>
+            </IonCol>
+            <IonCol></IonCol>
+          </IonRow>        </div>
         <div className="ion-modal">
           <IonToolbar mode="ios">
             <IonButtons slot="start">
@@ -409,8 +439,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </div>
             </FadeIn>
           ) : null}
-          <p style={{ textAlign: "center" }}>Comments</p>
-          <br></br>
+
           {commentsLoading || !comments ? (
             <div
               style={{
@@ -502,36 +531,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </div>
             </FadeIn>
           )}
-          <FadeIn>
-          <IonTextarea
-            color="secondary"
-            spellcheck={true}
-            maxlength={200}
-            style={ionInputStyle}
-            value={comment}
-            placeholder="Leave a comment..."
-            id="message"
-            onIonChange={(e: any) => {
-              handleChangeComment(e);
-            }}
-          ></IonTextarea>
-          <div className="ion-button-container">
-            <IonButton
-              color="transparent"
-              mode="ios"
-              shape="round"
-              fill="outline"
-              expand="block"
-              id="signUpButton"
-              onClick={() => {
-                handleCommentSubmit();
-              }}
-            >
-              Comment
-            </IonButton>
+          <div style={{ height: "25vh" }}>
+            <p style={{ textAlign: "center" }}>&#183; </p>
           </div>
-          </FadeIn>
-          <br></br>
         </div>
       </IonContent>
     </IonPage>
