@@ -61,6 +61,9 @@ import {
   cameraOutline,
   shareOutline,
 } from "ionicons/icons";
+import {
+  Keyboard,
+} from "@capacitor/keyboard";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -146,6 +149,7 @@ function Home() {
   const [newPostsLoaded, setNewPostsLoaded] = useState<boolean>(false);
 
   useIonViewWillEnter(() => {
+    setShowTabs(true);
     if (posts && schoolName) {
       setBusy(true);
       let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
@@ -246,6 +250,7 @@ function Home() {
         Toast.error(err);
         setCommentsBusy(false);
       });
+      await Keyboard.hide();
     }
   };
   const handleUpVote = async (postKey: string, index: number, post: any) => {
@@ -368,6 +373,12 @@ function Home() {
         break;
       default:
         break;
+    }
+  };
+
+  const isEnterPressed = (key: any) => {
+    if (key === "Enter") {
+      Keyboard.hide().then(() => {handleCommentSubmit(commentModalPost.key);})
     }
   };
 
@@ -746,7 +757,7 @@ function Home() {
 
           <IonModal backdropDismiss={false} isOpen={showModal}>
             <IonContent>
-              <div className="ion-modal">
+              <div style={{ width: "100%" }}>
                 <IonToolbar mode="ios">
                   <IonButtons slot="start">
                     <IonButton
@@ -760,6 +771,9 @@ function Home() {
                     </IonButton>
                   </IonButtons>
                 </IonToolbar>
+              </div>
+              <div>
+
                 <br />
                 <IonTextarea
                   color="secondary"
@@ -837,32 +851,53 @@ function Home() {
 
           <IonModal backdropDismiss={false} isOpen={showModalComment}>
             <IonContent >
+              <div slot="fixed" style={{ width: "100%" }}>
+                <IonToolbar mode="ios" >
+                  <IonButtons slot="start">
+                    <IonButton
+                      mode="ios"
+                      onClick={() => {
+                        setComments([]);
+                        setShowModalComment(false);
+                        setComment("");
+                      }}
+                    >
+                      <IonIcon icon={arrowBack}></IonIcon> Back
+                    </IonButton>
+                  </IonButtons>
+                </IonToolbar>
+              </div>
               <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
                 <IonTextarea
-                  rows={4}
+                  mode="ios"
+                  enterkeyhint="enter"
+                  rows={3}
                   style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
                   color="secondary"
                   spellcheck={true}
                   maxlength={200}
                   value={comment}
+                  inputMode="text"
                   placeholder="Leave a comment..."
                   id="commentModal"
+                  onKeyPress={e => isEnterPressed(e.key)}
                   onIonChange={(e: any) => {
                     handleChangeComment(e);
                   }}
                   className={darkModeToggled ? "text-area-dark" : "text-area-light"}
                 ></IonTextarea>
-                <IonRow>
+                {/* <IonRow>
                   <IonCol></IonCol>
                   <IonCol>
                   <IonButton onClick={() => {handleCommentSubmit(commentModalPost.key);}} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign:"center" }} fill="outline" >Comment</IonButton>
                   </IonCol>
                   <IonCol></IonCol>
-                </IonRow>
+                </IonRow> */}
               </div>
 
               <div className="ion-modal">
-                <IonToolbar mode="ios">
+              {/* <div> */}
+                {/* <IonToolbar mode="ios">
                   <IonButtons slot="start">
                     <IonButton
                       onClick={() => {
@@ -874,7 +909,7 @@ function Home() {
                       <IonIcon icon={arrowBack}></IonIcon> Back
                     </IonButton>
                   </IonButtons>
-                </IonToolbar>
+                </IonToolbar> */}
 
                 {commentModalPost ? (
                   <FadeIn>
@@ -1126,8 +1161,8 @@ function Home() {
                     </div>
                   </FadeIn>
                 )}
-                <div style={{height: "25vh"}}>
-                  <p style={{textAlign:"center"}}>&#183; </p> 
+                <div style={{ height: "25vh" }}>
+                  <p style={{ textAlign: "center" }}>&#183; </p>
                 </div>
               </div>
             </IonContent>

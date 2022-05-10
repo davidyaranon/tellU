@@ -25,6 +25,7 @@ import {
   IonNote,
   IonPage,
   useIonViewDidEnter,
+  IonGrid,
 } from "@ionic/react";
 import { arrowBack, schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
@@ -385,6 +386,11 @@ function Maps() {
 
     }
   };
+  const isEnterPressed = (key: any) => {
+    if (key === "Enter") {
+      handleCommentSubmit(commentModalPost.key);
+    }
+  };
   const getMapMarkers = async () => {
     if (schoolName) {
       // setBusy(true);
@@ -470,29 +476,7 @@ function Maps() {
 
         <IonModal backdropDismiss={false} isOpen={showModalComment}>
           <IonContent>
-            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
-              <IonTextarea
-                rows={4}
-                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
-                color="secondary"
-                spellcheck={true}
-                maxlength={200}
-                value={comment}
-                placeholder="Leave a comment..."
-                id="commentModal"
-                onIonChange={(e: any) => {
-                  handleChangeComment(e);
-                }}
-                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
-              ></IonTextarea>
-              <IonRow>
-                <IonCol></IonCol>
-                <IonCol>
-                  <IonButton onClick={() => { handleCommentSubmit(commentModalPost.key); }} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign: "center" }} fill="outline" >Comment</IonButton>
-                </IonCol>
-                <IonCol></IonCol>
-              </IonRow>              </div>
-            <div className="ion-modal">
+            <div slot="fixed" style={{ width: "100%" }}>
               <IonToolbar mode="ios">
                 <IonButtons slot="start">
                   <IonButton
@@ -505,6 +489,28 @@ function Maps() {
                   </IonButton>
                 </IonButtons>
               </IonToolbar>
+            </div>
+            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+              <IonTextarea
+                mode="ios"
+                enterkeyhint="enter"
+                rows={3}
+                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                color="secondary"
+                spellcheck={true}
+                maxlength={200}
+                value={comment}
+                inputMode="text"
+                placeholder="Leave a comment..."
+                id="commentModal"
+                onKeyPress={e => isEnterPressed(e.key)}
+                onIonChange={(e: any) => {
+                  handleChangeComment(e);
+                }}
+                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+              ></IonTextarea>
+            </div>
+            <div className="ion-modal">
 
               {commentModalPost ? (
                 <div>
@@ -752,7 +758,8 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ top: "80vh", textAlign: "center" }} />
+          <ZoomControl style={{left:"85%", top:"50%"}} buttonStyle={{color: "#61dbfb"}}/>
+
           {markers
             ? markers.map((marker, index) => {
               return (
@@ -760,7 +767,7 @@ function Maps() {
                   style={{ opacity: "90%" }}
                   onClick={(e) => {
                     setCenter([
-                      marker.location[0] - 0.005,
+                      marker.location[0],
                       marker.location[1],
                     ]);
                     setOverlayIndex(-1);
@@ -887,8 +894,8 @@ function Maps() {
               </IonCard>
             </Overlay>
           ) : null}
-          <IonFab horizontal="end" vertical="bottom" style={{ right: "25vw" }}>
-            <p style={{ fontSize: "1em", color: "black" }}>{schoolName}</p>
+          <IonFab horizontal="start" vertical="bottom" >
+            <p style={{ fontSize: "1em", color: "black", fontWeight: "bold" }}>{schoolName}</p>
           </IonFab>
           <IonFab horizontal="end" vertical="bottom">
             <IonButton color="light" onClick={setDefaultCenter} mode="ios">

@@ -11,10 +11,10 @@ ion-fab.fab-horizontal-center {
 
 .load-new-posts {
   --border-radius: 20px;
-   max-width: unset;
-   min-width: unset;
-   width: 120px;
-   height: 45px;
+  max-width: unset;
+  min-width: unset;
+  width: 120px;
+  height: 45px;
 }
 
 .user-card {
@@ -22,7 +22,7 @@ ion-fab.fab-horizontal-center {
   flex-direction: column;
   overflow: scroll;
   background: transparent;
-  box-shadow: none !important; 
+  box-shadow: none !important;
   min-height: 65vh;
 }
 
@@ -30,14 +30,34 @@ ion-skeleton-text {
   --background-rgb: 130, 130, 130;
 }
 
-@keyframes like-animation{
-  0% { transform: scale3d(1, 1, 1); }
-  30% { transform: scale3d(1.25, 0.75, 1); }
-  40% { transform: scale3d(0.75, 1.25, 1); }
-  50% { transform: scale3d(1.15, 0.85, 1); }
-  65% { transform: scale3d(0.95, 1.05, 1); }
-  75% { transform: scale3d(1.05, 0.95, 1); }
-  100% { transform: scale3d(1, 1, 1); }
+@keyframes like-animation {
+  0% {
+    transform: scale3d(1, 1, 1);
+  }
+
+  30% {
+    transform: scale3d(1.25, 0.75, 1);
+  }
+
+  40% {
+    transform: scale3d(0.75, 1.25, 1);
+  }
+
+  50% {
+    transform: scale3d(1.15, 0.85, 1);
+  }
+
+  65% {
+    transform: scale3d(0.95, 1.05, 1);
+  }
+
+  75% {
+    transform: scale3d(1.05, 0.95, 1);
+  }
+
+  100% {
+    transform: scale3d(1, 1, 1);
+  }
 }
 
 .likeAnimation {
@@ -57,46 +77,55 @@ ion-checkbox {
   --background-checked: #61dbfb;
   --border-color-checked: #ffffff;
 }
+
 #general {
   width: 0.5%;
   height: 3.5vh;
   background: transparent;
   margin: 1vw;
 }
+
 #alertCheckbox {
   --background-checked: #ff3e3e;
   --border-color-checked: #ffffff;
 }
+
 #alert {
   width: 0.5%;
   height: 3.5vh;
   background: transparent;
   margin: 1vw;
 }
+
 #buySellCheckbox {
   --background-checked: #179b59;
   --border-color-checked: #ffffff;
 }
+
 #buySell {
   width: 0.5%;
   height: 3.5vh;
   background: transparent;
   margin: 1vw;
 }
+
 #sightingCheckbox {
   --background-checked: #eed202;
   --border-color-checked: #ffffff;
 }
+
 #sighting {
   width: 0.5%;
   height: 3.5vh;
   background: transparent;
   margin: 1vw;
 }
+
 #eventCheckbox {
   --background-checked: #fc4ad3;
   --border-color-checked: #ffffff;
 }
+
 #event {
   width: 0.5%;
   height: 3.5vh;
@@ -111,7 +140,7 @@ ion-checkbox {
   height: 3rem;
   text-align: center;
   margin-left: 14%;
-  margin-top: 40pt;
+  margin-top: 10pt;
   color: black;
   background-color: white;
   justify-content: center;
@@ -127,6 +156,7 @@ ion-checkbox {
   margin: 2.5px;
   border: 1px solid rgb(119, 119, 119);
   overflow: hidden;
+  text-align: center;
 }
 
 .posts-avatar {
@@ -275,6 +305,16 @@ ion-toolbar {
   justify-content: center;
 }
 
+ion-app {
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
+}
+
+.ios-notch {
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
+}
+
 .ion-img-style {
   overflow: hidden;
   border-radius: 5%;
@@ -290,11 +330,11 @@ ion-toolbar {
   left: 0px;
 }
 
-.text-area-dark{
+.text-area-dark {
   background: #121212;
 }
 
-.text-area-light{
+.text-area-light {
   background: #FFFFFF;
 }
 

@@ -62,6 +62,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import TimeAgo from "javascript-time-ago";
 import { getColor, timeout } from '../components/functions';
+import UIContext  from '../my-context';
 
 // const fetchMoreUserData = (key: string) => {
 //   if (key && key.length > 0) {
@@ -127,8 +128,10 @@ function Community() {
   const [yourPollsSelected, setYourPollsSelected] = useState<boolean>(false);
   const [yourPolls, setYourPolls] = useState<any[]>([]);
   const [yourPollsLoadedAlready, setYourPollsLoadedAlready] = useState<boolean>(false);
+  const { setShowTabs } = React.useContext(UIContext);
 
   useIonViewWillEnter(() => {
+    setShowTabs(true);
     setBusy(true);
     if (!user) {
       history.replace("/landing-page");
@@ -363,6 +366,12 @@ function Community() {
     }
   };
 
+  const isEnterPressed = (key: any) => {
+    if (key === "Enter") {
+      handleCommentSubmit(commentModalPost.key);
+    }
+  };
+
   const handleChangePollOptions = (index: number, e: any) => {
     let option = e.detail.value;
     let tempOptionsArr: PollAnswer[] = [...pollOptions];
@@ -490,19 +499,21 @@ function Community() {
 
         <IonModal backdropDismiss={false} isOpen={pollModalOpen}>
           <IonContent>
-            <div className="ion-modal">
-              <IonToolbar mode="ios">
-                <IonButtons slot="start">
-                  <IonButton
-                    onClick={() => {
-                      setPollModalOpen(false);
-                      setPollText("");
-                    }}
-                  >
-                    <IonIcon icon={arrowBack}></IonIcon> Back
-                  </IonButton>
-                </IonButtons>
-              </IonToolbar>
+            <div>
+              <div style={{ width: "100%" }}>
+                <IonToolbar mode="ios">
+                  <IonButtons slot="start">
+                    <IonButton
+                      onClick={() => {
+                        setPollModalOpen(false);
+                        setPollText("");
+                      }}
+                    >
+                      <IonIcon icon={arrowBack}></IonIcon> Back
+                    </IonButton>
+                  </IonButtons>
+                </IonToolbar>
+              </div>
               <IonHeader mode="ios">
                 <IonTitle>Poll</IonTitle>
                 <br />
@@ -546,34 +557,13 @@ function Community() {
 
         <IonModal backdropDismiss={false} isOpen={showModalComment}>
           <IonContent>
-          <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
-                <IonTextarea
-                  rows={4}
-                  style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
-                  color="secondary"
-                  spellcheck={true}
-                  maxlength={200}
-                  value={comment}
-                  placeholder="Leave a comment..."
-                  id="commentModal"
-                  onIonChange={(e: any) => {
-                    handleChangeComment(e);
-                  }}
-                  className={darkModeToggled ? "text-area-dark" : "text-area-light"}
-                ></IonTextarea>
-                <IonRow>
-                  <IonCol></IonCol>
-                  <IonCol>
-                  <IonButton onClick={() => {handleCommentSubmit(commentModalPost.key);}} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign:"center" }} fill="outline" >Comment</IonButton>
-                  </IonCol>
-                  <IonCol></IonCol>
-                </IonRow>
-              </div>
-            <div className="ion-modal">
-              <IonToolbar mode="ios">
+            <div slot="fixed" style={{ width: "100%" }}>
+              <IonToolbar mode="ios" >
                 <IonButtons slot="start">
                   <IonButton
+                    mode="ios"
                     onClick={() => {
+                      setComments([]);
                       setShowModalComment(false);
                       setComment("");
                     }}
@@ -582,6 +572,28 @@ function Community() {
                   </IonButton>
                 </IonButtons>
               </IonToolbar>
+            </div>
+            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+              <IonTextarea
+                mode="ios"
+                enterkeyhint="enter"
+                rows={3}
+                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                color="secondary"
+                spellcheck={true}
+                maxlength={200}
+                value={comment}
+                inputMode="text"
+                placeholder="Leave a comment..."
+                id="commentModal"
+                onKeyPress={e => isEnterPressed(e.key)}
+                onIonChange={(e: any) => {
+                  handleChangeComment(e);
+                }}
+                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+              ></IonTextarea>
+            </div>
+            <div className='ion-modal'>
               {commentModalPost && commentModalPost.data ? (
                 <FadeIn>
                   <div>
@@ -834,9 +846,9 @@ function Community() {
                   </div>
                 </FadeIn>
               )}
-              <div style={{height: "25vh"}}>
-                  <p style={{textAlign:"center"}}>&#183; </p> 
-                </div>
+              <div style={{ height: "25vh" }}>
+                <p style={{ textAlign: "center" }}>&#183; </p>
+              </div>
             </div>
           </IonContent>
         </IonModal>
@@ -848,14 +860,14 @@ function Community() {
         ) : (
           <>
             <FadeIn transitionDuration={500}>
-              <IonHeader class="ion-no-border">
-                <IonToolbar mode="ios">
-                  <IonTitle>Polls</IonTitle>
-                  <IonButton color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
-                    <IonIcon icon={addCircleOutline} /> New Poll
-                  </IonButton>
-                </IonToolbar>
-              </IonHeader>
+              {/* <IonHeader class="ion-no-border"> */}
+              <IonToolbar mode="ios">
+                <IonTitle>Polls</IonTitle>
+                <IonButton color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
+                  <IonIcon icon={addCircleOutline} /> New Poll
+                </IonButton>
+              </IonToolbar>
+              {/* </IonHeader> */}
               {user && polls && polls.length > 0 ? (
                 <>
                   {yourPollsSelected ? (
@@ -921,17 +933,17 @@ function Community() {
               ) : (null)}
             </FadeIn>
             <FadeIn transitionDuration={500}>
-              <IonHeader class="ion-no-border">
-                <IonToolbar mode="ios">
-                  <IonTitle>Top Posts <br /> (All Time)</IonTitle>
-                  <IonFab horizontal="end">
-                    <IonIcon icon={chevronForward} />
-                  </IonFab>
-                  <IonFab horizontal="start">
-                    <IonIcon icon={chevronBack} />
-                  </IonFab>
-                </IonToolbar>
-              </IonHeader>
+              {/* <IonHeader class="ion-no-border"> */}
+              <IonToolbar mode="ios">
+                <IonTitle>Top Posts <br /> (All Time)</IonTitle>
+                <IonFab horizontal="end">
+                  <IonIcon icon={chevronForward} />
+                </IonFab>
+                <IonFab horizontal="start">
+                  <IonIcon icon={chevronBack} />
+                </IonFab>
+              </IonToolbar>
+              {/* </IonHeader> */}
               <Swiper
                 slidesPerView={1.5}
               >

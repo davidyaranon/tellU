@@ -708,6 +708,12 @@ function User() {
     }
   }
 
+  const isEnterPressed = (key: any) => {
+    if (key === "Enter") {
+      handleCommentSubmit(commentModalPost.key);
+    }
+  };
+
   async function loadLogout() {
     let promise = promiseTimeout(10000, logout());
     promise.then((loggedOut: any) => {
@@ -805,43 +811,45 @@ function User() {
   return (
     <IonPage>
       <IonContent>
-        <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
-          <IonToolbar mode="ios">
-            <IonButtons slot="start">
-              <IonButton
-                onClick={loadLogout}
-                color="danger"
-                mode="ios"
-                fill="outline"
-                id="logout"
-              >
-                Logout
-              </IonButton>
-            </IonButtons>
-            <IonButtons slot="end">
-              <IonButton
-                onClick={() => {
-                  history.push("/privacy-policy");
-                }}
-              >
-                <IonIcon icon={informationCircleOutline}></IonIcon>
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
+        {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
+        <IonToolbar mode="ios">
+          <IonButtons slot="start">
+            <IonButton
+              onClick={loadLogout}
+              color="danger"
+              mode="ios"
+              fill="outline"
+              id="logout"
+            >
+              Logout
+            </IonButton>
+          </IonButtons>
+          <IonButtons slot="end">
+            <IonButton
+              onClick={() => {
+                history.push("/privacy-policy");
+              }}
+            >
+              <IonIcon icon={informationCircleOutline}></IonIcon>
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+        <IonHeader mode="ios" class="ion-no-border" style={{ textAlign: "center" }}>
           <IonToolbar mode="ios">
             <IonAvatar className="user-avatar">
               <IonImg className="user-image" src={profilePhoto}></IonImg>
             </IonAvatar>
           </IonToolbar>
-          <FadeIn>
-            <IonToolbar mode="ios">
-              <IonTitle size="small" style={titleStyle}>
-                Hello
-                <IonText color="primary">&nbsp;{editableUsername}</IonText>
-              </IonTitle>
-            </IonToolbar>
-          </FadeIn>
         </IonHeader>
+        <FadeIn>
+          <IonToolbar mode="ios">
+            <IonTitle size="small" style={titleStyle}>
+              Hello
+              <IonText color="primary">&nbsp;{editableUsername}</IonText>
+            </IonTitle>
+          </IonToolbar>
+        </FadeIn>
+        {/* </IonHeader> */}
         <IonLoading
           message="Please wait..."
           duration={0}
@@ -850,32 +858,11 @@ function User() {
 
         <IonModal backdropDismiss={false} isOpen={showCommentModal}>
           <IonContent>
-            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
-              <IonTextarea
-                rows={4}
-                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
-                color="secondary"
-                spellcheck={true}
-                maxlength={200}
-                value={comment}
-                placeholder="Leave a comment..."
-                id="commentModal"
-                onIonChange={(e: any) => {
-                  handleChangeComment(e);
-                }}
-                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
-              ></IonTextarea>
-              <IonRow>
-                <IonCol></IonCol>
-                <IonCol>
-                  <IonButton onClick={() => { handleCommentSubmit(commentModalPost.key); }} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign: "center" }} fill="outline" >Comment</IonButton>
-                </IonCol>
-                <IonCol></IonCol>
-              </IonRow>            </div>
-            <div className="ion-modal">
-              <IonToolbar mode="ios">
+            <div slot="fixed" style={{ width: "100%" }}>
+              <IonToolbar mode="ios" >
                 <IonButtons slot="start">
                   <IonButton
+                    mode="ios"
                     onClick={() => {
                       setShowCommentModal(false);
                       setComment("");
@@ -885,6 +872,28 @@ function User() {
                   </IonButton>
                 </IonButtons>
               </IonToolbar>
+            </div>
+            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+              <IonTextarea
+                mode="ios"
+                enterkeyhint="enter"
+                rows={3}
+                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                color="secondary"
+                spellcheck={true}
+                maxlength={200}
+                value={comment}
+                inputMode="text"
+                placeholder="Leave a comment..."
+                id="commentModal"
+                onKeyPress={e => isEnterPressed(e.key)}
+                onIonChange={(e: any) => {
+                  handleChangeComment(e);
+                }}
+                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+              ></IonTextarea>
+            </div>
+            <div className="ion-modal">
               {commentModalPost ? (
                 <div>
                   <IonList inset={true}>

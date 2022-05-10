@@ -7,7 +7,7 @@ import tellU_gray from '../images/tellU_gray.png';
 import '../App.css';
 export const ionHeaderStyle = {
   textAlign: 'center',
-  padding: "5vh",
+  padding: "2.5vh",
 };
 
 class Header extends Component<any, any>{

@@ -15,7 +15,7 @@ export const PrivacyPolicy = () => {
   return (
     <IonPage>
       <IonContent>
-        <div className="ion-modal">
+        <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
             <IonButtons slot="start">
               <IonButton
@@ -28,7 +28,7 @@ export const PrivacyPolicy = () => {
             </IonButtons>
           </IonToolbar>
         </div>
-
+        <br />
         <IonCard>
           <IonCardContent>
             <IonCardTitle>

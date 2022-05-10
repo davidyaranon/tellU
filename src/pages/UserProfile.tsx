@@ -239,6 +239,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       Toast.error("Unable to dislike post :(");
     }
   };
+  const isEnterPressed = (key: any) => {
+    if (key === "Enter") {
+      handleCommentSubmit(commentModalPost.key);
+    }
+  };
   // const getImgSrc = async (postUrl : string) => {
   //   const imgSrc = await getDownloadURL(ref(storage, postUrl));
   //   return imgSrc;
@@ -335,21 +340,20 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     return (
       <IonPage>
         <IonContent>
-          <IonHeader mode="ios">
-            <IonToolbar mode="ios">
+          <div slot="fixed" style={{ width: "100%" }}>
+            <IonToolbar mode="ios" >
               <IonButtons slot="start">
                 <IonButton
+                  mode="ios"
                   onClick={() => {
-                    //console.log("going home");
                     history.go(-1);
                   }}
                 >
-                  <IonIcon icon={arrowBack}></IonIcon>
-                  Back
+                  <IonIcon icon={arrowBack}></IonIcon> Back
                 </IonButton>
               </IonButtons>
             </IonToolbar>
-          </IonHeader>
+          </div>
 
           <IonLoading
             spinner="dots"
@@ -360,43 +364,42 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
           <IonModal backdropDismiss={false} isOpen={showCommentModal}>
             <IonContent>
-              <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
-                <IonTextarea
-                  rows={4}
-                  style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
-                  color="secondary"
-                  spellcheck={true}
-                  maxlength={200}
-                  value={comment}
-                  placeholder="Leave a comment..."
-                  id="commentModal"
-                  onIonChange={(e: any) => {
-                    handleChangeComment(e);
-                  }}
-                  className={darkModeToggled ? "text-area-dark" : "text-area-light"}
-                ></IonTextarea>
-                <IonRow>
-                  <IonCol></IonCol>
-                  <IonCol>
-                    <IonButton onClick={() => { handleCommentSubmit(commentModalPost.key); }} style={{ height: "5vh", marginTop: "2%", width: "80vw", textAlign: "center" }} fill="outline" >Comment</IonButton>
-                  </IonCol>
-                  <IonCol></IonCol>
-                </IonRow>
-              </div>
-              <div className="ion-modal">
-                <IonToolbar mode="ios">
+              <div slot="fixed" style={{ width: "100%" }}>
+                <IonToolbar mode="ios" >
                   <IonButtons slot="start">
                     <IonButton
+                      mode="ios"
                       onClick={() => {
                         setShowCommentModal(false);
                         setComment("");
                       }}
                     >
-                      <IonIcon icon={arrowBack}></IonIcon>
-                      {" "} Back
+                      <IonIcon icon={arrowBack}></IonIcon> Back
                     </IonButton>
                   </IonButtons>
                 </IonToolbar>
+              </div>
+              <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+                <IonTextarea
+                  mode="ios"
+                  enterkeyhint="enter"
+                  rows={3}
+                  style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+                  color="secondary"
+                  spellcheck={true}
+                  maxlength={200}
+                  value={comment}
+                  inputMode="text"
+                  placeholder="Leave a comment..."
+                  id="commentModal"
+                  onKeyPress={e => isEnterPressed(e.key)}
+                  onIonChange={(e: any) => {
+                    handleChangeComment(e);
+                  }}
+                  className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+                ></IonTextarea>
+              </div>
+              <div className="ion-modal">
                 {commentModalPost ? (
                   <div>
                     <IonList inset={true}>
@@ -642,7 +645,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               </div>
             </IonContent>
           </IonModal>
-
+          <br></br>
           <FadeIn>
             <IonCard>
               <IonCardContent>
