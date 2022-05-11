@@ -2,7 +2,7 @@ import { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth from '../fbconfig';
+import auth, { removeComment } from '../fbconfig';
 import {
   getUserPosts,
   getNextBatchUserPosts,
@@ -16,6 +16,7 @@ import {
 } from "../fbconfig";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   IonAvatar,
   IonButton,
@@ -28,6 +29,8 @@ import {
   IonHeader,
   IonIcon,
   IonImg,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonItem,
   IonLabel,
   IonList,
@@ -102,6 +105,41 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       if (commentModalPost.uid != uid) {
         history.push("home/about/" + uid);
       }
+    }
+  };
+  const deleteComment = async (index: number) => {
+    setCommentsLoading(true);
+    if (comments && commentModalPost && schoolName) {
+      const commentBeingDeleted = comments[index];
+      const didDelete = promiseTimeout(5000, removeComment(commentBeingDeleted, schoolName, commentModalPost.key));
+      didDelete.then((res) => {
+        if (res) {
+          Toast.success("Comment deleted");
+          if (comments.length == 0) {
+            setComments([]);
+          } else {
+            let tempComments: any[] = [];
+            for (let i = 0; i < comments.length; ++i) {
+              if (i !== index) {
+                tempComments.push(comments[i]);
+              }
+            }
+            setComments(tempComments);
+            //console.log(tempComments);
+          }
+          setCommentsLoading(false);
+        } else {
+          Toast.error("Unable to delete comment");
+          setCommentsLoading(false);
+        }
+      });
+      didDelete.catch((err) => {
+        Toast.error(err);
+        setCommentsLoading(false);
+      })
+    } else {
+      Toast.error("Unable to delete comment");
+      setCommentsLoading(false);
     }
   };
   const handleCommentSubmit = async (postKey: string) => {
@@ -258,12 +296,13 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     let currComment = e.detail.value;
     setComment(currComment);
   };
-  const fetchMorePosts = () => {
+  const fetchMorePosts = (event: any) => {
     if (lastKey) {
       getNextBatchUserPosts(schoolName, uid, lastKey)
         .then((res: any) => {
           setLastKey(res.lastKey);
           setUserPosts(userPosts.concat(res.userPosts));
+          event.target.complete();
           if (res.userPosts.length == 0) {
             setNoMorePosts(true);
           }
@@ -382,14 +421,14 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
                 <IonTextarea
                   mode="ios"
-                  enterkeyhint="enter"
+                  enterkeyhint="send"
                   rows={3}
                   style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
                   color="secondary"
                   spellcheck={true}
                   maxlength={200}
                   value={comment}
-                  inputMode="text"
+                  // inputMode="text"
                   placeholder="Leave a comment..."
                   id="commentModal"
                   onKeyPress={e => isEnterPressed(e.key)}
@@ -633,6 +672,18 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               <KeyboardArrowDownIcon />
                               <p>{comment.downVotes} </p>
                             </IonButton>
+                            {user && user.uid === comment.uid ? (
+                              <IonFab horizontal="end">
+                                <IonButton
+                                  mode="ios"
+                                  fill="outline"
+                                  color="danger"
+                                  onClick={() => { deleteComment(index); }}
+                                >
+                                  <DeleteIcon />
+                                </IonButton>
+                              </IonFab>
+                            ) : null}
                           </IonItem>
                         </IonList>
                       ))
@@ -893,7 +944,16 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 })
                 : null}
             </>
-            <FadeIn>
+            <IonInfiniteScroll
+              onIonInfinite={(e: any) => { fetchMorePosts(e) }}
+              disabled={noMorePosts}
+            >
+              <IonInfiniteScrollContent
+                loadingSpinner="bubbles"
+                loadingText="Loading"
+              ></IonInfiniteScrollContent>
+            </IonInfiniteScroll>
+            {/* <FadeIn>
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <IonButton
                   color="medium"
@@ -901,14 +961,14 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                   fill="outline"
                   expand="block"
                   disabled={noMorePosts}
-                  onClick={() => {
-                    fetchMorePosts();
+                  onClick={(e) => {
+                    fetchMorePosts(e);
                   }}
                 >
                   LOAD MORE POSTS{" "}
                 </IonButton>
               </div>
-            </FadeIn>
+            </FadeIn> */}
           </div>
         </IonContent>
       </IonPage>

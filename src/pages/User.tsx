@@ -142,6 +142,7 @@ function User() {
   const [yourPolls, setYourPolls] = useState<any[]>([]);
   const [profilePhoto, setProfilePhoto] = useState("");
   const [busy, setBusy] = useState<boolean>(false);
+  const contentRef = useRef<HTMLIonContentElement | null>(null);
   const history = useHistory();
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 
@@ -153,6 +154,10 @@ function User() {
     height: "10vh",
     width: "95vw",
     marginLeft: "2.5vw",
+  };
+
+  const scrollToTop = () => {
+    contentRef.current && contentRef.current.scrollToTop(500);
   };
 
   const handleUserPageNavigation = (uid: string) => {
@@ -202,7 +207,9 @@ function User() {
 
   const handleCheckmark = () => {
     if (emojis.test(editableEmail)) {
-      Toast.error("Email cannot contain emojis!")
+      Toast.error("Email cannot contain emojis!");
+    } else if(editableEmail.trim().length <= 0){
+      Toast.error("Email cannot be blank");
     } else if (editableEmail.trim() != email.trim()) {
       promptForCredentials();
     } else {
@@ -211,7 +218,13 @@ function User() {
   };
 
   const handleUserCheckmark = () => {
-    if (editableUsername.trim() != username.trim()) {
+    if(emojis.test(editableUsername)){
+      Toast.error("Username cannot contain emojis!");
+    } else if (editableUsername.trim().length <= 0){
+      Toast.error("Username cannot be blank");
+    } else if(editableEmail.trim().length > 15) {
+      Toast.error("Username cannot be longer than 15 characters");
+    } else if (editableUsername.trim() != username.trim()) {
       promptForUsernameCredentials();
     } else {
       Toast.error("No changes made");
@@ -316,7 +329,7 @@ function User() {
             commentsHasTimedOut.then((resComments) => {
               if (resComments == null || resComments == undefined) {
                 Toast.error(
-                  "Comments are currently broken on this post, try again later"
+                  "Unable to load comments"
                 );
               } else {
                 setComments(resComments);
@@ -342,11 +355,11 @@ function User() {
     }
   };
 
-  const deletePost = async (index: number) => {
+  const deletePost = async (index: number, postUrl : string) => {
     setDisabledDeleteButton(true);
     if (userPosts && userPosts.length > 0 && schoolName && index >= 0 && index <= userPosts.length) {
       const postBeingDeleted = userPosts[index];
-      const didDelete = promiseTimeout(10000, removePost(postBeingDeleted.key, schoolName));
+      const didDelete = promiseTimeout(10000, removePost(postBeingDeleted.key, schoolName, postUrl));
       didDelete.then((res) => {
         if (res) {
           Toast.success("Post deleted");
@@ -502,7 +515,7 @@ function User() {
       } else {
         //console.log(resComments);
         Toast.error(
-          "Comments are currently broken on this post, try again later"
+          "Unable to load comments"
         );
       }
     } catch (err: any) {
@@ -719,6 +732,8 @@ function User() {
     promise.then((loggedOut: any) => {
       if (loggedOut == "true") {
         Toast.success("Logging out...");
+        window.location.reload();
+        localStorage.clear();
       } else {
         Toast.error("Unable to logout");
       }
@@ -769,6 +784,7 @@ function User() {
   };
 
   useIonViewDidEnter(() => {
+    scrollToTop();
     setShowTabs(true);
     if (!user) {
       history.replace("/landing-page");
@@ -783,12 +799,12 @@ function User() {
       history.replace("/landing-page");
     } else {
       if (!loading && user) {
-        let url = localStorage.getItem("profilePhoto") || "false";
-        if (url == "false") {
+        // let url = localStorage.getItem("profilePhoto") || "false";
+        // if (url == "false") {
           setProfilePhoto(user.photoURL!);
-        } else {
-          setProfilePhoto(url);
-        }
+        // } else {
+          // setProfilePhoto(url);
+        // }
         setEmail(user.email!);
         setEditableEmail(user.email!);
         setUsername(user.displayName!);
@@ -810,7 +826,7 @@ function User() {
   }
   return (
     <IonPage>
-      <IonContent>
+      <IonContent ref={contentRef}>
         {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
         <IonToolbar mode="ios">
           <IonButtons slot="start">
@@ -876,14 +892,14 @@ function User() {
             <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
               <IonTextarea
                 mode="ios"
-                enterkeyhint="enter"
+                enterkeyhint="send"
                 rows={3}
                 style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
                 color="secondary"
                 spellcheck={true}
                 maxlength={200}
                 value={comment}
-                inputMode="text"
+                // inputMode="text"
                 placeholder="Leave a comment..."
                 id="commentModal"
                 onKeyPress={e => isEnterPressed(e.key)}
@@ -1255,6 +1271,7 @@ function User() {
           modules={[Pagination]}
           slidesPerView={1}
           onSlideChange={(e) => {
+            scrollToTop();
             switch (e.realIndex) {
               case 0:
                 break;
@@ -1585,7 +1602,11 @@ function User() {
                                     fill="outline"
                                     color="danger"
                                     onClick={() => {
-                                      deletePost(index);
+                                      if("url" in post && post.url && post.url.length > 0){
+                                        deletePost(index, post.url);
+                                      } else {
+                                        deletePost(index, "");
+                                      }
                                     }}
                                   >
                                     <DeleteIcon />

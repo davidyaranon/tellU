@@ -493,14 +493,14 @@ function Maps() {
             <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
               <IonTextarea
                 mode="ios"
-                enterkeyhint="enter"
+                enterkeyhint="send"
                 rows={3}
                 style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
                 color="secondary"
                 spellcheck={true}
                 maxlength={200}
                 value={comment}
-                inputMode="text"
+                // inputMode="text"
                 placeholder="Leave a comment..."
                 id="commentModal"
                 onKeyPress={e => isEnterPressed(e.key)}
@@ -758,7 +758,23 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{left:"85%", top:"50%"}} buttonStyle={{color: "#61dbfb"}}/>
+          <ZoomControl style={{left:"85%", top:"50%"}} buttonStyle={{
+            width:"50px",
+            height:'50px',
+            borderRadius:'1px',
+            boxShadow:'0 1px 4px -1px rgba(0,0,0,.3)',
+            background:'white',
+            lineHeight:'26px',
+            fontSize:'25PX',
+            fontWeight:'700',
+            color:'BLACK',
+            marginBottom:'1px',
+            cursor:'pointer',
+            border:'none',
+            display:'block',
+            outline:'none',
+            textIndent:'-7.5px',
+          }}/>
 
           {markers
             ? markers.map((marker, index) => {

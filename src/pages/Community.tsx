@@ -576,14 +576,14 @@ function Community() {
             <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
               <IonTextarea
                 mode="ios"
-                enterkeyhint="enter"
+                enterkeyhint="send"
                 rows={3}
                 style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
                 color="secondary"
                 spellcheck={true}
                 maxlength={200}
                 value={comment}
-                inputMode="text"
+                // inputMode="text"
                 placeholder="Leave a comment..."
                 id="commentModal"
                 onKeyPress={e => isEnterPressed(e.key)}
@@ -930,7 +930,9 @@ function Community() {
                     </Swiper>
                   )}
                 </>
-              ) : (null)}
+              ) : <><FadeIn delay={1000}><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+              <div style={{ textAlign: "center" }}><p>NO POLLS WITHIN PAST WEEK</p></div>
+              <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
             </FadeIn>
             <FadeIn transitionDuration={500}>
               {/* <IonHeader class="ion-no-border"> */}

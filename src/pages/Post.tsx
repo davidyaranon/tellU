@@ -283,7 +283,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   return (
     <IonPage>
       <IonContent>
-        <div style={{ width: "100%" }}>
+        <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
             <IonButtons slot="start">
               <IonButton
@@ -299,14 +299,14 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
           <IonTextarea
             mode="ios"
-            enterkeyhint="enter"
+            enterkeyhint="send"
             rows={3}
             style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
             color="secondary"
             spellcheck={true}
             maxlength={200}
             value={comment}
-            inputMode="text"
+            // inputMode="text"
             placeholder="Leave a comment..."
             id="commentModal"
             onKeyPress={e => isEnterPressed(e.key)}

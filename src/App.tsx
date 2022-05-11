@@ -8,6 +8,7 @@ import {
   setupIonicReact,
   IonTabBar,
   IonTabButton,
+  IonRippleEffect,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -117,18 +118,22 @@ const RoutingSystem: React.FunctionComponent = () => {
                 fontSize="large"
                 style={{ fontSize: "4.10vh" }}
               />
+              <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
             <IonTabButton tab="community" href="/community">
               <GroupsIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
+              <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
             <IonTabButton tab="maps" href="/maps">
               <MapIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
+              <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
             <IonTabButton tab="user" href="/user">
               <AccountCircleTwoToneIcon
                 fontSize="large"
                 style={{ fontSize: "4.10vh" }}
               />
+              <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL, } from "firebase/storage";
+import { getStorage, deleteObject, ref, uploadBytes, getDownloadURL, } from "firebase/storage";
 import {
   runTransaction,
   WriteBatch,
@@ -318,7 +318,7 @@ export const promiseTimeout = function (ms, promise) {
 export const getUserLikedPosts = async (uid) => {
   try {
     const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("timestamp", "desc"), limit(10));
+    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), limit(10));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";
@@ -328,7 +328,7 @@ export const getUserLikedPosts = async (uid) => {
         ...doc.data(),
         key: doc.id,
       });
-      lastKey = doc.data().timestamp;
+      lastKey = doc.data().likeTimestamp;
     }
     return { userLikes, lastKey };
   } catch (err) {
@@ -339,7 +339,7 @@ export const getUserLikedPosts = async (uid) => {
 export const getUserLikedPostsNextBatch = async (uid, key) => {
   try {
     const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("timestamp", "desc"), startAfter(key), limit(10));
+    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), startAfter(key), limit(10));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";
@@ -349,7 +349,7 @@ export const getUserLikedPostsNextBatch = async (uid, key) => {
         ...doc.data(),
         key: doc.id,
       });
-      lastKey = doc.data().timestamp;
+      lastKey = doc.data().likeTimestamp;
     }
     return { userLikes, lastKey };
   } catch (err) {
@@ -384,7 +384,7 @@ export const getNextBatchUserPosts = async (schoolName, uid, key) => {
   try {
     if (db) {
       const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(10));
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(5));
       const qSnap = await getDocs(q);
       let userPosts = [];
       let lastKey = "";
@@ -652,6 +652,7 @@ export const upVote = async (schoolName, postKey, post) => {
             message: post.message,
             photoURL: post.photoURL,
             timestamp: post.timestamp,
+            likeTimestamp: serverTimestamp(),
             uid: post.uid,
             userName: post.userName,
             postType: post.postType,
@@ -772,7 +773,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
   }
 };
 
-export const removePost = async (postKey, schoolName) => {
+export const removePost = async (postKey, schoolName, postUrl) => {
   try {
     const postRef = doc(
       db,
@@ -788,8 +789,12 @@ export const removePost = async (postKey, schoolName) => {
       "comments",
       postKey
     );
-    await deleteDoc(postRef);
-    await deleteDoc(postDocRef);
+    await deleteDoc(postRef).catch((err) => console.log(err) );
+    await deleteDoc(postDocRef).catch((err) => console.log(err) );
+    if(postUrl.length > 0) {
+      const pictureRef = ref(storage, postUrl);
+      await deleteObject(pictureRef).catch((err) => console.log(err) );
+    }
     return true;
   } catch (err) {
     console.log(err);
