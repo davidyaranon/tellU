@@ -1,21 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import auth, { getOnePost, removeComment } from '../fbconfig';
+import auth, { addCommentNew, addTestMessage, downVoteComment, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, upVoteComment } from '../fbconfig';
 import {
   upVote,
   downVote,
-  loadComments,
-  addComment,
   promiseTimeout,
 } from "../fbconfig";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import {
   IonAvatar,
-
   IonButton,
   IonButtons,
   IonCard,
@@ -25,16 +22,18 @@ import {
   IonFab,
   IonIcon,
   IonImg,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonItem,
   IonLabel,
   IonList,
+  IonNote,
   IonPage,
   IonRow,
-  IonSpinner,
+  IonSkeletonText,
   IonText,
   IonTextarea,
   IonToolbar,
-  useIonViewDidEnter,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
@@ -46,6 +45,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { cameraOutline, chatbubblesOutline, arrowBack } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import UIContext from "../my-context";
+import { Keyboard } from "@capacitor/keyboard";
 
 interface MatchUserPostParams {
   key: string;
@@ -59,23 +59,22 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const timeAgo = new TimeAgo("en-US");
   const [busy, setBusy] = useState<boolean>(false);
   const [post, setPost] = useState<any | null>(null);
-  const [comments, setComments] = useState<any[] | null>([]);
+  const [comments, setComments] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
   const Toast = useToast();
   const history = useHistory();
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
+  const [disabledLikeButtonsComments, setDisabledLikeButtonsComments] = useState<number>(-1);
+  const [likeAnimationComments, setLikeAnimationComments] = useState<number>(-1);
+  const [dislikeAnimationComments, setDislikeAnimationComments] = useState<number>(-1);
   const [user] = useAuthState(auth);
   const [postUpvotes, setPostUpvotes] = useState<number>(-1);
   const [postDownvotes, setPostDownvotes] = useState<number>(-1);
   const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
-
-  const ionInputStyle = {
-    height: "10vh",
-    width: "95vw",
-    marginLeft: "2.5vw",
-  };
+  const [lastKey, setLastKey] = useState<string>("");
+  const contentRef = useRef<HTMLIonContentElement | null>(null);
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
@@ -89,44 +88,18 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       setCommentsLoading(true);
       const hasTimedOut = promiseTimeout(
         10000,
-        addComment(postKey, schoolName, comment)
+        addCommentNew(postKey, schoolName, comment)
       );
-      hasTimedOut.then((commentSent) => {
-        setComment("");
+      hasTimedOut.then((commentSent: any) => {
         if (commentSent) {
           Toast.success("Comment added");
-          if (post) {
-            let tempPost = post;
-            tempPost.commentAmount += 1;
-            setPost(tempPost);
-          }
-          try {
-            // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-            const commentsHasTimedOut = promiseTimeout(
-              10000,
-              loadComments(postKey, schoolName)
-            );
-            commentsHasTimedOut.then((resComments) => {
-              if (resComments == null || resComments == undefined) {
-                Toast.error(
-                  "Post has been deleted"
-                );
-              } else {
-                //console.log(resComments);
-                setComments(resComments);
-              }
-            });
-            commentsHasTimedOut.catch((err) => {
-              Toast.error(err);
-              setCommentsLoading(false);
-            });
-          } catch (err: any) {
-            console.log(err);
-            Toast.error(err.message.toString());
+          if (comments) {
+            setComments(comments?.concat(commentSent));
           }
         } else {
           Toast.error("Unable to comment on post");
         }
+        setComment("");
         setCommentsLoading(false);
       });
       hasTimedOut.catch((err) => {
@@ -142,8 +115,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       onePost.then((res) => {
         if (res) {
           setPost(res);
-          setPostUpvotes(res.upVotes);
-          setPostDownvotes(res.downVotes);
+          setPostUpvotes(Object.keys(res.likes).length);
+          setPostDownvotes(Object.keys(res.dislikes).length);
         } else {
           Toast.error("Post has been deleted");
         }
@@ -156,27 +129,78 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
-  const getPostComments = () => {
-    setCommentsLoading(true);
-    if (postKey && schoolName) {
-      const commentsLoaded = promiseTimeout(7500, loadComments(postKey, schoolName));
+
+  const sendTestMessage = () => {
+    let messageText = "testDoc";
+    addTestMessage({ text: messageText })
+    .then((result) => {
+      // Read result of the Cloud Function.
+      /** @type {any} */
+      const data : any = result.data;
+      const sanitizedMessage = data.text;
+      console.log(data + '\n' + sanitizedMessage);
+    })
+    .catch((error) => {
+      // Getting the Error details.
+      const code = error.code;
+      const message = error.message;
+      const details = error.details;
+      console.log(code + '\n' + message + '\n' + details);
+      // ...
+    });
+  }
+
+  const handleLoadCommentsNextBatch = async (event: any) => {
+    if (postKey && schoolName && lastKey) {
+      const commentsLoaded = promiseTimeout(7500, loadCommentsNewNextBatch(postKey, schoolName, lastKey));
       commentsLoaded.then((res) => {
         if (res) {
-          setComments(res);
+          setComments(comments?.concat(res.comments));
+          setLastKey(res.lastKey);
+          event.target.complete();
         }
       });
       commentsLoaded.catch((err) => {
         Toast.error(err);
       })
+    } else {
+      console.log("HUH")
     }
-    setCommentsLoading(false);
+  }
+
+  const getDate = (timestamp: any) => {
+    if(timestamp && "nanoseconds" in timestamp && "seconds" in timestamp){
+      const time = new Date(
+        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+      );
+      return timeAgo.format(time);
+    } 
+    return "just now";
+  };
+
+  const getPostComments = () => {
+    setCommentsLoading(true);
+    if (postKey && schoolName) {
+      const commentsLoaded = promiseTimeout(7500, loadCommentsNew(postKey, schoolName));
+      commentsLoaded.then((res) => {
+        if (res) {
+          setComments(res.comments);
+          setLastKey(res.lastKey);
+        }
+        setCommentsLoading(false);
+      });
+      commentsLoaded.catch((err) => {
+        Toast.error(err);
+        setCommentsLoading(false);
+      })
+    }
   };
 
   const deleteComment = async (index: number) => {
     setCommentsLoading(true);
-    if (comments && post && schoolName) {
+    if (comments && schoolName) {
       const commentBeingDeleted = comments[index];
-      const didDelete = promiseTimeout(5000, removeComment(commentBeingDeleted, schoolName, postKey));
+      const didDelete = promiseTimeout(5000, removeCommentNew(commentBeingDeleted, schoolName, postKey));
       didDelete.then((res) => {
         if (res) {
           Toast.success("Comment deleted");
@@ -210,6 +234,53 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const handleUserPageNavigation = (uid: string) => {
     history.push("home/about/" + uid);
+  };
+
+  const handleUpVoteComment = async (commentKey: string, index: number) => {
+    const val = await upVoteComment(schoolName, postKey, commentKey);
+    if(val && (val === 1 || val === -1)) {
+      if(post && user){
+        let tempComments : any[] = [...comments];
+        if (tempComments[index].likes[user.uid]) {
+          delete tempComments[index].likes[user.uid];
+        } else {
+          if (tempComments[index].dislikes[user.uid]) {
+            delete tempComments[index].dislikes[user.uid];
+          }
+          tempComments[index].likes[user.uid] = true;
+        }
+        setComments(tempComments);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtonsComments(-1);
+        });
+      }
+    } else {
+      Toast.error("Unable to like comment");
+    }
+  };
+
+  const handleDownVoteComment = async (commentKey: string, index: number) => {
+    const val = await downVoteComment(schoolName, postKey, commentKey);
+    if (val && (val === 1 || val === -1)) {
+      if (post && user) {
+        let tempComments :any[] = [...comments];
+        tempComments[index].downVotes += val;
+        if (tempComments[index].dislikes[user.uid]) {
+          delete tempComments[index].dislikes[user.uid];
+        } else {
+          if (tempComments[index].likes[user.uid]) {
+            delete tempComments[index].likes[user.uid];
+          }
+          tempComments[index].dislikes[user.uid] = true;
+        }
+        setComments(tempComments);
+        await timeout(1000).then(() => {
+          setDisabledLikeButtonsComments(-1);
+        });
+      }
+    } else {
+      Toast.error("Unable to dislike comment");
+    }
   };
 
   const handleUpVote = async (post: any) => {
@@ -268,11 +339,11 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const isEnterPressed = (key: any) => {
     if (key === "Enter") {
-      handleCommentSubmit();
+      Keyboard.hide().then(() => { handleCommentSubmit() });
     }
   };
 
-  useIonViewDidEnter(() => {
+  useEffect(() => {
     // setShowTabs(false);
     if (user && schoolName) {
       getPost();
@@ -282,7 +353,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   return (
     <IonPage>
-      <IonContent>
+      <IonContent ref={contentRef} scrollEvents>
         <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
             <IonButtons slot="start">
@@ -327,7 +398,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         <p>
                           <IonAvatar
                             onClick={() => {
-                              setComments([]);
+                              // setComments([]);
                               setComment("");
                               handleUserPageNavigation(
                                 post.uid
@@ -352,8 +423,18 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           >
                             {post.postType.toUpperCase()}
                           </p>
+                          <IonNote style={{ fontSize: "0.85em" }}>
+                            {getDate(post.timestamp)}
+                          </IonNote>
                         </IonFab>
-                      ) : null}
+                      ) :
+                        (
+                          <IonFab vertical="top" horizontal="end">
+                            <IonNote style={{ fontSize: "0.85em" }}>
+                              {getDate(post.timestamp)}
+                            </IonNote>
+                          </IonFab>
+                        )}
                       <h2 className="h2-message">
                         {post.message}
                       </h2>
@@ -443,8 +524,26 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 ) : null}
               </div>
             </FadeIn>
-          ) : <IonSpinner className="ion-spinner" color="primary" />}
-
+          ) :
+            <>
+              <FadeIn>
+                <IonCard mode="ios" style={{ height: "20vh" }}>
+                  <IonCardContent>
+                    <IonRow>
+                      <IonCol size="2">
+                        <IonSkeletonText style={{ height: "5vh" }} animated></IonSkeletonText>
+                      </IonCol>
+                    </IonRow>
+                    <IonRow>
+                      <IonSkeletonText style={{ height: "2vh" }} animated></IonSkeletonText>
+                      <IonSkeletonText style={{ height: "2vh" }} animated></IonSkeletonText>
+                    </IonRow>
+                  </IonCardContent>
+                </IonCard>
+              </FadeIn>
+            </>
+          }
+          {/* <IonButton onClick={() => {handleCommentSubmit();}}>SEND</IonButton> */}
           {commentsLoading || !comments ? (
             <div
               style={{
@@ -454,13 +553,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 display: "flex",
               }}
             >
-              <IonSpinner color="primary" />
+              {/* <IonSpinner color="primary" /> */}
             </div>
           ) : (
             <FadeIn>
               <div>
                 {comments && comments.length > 0
-                  ? comments?.map((comment: any, index) => (
+                  ? comments?.map((comment: any, index: number) => (
                     <IonList inset={true} key={index}>
                       {" "}
                       <IonItem lines="none">
@@ -469,7 +568,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             <p>
                               <IonAvatar
                                 onClick={() => {
-                                  setComments([]);
+                                  // setComments([]);
                                   setComment("");
                                   handleUserPageNavigation(comment.uid);
                                 }}
@@ -498,24 +597,73 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                     </div>
                                   ) : null} */}
                         </IonLabel>
+                        {"timestamp" in comment ? (
+                          <IonFab vertical="top" horizontal="end">
+                            <IonNote style={{ fontSize: "0.75em" }}>
+                              {getDate(comment.timestamp)}
+                            </IonNote>
+                          </IonFab>
+                        ) : null}
                         <div></div>
                       </IonItem>
                       <IonItem lines="none" mode="ios">
                         <IonButton
+                          onAnimationEnd={() => {
+                            setLikeAnimationComments(-1);
+                          }}
+                          className={
+                            likeAnimationComments === comment.key ? "likeAnimation" : ""
+                          }
+                          disabled={disabledLikeButtonsComments === index}
                           mode="ios"
                           fill="outline"
-                          color="medium"
+                          color={
+                            comment &&
+                              user &&
+                              "likes" in comment &&
+                              comment.likes[user.uid] !==
+                              undefined
+                              ? "primary"
+                              : "medium"
+                          }
+                          onClick={() => {
+                            setLikeAnimationComments(comment.key);
+                            setDisabledLikeButtonsComments(index);
+                            handleUpVoteComment(comment.key, index);
+                          }}
                         >
                           <KeyboardArrowUpIcon />
-                          <p>{comment.upVotes} </p>
+                          <p>{Object.keys(comment.likes).length} </p>
                         </IonButton>
                         <IonButton
                           mode="ios"
                           fill="outline"
-                          color="medium"
+                          disabled={
+                            disabledLikeButtonsComments === index
+                          }
+                          onAnimationEnd={() => {
+                            setDislikeAnimationComments(-1);
+                          }}
+                          className={
+                            dislikeAnimationComments === comment.key ? "likeAnimation" : ""
+                          }
+                          color={
+                            comment &&
+                              user &&
+                              "dislikes" in comment &&
+                              comment.dislikes[user.uid] !==
+                              undefined
+                              ? "danger"
+                              : "medium"
+                          }
+                          onClick={() => {
+                            setDislikeAnimationComments(comment.key);
+                            setDisabledLikeButtonsComments(index);
+                            handleDownVoteComment(comment.key, index);
+                          }}
                         >
                           <KeyboardArrowDownIcon />
-                          <p>{comment.downVotes} </p>
+                          <p>{Object.keys(comment.dislikes).length} </p>
                         </IonButton>
                         {user && user.uid === comment.uid ? (
                           <IonFab horizontal="end">
@@ -536,11 +684,23 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </div>
             </FadeIn>
           )}
+          <IonInfiniteScroll
+            onIonInfinite={(e: any) => { handleLoadCommentsNextBatch(e) }}
+            disabled={(lastKey.length == 0) || (commentsLoading)}
+            position="bottom"
+          >
+            <IonInfiniteScrollContent
+              loadingSpinner="crescent"
+              loadingText="Loading"
+            ></IonInfiniteScrollContent>
+          </IonInfiniteScroll>
           {post ? (
-          <div style={{ height: "25vh" }}>
-            <p style={{ textAlign: "center" }}>&#183; </p>
-          </div>
-          ) : (null) }
+            <FadeIn>
+              <div style={{ height: "25vh" }}>
+                <p style={{ textAlign: "center" }}>&#183; </p>
+              </div>
+            </FadeIn>
+          ) : (null)}
         </div>
       </IonContent>
     </IonPage>

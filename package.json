@@ -23,6 +23,7 @@
     "@capacitor/storage": "^1.2.5",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
+    "@google-cloud/firestore": "5.0.2",
     "@ionic-native/dns": "^5.36.0",
     "@ionic-native/file": "^5.36.0",
     "@ionic/lab": "^3.2.11",
@@ -89,7 +90,8 @@
     "resources": "capacitor-resources -p android,ios",
     "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!(@ionic/react|@ionic/react-router|@ionic/core|@stencil/core|ionicons)/)'",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "kill": "npx kill-port 5000 5001 8080 8085 4000 9229"
   },
   "eslintConfig": {
     "extends": [
@@ -111,6 +113,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^3.4.3",
+    "@google-cloud/functions-framework": "^3.1.1",
     "@types/uuid": "^8.3.4"
   },
   "description": "Wildfire 2.0 - University Chat and Alerts App"

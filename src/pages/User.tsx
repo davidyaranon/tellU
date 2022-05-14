@@ -28,6 +28,7 @@ import {
   useIonViewDidEnter,
   IonRow,
   IonCol,
+  IonGrid,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -42,15 +43,13 @@ import {
   upVote,
   downVote,
   getNextBatchUserPosts,
-  addComment,
-  loadComments,
-  removeComment,
   removePost,
   getUserLikedPostsNextBatch,
   getUserLikedPosts,
   getYourPolls,
   pollVote,
-  getPolls,
+  updateUserInfo,
+  getCurrentUserData,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -74,7 +73,7 @@ import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
-import { moon } from "ionicons/icons";
+import { cameraReverseOutline, logoInstagram, logoSnapchat, logoTiktok, moon } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setDarkMode } from "../redux/actions";
@@ -103,19 +102,7 @@ function User() {
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
-  const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
-  const [commentModalPostIndex, setCommentModalPostIndex] =
-    useState<number>(-1);
-  const [commentModalPostUpvotes, setCommentModalPostUpvotes] =
-    useState<number>(-1);
-  const [commentModalPostDownvotes, setCommentModalPostDownvotes] =
-    useState<number>(-1);
   const { setShowTabs } = React.useContext(UIContext);
-  const [commentModalPost, setCommentModalPost] = useState<any | null>(null);
-  const [showCommentModal, setShowCommentModal] = useState<boolean>(false);
-  const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
-  const [comments, setComments] = useState<any[] | null>(null);
-  const [comment, setComment] = useState<string>("");
   const Toast = useToast();
   const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -136,6 +123,7 @@ function User() {
   const [lastLikesKey, setLastLikesKey] = useState<any>();
   const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(false);
   const [noMoreLikes, setNoMoreLikes] = useState<boolean>(false);
+  const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
   const [credentialsUserModal, setCredentialsUserModal] =
     useState<boolean>(false);
   const [loadingUserPosts, setLoadingUserPosts] = useState<boolean>(false);
@@ -144,28 +132,27 @@ function User() {
   const [busy, setBusy] = useState<boolean>(false);
   const contentRef = useRef<HTMLIonContentElement | null>(null);
   const history = useHistory();
+  const [userBio, setUserBio] = useState<string>("");
+  const [userMajor, setUserMajor] = useState<string>("");
+  const [userTiktok, setUserTiktok] = useState<string>("");
+  const [userInstagram, setUserInstagram] = useState<string>("");
+  const [userSnapchat, setUserSnapchat] = useState<string>("");
+  const [editableUserBio, setEditableUserBio] = useState<string>("");
+  const [editableUserMajor, setEditableUserMajor] = useState<string>("");
+  const [editableUserTiktok, setEditableUserTiktok] = useState<string>("");
+  const [editableUserInstagram, setEditableUserInstagram] = useState<string>("");
+  const [editableUserSnapchat, setEditableUserSnapchat] = useState<string>("");
+  const [showEditEmailModal, setShowEditEmailModal] = useState<boolean>(false);
+  const [userDataHasLoaded, setUserDataHasLoaded] = useState<boolean>(false);
+  const [showEditUsernameModal, setShowEditUsernameModal] = useState<boolean>(false);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 
   const titleStyle = {
     fontSize: "6.5vw",
   };
 
-  const ionInputStyle = {
-    height: "10vh",
-    width: "95vw",
-    marginLeft: "2.5vw",
-  };
-
   const scrollToTop = () => {
     contentRef.current && contentRef.current.scrollToTop(500);
-  };
-
-  const handleUserPageNavigation = (uid: string) => {
-    if (commentModalPost) {
-      if (commentModalPost.uid != uid) {
-        history.push("home/about/" + uid);
-      }
-    }
   };
 
   const keyStyleOptionsDark: KeyboardStyleOptions = {
@@ -189,12 +176,45 @@ function User() {
     }
   };
 
+  const handleEditAbout = () => {
+    if (user && user.uid) {
+      if (!userDataHasLoaded) {
+        const gotUserData = promiseTimeout(7500, getCurrentUserData());
+        gotUserData.then((res: any) => {
+          if(res){
+            setUserBio(res.bio);
+            setUserMajor(res.major);
+            setUserInstagram(res.instagram);
+            setUserSnapchat(res.snapchat);
+            setUserTiktok(res.tiktok);
+            setEditableUserBio(res.bio);
+            setEditableUserMajor(res.major);
+            setEditableUserInstagram(res.instagram);
+            setEditableUserSnapchat(res.snapchat);
+            setEditableUserTiktok(res.tiktok);
+          } else {
+            Toast.error("Trouble loading data");
+          }
+          setUserDataHasLoaded(true);
+        });
+        gotUserData.catch((err) => {
+          Toast.error(err);
+        });
+      }
+      setShowAboutModal(true);
+    } else {
+      Toast.error("Trouble handling request");
+    }
+  }
+
   const handleEdit = () => {
-    handleCheckmark();
+    setShowEditEmailModal(true);
+    // handleCheckmark();
   };
 
   const handleUserEdit = () => {
-    handleUserCheckmark();
+    setShowEditUsernameModal(true);
+    // handleUserCheckmark();
   };
 
   const handleChangeEmailString = (e: any) => {
@@ -208,7 +228,7 @@ function User() {
   const handleCheckmark = () => {
     if (emojis.test(editableEmail)) {
       Toast.error("Email cannot contain emojis!");
-    } else if(editableEmail.trim().length <= 0){
+    } else if (editableEmail.trim().length <= 0) {
       Toast.error("Email cannot be blank");
     } else if (editableEmail.trim() != email.trim()) {
       promptForCredentials();
@@ -218,11 +238,11 @@ function User() {
   };
 
   const handleUserCheckmark = () => {
-    if(emojis.test(editableUsername)){
+    if (emojis.test(editableUsername)) {
       Toast.error("Username cannot contain emojis!");
-    } else if (editableUsername.trim().length <= 0){
+    } else if (editableUsername.trim().length <= 0) {
       Toast.error("Username cannot be blank");
-    } else if(editableEmail.trim().length > 15) {
+    } else if (editableUsername.trim().length > 15) {
       Toast.error("Username cannot be longer than 15 characters");
     } else if (editableUsername.trim() != username.trim()) {
       promptForUsernameCredentials();
@@ -297,65 +317,38 @@ function User() {
     }
   }
 
-  const handleChangeComment = (e: any) => {
-    let currComment = e.detail.value;
-    setComment(currComment);
-  };
-
-  const handleCommentSubmit = async (postKey: string) => {
-    if (comment.trim().length == 0) {
-      Toast.error("Input a comment");
-    } else {
-      setCommentsBusy(true);
-      const hasTimedOut = promiseTimeout(
-        10000,
-        addComment(postKey, schoolName, comment)
-      );
-      hasTimedOut.then((commentSent) => {
-        setComment("");
-        if (commentSent) {
-          Toast.success("Comment added");
-          if (userPosts) {
-            let tempPosts: any[] = [...userPosts];
-            tempPosts[commentModalPostIndex].commentAmount += 1;
-            setUserPosts(tempPosts);
-          }
-          try {
-            // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-            const commentsHasTimedOut = promiseTimeout(
-              10000,
-              loadComments(postKey, schoolName)
-            );
-            commentsHasTimedOut.then((resComments) => {
-              if (resComments == null || resComments == undefined) {
-                Toast.error(
-                  "Unable to load comments"
-                );
-              } else {
-                setComments(resComments);
-              }
-            });
-            commentsHasTimedOut.catch((err) => {
-              Toast.error(err);
-              setCommentsBusy(false);
-            });
-          } catch (err: any) {
-            console.log(err);
-            Toast.error(err.message.toString());
-          }
-        } else {
-          Toast.error("Unable to comment on post");
-        }
-        setCommentsBusy(false);
-      });
-      hasTimedOut.catch((err) => {
-        Toast.error(err);
-        setCommentsBusy(false);
-      });
+  const handleUpdateAboutUser = async () => {
+    setUserDataHasLoaded(false);
+    if(editableUserBio.trim() == userBio.trim() 
+    && editableUserInstagram.trim() == userInstagram.trim()
+    && editableUserSnapchat.trim() == userSnapchat.trim()
+    && editableUserMajor.trim() == userMajor.trim()
+    && editableUserTiktok.trim() == userTiktok.trim()){
+      Toast.error("No changes made");
+      setUserDataHasLoaded(true);
+      return;
     }
+    let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok));
+    userDataUpdated.then((res) => {
+      if(res){
+        setUserBio(editableUserBio);
+        setUserSnapchat(editableUserSnapchat);
+        setUserInstagram(editableUserInstagram);
+        setUserTiktok(editableUserTiktok);
+        setUserMajor(editableUserMajor);
+        Toast.success("Updated!");
+      } else {
+        Toast.error("Something went wrong, try again");
+      }
+      setUserDataHasLoaded(true);
+    });
+    userDataUpdated.catch((err) => {
+      Toast.error(err);
+      setUserDataHasLoaded(true);
+    });
   };
 
-  const deletePost = async (index: number, postUrl : string) => {
+  const deletePost = async (index: number, postUrl: string) => {
     setDisabledDeleteButton(true);
     if (userPosts && userPosts.length > 0 && schoolName && index >= 0 && index <= userPosts.length) {
       const postBeingDeleted = userPosts[index];
@@ -386,48 +379,13 @@ function User() {
   };
 
   const getDate = (timestamp: any) => {
-    const time = new Date(
-      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-    );
-    return timeAgo.format(time);
-  };
-
-  const deleteComment = async (index: number) => {
-    setCommentsLoading(true);
-    if (comments && commentModalPost && schoolName) {
-      const commentBeingDeleted = comments[index];
-      const didDelete = promiseTimeout(
-        10000,
-        removeComment(commentBeingDeleted, schoolName, commentModalPost.key)
+    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
+      const time = new Date(
+        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
       );
-      didDelete.then((res) => {
-        if (res) {
-          if (comments.length == 0) {
-            setComments([]);
-          } else {
-            let tempComments: any[] = [];
-            for (let i = 0; i < comments.length; ++i) {
-              if (i !== index) {
-                tempComments.push(comments[i]);
-              }
-            }
-            setComments(tempComments);
-            Toast.success("Comment deleted");
-            //console.log(tempComments);
-          }
-          setCommentsLoading(false);
-        } else {
-          Toast.error("Unable to delete comment");
-          setCommentsLoading(false);
-        }
-      });
-      didDelete.catch((err) => {
-        Toast.error(err);
-        setCommentsLoading(false);
-      });
+      return timeAgo.format(time);
     } else {
-      Toast.error("Unable to delete comment");
-      setCommentsLoading(false);
+      return '';
     }
   };
 
@@ -498,31 +456,31 @@ function User() {
     }
   }
 
-  const handleCommentModal = async (post: any, postIndex: number) => {
-    setCommentsLoading(true);
-    setCommentModalPostIndex(postIndex);
-    setCommentModalPostDownvotes(post.downVotes);
-    setCommentModalPostUpvotes(post.upVotes);
-    setCommentModalPost(post);
-    setShowCommentModal(true);
-    try {
-      // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-      const resComments = await loadComments(post.key, schoolName);
-      if (resComments != null && resComments != undefined) {
-        //console.log(resComments);
-        setComments(resComments);
-        setCommentsLoading(false);
-      } else {
-        //console.log(resComments);
-        Toast.error(
-          "Unable to load comments"
-        );
-      }
-    } catch (err: any) {
-      console.log(err);
-      Toast.error(err.message.toString());
-    }
-  };
+  // const handleCommentModal = async (post: any, postIndex: number) => {
+  //   setCommentsLoading(true);
+  //   setCommentModalPostIndex(postIndex);
+  //   setCommentModalPostDownvotes(Object.keys(post.dislikes).length);
+  //   setCommentModalPostUpvotes(Object.keys(post.likes).length);
+  //   setCommentModalPost(post);
+  //   setShowCommentModal(true);
+  //   try {
+  //     // load comments from /schoolPosts/{schoolName}/comments/{post.key}
+  //     const resComments = await loadComments(post.key, schoolName);
+  //     if (resComments != null && resComments != undefined) {
+  //       //console.log(resComments);
+  //       setComments(resComments);
+  //       setCommentsLoading(false);
+  //     } else {
+  //       //console.log(resComments);
+  //       Toast.error(
+  //         "Unable to load comments"
+  //       );
+  //     }
+  //   } catch (err: any) {
+  //     console.log(err);
+  //     Toast.error(err.message.toString());
+  //   }
+  // };
 
   async function handleEmailChange() {
     setBusy(true);
@@ -547,6 +505,7 @@ function User() {
                   })
                     .then(() => {
                       Toast.success("Updated email");
+                      setEmail(editableEmail);
                       setCredentialsModal(false);
                       setBusy(false);
                     })
@@ -587,14 +546,14 @@ function User() {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
         tempPosts[index].upVotes += val;
-        setCommentModalPostUpvotes(commentModalPostUpvotes + val);
+        // setCommentModalPostUpvotes(commentModalPostUpvotes + val);
         if (tempPosts[index].likes[user.uid]) {
           delete tempPosts[index].likes[user.uid];
         } else {
           if (tempPosts[index].dislikes[user.uid]) {
             delete tempPosts[index].dislikes[user.uid];
             tempPosts[index].downVotes -= 1;
-            setCommentModalPostDownvotes(commentModalPostDownvotes - 1);
+            // setCommentModalPostDownvotes(commentModalPostDownvotes - 1);
           }
           tempPosts[index].likes[user.uid] = true;
         }
@@ -613,7 +572,7 @@ function User() {
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
-        setCommentModalPostDownvotes(commentModalPostDownvotes + val);
+        // setCommentModalPostDownvotes(commentModalPostDownvotes + val);
         tempPosts[index].downVotes += val;
         if (tempPosts[index].dislikes[user.uid]) {
           delete tempPosts[index].dislikes[user.uid];
@@ -621,7 +580,7 @@ function User() {
           if (tempPosts[index].likes[user.uid]) {
             delete tempPosts[index].likes[user.uid];
             tempPosts[index].upVotes -= 1;
-            setCommentModalPostUpvotes(commentModalPostUpvotes - 1);
+            // setCommentModalPostUpvotes(commentModalPostUpvotes - 1);
           }
           tempPosts[index].dislikes[user.uid] = true;
         }
@@ -657,7 +616,6 @@ function User() {
         });
     } else {
       setNoMorePosts(true);
-      Toast.warning("No more posts");
     }
   };
 
@@ -721,19 +679,19 @@ function User() {
     }
   }
 
-  const isEnterPressed = (key: any) => {
-    if (key === "Enter") {
-      handleCommentSubmit(commentModalPost.key);
-    }
-  };
+  // const isEnterPressed = (key: any) => {
+  //   if (key === "Enter") {
+  //     Keyboard.hide().then(() => { handleCommentSubmit(commentModalPost.key) });
+  //   }
+  // };
 
   async function loadLogout() {
     let promise = promiseTimeout(10000, logout());
     promise.then((loggedOut: any) => {
       if (loggedOut == "true") {
-        Toast.success("Logging out...");
-        window.location.reload();
+        window.localStorage.clear();
         localStorage.clear();
+        Toast.success("Logging out...");
       } else {
         Toast.error("Unable to logout");
       }
@@ -742,6 +700,27 @@ function User() {
       Toast.error(err);
     });
   }
+
+  const handleUserBioChange = (e: any) => {
+    let currBio = e.detail.value;
+    setEditableUserBio(currBio);
+  };
+  const handleUserMajorChange = (e: any) => {
+    let currMajor= e.detail.value;
+    setEditableUserMajor(currMajor);
+  };
+  const handleUserTiktokChange = (e: any) => {
+    let curr= e.detail.value;
+    setEditableUserTiktok(curr);
+  };
+  const handleUserSnapchatChange = (e: any) => {
+    let curr = e.detail.value;
+    setEditableUserSnapchat(curr);
+  };
+  const handleUserInstagramChange = (e: any) => {
+    let curr= e.detail.value;
+    setEditableUserInstagram(curr);
+  };
 
   const loadUserLikes = () => {
     if (schoolName && user) {
@@ -789,7 +768,11 @@ function User() {
     if (!user) {
       history.replace("/landing-page");
     } else {
-
+      setEmail(user.email!);
+      setEditableEmail(user.email!);
+      setUsername(user.displayName!);
+      setEditableUsername(user.displayName!);
+      setBusy(false);
     }
   }, [user])
 
@@ -801,9 +784,9 @@ function User() {
       if (!loading && user) {
         // let url = localStorage.getItem("profilePhoto") || "false";
         // if (url == "false") {
-          setProfilePhoto(user.photoURL!);
+        setProfilePhoto(user.photoURL!);
         // } else {
-          // setProfilePhoto(url);
+        // setProfilePhoto(url);
         // }
         setEmail(user.email!);
         setEditableEmail(user.email!);
@@ -831,6 +814,8 @@ function User() {
         <IonToolbar mode="ios">
           <IonButtons slot="start">
             <IonButton
+              // style={{opacity: "40%"}}
+              // disabled
               onClick={loadLogout}
               color="danger"
               mode="ios"
@@ -853,8 +838,19 @@ function User() {
         <IonHeader mode="ios" class="ion-no-border" style={{ textAlign: "center" }}>
           <IonToolbar mode="ios">
             <IonAvatar className="user-avatar">
-              <IonImg className="user-image" src={profilePhoto}></IonImg>
+              <IonImg style={{ opacity: "80%" }} className="user-image" src={profilePhoto}></IonImg>
+              <IonIcon size="large" icon={cameraReverseOutline} onClick={handleProfilePictureEdit}
+                style={{ zIndex: "2", position: "absolute", margin: "auto", left: "54%", top: "0%" }}
+              />
             </IonAvatar>
+            {/* <IonButton
+            style={{zIndex: "999", right: "10%"}}
+                    onClick={handleProfilePictureEdit}
+                    color="primary"
+                  >
+                    {" "}
+                    Edit{" "}
+                  </IonButton> */}
           </IonToolbar>
         </IonHeader>
         <FadeIn>
@@ -872,7 +868,185 @@ function User() {
           isOpen={busy}
         ></IonLoading>
 
-        <IonModal backdropDismiss={false} isOpen={showCommentModal}>
+        <IonModal backdropDismiss={false} isOpen={showAboutModal}>
+          <IonContent>
+            <div slot="fixed" style={{ width: "100%" }}>
+              <IonToolbar mode="ios" >
+                <IonButtons slot="start">
+                  <IonButton
+                    mode="ios"
+                    onClick={() => {
+                      setShowAboutModal(false);
+                      setEditableUserBio(userBio);
+                      setEditableUserInstagram(userInstagram);
+                      setEditableUserMajor(userMajor);
+                      setEditableUserTiktok(userTiktok);
+                      setEditableUserSnapchat(userSnapchat);
+                    }}
+                  >
+                    Back
+                  </IonButton>
+                </IonButtons>
+                <IonButtons slot="end">
+                  <IonButton
+                    slot="end"
+                    mode="ios"
+                    onClick={() => { handleUpdateAboutUser(); }}
+                  >Save</IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </div>
+              <IonLoading isOpen={!userDataHasLoaded} spinner="dots" />
+              <br /> <br />
+            <IonCard mode="ios">
+              <IonCardContent>
+                <IonLabel>About</IonLabel>
+                <IonTextarea
+                  style={{fontWeight:"bold"}}
+                  rows={4}
+                  mode="ios"
+                  id="bio"
+                  color="primary"
+                  maxlength={150}
+                  value={editableUserBio}
+                  onIonChange={(e: any) => {
+                    handleUserBioChange(e);
+                  }}
+                />
+              </IonCardContent>
+            </IonCard>
+            <IonCard mode="ios">
+              <IonCardContent>
+                <IonLabel>Major</IonLabel>
+                <IonInput
+                  style={{fontWeight:"bold"}}
+                  mode="ios"
+                  id="major"
+                  color="primary"
+                  maxlength={50}
+                  value={editableUserMajor}
+                  onIonChange={(e: any) => {
+                    handleUserMajorChange(e);
+                  }}
+                />
+              </IonCardContent>
+            </IonCard>
+            <IonCard mode="ios">
+              <IonCardContent>
+                <IonLabel>Snapchat <IonIcon icon={logoSnapchat} /> </IonLabel>
+                <IonInput
+                  style={{fontWeight:"bold"}}
+                  mode="ios"
+                  id="bio"
+                  color="primary"
+                  maxlength={50}
+                  value={editableUserSnapchat}
+                  onIonChange={(e: any) => {
+                    handleUserSnapchatChange(e);
+                  }}
+                />
+              </IonCardContent>
+            </IonCard>
+            <IonCard mode="ios">
+              <IonCardContent>
+                <IonLabel>Instagram <IonIcon icon={logoInstagram} /> </IonLabel>
+                <IonTextarea
+                  style={{fontWeight:"bold"}}
+                  mode="ios"
+                  id="bio"
+                  color="primary"
+                  maxlength={50}
+                  value={editableUserInstagram}
+                  onIonChange={(e: any) => {
+                    handleUserInstagramChange(e);
+                  }}
+                />
+              </IonCardContent>
+            </IonCard>
+            <IonCard mode="ios">
+              <IonCardContent>
+                <IonLabel>TikTok <IonIcon icon={logoTiktok} /> </IonLabel>
+                <IonTextarea
+                  style={{fontWeight:"bold"}}
+                  mode="ios"
+                  id="bio"
+                  color="primary"
+                  maxlength={50}
+                  value={editableUserTiktok}
+                  onIonChange={(e: any) => {
+                    handleUserTiktokChange(e);
+                  }}
+                />
+              </IonCardContent>
+            </IonCard>
+          </IonContent>
+        </IonModal>
+
+        <IonModal backdropDismiss={false} isOpen={showEditEmailModal}>
+          <div slot="fixed" style={{ width: "100%" }}>
+            <IonToolbar mode="ios" >
+              <IonButtons slot="start">
+                <IonButton
+                  mode="ios"
+                  onClick={() => {
+                    setShowEditEmailModal(false);
+                    if (user && user.email) { setEditableEmail(user.email); }
+                  }}
+                >
+                  <IonIcon icon={arrowBack}></IonIcon> Back
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </div>
+          <br />
+          <IonItem mode="ios">
+            <IonInput
+              mode="ios"
+              style={{ width: "75vw" }}
+              ref={inputRef}
+              readonly={false}
+              value={editableEmail}
+              onIonChange={(e) => {
+                handleChangeEmailString(e);
+              }}
+            ></IonInput>
+          </IonItem>
+          <IonButton mode="ios" color="primary" fill="outline" onClick={handleCheckmark}>Change</IonButton>
+        </IonModal>
+
+        <IonModal backdropDismiss={false} isOpen={showEditUsernameModal}>
+          <div slot="fixed" style={{ width: "100%" }}>
+            <IonToolbar mode="ios" >
+              <IonButtons slot="start">
+                <IonButton
+                  mode="ios"
+                  onClick={() => {
+                    setShowEditUsernameModal(false);
+                    if (user && user.displayName) { setEditableUsername(user.displayName); }
+                  }}
+                >
+                  <IonIcon icon={arrowBack}></IonIcon> Back
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </div>
+          <br />
+          <IonItem mode="ios">
+            <IonInput
+              mode="ios"
+              style={{ width: "75vw" }}
+              ref={inputUserRef}
+              readonly={false}
+              value={editableUsername}
+              onIonChange={(e) => {
+                handleChangeUsernameString(e);
+              }}
+            ></IonInput>
+          </IonItem>
+          <IonButton mode="ios" color="primary" fill="outline" onClick={handleUserCheckmark}>Change</IonButton>
+        </IonModal>
+
+        {/* <IonModal backdropDismiss={false} isOpen={showCommentModal}>
           <IonContent>
             <div slot="fixed" style={{ width: "100%" }}>
               <IonToolbar mode="ios" >
@@ -1068,7 +1242,7 @@ function User() {
                     ? comments?.map((comment: any, index) => (
                       <IonList inset={true} key={index}>
                         {" "}
-                        {/*dont do this, change index!*/}
+                        {/*dont do this, change index!
                         <IonItem lines="none">
                           <IonLabel class="ion-text-wrap">
                             <IonText color="medium">
@@ -1107,7 +1281,7 @@ function User() {
                               {" "}
                               {comment.comment}{" "}
                             </h2>
-                            {/* {comment.url.length > 0 ? (
+                            {comment.url.length > 0 ? (
                                     <div className="ion-img-container">
                                       <br></br>
                                       <IonImg
@@ -1117,7 +1291,7 @@ function User() {
                                         src={comment.imgSrc}
                                       />
                                     </div>
-                                  ) : null} */}
+                                  ) : null}
                           </IonLabel>
                           <div></div>
                         </IonItem>
@@ -1155,7 +1329,7 @@ function User() {
               </div>
             </div>
           </IonContent>
-        </IonModal>
+          </IonModal> */}
 
         <IonModal backdropDismiss={false} isOpen={credentialsModal}>
           <div className="ion-modal">
@@ -1265,7 +1439,6 @@ function User() {
             </IonList>
           </div>
         </IonModal>
-
         <Swiper
           pagination={{ dynamicBullets: true }}
           modules={[Pagination]}
@@ -1306,19 +1479,27 @@ function User() {
               </IonHeader>
               <IonList mode="ios" inset={true}>
                 <IonItem mode="ios">
-                  <IonLabel mode="ios">
-                    <IonText color="medium">
-                      <p> Email </p>
-                    </IonText>
-                    <IonInput
+                  <IonGrid>
+                    <IonRow>
+                      <IonLabel mode="ios">
+                        <IonText color="medium">
+                          <p> Email </p>
+                        </IonText>
+                        {/* <IonInput
+                      style={{ width: "60vw" }}
                       ref={inputRef}
                       readonly={false}
                       value={editableEmail}
                       onIonChange={(e) => {
                         handleChangeEmailString(e);
                       }}
-                    ></IonInput>
-                  </IonLabel>
+                    ></IonInput> */}
+                      </IonLabel>
+                    </IonRow>
+                    <IonRow>
+                      <p>{editableEmail}</p>
+                    </IonRow>
+                  </IonGrid>
                   <IonButton
                     disabled={false}
                     onClick={handleEdit}
@@ -1330,11 +1511,13 @@ function User() {
                   </IonButton>
                 </IonItem>
                 <IonItem mode="ios">
-                  <IonLabel mode="ios">
-                    <IonText color="medium">
-                      <p> Username </p>
-                    </IonText>
-                    <IonInput
+                  <IonGrid>
+                    <IonRow>
+                      <IonLabel mode="ios">
+                        <IonText color="medium">
+                          <p> Username </p>
+                        </IonText>
+                        {/* <IonInput
                       maxlength={15}
                       ref={inputUserRef}
                       readonly={false}
@@ -1342,8 +1525,13 @@ function User() {
                       onIonChange={(e) => {
                         handleChangeUsernameString(e);
                       }}
-                    ></IonInput>
-                  </IonLabel>
+                    ></IonInput> */}
+                      </IonLabel>
+                    </IonRow>
+                    <IonRow>
+                      <p>{editableUsername}</p>
+                    </IonRow>
+                  </IonGrid>
                   <IonButton
                     disabled={false}
                     onClick={handleUserEdit}
@@ -1354,7 +1542,7 @@ function User() {
                     Edit{" "}
                   </IonButton>
                 </IonItem>
-                <IonItem mode="ios">
+                {/* <IonItem mode="ios">
                   <p>Profile Picture</p>
                   <IonButton
                     onClick={handleProfilePictureEdit}
@@ -1363,6 +1551,27 @@ function User() {
                   >
                     {" "}
                     Edit{" "}
+                  </IonButton>
+                </IonItem> */}
+                <IonItem mode="ios">
+                  <IonGrid>
+                    <IonRow>
+                      <IonLabel mode="ios">
+                        <IonText color="medium">
+                          <p> About </p>
+                        </IonText>
+                      </IonLabel>
+                    </IonRow>
+                    <IonRow>
+                      <p>...</p>
+                    </IonRow>
+                  </IonGrid>
+                  <IonButton
+                    color="medium"
+                    slot="end"
+                    onClick={() => { handleEditAbout(); }}
+                  >
+                    Edit
                   </IonButton>
                 </IonItem>
                 <IonItem mode="ios">
@@ -1552,14 +1761,14 @@ function User() {
                                   }}
                                 >
                                   <KeyboardArrowUpIcon />
-                                  <p>{post.upVotes} </p>
+                                  <p>{Object.keys(post.likes).length} </p>
                                 </IonButton>
                                 <p>&nbsp;</p>
                                 <IonButton
                                   mode="ios"
                                   color="medium"
                                   onClick={() => {
-                                    handleCommentModal(post, index);
+                                    history.push("home/post/" + post.key);
                                   }}
                                 >
                                   <ForumIcon />
@@ -1593,7 +1802,7 @@ function User() {
                                   }}
                                 >
                                   <KeyboardArrowDownIcon />
-                                  <p>{post.downVotes} </p>
+                                  <p>{Object.keys(post.dislikes).length} </p>
                                 </IonButton>
                                 <IonFab horizontal="end">
                                   <IonButton
@@ -1602,7 +1811,7 @@ function User() {
                                     fill="outline"
                                     color="danger"
                                     onClick={() => {
-                                      if("url" in post && post.url && post.url.length > 0){
+                                      if ("url" in post && post.url && post.url.length > 0) {
                                         deletePost(index, post.url);
                                       } else {
                                         deletePost(index, "");
@@ -1664,7 +1873,7 @@ function User() {
                     <>
                       {yourPolls.map((poll) => {
                         return (
-                          <IonCard mode='ios'>
+                          <IonCard mode='ios' key={poll.key}>
                             <IonCardContent style={{ minHeight: "60vh" }}>
                               <p>{poll.userName}</p>
                               <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>

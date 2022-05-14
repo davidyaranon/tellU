@@ -7,11 +7,7 @@ import {
   IonImg,
   IonList,
   IonItem,
-  IonLabel,
-  IonTextarea,
   IonLoading,
-  IonText,
-  IonAvatar,
   IonNote,
   IonButton,
   IonIcon,
@@ -25,7 +21,6 @@ import {
   IonSpinner,
   IonPage,
   useIonViewWillEnter,
-  IonCheckbox,
   IonInput,
   IonCardSubtitle,
 } from "@ionic/react";
@@ -36,49 +31,25 @@ import ForumIcon from "@mui/icons-material/Forum";
 import {
   addCircleOutline,
   arrowBack,
-  chevronBack,
-  chevronForward,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getPolls, getTopWeeklyPosts, getYourPolls, pollVote, removeComment, submitPollFb } from "../fbconfig";
+import auth, { getPolls, getTopWeeklyPosts, pollVote,  submitPollFb } from "../fbconfig";
 import {
-  addComment,
   downVote,
   getTopPostsWithinPastDay,
-  loadComments,
   promiseTimeout,
   upVote,
 } from "../fbconfig";
 import "../App.css";
 import { useHistory } from "react-router";
-import { getNextBatchUsers } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useSelector } from "react-redux";
 import "swiper/css";
 import "swiper/css/pagination";
 import FadeIn from "react-fade-in";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
-import TimeAgo from "javascript-time-ago";
 import { getColor, timeout } from '../components/functions';
-import UIContext  from '../my-context';
-
-// const fetchMoreUserData = (key: string) => {
-//   if (key && key.length > 0) {
-//     setBusy(true);
-//     getNextBatchUsers(key)
-//       .then((res) => {
-//         setLastKey(res!.lastKey);
-//         setUserList(userList?.concat(res?.userList));
-//         setBusy(false);
-//       })
-//       .catch((err: any) => {
-//         Toast.error(err.message.toString());
-//         setBusy(false);
-//       });
-//   }
-// };
+import UIContext from '../my-context';
 
 interface Poll {
   id: string,
@@ -93,29 +64,16 @@ interface PollAnswer {
 function Community() {
   const schoolName = useSelector((state: any) => state.user.school);
   const Toast = useToast();
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const [topPosts, setTopPosts] = useState<any[]>([]);
   const [topWeeklyPosts, setTopWeeklyPosts] = useState<any[]>([]);
-  const timeAgo = new TimeAgo("en-US");
   const [user, loading, error] = useAuthState(auth);
   const [busy, setBusy] = useState<boolean>(false);
-  const [comment, setComment] = useState<string>("");
-  const [showModalComment, setShowModalComment] = useState<boolean>(false);
-  const [commentModalPost, setCommentModalPost] = useState<any | null>(null);
-  const [comments, setComments] = useState<any[] | null>(null);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
-  const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
   const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
   const history = useHistory();
   const [pollSubmitting, setPollSubmitting] = useState<boolean>(false);
-  const [commentModalPostUpvotes, setCommentModalPostUpvotes] =
-    useState<number>(-1);
-  const [commentModalPostDownvotes, setCommentModalPostDownvotes] =
-    useState<number>(-1);
-  const [commentModalPostIndex, setCommentModalPostIndex] =
-    useState<number>(-1);
   const [pollModalOpen, setPollModalOpen] = useState<boolean>(false);
   const [pollText, setPollText] = useState<string>("");
   const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
@@ -127,7 +85,6 @@ function Community() {
   const [polls, setPolls] = useState<any[]>([]);
   const [yourPollsSelected, setYourPollsSelected] = useState<boolean>(false);
   const [yourPolls, setYourPolls] = useState<any[]>([]);
-  const [yourPollsLoadedAlready, setYourPollsLoadedAlready] = useState<boolean>(false);
   const { setShowTabs } = React.useContext(UIContext);
 
   useIonViewWillEnter(() => {
@@ -165,85 +122,18 @@ function Community() {
     }
   }, [user, schoolName]);
 
-  const ionInputStyle = {
-    height: "10vh",
-    width: "95vw",
-    marginLeft: "2.5vw",
-  };
-
-  const pollInputStyle = {
-    height: "15vh",
-    width: "95vw",
-    marginLeft: "2.5vw"
-  }
-
-  const handleCommentSubmit = async (postKey: string) => {
-    if (comment.trim().length == 0) {
-      Toast.error("Input a comment");
-    } else {
-      setCommentsBusy(true);
-      const hasTimedOut = promiseTimeout(
-        10000,
-        addComment(postKey, schoolName, comment)
-      );
-      hasTimedOut.then((commentSent) => {
-        setComment("");
-        if (commentSent) {
-          Toast.success("Comment added");
-          if (topPosts) {
-            let tempPosts: any[] = [...topPosts];
-            tempPosts[commentModalPostIndex].commentAmount += 1;
-            setTopPosts(tempPosts);
-          }
-          try {
-            // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-            const commentsHasTimedOut = promiseTimeout(
-              10000,
-              loadComments(postKey, schoolName)
-            );
-            commentsHasTimedOut.then((resComments) => {
-              if (resComments == null || resComments == undefined) {
-                Toast.error(
-                  "Post has been deleted"
-                );
-              } else {
-                setComments(resComments);
-              }
-            });
-            commentsHasTimedOut.catch((err) => {
-              Toast.error(err);
-              setCommentsBusy(false);
-            });
-          } catch (err: any) {
-            console.log(err);
-            Toast.error(err.message.toString());
-          }
-        } else {
-          Toast.error("Unable to comment on post");
-        }
-        setCommentsBusy(false);
-      });
-      hasTimedOut.catch((err) => {
-        Toast.error(err);
-        setCommentsBusy(false);
-      });
-    }
-  };
-
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (topPosts && user) {
         let tempPosts: any[] = [...topPosts];
         tempPosts[index].data.upVotes += val;
-        setCommentModalPostUpvotes(commentModalPostUpvotes + val);
         if (tempPosts[index].data.likes[user.uid]) {
           delete tempPosts[index].data.likes[user.uid];
         } else {
           if (tempPosts[index].data.dislikes[user.uid]) {
             delete tempPosts[index].data.dislikes[user.uid];
             tempPosts[index].data.downVotes -= 1;
-            setCommentModalPostDownvotes(commentModalPostDownvotes - 1);
           }
           tempPosts[index].data.likes[user.uid] = true;
         }
@@ -262,7 +152,6 @@ function Community() {
     if (val && (val === 1 || val === -1)) {
       if (topPosts && user) {
         let tempPosts: any[] = [...topPosts];
-        setCommentModalPostDownvotes(commentModalPostDownvotes + val);
         tempPosts[index].data.downVotes += val;
         if (tempPosts[index].data.dislikes[user.uid]) {
           delete tempPosts[index].data.dislikes[user.uid];
@@ -270,7 +159,6 @@ function Community() {
           if (tempPosts[index].data.likes[user.uid]) {
             delete tempPosts[index].data.likes[user.uid];
             tempPosts[index].data.upVotes -= 1;
-            setCommentModalPostUpvotes(commentModalPostUpvotes - 1);
           }
           tempPosts[index].data.dislikes[user.uid] = true;
         }
@@ -284,17 +172,6 @@ function Community() {
     }
   };
 
-  const handleUserPageNavigation = (uid: string) => {
-    history.push("home/about/" + uid);
-  };
-
-  const getDate = (timestamp: any) => {
-    const time = new Date(
-      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-    );
-    return timeAgo.format(time);
-  };
-
   const handleOpenPollModal = () => {
     setPollModalOpen(true);
   }
@@ -302,74 +179,6 @@ function Community() {
   const handlePollTextChange = (e: any) => {
     let currComment = e.detail.value;
     setPollText(currComment);
-  };
-
-  const handleCardClick = async (post: any, postIndex: number) => {
-    setCommentModalPostIndex(postIndex);
-    setCommentModalPostDownvotes(post.data.downVotes);
-    setCommentModalPostUpvotes(post.data.upVotes);
-    setCommentModalPost(post);
-    setCommentsLoading(true);
-    setShowModalComment(true);
-    try {
-      // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-      const resComments = await loadComments(post.key, schoolName);
-      if (resComments != null && resComments != undefined) {
-        //console.log(resComments);
-        setComments(resComments);
-        setCommentsLoading(false);
-      } else {
-        //console.log(resComments);
-        Toast.error(
-          "Post has been deleted"
-        );
-      }
-    } catch (err: any) {
-      console.log(err);
-      Toast.error(err.message.toString());
-    }
-  };
-
-  const deleteComment = async (index: number) => {
-    setCommentsLoading(true);
-    if (comments && commentModalPost && schoolName) {
-      const commentBeingDeleted = comments[index];
-      const didDelete = promiseTimeout(5000, removeComment(commentBeingDeleted, schoolName, commentModalPost.key));
-      didDelete.then((res) => {
-        if (res) {
-          Toast.success("Comment deleted");
-          if (comments.length == 0) {
-            setComments([]);
-          } else {
-            let tempComments: any[] = [];
-            for (let i = 0; i < comments.length; ++i) {
-              if (i !== index) {
-                tempComments.push(comments[i]);
-              }
-            }
-            setComments(tempComments);
-            //console.log(tempComments);
-          }
-          setCommentsLoading(false);
-        } else {
-          Toast.error("Unable to delete comment");
-          setCommentsLoading(false);
-        }
-      });
-      didDelete.catch((err) => {
-        Toast.error(err);
-        setCommentsLoading(false);
-      })
-    } else {
-      Toast.error("Unable to delete comment");
-      setCommentsLoading(false);
-    }
-  };
-
-  const isEnterPressed = (key: any) => {
-    if (key === "Enter") {
-      handleCommentSubmit(commentModalPost.key);
-    }
   };
 
   const handleChangePollOptions = (index: number, e: any) => {
@@ -469,11 +278,6 @@ function Community() {
     }
   }
 
-  const handleChangeComment = (e: any) => {
-    let currComment = e.detail.value;
-    setComment(currComment);
-  };
-
   return (
     <IonPage>
       <IonContent>
@@ -550,304 +354,6 @@ function Community() {
               <br />
               <div style={{ textAlign: "center", }}>
                 <IonCardSubtitle>Polls are up for 7 days</IonCardSubtitle>
-              </div>
-            </div>
-          </IonContent>
-        </IonModal>
-
-        <IonModal backdropDismiss={false} isOpen={showModalComment}>
-          <IonContent>
-            <div slot="fixed" style={{ width: "100%" }}>
-              <IonToolbar mode="ios" >
-                <IonButtons slot="start">
-                  <IonButton
-                    mode="ios"
-                    onClick={() => {
-                      setComments([]);
-                      setShowModalComment(false);
-                      setComment("");
-                    }}
-                  >
-                    <IonIcon icon={arrowBack}></IonIcon> Back
-                  </IonButton>
-                </IonButtons>
-              </IonToolbar>
-            </div>
-            <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
-              <IonTextarea
-                mode="ios"
-                enterkeyhint="send"
-                rows={3}
-                style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
-                color="secondary"
-                spellcheck={true}
-                maxlength={200}
-                value={comment}
-                // inputMode="text"
-                placeholder="Leave a comment..."
-                id="commentModal"
-                onKeyPress={e => isEnterPressed(e.key)}
-                onIonChange={(e: any) => {
-                  handleChangeComment(e);
-                }}
-                className={darkModeToggled ? "text-area-dark" : "text-area-light"}
-              ></IonTextarea>
-            </div>
-            <div className='ion-modal'>
-              {commentModalPost && commentModalPost.data ? (
-                <FadeIn>
-                  <div>
-                    <IonList inset={true}>
-                      <IonItem lines="none">
-                        <IonLabel class="ion-text-wrap">
-                          <IonText color="medium">
-                            <p>
-                              <IonAvatar
-                                onClick={() => {
-                                  //setComments([]);
-                                  setShowModalComment(false);
-                                  setComment("");
-                                  handleUserPageNavigation(
-                                    commentModalPost.data.uid
-                                  );
-                                }}
-                                class="posts-avatar"
-                              >
-                                <IonImg
-                                  src={commentModalPost.data.photoURL}
-                                ></IonImg>
-                              </IonAvatar>
-                              {commentModalPost.data.userName}
-                            </p>
-                          </IonText>
-                          {commentModalPost.data.postType &&
-                            commentModalPost.data.postType != "general" ? (
-                            <IonFab vertical="top" horizontal="end">
-                              <p
-                                style={{
-                                  fontWeight: "bold",
-                                  color: getColor(
-                                    commentModalPost.data.postType
-                                  ),
-                                }}
-                              >
-                                {commentModalPost.data.postType.toUpperCase()}
-                              </p>
-                              <IonNote style={{ fontSize: "0.85em" }}>
-                                {getDate(commentModalPost.data.timestamp)}
-                              </IonNote>
-                            </IonFab>
-                          ) : (
-                            <IonFab vertical="top" horizontal="end">
-                              <IonNote style={{ fontSize: "0.85em" }}>
-                                {getDate(commentModalPost.data.timestamp)}
-                              </IonNote>
-                            </IonFab>
-                          )}
-                          <h2 className="h2-message">
-                            {commentModalPost.data.message}
-                          </h2>
-                        </IonLabel>
-                        <div
-                          id={commentModalPost.data.postType.replace("/", "")}
-                        ></div>
-                      </IonItem>
-                      <IonItem lines="none" mode="ios">
-                        <IonButton
-                          onAnimationEnd={() => {
-                            setLikeAnimation(-1);
-                          }}
-                          className={
-                            likeAnimation === commentModalPostIndex
-                              ? "likeAnimation"
-                              : ""
-                          }
-                          disabled={
-                            disabledLikeButtons === commentModalPostIndex
-                          }
-                          mode="ios"
-                          fill="outline"
-                          color={
-                            commentModalPostIndex != -1 &&
-                              topPosts &&
-                              user &&
-                              topPosts[commentModalPostIndex] &&
-                              "data" in topPosts[commentModalPostIndex] &&
-                              "likes" in topPosts[commentModalPostIndex].data &&
-                              topPosts[commentModalPostIndex].data.likes[
-                              user.uid
-                              ] !== undefined
-                              ? "primary"
-                              : "medium"
-                          }
-                          onClick={() => {
-                            setLikeAnimation(commentModalPostIndex);
-                            setDisabledLikeButtons(commentModalPostIndex);
-                            handleUpVote(
-                              commentModalPost.key,
-                              commentModalPostIndex,
-                              commentModalPost.data
-                            );
-                          }}
-                        >
-                          <KeyboardArrowUpIcon />
-                          <p>{commentModalPostUpvotes} </p>
-                        </IonButton>
-                        <p>&nbsp;</p>
-                        <IonButton
-                          onAnimationEnd={() => {
-                            setDislikeAnimation(-1);
-                          }}
-                          className={
-                            dislikeAnimation === commentModalPostIndex
-                              ? "likeAnimation"
-                              : ""
-                          }
-                          disabled={
-                            disabledLikeButtons === commentModalPostIndex
-                          }
-                          mode="ios"
-                          fill="outline"
-                          color={
-                            commentModalPostIndex != -1 &&
-                              topPosts &&
-                              user &&
-                              topPosts[commentModalPostIndex] &&
-                              "data" in topPosts[commentModalPostIndex] &&
-                              "dislikes" in topPosts[commentModalPostIndex].data &&
-                              topPosts[commentModalPostIndex].data.dislikes[
-                              user.uid
-                              ] !== undefined
-                              ? "danger"
-                              : "medium"
-                          }
-                          onClick={() => {
-                            setDislikeAnimation(commentModalPostIndex);
-                            setDisabledLikeButtons(commentModalPostIndex);
-                            handleDownVote(
-                              commentModalPost.key,
-                              commentModalPostIndex,
-                              commentModalPost.data,
-                            );
-                          }}
-                        >
-                          <KeyboardArrowDownIcon />
-                          <p>{commentModalPostDownvotes} </p>
-                        </IonButton>
-                      </IonItem>
-                    </IonList>
-                    <div className="verticalLine"></div>
-                    {commentModalPost.data.imgSrc &&
-                      commentModalPost.data.imgSrc.length > 0 ? (
-                      <IonCard style={{ bottom: "7.5vh" }}>
-                        <IonCardContent>
-                          <IonImg
-                            onClick={() => {
-                              PhotoViewer.show(commentModalPost.data.imgSrc);
-                            }}
-                            src={commentModalPost.data.imgSrc}
-                          ></IonImg>
-                        </IonCardContent>
-                      </IonCard>
-                    ) : null}
-                  </div>
-                </FadeIn>
-              ) : null}
-              {commentsLoading || !comments ? (
-                <div
-                  style={{
-                    alignItems: "center",
-                    textAlign: "center",
-                    justifyContent: "center",
-                    display: "flex",
-                  }}
-                >
-                  <IonSpinner color="primary" />
-                </div>
-              ) : (
-                <FadeIn>
-                  <div>
-                    {comments.length > 0
-                      ? comments?.map((comment: any, index: number) => (
-                        <IonList inset={true} key={index}>
-                          <IonItem lines="none">
-                            <IonLabel class="ion-text-wrap">
-                              <IonText color="medium">
-                                <p>
-                                  <IonAvatar
-                                    onClick={() => {
-                                      setComments([]);
-                                      setShowModalComment(false);
-                                      setComment("");
-                                      handleUserPageNavigation(comment.uid);
-                                    }}
-                                    class="posts-avatar"
-                                  >
-                                    <IonImg src={comment?.photoURL!}></IonImg>
-                                  </IonAvatar>
-                                  {comment.userName}
-                                </p>
-                              </IonText>
-                              <h2 className="h2-message">
-                                {" "}
-                                {comment.comment}{" "}
-                              </h2>
-                              {comment.url && comment.url.length > 0 ? (
-                                <div className="ion-img-container">
-                                  <br></br>
-                                  <IonImg
-                                    onClick={() => {
-                                      PhotoViewer.show(comment.imgSrc);
-                                    }}
-                                    src={comment.imgSrc}
-                                  />
-                                </div>
-                              ) : null}
-                            </IonLabel>
-                            <div></div>
-                          </IonItem>
-                          <IonItem lines="none" mode="ios">
-                            <IonButton
-                              disabled
-                              mode="ios"
-                              fill="outline"
-                              color="medium"
-                            >
-                              <KeyboardArrowUpIcon />
-                              <p>{comment.upVotes} </p>
-                            </IonButton>
-                            <IonButton
-                              disabled
-                              mode="ios"
-                              fill="outline"
-                              color="medium"
-                            >
-                              <KeyboardArrowDownIcon />
-                              <p>{comment.downVotes} </p>
-                            </IonButton>
-                            {user && user.uid === comment.uid ? (
-                              <IonFab horizontal="end">
-                                <IonButton
-                                  mode="ios"
-                                  fill="outline"
-                                  color="danger"
-                                  onClick={() => {
-                                    deleteComment(index);
-                                  }}
-                                >
-                                  <DeleteIcon />
-                                </IonButton>
-                              </IonFab>
-                            ) : null}
-                          </IonItem>
-                        </IonList>
-                      ))
-                      : null}
-                  </div>
-                </FadeIn>
-              )}
-              <div style={{ height: "25vh" }}>
-                <p style={{ textAlign: "center" }}>&#183; </p>
               </div>
             </div>
           </IonContent>
@@ -931,19 +437,19 @@ function Community() {
                   )}
                 </>
               ) : <><FadeIn delay={1000}><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-              <div style={{ textAlign: "center" }}><p>NO POLLS WITHIN PAST WEEK</p></div>
-              <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
+                <div style={{ textAlign: "center" }}><p>NO POLLS WITHIN PAST WEEK</p></div>
+                <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
             </FadeIn>
             <FadeIn transitionDuration={500}>
               {/* <IonHeader class="ion-no-border"> */}
               <IonToolbar mode="ios">
                 <IonTitle>Top Posts <br /> (All Time)</IonTitle>
-                <IonFab horizontal="end">
+                {/* <IonFab horizontal="end">
                   <IonIcon icon={chevronForward} />
                 </IonFab>
                 <IonFab horizontal="start">
                   <IonIcon icon={chevronBack} />
-                </IonFab>
+                </IonFab> */}
               </IonToolbar>
               {/* </IonHeader> */}
               <Swiper
@@ -958,7 +464,7 @@ function Community() {
                             <IonCardContent
                               style={{ minHeight: "60vh" }}
                               onClick={() => {
-                                handleCardClick(post, index);
+                                history.push("home/post/" + post.key);
                               }}
                             >
                               {post.data.postType &&
@@ -1032,13 +538,14 @@ function Community() {
                                     }
                                   >
                                     <KeyboardArrowUpIcon />
-                                    <p>{post.data.upVotes} </p>
+                                    <p>{Object.keys(post.data.likes).length} </p>
                                   </IonButton>
                                 </IonCol>
                                 <IonCol size="4">
                                   <IonButton
                                     onClick={() => {
-                                      handleCardClick(post, index);
+                                      // handleCardClick(post, index);
+                                      history.push("home/post/" + post.key);
                                     }}
                                     style={{ width: "16vw" }}
                                     mode="ios"
@@ -1081,7 +588,7 @@ function Community() {
                                     }
                                   >
                                     <KeyboardArrowDownIcon />
-                                    <p>{post.data.downVotes} </p>
+                                    <p>{Object.keys(post.data.dislikes).length} </p>
                                   </IonButton>
                                 </IonCol>
                               </IonRow>
@@ -1097,12 +604,12 @@ function Community() {
             <FadeIn transitionDuration={500}>
               <IonToolbar mode="ios">
                 <IonTitle>Top Posts <br /> (Week)</IonTitle>
-                <IonFab horizontal="end">
+                {/* <IonFab horizontal="end">
                   <IonIcon icon={chevronForward} />
                 </IonFab>
                 <IonFab horizontal="start">
                   <IonIcon icon={chevronBack} />
-                </IonFab>
+                </IonFab> */}
               </IonToolbar>
               <Swiper slidesPerView={1.5}>
                 {topWeeklyPosts && topWeeklyPosts.length > 0
@@ -1113,7 +620,8 @@ function Community() {
                           <IonCardContent
                             style={{ minHeight: "60vh" }}
                             onClick={() => {
-                              handleCardClick(post, index);
+                              // handleCardClick(post, index);
+                              history.push("home/post/" + post.key);
                             }}
                           >
                             {post.data.postType &&
@@ -1187,13 +695,14 @@ function Community() {
                                   }
                                 >
                                   <KeyboardArrowUpIcon />
-                                  <p>{post.data.upVotes} </p>
+                                  <p>{Object.keys(post.data.likes).length} </p>
                                 </IonButton>
                               </IonCol>
                               <IonCol size="4">
                                 <IonButton
                                   onClick={() => {
-                                    handleCardClick(post, index);
+                                    // handleCardClick(post, index);
+                                    history.push("home/post/" + post.key);
                                   }}
                                   style={{ width: "16vw" }}
                                   mode="ios"
@@ -1236,7 +745,7 @@ function Community() {
                                   }
                                 >
                                   <KeyboardArrowDownIcon />
-                                  <p>{post.data.downVotes} </p>
+                                  <p>{Object.keys(post.data.dislikes).length} </p>
                                 </IonButton>
                               </IonCol>
                             </IonRow>
