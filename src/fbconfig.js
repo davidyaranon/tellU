@@ -1,9 +1,7 @@
 import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
-import { getStorage, deleteObject, ref, uploadBytes, getDownloadURL, } from "firebase/storage";
+import { getStorage, uploadString, deleteObject, ref, uploadBytes, getDownloadURL, } from "firebase/storage";
 import {
-  clearIndexedDbPersistence,
-  WriteBatch,
   deleteField,
   serverTimestamp,
   increment,
@@ -22,7 +20,6 @@ import {
   arrayUnion,
   arrayRemove,
   addDoc,
-  deleteDoc,
   writeBatch,
   runTransaction,
 } from "firebase/firestore";
@@ -38,7 +35,6 @@ import {
   indexedDBLocalPersistence,
 } from "firebase/auth";
 import { Capacitor } from '@capacitor/core';
-import { inputClasses } from "@mui/material";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
@@ -79,14 +75,16 @@ export async function uploadImage(location, blob, url) {
       storage,
       location + "/" + currentUserUid.toString() + url
     );
+
     const res = await uploadBytes(storageRef, blob)
       .then((snapshot) => {
+        // console.log(snapshot);
         return true;
       })
       .catch((err) => {
         console.log(err);
         return false;
-      });
+    });
   } catch (err) {
     console.log(err.message);
     return false;
@@ -664,6 +662,27 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
   }
 };
 
+export const getWeatherData = async (schoolName) => {
+  try {
+    if(db) {
+      const weatherDocRef = doc(db, "schoolWeather", schoolName.replace(/\s+/g, ""));
+      const snap = await getDoc(weatherDocRef);
+      if(snap.exists()) {
+        const weatherData = {};
+        weatherData.feelsLike = snap.data().feelsLike;
+        weatherData.humidity = snap.data().humidity;
+        weatherData.icon = snap.data().icon;
+        weatherData.index = snap.data().index;
+        weatherData.temp = snap.data().temp;
+        weatherData.text = snap.data().text;
+        return weatherData;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const pollVote = async (schoolName, index, postKey, userUid) => {
   try {
     if (auth && db) {
@@ -907,7 +926,7 @@ export const downVote = async (schoolName, postKey, post) => {
   }
 };
 ///schoolPosts/UCBerkeley/allPosts/IsfZKvyHB9pWIElkzzDt/comments
-export const addCommentNew = async (postKey, schoolName, commentString) => {
+export const addCommentNew = async (postKey, schoolName, commentString, blob, id) => {
   try {
     if (auth && auth.currentUser && db) {
       const uid = auth.currentUser.uid;
@@ -916,6 +935,15 @@ export const addCommentNew = async (postKey, schoolName, commentString) => {
       const commentsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
         "allPosts", postKey, "comments");
       const postRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts", postKey);
+      let url = "";
+      let imgSrc = "";
+      if (blob) {
+        url = "commentImages/" + auth.currentUser.uid.toString() + id;
+        imgSrc = await getDownloadURL(ref(storage, url));
+      }
+      await updateDoc(postRef, {
+        commentAmount: increment(1),
+      });
       const addedDoc = await addDoc(commentsRef, {
         comment: commentString,
         photoURL: photoURL,
@@ -924,9 +952,8 @@ export const addCommentNew = async (postKey, schoolName, commentString) => {
         likes: {},
         dislikes: {},
         timestamp: serverTimestamp(),
-      });
-      await updateDoc(postRef, {
-        commentAmount: increment(1),
+        url : url,
+        imgSrc : imgSrc
       });
       return {
         comment: commentString,
@@ -937,6 +964,8 @@ export const addCommentNew = async (postKey, schoolName, commentString) => {
         dislikes: {},
         timestamp: serverTimestamp(),
         key: addedDoc.id,
+        url : url,
+        imgSrc : imgSrc
       };
     }
   } catch (err) {
@@ -1022,7 +1051,7 @@ export const removePost = async (postKey, schoolName, postUrl) => {
   }
 }
 
-export const removeCommentNew = async (comment, schoolName, postKey) => {
+export const removeCommentNew = async (comment, schoolName, postKey, commentUrl) => {
   try {
     if (db) {
       const commentKey = comment.key;
@@ -1051,6 +1080,10 @@ export const removeCommentNew = async (comment, schoolName, postKey) => {
         }
         transaction.delete(commentRef);
       });
+      if (commentUrl.length > 0) {
+        const pictureRef = ref(storage, commentUrl);
+        await deleteObject(pictureRef).catch((err) => console.log(err));
+      }
       return true;
     }
   } catch (err) {

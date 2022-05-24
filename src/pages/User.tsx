@@ -85,7 +85,7 @@ import "swiper/css/pagination";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { informationCircleOutline, arrowBack } from "ionicons/icons";
+import { informationCircleOutline } from "ionicons/icons";
 import ForumIcon from "@mui/icons-material/Forum";
 import {
   Keyboard,
@@ -96,7 +96,13 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { getColor, timeout } from '../components/functions';
 import UIContext from "../my-context";
 
+
 function User() {
+  const {
+    REACT_APP_CLIENT_ID,
+    REACT_APP_AUTHORIZE_URL,
+    REACT_APP_REDIRECT_URL
+  } = process.env;
   const timeAgo = new TimeAgo("en-US");
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
@@ -147,6 +153,10 @@ function User() {
   const [showEditUsernameModal, setShowEditUsernameModal] = useState<boolean>(false);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 
+  // const handleLogin = () => {
+  //   window.location.href = `${REACT_APP_AUTHORIZE_URL}?client_id=${REACT_APP_CLIENT_ID}&redirect_uri=${REACT_APP_REDIRECT_URL}&response_type=token&show_dialog=true`;
+  // };
+
   const titleStyle = {
     fontSize: "6.5vw",
   };
@@ -181,7 +191,7 @@ function User() {
       if (!userDataHasLoaded) {
         const gotUserData = promiseTimeout(7500, getCurrentUserData());
         gotUserData.then((res: any) => {
-          if(res){
+          if (res) {
             setUserBio(res.bio);
             setUserMajor(res.major);
             setUserInstagram(res.instagram);
@@ -319,18 +329,18 @@ function User() {
 
   const handleUpdateAboutUser = async () => {
     setUserDataHasLoaded(false);
-    if(editableUserBio.trim() == userBio.trim() 
-    && editableUserInstagram.trim() == userInstagram.trim()
-    && editableUserSnapchat.trim() == userSnapchat.trim()
-    && editableUserMajor.trim() == userMajor.trim()
-    && editableUserTiktok.trim() == userTiktok.trim()){
+    if (editableUserBio.trim() == userBio.trim()
+      && editableUserInstagram.trim() == userInstagram.trim()
+      && editableUserSnapchat.trim() == userSnapchat.trim()
+      && editableUserMajor.trim() == userMajor.trim()
+      && editableUserTiktok.trim() == userTiktok.trim()) {
       Toast.error("No changes made");
       setUserDataHasLoaded(true);
       return;
     }
     let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok));
     userDataUpdated.then((res) => {
-      if(res){
+      if (res) {
         setUserBio(editableUserBio);
         setUserSnapchat(editableUserSnapchat);
         setUserInstagram(editableUserInstagram);
@@ -706,11 +716,11 @@ function User() {
     setEditableUserBio(currBio);
   };
   const handleUserMajorChange = (e: any) => {
-    let currMajor= e.detail.value;
+    let currMajor = e.detail.value;
     setEditableUserMajor(currMajor);
   };
   const handleUserTiktokChange = (e: any) => {
-    let curr= e.detail.value;
+    let curr = e.detail.value;
     setEditableUserTiktok(curr);
   };
   const handleUserSnapchatChange = (e: any) => {
@@ -718,7 +728,7 @@ function User() {
     setEditableUserSnapchat(curr);
   };
   const handleUserInstagramChange = (e: any) => {
-    let curr= e.detail.value;
+    let curr = e.detail.value;
     setEditableUserInstagram(curr);
   };
 
@@ -819,7 +829,7 @@ function User() {
               onClick={loadLogout}
               color="danger"
               mode="ios"
-              fill="outline"
+              fill="clear"
               id="logout"
             >
               Logout
@@ -896,13 +906,13 @@ function User() {
                 </IonButtons>
               </IonToolbar>
             </div>
-              <IonLoading isOpen={!userDataHasLoaded} spinner="dots" />
-              <br /> <br />
+            <IonLoading isOpen={!userDataHasLoaded} spinner="dots" />
+            <br /> <br />
             <IonCard mode="ios">
               <IonCardContent>
                 <IonLabel>About</IonLabel>
                 <IonTextarea
-                  style={{fontWeight:"bold"}}
+                  style={{ fontWeight: "bold" }}
                   rows={4}
                   mode="ios"
                   id="bio"
@@ -919,7 +929,7 @@ function User() {
               <IonCardContent>
                 <IonLabel>Major</IonLabel>
                 <IonInput
-                  style={{fontWeight:"bold"}}
+                  style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="major"
                   color="primary"
@@ -935,7 +945,7 @@ function User() {
               <IonCardContent>
                 <IonLabel>Snapchat <IonIcon icon={logoSnapchat} /> </IonLabel>
                 <IonInput
-                  style={{fontWeight:"bold"}}
+                  style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
                   color="primary"
@@ -951,7 +961,7 @@ function User() {
               <IonCardContent>
                 <IonLabel>Instagram <IonIcon icon={logoInstagram} /> </IonLabel>
                 <IonTextarea
-                  style={{fontWeight:"bold"}}
+                  style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
                   color="primary"
@@ -967,7 +977,7 @@ function User() {
               <IonCardContent>
                 <IonLabel>TikTok <IonIcon icon={logoTiktok} /> </IonLabel>
                 <IonTextarea
-                  style={{fontWeight:"bold"}}
+                  style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
                   color="primary"
@@ -979,6 +989,7 @@ function User() {
                 />
               </IonCardContent>
             </IonCard>
+            {/* <IonButton onClick={() => {handleLogin(); }}>LOGIN SPOTIFY</IonButton> */}
           </IonContent>
         </IonModal>
 
@@ -993,8 +1004,11 @@ function User() {
                     if (user && user.email) { setEditableEmail(user.email); }
                   }}
                 >
-                  <IonIcon icon={arrowBack}></IonIcon> Back
+                Back
                 </IonButton>
+              </IonButtons>
+              <IonButtons slot="end">
+                <IonButton mode="ios" color="primary" fill="clear" onClick={handleCheckmark}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1011,7 +1025,6 @@ function User() {
               }}
             ></IonInput>
           </IonItem>
-          <IonButton mode="ios" color="primary" fill="outline" onClick={handleCheckmark}>Change</IonButton>
         </IonModal>
 
         <IonModal backdropDismiss={false} isOpen={showEditUsernameModal}>
@@ -1025,8 +1038,11 @@ function User() {
                     if (user && user.displayName) { setEditableUsername(user.displayName); }
                   }}
                 >
-                  <IonIcon icon={arrowBack}></IonIcon> Back
+                  Back
                 </IonButton>
+              </IonButtons>
+              <IonButtons slot="end">
+                <IonButton mode="ios" color="primary" fill="clear" onClick={handleUserCheckmark}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1043,7 +1059,6 @@ function User() {
               }}
             ></IonInput>
           </IonItem>
-          <IonButton mode="ios" color="primary" fill="outline" onClick={handleUserCheckmark}>Change</IonButton>
         </IonModal>
 
         {/* <IonModal backdropDismiss={false} isOpen={showCommentModal}>
@@ -1440,6 +1455,7 @@ function User() {
           </div>
         </IonModal>
         <Swiper
+          autoHeight
           pagination={{ dynamicBullets: true }}
           modules={[Pagination]}
           slidesPerView={1}
@@ -1465,7 +1481,7 @@ function User() {
             }
           }}
         >
-          <SwiperSlide >
+          <SwiperSlide>
             <IonCard className="user-card">
               <IonHeader
                 class="ion-no-border"
@@ -1727,7 +1743,23 @@ function User() {
                                       src={post.imgSrc}
                                     />
                                   </div>
-                                ) : null}
+                                ) : (
+                                  <>
+                                    {post.url.length > 0 ? (
+                                      <div>
+                                        <br></br>
+                                        <br></br>
+                                        <IonImg
+                                          className="ion-img-container"
+                                          onClick={() => {
+                                            PhotoViewer.show(post.imgSrc);
+                                          }}
+                                          src={post.imgSrc}
+                                        />
+                                      </div>
+                                    ) : null}
+                                  </>
+                                )}
                               </IonLabel>
                             </IonItem>
                             <FadeIn>
@@ -1870,7 +1902,7 @@ function User() {
                 </IonHeader>
                 <div>
                   {user && yourPolls ? (
-                    <>
+                    <FadeIn>
                       {yourPolls.map((poll) => {
                         return (
                           <IonCard mode='ios' key={poll.key}>
@@ -1894,7 +1926,7 @@ function User() {
                           </IonCard>
                         )
                       })}
-                    </>) : (<IonSpinner color="primary" className="ion-spinner" />)}
+                    </FadeIn>) : (<IonSpinner color="primary" className="ion-spinner" />)}
                 </div>
                 {yourPolls && yourPolls.length <= 0 ? (
                   <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
@@ -1969,7 +2001,6 @@ function User() {
                                 <div className="ion-img-container">
                                   <br></br>
                                   <IonImg
-                                    className="ion-img-style"
                                     onClick={() => {
                                       PhotoViewer.show(post.imgSrc);
                                     }}
@@ -2008,7 +2039,7 @@ function User() {
           </SwiperSlide>
         </Swiper>
       </IonContent>
-    </IonPage>
+    </IonPage >
   );
 }
 

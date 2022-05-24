@@ -260,14 +260,12 @@ export const PrivacyPolicy = () => {
           <IonCardContent>
             <IonCardTitle>Things to look forward to: </IonCardTitle>
             <p>If you've scrolled this far, hi I'm Alex! I created this app for university students just like me who want a place to be notified of nearby events and also for students who want a place to meet new people :)</p>
-            <p>This app is currently v1.0, and I have a lot of updates coming soon! This includes:</p>
-            <p>- Liking and disliking comments</p>
-            <p>- Adding photos to comments</p>
+            <p>I have a lot of updates coming soon! This includes:</p>
             <p>- Adding videos to posts/comments</p>
             <p>- Moving location pin in the MAPS tab (useful for pinning a location of an event later in the day)</p>
-            <p>- Sliding into people's DMs (don't worry, we'll keep them private)</p>
+            <p>- DM's and chat rooms </p>
             <p>- Including more California universities (CSUs!)</p>
-            <p>- MANY MORE UPDATES TO COME! If you have any feedback let me know. Maybe you found a glitch (uh-oh) or maybe you have an idea that we can incorporate to make a student's life easier. Submit your feedback <a href="https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link">HERE</a></p>
+            <p>- Submit your feedback <a href="https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link">HERE</a></p>
           </IonCardContent>
         </IonCard>
       </IonContent>

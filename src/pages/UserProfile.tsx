@@ -48,6 +48,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { arrowBack, logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
 import { getColor, timeout } from '../components/functions';
+import Linkify from 'linkify-react';
 
 interface MatchParams {
   uid: string;
@@ -76,7 +77,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [userSnapchat, setUserSnapchat] = useState<string>("");
   const [userInstagram, setUserInstagram] = useState<string>("");
   const Toast = useToast();
-       
+
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
@@ -156,7 +157,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       setNoMorePosts(true);
     }
   };
-  
+
   useEffect(() => {
     setBusy(true);
     if (!user) {
@@ -273,7 +274,10 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     <IonRow class="ion-justify-content-start">
                       <IonCol size="4">
                         <IonAvatar className="user-avatar">
-                          <IonImg src={profilePhoto} />
+                          <IonImg onClick={() => {
+                            PhotoViewer.show(profilePhoto, username);
+                          }}
+                            src={profilePhoto} />
                         </IonAvatar>
                       </IonCol>
                       {userMajor.length > 0 ? (
@@ -284,8 +288,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                           </IonNote>
                         </IonCol>
                       ) : <IonCol class="ion-padding-top" size="8">
-                        <p className="ion-padding-top" style={{fontSize:"1.5em"}}> {username}</p>
-                      </IonCol> }
+                        <p className="ion-padding-top" style={{ fontSize: "1.5em" }}> {username}</p>
+                      </IonCol>}
                     </IonRow>
                     {userSnapchat.length > 0 ? (
                       <>
@@ -322,7 +326,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     ) : null}
                     {userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0 ? (
                       <>
-                      <br/>
+                        <br />
                       </>
                     ) : null}
                     {userBio.length > 0 ? (
@@ -429,13 +433,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               ) : null}
                             </IonFab>
                             <br></br>
-                            <h3
-                              className="h2-message"
-                              style={{ marginLeft: "4.5%", marginTop: "5%" }}
-                            >
-                              {" "}
-                              {post.message}{" "}
-                            </h3>
+                            <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "4.5%", marginTop: "5%" }}>
+                              {post.message}
+                            </Linkify>
 
                             {post.imgSrc && post.imgSrc.length > 0 ? (
                               <div>

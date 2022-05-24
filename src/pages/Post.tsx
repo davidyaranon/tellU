@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import auth, { addCommentNew, addTestMessage, downVoteComment, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, upVoteComment } from '../fbconfig';
+import auth, { addCommentNew, addTestMessage, downVoteComment, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
 import {
   upVote,
   downVote,
@@ -11,6 +11,7 @@ import {
 } from "../fbconfig";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
+import RoomIcon from '@mui/icons-material/Room';
 import {
   IonAvatar,
   IonButton,
@@ -20,6 +21,8 @@ import {
   IonCol,
   IonContent,
   IonFab,
+  IonFabButton,
+  IonGrid,
   IonIcon,
   IonImg,
   IonInfiniteScroll,
@@ -36,16 +39,18 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
+import { v4 as uuidv4 } from "uuid";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+// import { PhotoViewer, Image } from '@capacitor-community/photoviewer'; USE THIS WHEN IMPLEMENTING VIDEOS
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en.json";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, chatbubblesOutline, arrowBack } from "ionicons/icons";
+import { cameraOutline, arrowBack } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
-import UIContext from "../my-context";
 import { Keyboard } from "@capacitor/keyboard";
+import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
+import Linkify from 'linkify-react';
 
 interface MatchUserPostParams {
   key: string;
@@ -53,11 +58,11 @@ interface MatchUserPostParams {
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
-  const { setShowTabs } = React.useContext(UIContext);
+  // const { setShowTabs } = React.useContext(UIContext);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
-  const [busy, setBusy] = useState<boolean>(false);
+  // const [busy, setBusy] = useState<boolean>(false);
   const [post, setPost] = useState<any | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
@@ -75,20 +80,38 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
   const [lastKey, setLastKey] = useState<string>("");
   const contentRef = useRef<HTMLIonContentElement | null>(null);
+  const [blob, setBlob] = useState<any | null>(null);
+  const [photo, setPhoto] = useState<Photo | null>(null);
+  const [showPictureAddButton, setShowPictureAddButton] = useState<boolean>(true);
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
     setComment(currComment);
   };
 
-  const handleCommentSubmit = () => {
-    if (comment.trim().length == 0) {
+  async function sendImage(blob: any, uniqueId: string) {
+    const res = await uploadImage("commentImages", blob, uniqueId);
+    if (res == false || photo == null || photo?.webPath == null) {
+      Toast.error("unable to select photo");
+    } else {
+      // Toast.success("photo uploaded successfully");
+    }
+  }
+
+  const handleCommentSubmit = async () => {
+    if (comment.trim().length == 0 && photo === null && blob === null) {
       Toast.error("Input a comment");
     } else {
       setCommentsLoading(true);
+      let uniqueId = uuidv4();
+      if (blob) {
+        await sendImage(blob, uniqueId.toString());
+        setBlob(null);
+        setPhoto(null);
+      }
       const hasTimedOut = promiseTimeout(
         10000,
-        addCommentNew(postKey, schoolName, comment)
+        addCommentNew(postKey, schoolName, comment, blob, uniqueId.toString(),)
       );
       hasTimedOut.then((commentSent: any) => {
         if (commentSent) {
@@ -119,6 +142,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           setPostDownvotes(Object.keys(res.dislikes).length);
         } else {
           Toast.error("Post has been deleted");
+          setShowPictureAddButton(false);
         }
       });
       onePost.catch((err) => {
@@ -133,21 +157,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const sendTestMessage = () => {
     let messageText = "testDoc";
     addTestMessage({ text: messageText })
-    .then((result) => {
-      // Read result of the Cloud Function.
-      /** @type {any} */
-      const data : any = result.data;
-      const sanitizedMessage = data.text;
-      console.log(data + '\n' + sanitizedMessage);
-    })
-    .catch((error) => {
-      // Getting the Error details.
-      const code = error.code;
-      const message = error.message;
-      const details = error.details;
-      console.log(code + '\n' + message + '\n' + details);
-      // ...
-    });
+      .then((result) => {
+        // Read result of the Cloud Function.
+        /** @type {any} */
+        const data: any = result.data;
+        const sanitizedMessage = data.text;
+        console.log(data + '\n' + sanitizedMessage);
+      })
+      .catch((error) => {
+        // Getting the Error details.
+        const code = error.code;
+        const message = error.message;
+        const details = error.details;
+        console.log(code + '\n' + message + '\n' + details);
+        // ...
+      });
   }
 
   const handleLoadCommentsNextBatch = async (event: any) => {
@@ -169,12 +193,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   const getDate = (timestamp: any) => {
-    if(timestamp && "nanoseconds" in timestamp && "seconds" in timestamp){
+    if (timestamp && "nanoseconds" in timestamp && "seconds" in timestamp) {
       const time = new Date(
         timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
       );
       return timeAgo.format(time);
-    } 
+    }
     return "just now";
   };
 
@@ -185,6 +209,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       commentsLoaded.then((res) => {
         if (res) {
           setComments(res.comments);
+          console.log(res.comments);
           setLastKey(res.lastKey);
         }
         setCommentsLoading(false);
@@ -196,11 +221,11 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
-  const deleteComment = async (index: number) => {
+  const deleteComment = async (index: number, commentUrl: string) => {
     setCommentsLoading(true);
     if (comments && schoolName) {
       const commentBeingDeleted = comments[index];
-      const didDelete = promiseTimeout(5000, removeCommentNew(commentBeingDeleted, schoolName, postKey));
+      const didDelete = promiseTimeout(5000, removeCommentNew(commentBeingDeleted, schoolName, postKey, commentUrl));
       didDelete.then((res) => {
         if (res) {
           Toast.success("Comment deleted");
@@ -238,9 +263,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const handleUpVoteComment = async (commentKey: string, index: number) => {
     const val = await upVoteComment(schoolName, postKey, commentKey);
-    if(val && (val === 1 || val === -1)) {
-      if(post && user){
-        let tempComments : any[] = [...comments];
+    if (val && (val === 1 || val === -1)) {
+      if (post && user) {
+        let tempComments: any[] = [...comments];
         if (tempComments[index].likes[user.uid]) {
           delete tempComments[index].likes[user.uid];
         } else {
@@ -263,7 +288,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     const val = await downVoteComment(schoolName, postKey, commentKey);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
-        let tempComments :any[] = [...comments];
+        let tempComments: any[] = [...comments];
         tempComments[index].downVotes += val;
         if (tempComments[index].dislikes[user.uid]) {
           delete tempComments[index].dislikes[user.uid];
@@ -343,6 +368,32 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
+  async function takePicture() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        source: CameraSource.Prompt,
+        resultType: CameraResultType.Uri,
+      });
+      // console.log(image);
+      const res = await fetch(image.webPath!);
+      const blobRes = await res.blob();
+      if (blobRes) {
+        if (blobRes.size > 5_000_000) {
+          // 5MB
+          Toast.error("Image too large");
+        } else {
+          setBlob(blobRes);
+          setPhoto(image);
+        }
+      }
+    } catch (err: any) {
+      // Toast.error(err.message.toString());
+    }
+  }
+
+
   useEffect(() => {
     // setShowTabs(false);
     if (user && schoolName) {
@@ -367,17 +418,20 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </IonButtons>
           </IonToolbar>
         </div>
-        <div style={darkModeToggled ? { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}>
+        {/* <div style={darkModeToggled ? { top: "70vh", bottom: "5vh", height: "25vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}> */}
+        <IonFab style={darkModeToggled ? { resize: "none", height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
+          : { resize: "none", height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
+          className={darkModeToggled ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
           <IonTextarea
             mode="ios"
             enterkeyhint="send"
             rows={3}
-            style={{ width: "95vw", height: "10vh", marginLeft: "2.5vw" }}
+            style={photo === null ? { width: "80vw", marginLeft: "2.5vw" }
+              : { width: "69vw", marginLeft: "2.5vw" }}
             color="secondary"
             spellcheck={true}
             maxlength={200}
             value={comment}
-            // inputMode="text"
             placeholder="Leave a comment..."
             id="commentModal"
             onKeyPress={e => isEnterPressed(e.key)}
@@ -386,7 +440,19 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             }}
             className={darkModeToggled ? "text-area-dark" : "text-area-light"}
           ></IonTextarea>
-        </div>
+          <IonFab vertical="top" horizontal="end">
+            <IonGrid>
+              <IonRow>
+                {photo !== null && photo !== undefined ? (
+                  <IonImg className="ion-img-comment" src={photo?.webPath} />
+                ) : null}
+                <IonFabButton disabled={!showPictureAddButton} onClick={() => { takePicture(); }} color="medium" size="small" mode="ios">
+                  <IonIcon size="small" icon={cameraOutline} />
+                </IonFabButton>
+              </IonRow>
+            </IonGrid>
+          </IonFab>
+        </IonFab>
         <div className="ion-modal">
           {post ? (
             <FadeIn>
@@ -413,16 +479,50 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           {post.userName}
                         </p>
                       </IonText>
-                      {post.postType != "general" ? (
+                      {post.postType ? (
                         <IonFab vertical="top" horizontal="end">
-                          <p
-                            style={{
-                              fontWeight: "bold",
-                              color: getColor(post.postType),
-                            }}
-                          >
-                            {post.postType.toUpperCase()}
-                          </p>
+                          {post.postType !== "general" ?
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                color: getColor(post.postType),
+                              }}
+                            // onClick={() => {
+                            //   localStorage.setItem("lat", (post.location[0].toString()));
+                            //   localStorage.setItem("long", (post.location[1].toString()));
+                            //   history.push("maps");
+                            // }}
+                            >
+                              {post.postType.toUpperCase()}
+                              &nbsp;
+                              {post.marker ? (
+                                <RoomIcon
+                                  style={{ fontSize: "1em" }}
+                                  onClick={() => {
+                                    localStorage.setItem("lat", (post.location[0].toString()));
+                                    localStorage.setItem("long", (post.location[1].toString()));
+                                    history.push("maps");
+                                  }}
+                                />
+                              ) : null}
+                            </p>
+                            :
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                color: getColor(post.postType),
+                                marginLeft: "75%"
+                              }}
+                            >
+                              {post.marker ? (
+                                <RoomIcon onClick={() => {
+                                  localStorage.setItem("lat", (post.location[0].toString()));
+                                  localStorage.setItem("long", (post.location[1].toString()));
+                                  history.push("maps");
+                                }}
+                                  style={{ fontSize: "1em" }} />) : null}
+                            </p>
+                          }
                           <IonNote style={{ fontSize: "0.85em" }}>
                             {getDate(post.timestamp)}
                           </IonNote>
@@ -435,9 +535,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             </IonNote>
                           </IonFab>
                         )}
-                      <h2 className="h2-message">
+                      <Linkify tagName="h2" className="h2-message">
                         {post.message}
-                      </h2>
+                      </Linkify>
                     </IonLabel>
                     <div
                       id={post.postType.replace("/", "")}
@@ -509,13 +609,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </IonItem>
                 </IonList>
                 <div className="verticalLine"></div>
-                {post.imgSrc &&
+                {"imgSrc" in post && post.imgSrc &&
                   post.imgSrc.length > 0 ? (
                   <IonCard style={{ bottom: "7.5vh" }}>
                     <IonCardContent>
                       <IonImg
                         onClick={() => {
-                          PhotoViewer.show(post.imgSrc);
+                          PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                         }}
                         src={post.imgSrc}
                       ></IonImg>
@@ -524,6 +624,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 ) : null}
               </div>
             </FadeIn>
+
           ) :
             <>
               <FadeIn>
@@ -581,21 +682,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               {comment.userName}
                             </p>
                           </IonText>
-                          <h2 className="h2-message">
-                            {" "}
-                            {comment.comment}{" "}
-                          </h2>
-                          {/* {comment.url.length > 0 ? (
-                                    <div className="ion-img-container">
-                                      <br></br>
-                                      <IonImg
-                                        onClick={() => {
-                                          showPicture(comment.imgSrc);
-                                        }}
-                                        src={comment.imgSrc}
-                                      />
-                                    </div>
-                                  ) : null} */}
+                          <Linkify tagName="h2" className="h2-message">
+                            {comment.comment}
+                          </Linkify>
+                          {"imgSrc" in comment && comment.imgSrc && comment.imgSrc.length > 0 ? (
+                            <div className="ion-img-container">
+                              <br></br>
+                              <IonImg
+                                onClick={() => {
+                                  PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
+                                }
+                                }
+                                src={comment.imgSrc}
+                              />
+                            </div>
+                          ) : null}
                         </IonLabel>
                         {"timestamp" in comment ? (
                           <IonFab vertical="top" horizontal="end">
@@ -671,7 +772,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               mode="ios"
                               fill="outline"
                               color="danger"
-                              onClick={() => { deleteComment(index); }}
+                              onClick={() => { deleteComment(index, comment.url); }}
                             >
                               <DeleteIcon />
                             </IonButton>

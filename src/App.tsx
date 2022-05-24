@@ -57,6 +57,8 @@ import Post from "./pages/Post";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { FCM } from "@capacitor-community/fcm";
+import AppUrlListener from "./pages/AppUrlListener";
+import MapsGivenMarker from "./pages/MapsGivenMarker";
 
 // // set up base push notifications with Capacitor
 // await PushNotifications.requestPermissions();
@@ -78,6 +80,7 @@ const RoutingSystem: React.FunctionComponent = () => {
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <IonReactRouter>
+      <AppUrlListener></AppUrlListener>
         {/* <IonPage id="app"> */}
         <IonTabs>
           <IonRouterOutlet>
@@ -93,6 +96,7 @@ const RoutingSystem: React.FunctionComponent = () => {
               exact={true}
             />
             <Route path="/:tab(maps)" component={Maps} exact={true} />
+            {/* <Route path=":/tab(maps)/marker/:lat/:long" component={MapsGivenMarker} /> */}
             <Route path="/:tab(user)" exact={true}>
               {" "}
               <User />{" "}

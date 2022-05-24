@@ -262,8 +262,15 @@ ion-toolbar {
   --border-style: none;
 }
 
+.ion-img-comment {
+  aspect-ratio: 1;
+  border-color:transparent;
+  width: 50px;
+
+}
+
 .swiper-pagination {
-  bottom: 98.4% !important;
+  bottom: 98.6% !important;
 }
 
 .swiper-pagination-bullet-active {
@@ -301,9 +308,12 @@ ion-toolbar {
   height: auto;
   width: auto;
   overflow: hidden;
-  border-radius: 5%;
+  border-radius: 1%;
   justify-content: center;
+  /* border: 2px solid #5e5e5e; */
 }
+
+
 
 ion-app {
   margin-top: constant(safe-area-inset-top);
@@ -401,6 +411,10 @@ ion-input[disabled] {
 .ion-title {
   padding-top: 1vh;
   text-align: center;
+}
+
+hr {
+  border-top: 1px solid ;
 }
 
 .ion-header {

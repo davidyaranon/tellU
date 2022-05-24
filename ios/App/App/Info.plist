@@ -28,15 +28,13 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Users have the option to share photos from their camera to the chat room; if they decide to do so, the app needs access to the iPhone camera hardware</string>
-	<key>NSLocationUsageDescription</key>
-	<string>Users have the option to add a location pin the the in-app map; if they decide to do so, the app requires access to the user's Geolocation</string>
+	<string>tellU needs access to your camera if you would like to upload an image</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Users have the option to add a location pin the the in-app map; if they decide to do so, the app requires access to the user's Geolocation</string>
+	<string>tellU needs access to your current location to add a pin to the map</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Users have the option to share photos from their library to the chat room; if they deicde to do so, the app needs access to the iPhone photo library.</string>
+	<string>tellU needs access to your photo library if you would like to upload a photo</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Users have the option to share photos from their library to the chat room; if they deicde to do so, the app needs access to the iPhone photo library.</string>
+	<string>tellU needs access to your photo library if you would like to upload a photo</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -48,6 +46,8 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

@@ -32,7 +32,7 @@ import {
   limit,
 } from "firebase/firestore";
 import "../App.css";
-import { useHistory } from "react-router";
+import { RouteComponentProps, useHistory } from "react-router";
 import { useSelector } from "react-redux";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import { useToast } from "@agney/ir-toast";
@@ -45,17 +45,26 @@ const schoolInfo = {
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
   "UC Davis": [38.53906813693881, -121.7519863294826, 15],
   "UC Irvine": [33.642798513829284, -117.83657521816043, 14.5],
-  "UCLA": [34.068060230062784, -118.4450963024167, 15.5],
+  UCLA: [34.068060230062784, -118.4450963024167, 15.5],
   "UC Merced": [37.362385, -120.427911, 15],
   "UC Riverside": [33.972975051337265, -117.32790083366463, 16],
   "UC San Diego": [32.8791284369769, -117.2368054903461, 15],
-  "UCSF": [37.76894651194302, -122.42952641954717, 13],
+  UCSF: [37.76894651194302, -122.42952641954717, 13],
   "UC Santa Barbara": [34.41302723872466, -119.84749752183016, 15],
   "UC Santa Cruz": [36.994178678923895, -122.05892788857311, 15],
   "": [37.250458, -120.350249, 6],
 };
 
-function Maps() {
+interface MatchUserPostParams {
+  lat : string,
+  long : string,
+}
+
+const MapsGivenMarker = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
+  const lat = match.params.lat;
+  const long = match.params.long;
+  console.log(lat);
+  console.log(long);
   const Toast = useToast();
   const schoolName = useSelector((state: any) => state.user.school);
   const [user, loading, error] = useAuthState(auth);
@@ -77,14 +86,6 @@ function Maps() {
     if (!user) {
       history.replace("/landing-page");
     } else {
-      let lat: string = localStorage.getItem("lat") || "";
-      let long: string = localStorage.getItem("long") || "";
-      if (lat !== "" && long !== "") {
-        setCenter([parseFloat(lat), parseFloat(long)]);
-        localStorage.removeItem("long");
-        localStorage.removeItem("lat");
-        setZoom(18.5);
-      }
       getMapMarkers();
     }
   }, [user, schoolName]);
@@ -113,25 +114,21 @@ function Maps() {
         break;
     }
   };
-
+      
   const getSchoolLocation = () => {
     if (schoolInfo[schoolName as keyof typeof schoolInfo] !== undefined) {
       const latitude = schoolInfo[schoolName as keyof typeof schoolInfo][0];
       const longitude = schoolInfo[schoolName as keyof typeof schoolInfo][1];
       const schoolZoom = schoolInfo[schoolName as keyof typeof schoolInfo][2];
-      let lat: string = localStorage.getItem("lat") || "";
-      let long: string = localStorage.getItem("long") || "";
-      if (lat !== "" && long !== "") {
+      if(lat && long) {
         setCenter([parseFloat(lat), parseFloat(long)]);
-        localStorage.removeItem("long");
-        localStorage.removeItem("lat");
-        setZoom(schoolZoom + 1);
+        console.log("setting center, lat = " + parseFloat(lat) + ", long = " + parseFloat(long))
       } else {
         setCenter([latitude, longitude]);
-        setZoom(schoolZoom);
       }
       setDefaultLat(latitude);
       setDefaultLong(longitude);
+      setZoom(schoolZoom);
       setDefaultZoom(schoolZoom);
     }
   };
@@ -262,23 +259,23 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ left: "85%", top: "50%" }} buttonStyle={{
-            width: "50px",
-            height: '50px',
-            borderRadius: '1px',
-            boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
-            background: 'white',
-            lineHeight: '26px',
-            fontSize: '25PX',
-            fontWeight: '700',
-            color: 'BLACK',
-            marginBottom: '1px',
-            cursor: 'pointer',
-            border: 'none',
-            display: 'block',
-            outline: 'none',
-            textIndent: '-7.5px',
-          }} />
+          <ZoomControl style={{left:"85%", top:"50%"}} buttonStyle={{
+            width:"50px",
+            height:'50px',
+            borderRadius:'1px',
+            boxShadow:'0 1px 4px -1px rgba(0,0,0,.3)',
+            background:'white',
+            lineHeight:'26px',
+            fontSize:'25PX',
+            fontWeight:'700',
+            color:'BLACK',
+            marginBottom:'1px',
+            cursor:'pointer',
+            border:'none',
+            display:'block',
+            outline:'none',
+            textIndent:'-7.5px',
+          }}/>
 
           {markers
             ? markers.map((marker, index) => {
@@ -420,4 +417,4 @@ function Maps() {
   );
 }
 
-export default React.memo(Maps);
+export default React.memo(MapsGivenMarker);

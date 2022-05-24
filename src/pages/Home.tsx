@@ -5,8 +5,6 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonCard,
-  IonSlides,
-  IonSlide,
   IonModal,
   IonImg,
   IonList,
@@ -33,7 +31,7 @@ import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
 } from "@ionic/react";
-import auth, { getAllPostsNextBatch } from "../fbconfig";
+import auth, { getAllPostsNextBatch, storage } from "../fbconfig";
 import {
   addMessage,
   uploadImage,
@@ -48,6 +46,7 @@ import {
   CameraSource,
   Photo,
 } from "@capacitor/camera";
+import { ref, getDownloadURL } from "firebase/storage";
 import { Geolocation, Geoposition } from "@awesome-cordova-plugins/geolocation";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
@@ -56,10 +55,11 @@ import {
   cameraOutline,
   shareOutline,
 } from "ionicons/icons";
-
+import RoomIcon from '@mui/icons-material/Room';
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
 import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+// import { PhotoViewer, Image } from '@capacitor-community/photoviewer';  USE THIS WHEN IMPLEMENTING VIDEOS, FOR NOW CAUSES STRANGE FLICKER (RE-REDNERING?)
 import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
 import { chevronDownCircleOutline, caretUpOutline } from "ionicons/icons";
@@ -80,9 +80,12 @@ import UIContext from "../my-context";
 import { getColor, timeout } from '../components/functions';
 import { Share } from '@capacitor/share';
 import Map from "@mui/icons-material/Map";
+import Linkify from 'linkify-react';
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
+
+declare var window: any;
 
 export interface UserPhoto {
   filepath: string;
@@ -92,6 +95,7 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
+  const inputRef = useRef<any>(null);
   const [newPosts, setNewPosts] = useState<any[] | null>(null);
   const pageRef = useRef();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
@@ -129,6 +133,7 @@ function Home() {
   const modalContentRef = useRef<HTMLIonContentElement | null>(null);
   const [newPostsLoaded, setNewPostsLoaded] = useState<boolean>(false);
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   useIonViewWillEnter(() => {
     setShowTabs(true);
@@ -174,7 +179,7 @@ function Home() {
   };
 
   const ionInputStyle = {
-    height: "10vh",
+    height: "12.5vh",
     width: "95vw",
     marginLeft: "2.5vw",
   };
@@ -187,7 +192,7 @@ function Home() {
   const handleUserPageNavigation = (uid: string) => {
     history.push("home/about/" + uid);
   };
-  
+
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(schoolName, postKey, post);
     if (val && (val === 1 || val === -1)) {
@@ -330,7 +335,7 @@ function Home() {
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
       tempPosts.then((res: any) => {
         if (res.allPosts && res.allPosts != []) {
-          console.log(res.allPosts);
+          // console.log(res.allPosts);
           setPosts(posts?.concat(res.allPosts)!);
           setLastKey(res.lastKey);
           event.target.complete();
@@ -379,17 +384,114 @@ function Home() {
     }, 1000);
   }
 
-  function showPicture(src: string) {
-    PhotoViewer.show(src);
-  }
-
   async function sendImage(blob: any, uniqueId: string) {
     const res = await uploadImage("images", blob, uniqueId);
     if (res == false || photo == null || photo?.webPath == null) {
       Toast.error("unable to select photo");
     } else {
-      Toast.success("photo uploaded successfully");
+      // Toast.success("photo uploaded successfully");
     }
+  }
+
+  // function b64ToBlob(b64Data: any, contentType: string, sliceSize: number) {
+  //   var byteCharacters = atob(b64Data);
+  //   var byteArrays = [];
+
+  //   for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+  //     var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+  //     var byteNumbers = new Array(slice.length);
+  //     for (var i = 0; i < slice.length; i++) {
+  //       byteNumbers[i] = slice.charCodeAt(i);
+  //     }
+
+  //     var byteArray = new Uint8Array(byteNumbers);
+
+  //     byteArrays.push(byteArray);
+  //   }
+
+  //   var blob = new Blob(byteArrays, { type: contentType });
+  //   return blob;
+  // }
+
+  // function makeFileIntoBlob(_imagePath: string, contentType: string) {
+  //   // INSTALL PLUGIN - cordova plugin add cordova-plugin-file
+  //   return new Promise((resolve, reject) => {
+  //     let fileName = "";
+  //     File
+  //       .resolveLocalFilesystemUrl(_imagePath)
+  //       .then(fileEntry => {
+  //         let { name, nativeURL } = fileEntry;
+
+  //         // get the path..
+  //         let path = nativeURL.substring(0, nativeURL.lastIndexOf("/"));
+
+  //         fileName = name;
+
+  //         // we are provided the name, so now read the file into a buffer
+  //         return File.readAsArrayBuffer(path, name);
+  //       })
+  //       .then(buffer => {
+  //         // get the buffer and make a blob to be saved
+  //         let imgBlob = new Blob([buffer], {
+  //           type: contentType
+  //         });
+  //         console.log(imgBlob);
+  //         setBlob(imgBlob);
+  //         // pass back blob and the name of the file for saving
+  //         // into fire base
+  //         resolve({
+  //           fileName,
+  //           imgBlob
+  //         });
+  //       })
+  //       .catch(e => reject(e));
+  //   });
+  // }
+
+  // function getBlob(b64Data: string, contentType: string, sliceSize: number = 512) {
+  //   contentType = contentType || '';
+  //   sliceSize = sliceSize || 512;
+  //   let byteCharacters = atob(b64Data);
+  //   let byteArrays = [];
+
+  //   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+  //     let slice = byteCharacters.slice(offset, offset + sliceSize);
+
+  //     let byteNumbers = new Array(slice.length);
+  //     for (let i = 0; i < slice.length; i++) {
+  //       byteNumbers[i] = slice.charCodeAt(i);
+  //     }
+
+  //     let byteArray = new Uint8Array(byteNumbers);
+
+  //     byteArrays.push(byteArray);
+  //   }
+  //   let blob = new Blob(byteArrays, { type: contentType });
+  //   return blob;
+  // }
+
+
+  // function success(fileEntry: any) {
+  //   fileEntry.file(function (file: any) {
+  //     var reader = new FileReader();
+  //     reader.onloadend = function (e) {
+  //       var content = this.result;
+  //       // console.log(content);
+  //     };
+  //   });
+  // }
+
+  var win = function (r: any) {
+    // console.log("Code = " + r.responseCode);
+    // console.log("Response = " + r.response);
+    // console.log("Sent = " + r.bytesSent);
+  }
+
+  var fail = function (error: any) {
+    // alert("An error has occurred: Code = " + error.code);
+    // console.log("upload error source " + error.source);
+    // console.log("upload error target " + error.target);
   }
 
   async function takePicture() {
@@ -400,6 +502,7 @@ function Home() {
         source: CameraSource.Prompt,
         resultType: CameraResultType.Uri,
       });
+      // console.log(image);
       const res = await fetch(image.webPath!);
       const blobRes = await res.blob();
       if (blobRes) {
@@ -417,7 +520,7 @@ function Home() {
   }
 
   async function messageAdd() {
-    if (message.trim().length == 0 && !blob) {
+    if (message.trim().length == 0 && !blob && !photo) {
       Toast.error("Input a message!");
     } else if (
       !eventsChecked &&
@@ -454,7 +557,7 @@ function Home() {
         setMessage("");
         handleLoadPosts();
       }
-      //setBusy(false);
+      setBusy(false);
     }
   }
 
@@ -466,6 +569,10 @@ function Home() {
       history.replace("/landing-page");
     } else if (schoolName) {
       handleLoadPosts();
+      getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL"))
+        .then((url: string) => {
+          setProfilePhoto(url);
+        })
     }
   }, [schoolName]);
 
@@ -606,7 +713,7 @@ function Home() {
               </IonList>
               <IonList inset={true} mode="ios">
                 <IonItem mode="ios" lines="none">
-                  <IonLabel> Add pin to map?</IonLabel><Map />
+                  <IonLabel> Add pin to map?*</IonLabel><Map />
                   <IonCheckbox
                     slot="start"
                     checked={locationChecked}
@@ -618,6 +725,7 @@ function Home() {
                   />
                 </IonItem>
               </IonList>
+              <p style={{textAlign:"center"}}>*Location pin stays on map for up to two days</p>
               <div className="ion-button-container">
                 <IonButton
                   onClick={() => {
@@ -630,7 +738,7 @@ function Home() {
                   fill="outline"
                   id="message"
                 >
-                  Send
+                  Post
                 </IonButton>
               </div>
             </IonContent>
@@ -653,45 +761,88 @@ function Home() {
                   </IonButtons>
                 </IonToolbar>
               </div>
-              <div>
+              <IonCard>
+                <div>
+                  <IonRow class="ion-padding-top">
+                    {profilePhoto ? (
+                      <>
+                        <IonCol size="2">
+                          <IonAvatar>
+                            <IonImg
+                              src={profilePhoto} />
+                          </IonAvatar>
+                        </IonCol>
+                        <IonCol>
+                          <IonTextarea
+                            ref={(ref) => inputRef.current = ref}
+                            rows={4}
+                            color="secondary"
+                            maxlength={500}
+                            // style={ionInputStyle}
+                            value={message}
+                            placeholder="Start typing..."
+                            id="message"
+                            onIonChange={(e: any) => {
+                              handleChange(e);
+                            }}
+                          ></IonTextarea>
+                        </IonCol>
+                      </>
+                    )
+                      : (
+                        <>
+                          <IonTextarea
+                            autofocus={true}
+                            ref={(ref) => inputRef.current = ref}
+                            rows={5}
+                            color="secondary"
+                            maxlength={500}
+                            style={ionInputStyle}
+                            value={message}
+                            placeholder="Start typing..."
+                            id="message"
+                            onIonChange={(e: any) => {
+                              handleChange(e);
+                            }}
+                          ></IonTextarea>
+                        </>
+                      )}
+                  </IonRow>
+                  <br />
+                  <IonRow>
+                    <IonFab horizontal="end" style={{
+                      textAlign: "center", alignItems: "center",
+                      alignSelf: "center", display: "flex", paddingTop: ""
+                    }}>
+                      <IonButton onClick={takePicture} mode="ios" color="" fill='clear'>
+                        <IonIcon icon={cameraOutline} />
+                      </IonButton>
+                      <IonButton
+                        onClick={() => {
+                          handlePostOptions();
+                        }}
+                        color="transparent"
+                        mode="ios"
+                        shape="round"
+                        fill="clear"
+                        id="message"
+                      >
+                        Post
+                      </IonButton>
+                    </IonFab>
+                  </IonRow>
+                  {photo ? (
+                    <>
+                      <FadeIn>
+                        <IonCard>
+                          <IonImg src={photo?.webPath} />
+                        </IonCard>
+                      </FadeIn>
+                    </>
+                  ) : <> <br></br><br></br> </>}
 
-                <br />
-                <IonTextarea
-                  color="secondary"
-                  maxlength={500}
-                  style={ionInputStyle}
-                  value={message}
-                  placeholder="Start typing..."
-                  id="message"
-                  onIonChange={(e: any) => {
-                    handleChange(e);
-                  }}
-                ></IonTextarea>
-                <br />
-                <IonFab horizontal="end" style={{ textAlign: "center", alignItems: "center", alignSelf: "center", display: "flex" }}>
-                  <IonButton onClick={takePicture} mode="ios" color="medium">
-                    <IonIcon icon={cameraOutline} />
-                  </IonButton>
-                  <IonButton
-                    onClick={() => {
-                      handlePostOptions();
-                    }}
-                    color="transparent"
-                    mode="ios"
-                    shape="round"
-                    fill="outline"
-                    id="message"
-                  >
-                    Send
-                  </IonButton>
-                </IonFab>
-                <br></br>
-                <br></br>
-                <br></br>
-                <IonCard>
-                  <IonImg src={photo?.webPath} />
-                </IonCard>
-              </div>
+                </div>
+              </IonCard>
             </IonContent>
           </IonModal>
 
@@ -699,13 +850,14 @@ function Home() {
             <IonFabButton
               onClick={() => {
                 setShowModal(true);
+                // inputRef.current.setFocus();
               }}
             >
               <IonIcon icon={add} />
             </IonFabButton>
           </IonFab>
 
-          <IonModal backdropDismiss={false} isOpen={showModalPicture}>
+          {/* <IonModal backdropDismiss={false} isOpen={showModalPicture}>
             <IonCard>
               <IonHeader translucent>
                 <IonToolbar mode="ios">
@@ -729,7 +881,7 @@ function Home() {
                 </IonSlide>
               </IonSlides>
             </IonCard>
-          </IonModal>
+          </IonModal> */}
 
           {posts && posts.length > 0 ? (
             posts?.map((post, index) => (
@@ -753,16 +905,50 @@ function Home() {
                             </p>
                           </IonCol>
                           <IonCol>
-                            {post.postType && post.postType != "general" ? (
+                            {post.postType ? (
                               <IonFab horizontal="end">
-                                <p
-                                  style={{
-                                    fontWeight: "bold",
-                                    color: getColor(post.postType),
-                                  }}
-                                >
-                                  {post.postType.toUpperCase()}
-                                </p>
+                                {post.postType !== "general" ?
+                                  <p
+                                    style={{
+                                      fontWeight: "bold",
+                                      color: getColor(post.postType),
+                                    }}
+                                  // onClick={() => {
+                                  //   localStorage.setItem("lat", (post.location[0].toString()));
+                                  //   localStorage.setItem("long", (post.location[1].toString()));
+                                  //   history.push("maps");
+                                  // }}
+                                  >
+                                    {post.postType.toUpperCase()}
+                                    &nbsp;
+                                    {post.marker ? (
+                                      <RoomIcon
+                                        style={{ fontSize: "1em" }}
+                                        onClick={() => {
+                                          localStorage.setItem("lat", (post.location[0].toString()));
+                                          localStorage.setItem("long", (post.location[1].toString()));
+                                          history.push("maps");
+                                        }}
+                                      />
+                                    ) : null}
+                                  </p>
+                                  :
+                                  <p
+                                    style={{
+                                      fontWeight: "bold",
+                                      color: getColor(post.postType),
+                                    }}
+                                  >
+                                    {post.marker ? (
+                                      <RoomIcon onClick={() => {
+                                        localStorage.setItem("lat", (post.location[0].toString()));
+                                        localStorage.setItem("long", (post.location[1].toString()));
+                                        history.push("maps");
+                                      }}
+                                        style={{ fontSize: "1em" }} />
+                                    ) : null}
+                                  </p>
+                                }
                               </IonFab>
                             ) : null}
                             <IonFab style={{ bottom: "1vh" }} horizontal="end">
@@ -773,17 +959,19 @@ function Home() {
                           </IonCol>
                         </IonRow>
                       </IonText>
-                      <h3 className="h2-message" style={{ marginLeft: "2.5%" }}>
+                      <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "1.75%" }}>
+                        {post.message}
+                      </Linkify>
+                      {/* <h3 className="h2-message" style={{ marginLeft: "2.5%" }}>
                         {" "}
                         {post.message}{" "}
-                      </h3>
-                      {post.url.length > 0 ? (
+                      </h3> */}
+                      {"imgSrc" in post && post.imgSrc && post.imgSrc.length > 0 ? (
                         <div className="ion-img-container">
                           <br></br>
                           <IonImg
-                            className="ion-img-style"
                             onClick={() => {
-                              showPicture(post.imgSrc);
+                              PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
                             src={post.imgSrc}
                           />
