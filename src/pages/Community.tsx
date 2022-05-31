@@ -24,6 +24,7 @@ import {
   IonInput,
   IonCardSubtitle,
   IonGrid,
+  IonTextarea,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -32,15 +33,22 @@ import ForumIcon from "@mui/icons-material/Forum";
 import {
   addCircleOutline,
   arrowBack,
+  cameraOutline,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getPolls, getTopWeeklyPosts, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
+import auth, { getPolls, getShowcase, getTopWeeklyPosts, pollVote, submitPollFb, submitShowcase, uploadImage } from "../fbconfig";
 import {
   downVote,
   getTopPostsWithinPastDay,
   promiseTimeout,
   upVote,
 } from "../fbconfig";
+import {
+  Camera,
+  CameraResultType,
+  CameraSource,
+  Photo,
+} from "@capacitor/camera";
 import "../App.css";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
@@ -48,9 +56,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useSelector } from "react-redux";
 import "swiper/css";
 import "swiper/css/pagination";
+import { v4 as uuidv4 } from "uuid";
 import FadeIn from "react-fade-in";
 import { getColor, timeout } from '../components/functions';
 import UIContext from '../my-context';
+import tellU_Community from '../images/tellU_Community.png';
+import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
+
 // import UC_Berkeley_Community_Dark from '../images/UC_Berkeley_Community_Dark.png';
 // import UC_Berkeley_Community_Light from '../images/UC_Berkeley_Community_Light.png';
 // import UC_Davis_Community_Dark from '../images/UC_Davis_Community_Dark.png';
@@ -58,9 +70,6 @@ import UIContext from '../my-context';
 // import UC_Irvine_Light from '../images/UC_Irvine_Light.png';
 // import UC_Irvine_Dark from '../images/UC_Irvine_Dark.png';
 // import UCLA_Light from '../images/UCLA_Light.png';
-
-import tellU_Community from '../images/tellU_Community.png';
-import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
 
 interface PollAnswer {
   text: string,
@@ -106,16 +115,80 @@ function Community() {
   const [isDay, setIsDay] = useState<boolean>(false);
   const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
   const [flip, setFlip] = useState<boolean>(false);
+  const [photo, setPhoto] = useState<Photo | null>();
   const [pollOptions, setPollOptions] = useState<PollAnswer[]>([
     { text: "", },
     { text: "", },
     { text: "", },
   ]); // start with three options, include more programatically
   const [polls, setPolls] = useState<any[]>([]);
-  const [showcase, setShowcase] = useState<any[]>([]);
+  // const [showcase, setShowcase] = useState<any[]>([]);
   const [yourPollsSelected, setYourPollsSelected] = useState<boolean>(false);
   const [yourPolls, setYourPolls] = useState<any[]>([]);
   const { setShowTabs } = React.useContext(UIContext);
+  // const [showcaseModal, setShowcaseModal] = useState<boolean>(false);
+  // const [showcaseText, setShowcaseText] = useState<string>("");
+  const [blob, setBlob] = useState<any | null>(null);
+
+  async function takePicture() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        source: CameraSource.Prompt,
+        resultType: CameraResultType.Uri,
+      });
+      // console.log(image);
+      const res = await fetch(image.webPath!);
+      const blobRes = await res.blob();
+      if (blobRes) {
+        if (blobRes.size > 5_000_000) {
+          // 5MB
+          Toast.error("Image too large");
+        } else {
+          setBlob(blobRes);
+          setPhoto(image);
+        }
+      }
+    } catch (err: any) {
+      // Toast.error(err.message.toString());
+    }
+  }
+
+  // async function sendImage(blob: any, uniqueId: string) {
+  //   const res = await uploadImage("images", blob, uniqueId);
+  //   if (res == false || photo == null || photo?.webPath == null) {
+  //     Toast.error("unable to select photo");
+  //   } else {
+  //     // Toast.success("photo uploaded successfully");
+  //   }
+  // }
+
+  // const postShowcase = async () => {
+  //   if (showcaseText.trim().length == 0 && !blob && !photo) {
+  //     Toast.error("Input a message!");
+  //     return;
+  //   }
+  //   setShowcaseModal(false);
+  //   setShowcaseText('');
+  //   let uniqueId = uuidv4();
+  //   if (blob) {
+  //     await sendImage(blob, uniqueId.toString());
+  //     setBlob(null);
+  //     setPhoto(null);
+  //   }
+  //   const res = await submitShowcase(schoolName, blob, uniqueId.toString(), showcaseText);
+  //   if (res) {
+  //     Toast.success("Uploaded!");
+  //     const showcaseLoaded = promiseTimeout(10000, getShowcase(schoolName));
+  //     showcaseLoaded.then((res) => {
+  //       setShowcase(res);
+  //     });
+  //     showcaseLoaded.catch((err) => {
+  //       console.log(err + '\nCheck your internet connection');
+  //     });
+  //   }
+  // }
 
   useIonViewWillEnter(() => {
     setShowTabs(true);
@@ -124,6 +197,13 @@ function Community() {
       history.replace("/landing-page");
     } else {
       if (schoolName) {
+        // const showcaseLoaded = promiseTimeout(10000, getShowcase(schoolName));
+        // showcaseLoaded.then((res) => {
+        //   setShowcase(res);
+        // });
+        // showcaseLoaded.catch((err) => {
+        //   console.log(err + '\nCheck your internet connection');
+        // });
         const topPostsLoaded = promiseTimeout(10000, getTopPostsWithinPastDay(schoolName));
         topPostsLoaded.then((res: any) => {
           setTopPosts(res);
@@ -206,6 +286,11 @@ function Community() {
     setPollModalOpen(true);
   }
 
+  // const handleShowcaseTextChange = (e: any) => {
+  //   let currShowcaseText = e.detail.value;
+  //   setShowcaseText(currShowcaseText);
+  // }
+
   const handlePollTextChange = (e: any) => {
     let currComment = e.detail.value;
     setPollText(currComment);
@@ -278,7 +363,7 @@ function Community() {
     const time = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
     const today = new Date();
     const ms = today.getTime() - time.getTime();
-    return (7 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (7 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
+    return (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
   }
 
   const handlePollVote = async (index: number, pollKey: string) => {
@@ -287,7 +372,7 @@ function Community() {
       const castedVote = promiseTimeout(5000, pollVote(schoolName, index, pollKey, user.uid));
       castedVote.then((res) => {
         if (res) {
-          Toast.success("Vote casted!");
+          Toast.success("Vote cast!");
           const pollsLoaded = promiseTimeout(10000, getPolls(schoolName));
           pollsLoaded.then((res) => {
             setPolls(res);
@@ -308,16 +393,16 @@ function Community() {
     }
   }
 
-  useEffect(() => {
-    if (schoolName) {
-      getWeatherData(schoolName).then((data: any) => {
-        setWeatherData(data);
-        if (data.icon.toString().includes('day')) {
-          setIsDay(true);
-        }
-      });
-    }
-  }, [schoolName]);
+  // useEffect(() => {
+  //   if (schoolName) {
+  //     getWeatherData(schoolName).then((data: any) => {
+  //       setWeatherData(data);
+  //       if (data.icon.toString().includes('day')) {
+  //         setIsDay(true);
+  //       }
+  //     });
+  //   }
+  // }, [schoolName]);
 
   return (
     <IonPage>
@@ -341,6 +426,84 @@ function Community() {
           duration={0}
           isOpen={commentsBusy}
         ></IonLoading>
+
+        {/* <IonModal backdropDismiss={false} isOpen={showcaseModal}>
+          <IonContent>
+            <div>
+              <div style={{ width: "100%" }}>
+                <IonToolbar mode="ios">
+                  <IonButtons slot="start">
+                    <IonButton
+                      onClick={() => {
+                        setShowcaseModal(false);
+                        setShowcaseText("");
+                      }}
+                    >
+                      <IonIcon icon={arrowBack}></IonIcon> Back
+                    </IonButton>
+                  </IonButtons>
+                </IonToolbar>
+              </div>
+              <IonHeader mode='ios'>
+                <IonTitle>Showcase</IonTitle>
+              </IonHeader>
+              <br />
+              <IonCard>
+                <div>
+                  <IonRow class="ion-padding-top">
+                    <>
+                      <IonTextarea
+                        rows={5}
+                        color="secondary"
+                        maxlength={200}
+                        value={showcaseText}
+                        style={{ marginLeft: "2.5vw" }}
+                        placeholder="Show off your projects/artwork/designs here!"
+                        id="message"
+                        onIonChange={(e: any) => {
+                          handleShowcaseTextChange(e);
+                        }}
+                      ></IonTextarea>
+                    </>
+                  </IonRow>
+                  <br />
+                  <IonRow>
+                    <IonFab horizontal="end" style={{
+                      textAlign: "center", alignItems: "center",
+                      alignSelf: "center", display: "flex", paddingTop: ""
+                    }}>
+                      <IonButton onClick={takePicture} mode="ios" color="" fill='clear'>
+                        <IonIcon icon={cameraOutline} />
+                      </IonButton>
+                      <IonButton
+                        onClick={() => {
+                          postShowcase();
+                        }}
+                        color="transparent"
+                        mode="ios"
+                        shape="round"
+                        fill="clear"
+                        id="message"
+                      >
+                        Post
+                      </IonButton>
+                    </IonFab>
+                  </IonRow>
+                  {photo ? (
+                    <>
+                      <FadeIn>
+                        <IonCard>
+                          <IonImg src={photo?.webPath} />
+                        </IonCard>
+                      </FadeIn>
+                    </>
+                  ) : <> <br></br><br></br> </>}
+
+                </div>
+              </IonCard>
+            </div>
+          </IonContent>
+        </IonModal> */}
 
         <IonModal backdropDismiss={false} isOpen={pollModalOpen}>
           <IonContent>
@@ -394,7 +557,7 @@ function Community() {
               </div>
               <br />
               <div style={{ textAlign: "center", }}>
-                <IonCardSubtitle>*Polls are up for 7 days</IonCardSubtitle>
+                <IonCardSubtitle>*Polls are up for 4 days</IonCardSubtitle>
               </div>
             </div>
           </IonContent>
@@ -442,10 +605,11 @@ function Community() {
           </IonCard>
         </FadeIn > */}
 
+        <FadeIn>
         <IonHeader mode='ios'>
           {/* {schoolName && schoolName == "UC Berkeley" ? ( */}
           <div>
-            <img src={darkModeToggled ? tellU_Community_Dark : tellU_Community} />
+            <img draggable={false} src={darkModeToggled ? tellU_Community_Dark : tellU_Community} />
           </div>
           {/* ) : null} */}
           {/* {schoolName && schoolName != "UC Berkeley" ? (
@@ -467,27 +631,156 @@ function Community() {
             <IonTitle style={{paddingTop:"50%"}}>COMMUNITY</IonTitle>
           </div> */}
         </IonHeader>
+        </FadeIn>
+
         <FadeIn>
           <hr />
         </FadeIn>
-        <FadeIn transitionDuration={500}>
+        {/* <FadeIn transitionDuration={500}>
           <IonToolbar mode="ios">
             <IonCardTitle style={{ marginLeft: "5%" }}>Showcase</IonCardTitle>
-            <IonButton color="medium" fill="outline" size="small" onClick={() => { }} slot="end">
+            <IonButton color="medium" fill="outline" size="small" onClick={() => { setShowcaseModal(true); }} slot="end">
               <IonIcon icon={addCircleOutline} /> {'\u00A0'}Add
             </IonButton>
           </IonToolbar>
-        </FadeIn>
-        {showcase.length <= 0 ? (
+        </FadeIn> */}
+        {/* {showcase.length <= 0 ? (
           <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
             <div style={{ textAlign: "center" }}><p>No showcase posts made within past week</p></div>
             <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>
         ) : (
-          null
-        )}
-        <FadeIn>
-          <hr />
-        </FadeIn>
+          <Swiper slidesPerView={1.25}>
+            {showcase.map((post, index) => {
+              return (
+                <SwiperSlide key={post.key + "_weekly"}>
+                  <IonCard mode="ios">
+                    <IonCardContent
+                      style={{ minHeight: "50vh" }}
+                      onClick={() => {
+                        // // handleCardClick(post, index);
+                        // history.push("home/post/" + post.key);
+                      }}
+                    >
+                      <IonCardTitle style={{ fontSize: "medium" }} mode="ios">
+                        {post.userName}
+                      </IonCardTitle>
+                      <br></br>
+                      <IonNote style={{ fontSize: "1.10em" }} color="medium" className="subtitle">
+                        {post.message.length > 150
+                          ? post.message.substring(0, 150) + "..."
+                          : post.message}
+                      </IonNote>
+                      {post.imgSrc && post.imgSrc.length > 0 ? (
+                        <div>
+                          <br></br>
+                          <IonImg
+                            className="ion-img-container"
+                            src={post.imgSrc}
+                          />
+                          <br></br>
+                          <br></br>
+                          <br></br>
+                        </div>
+                      ) : null}
+                    </IonCardContent>
+                    {/* <IonFab vertical="bottom">
+                      <IonRow>
+                        <IonCol size="4">
+                          <IonButton
+                            onAnimationEnd={() => {
+                              setLikeAnimation(-1);
+                            }}
+                            className={
+                              likeAnimation === post.key
+                                ? "likeAnimation"
+                                : ""
+                            }
+                            disabled={disabledLikeButtons === index}
+                            onClick={() => {
+                              setLikeAnimation(post.key);
+                              setDisabledLikeButtons(index);
+                              handleUpVote(post.key, index, post.data);
+                            }}
+                            style={{ width: "16vw" }}
+                            mode="ios"
+                            fill="outline"
+                            color={
+                              index != -1 &&
+                                topPosts &&
+                                topPosts[index] &&
+                                "data" in topPosts[index] &&
+                                "likes" in topPosts[index].data &&
+                                user &&
+                                topPosts[index].data.likes[user.uid] !==
+                                undefined
+                                ? "primary"
+                                : "medium"
+                            }
+                          >
+                            <KeyboardArrowUpIcon />
+                            <p>{Object.keys(post.data.likes).length} </p>
+                          </IonButton>
+                        </IonCol>
+                        <IonCol size="4">
+                          <IonButton
+                            onClick={() => {
+                              // handleCardClick(post, index);
+                              history.push("home/post/" + post.key);
+                            }}
+                            style={{ width: "16vw" }}
+                            mode="ios"
+                            color="medium"
+                          >
+                            <ForumIcon />
+                            <p>&nbsp; {post.data.commentAmount} </p>
+                          </IonButton>
+                        </IonCol>
+                        <IonCol size="4">
+                          <IonButton
+                            onAnimationEnd={() => {
+                              setDislikeAnimation(-1);
+                            }}
+                            className={
+                              dislikeAnimation === post.key
+                                ? "likeAnimation"
+                                : ""
+                            }
+                            disabled={disabledLikeButtons === index}
+                            style={{ width: "16vw" }}
+                            mode="ios"
+                            fill="outline"
+                            onClick={() => {
+                              setDislikeAnimation(post.key);
+                              setDisabledLikeButtons(index);
+                              handleDownVote(post.key, index, post.data);
+                            }}
+                            color={
+                              index != -1 &&
+                                topPosts &&
+                                topPosts[index] &&
+                                user &&
+                                "data" in topPosts[index] &&
+                                "dislikes" in topPosts[index].data &&
+                                topPosts[index].data.dislikes[user.uid] !==
+                                undefined
+                                ? "danger"
+                                : "medium"
+                            }
+                          >
+                            <KeyboardArrowDownIcon />
+                            <p>{Object.keys(post.data.dislikes).length} </p>
+                          </IonButton>
+                        </IonCol>
+                      </IonRow>
+                    </IonFab>
+                  </IonCard>
+                </SwiperSlide>
+              );
+            })
+            }
+          </Swiper>
+        )} */}
+
         {
           (polls && polls.length <= 0) && (topPosts && topPosts.length <= 0) && (topWeeklyPosts && topWeeklyPosts.length <= 0) ? (
             <>
@@ -498,88 +791,7 @@ function Community() {
               <FadeIn transitionDuration={500}>
                 {/* <IonHeader class="ion-no-border"> */}
                 <IonToolbar mode="ios">
-                  {/* <p style={{fontWeight:"bold" ,fontSize: "1em", marginLeft: "5vw"}}>Polls</p>
-                   */}
-                  <IonCardTitle style={{ marginLeft: "5%" }}>Polls</IonCardTitle>
-                  <IonButton color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
-                    <IonIcon icon={addCircleOutline} /> {'\u00A0'}New Poll
-                  </IonButton>
-                </IonToolbar>
-                {/* </IonHeader> */}
-
-                {user && polls && polls.length > 0 ? (
-                  <>
-                    {yourPollsSelected ? (
-                      <Swiper slidesPerView={1.25}>
-                        {yourPolls.map((poll) => {
-                          return (
-                            <SwiperSlide key={poll.key}>
-                              <IonCard mode='ios'>
-                                <IonCardContent style={{ minHeight: "65vh" }}>
-                                  <p>{poll.userName}</p>
-                                  <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
-                                  <br />
-                                  <IonList lines="full" mode="ios">
-                                    {poll.options.map((option: any, index: number) => {
-                                      return (
-                                        <IonItem style={{ fontWeight: "bold" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
-                                          {option.text} <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
-                                        </IonItem>
-                                      )
-                                    })}
-                                  </IonList>
-                                  <IonFab vertical="bottom" horizontal="start">
-                                    <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                                  </IonFab>
-                                </IonCardContent>
-                              </IonCard>
-                            </SwiperSlide>
-                          )
-                        })}
-                      </Swiper>
-                    ) : (
-                      <Swiper slidesPerView={1.25}>
-                        {polls.map((poll) => {
-                          return (
-                            <SwiperSlide key={poll.key}>
-                              <IonCard mode='ios'>
-                                <IonCardContent style={{ minHeight: "60vh" }}>
-                                  <p style={{ fontSize: "1em" }}>{poll.userName}</p>
-                                  <IonCardTitle style={{ fontSize: "1.5em", width: "95%", marginLeft: "0%" }}>{
-                                    poll.question}</IonCardTitle>
-                                  <br />
-                                  <IonList lines="full" mode="ios">
-                                    {poll.options.map((option: any, index: number) => {
-                                      return (
-                                        <IonItem style={{ fontWeight: "bold" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
-                                          <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
-                                        </IonItem>
-                                      )
-                                    })}
-                                  </IonList>
-                                  <br />
-                                  <IonFab vertical="bottom" horizontal="start">
-                                    <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                                  </IonFab>
-                                </IonCardContent>
-                              </IonCard>
-                            </SwiperSlide>
-                          )
-                        })}
-                      </Swiper>
-                    )}
-                  </>
-                ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-                  <div style={{ textAlign: "center" }}><p>NO POLLS WITHIN PAST WEEK</p></div>
-                  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
-              </FadeIn>
-              <FadeIn>
-                <hr />
-              </FadeIn>
-              <FadeIn transitionDuration={500}>
-                {/* <IonHeader class="ion-no-border"> */}
-                <IonToolbar mode="ios">
-                  <IonCardTitle style={{ marginLeft: "5%" }}>Top Posts (All Time)</IonCardTitle>
+                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Top Posts (All Time)</IonCardTitle>
                   {/* <IonFab horizontal="end">
                   <IonIcon icon={chevronForward} />
                 </IonFab>
@@ -598,7 +810,7 @@ function Community() {
                           <SwiperSlide key={post.key + "_allTime"}>
                             <IonCard mode="ios">
                               <IonCardContent
-                                style={{ minHeight: "60vh" }}
+                                style={{ minHeight: "50vh" }}
                                 onClick={() => {
                                   history.push("home/post/" + post.key);
                                 }}
@@ -621,7 +833,7 @@ function Community() {
                                   {post.data.userName}
                                 </IonCardTitle>
                                 <br></br>
-                                <IonNote style={{ fontSize: "1.20em" }} color="medium" className="subtitle">
+                                <IonNote style={{ fontSize: "1.10em" }} color="medium" className="subtitle">
                                   {post.data.message.length > 120
                                     ? post.data.message.substring(0, 120) + "..."
                                     : post.data.message}
@@ -740,9 +952,10 @@ function Community() {
               <FadeIn>
                 <hr />
               </FadeIn>
+
               <FadeIn transitionDuration={500}>
                 <IonToolbar mode="ios">
-                  <IonCardTitle style={{ marginLeft: "5%" }}>Top Posts (Weekly)</IonCardTitle>
+                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Top Posts (Weekly)</IonCardTitle>
                   {/* <IonFab horizontal="end">
                   <IonIcon icon={chevronForward} />
                 </IonFab>
@@ -757,7 +970,7 @@ function Community() {
                         <SwiperSlide key={post.key + "_weekly"}>
                           <IonCard mode="ios">
                             <IonCardContent
-                              style={{ minHeight: "60vh" }}
+                              style={{ minHeight: "50vh" }}
                               onClick={() => {
                                 // handleCardClick(post, index);
                                 history.push("home/post/" + post.key);
@@ -781,7 +994,7 @@ function Community() {
                                 {post.data.userName}
                               </IonCardTitle>
                               <br></br>
-                              <IonNote style={{ fontSize: "1.20em" }} color="medium" className="subtitle">
+                              <IonNote style={{ fontSize: "1.10em" }} color="medium" className="subtitle">
                                 {post.data.message.length > 100
                                   ? post.data.message.substring(0, 100) + "..."
                                   : post.data.message}
@@ -894,9 +1107,90 @@ function Community() {
                       );
                     })
                     : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-                      <div style={{ textAlign: "center" }}><p>NO POSTS WITHIN PAST WEEK</p></div>
+                      <div style={{ textAlign: "center" }}><p>No posts within past week</p></div>
                       <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
                 </Swiper>
+              </FadeIn>
+              <FadeIn>
+                <hr />
+              </FadeIn>
+              <FadeIn transitionDuration={500}>
+                {/* <IonHeader class="ion-no-border"> */}
+                <IonToolbar mode="ios">
+                  {/* <p style={{fontWeight:"bold" ,fontSize: "1em", marginLeft: "5vw"}}>Polls</p>
+                   */}
+                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Polls</IonCardTitle>
+                  <IonButton color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
+                    <IonIcon icon={addCircleOutline} /> {'\u00A0'}New Poll
+                  </IonButton>
+                </IonToolbar>
+                {/* </IonHeader> */}
+
+                {user && polls && polls.length > 0 ? (
+                  <>
+                    {yourPollsSelected ? (
+                      <Swiper slidesPerView={1.25}>
+                        {yourPolls.map((poll) => {
+                          return (
+                            <SwiperSlide key={poll.key}>
+                              <IonCard mode='ios'>
+                                <IonCardContent style={{ minHeight: "65vh" }}>
+                                  <p>{poll.userName}</p>
+                                  <IonCardTitle style={{ fontSize: "1.25em" }}>{poll.question}</IonCardTitle>
+                                  <br />
+                                  <IonList lines="full" mode="ios">
+                                    {poll.options.map((option: any, index: number) => {
+                                      return (
+                                        <IonItem style={{ fontWeight: "bold" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                          {option.text} <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
+                                        </IonItem>
+                                      )
+                                    })}
+                                  </IonList>
+                                  <IonFab vertical="bottom" horizontal="start">
+                                    <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                                  </IonFab>
+                                </IonCardContent>
+                              </IonCard>
+                            </SwiperSlide>
+                          )
+                        })}
+                      </Swiper>
+                    ) : (
+                      <Swiper slidesPerView={1.25}>
+                        {polls.map((poll) => {
+                          return (
+                            <SwiperSlide key={poll.key}>
+                              <IonCard mode='ios'>
+                                <IonCardContent style={{ minHeight: "50vh" }}>
+                                  <p style={{ fontSize: "1em" }}>{poll.userName}</p>
+                                  <IonCardTitle style={{ fontSize: "1.5em", width: "95%", marginLeft: "0%" }}>{
+                                    poll.question}</IonCardTitle>
+                                  <br />
+                                  <IonList lines="full" mode="ios">
+                                    {poll.options.map((option: any, index: number) => {
+                                      return (
+                                        <IonItem style={{ fontWeight: "bold" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                          <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
+                                        </IonItem>
+                                      )
+                                    })}
+                                  </IonList>
+                                  <br />
+                                  <IonFab vertical="bottom" horizontal="start">
+                                    <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                                  </IonFab>
+                                </IonCardContent>
+                              </IonCard>
+                            </SwiperSlide>
+                          )
+                        })}
+                      </Swiper>
+                    )}
+                  </>
+                ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                  <div style={{ textAlign: "center" }}><p>No polls within past week</p></div>
+                  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
               </FadeIn>
             </>
           )

@@ -209,7 +209,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       commentsLoaded.then((res) => {
         if (res) {
           setComments(res.comments);
-          console.log(res.comments);
           setLastKey(res.lastKey);
         }
         setCommentsLoading(false);

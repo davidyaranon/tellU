@@ -19,6 +19,7 @@ class Header extends Component<any, any>{
         <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
           <IconButton>
             <img
+              draggable={false}
               className='quantum_logo'
               src={tellU_white}
               alt="QUANTUM"
@@ -31,16 +32,17 @@ class Header extends Component<any, any>{
     } else {
       return (
 
-        <IonHeader class="ion-no-border" style={{textAlign: "center"}}>
-            <IconButton>
-                <img 
-                    className='quantum_logo'
-                    src={tellU}
-                    alt="QUANTUM"
-                    style={{zoom: 1.2}}
-                />
-            </IconButton>
-            <p style={{fontWeight:"bold"}}>{this.props.schoolName}</p>
+        <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
+          <IconButton>
+            <img
+              draggable={false}
+              className='quantum_logo'
+              src={tellU}
+              alt="QUANTUM"
+              style={{ zoom: 1.2 }}
+            />
+          </IconButton>
+          <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
         </IonHeader>
       )
     }

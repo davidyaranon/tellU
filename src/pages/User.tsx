@@ -50,6 +50,7 @@ import {
   pollVote,
   updateUserInfo,
   getCurrentUserData,
+  removePoll,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -98,11 +99,11 @@ import UIContext from "../my-context";
 
 
 function User() {
-  const {
-    REACT_APP_CLIENT_ID,
-    REACT_APP_AUTHORIZE_URL,
-    REACT_APP_REDIRECT_URL
-  } = process.env;
+  // const {
+  //   REACT_APP_CLIENT_ID,
+  //   REACT_APP_AUTHORIZE_URL,
+  //   REACT_APP_REDIRECT_URL
+  // } = process.env;
   const timeAgo = new TimeAgo("en-US");
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
@@ -358,11 +359,39 @@ function User() {
     });
   };
 
-  const deletePost = async (index: number, postUrl: string) => {
+  const deletePoll = async (index : number, postKey : string) => {
     setDisabledDeleteButton(true);
-    if (userPosts && userPosts.length > 0 && schoolName && index >= 0 && index <= userPosts.length) {
-      const postBeingDeleted = userPosts[index];
-      const didDelete = promiseTimeout(10000, removePost(postBeingDeleted.key, schoolName, postUrl));
+    if(yourPolls && yourPolls.length > 0 && schoolName) {
+      const didDelete = promiseTimeout(10000, removePoll(postKey, schoolName));
+      didDelete.then((res) => {
+        if(res) {
+          Toast.success("Poll deleted");
+          let tempPolls : any[] = [];
+          for(let i = 0; i < yourPolls.length; ++i) {
+            if( i !== index) {
+              tempPolls.push(yourPolls[i]);
+            }
+          }
+          setYourPolls(tempPolls);
+        } else {
+          Toast.error("Unable to delete poll rn");
+        }
+        setDisabledDeleteButton(false);
+      });
+      didDelete.catch((err) => {
+        Toast.error(err);
+        setDisabledDeleteButton(false);
+      });
+    } else {
+      Toast.error("Unable to delete poll");
+      setDisabledDeleteButton(false);
+    }
+  };
+
+  const deletePost = async (index : number, postKey : string, postUrl: string) => {
+    setDisabledDeleteButton(true);
+    if (userPosts && userPosts.length > 0 && schoolName) {
+      const didDelete = promiseTimeout(10000, removePost(postKey, schoolName, postUrl));
       didDelete.then((res) => {
         if (res) {
           Toast.success("Post deleted");
@@ -608,7 +637,7 @@ function User() {
     const time = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
     const today = new Date();
     const ms = today.getTime() - time.getTime();
-    return (7 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (7 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
+    return (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
   }
 
   const fetchMorePosts = () => {
@@ -662,32 +691,32 @@ function User() {
   }
 
 
-  const handlePollVote = async (index: number, pollKey: string) => {
-    if (user && schoolName) {
-      setVoteBeingCasted(true);
-      const castedVote = promiseTimeout(5000, pollVote(schoolName, index, pollKey, user.uid));
-      castedVote.then((res) => {
-        if (res) {
-          Toast.success("Vote casted!");
-          const pollsLoaded = promiseTimeout(10000, getYourPolls(schoolName, user.uid));
-          pollsLoaded.then((res) => {
-            setYourPolls(res);
-            setVoteBeingCasted(false);
-          });
-          pollsLoaded.catch((err) => {
-            Toast.error(err + "\n Check your internet connection");
-          });
-        } else {
-          Toast.error("Something went wrong when casting vote");
-        }
-      });
-      castedVote.catch((err) => {
-        Toast.error(err + '\n Check your internet connection');
-      });
-    } else {
-      Toast.error("Something went wrong when casting a vote");
-    }
-  }
+  // const handlePollVote = async (index: number, pollKey: string) => {
+  //   if (user && schoolName) {
+  //     setVoteBeingCasted(true);
+  //     const castedVote = promiseTimeout(5000, pollVote(schoolName, index, pollKey, user.uid));
+  //     castedVote.then((res) => {
+  //       if (res) {
+  //         Toast.success("Vote casted!");
+  //         const pollsLoaded = promiseTimeout(10000, getYourPolls(schoolName, user.uid));
+  //         pollsLoaded.then((res) => {
+  //           setYourPolls(res);
+  //           setVoteBeingCasted(false);
+  //         });
+  //         pollsLoaded.catch((err) => {
+  //           Toast.error(err + "\n Check your internet connection");
+  //         });
+  //       } else {
+  //         Toast.error("Something went wrong when casting vote");
+  //       }
+  //     });
+  //     castedVote.catch((err) => {
+  //       Toast.error(err + '\n Check your internet connection');
+  //     });
+  //   } else {
+  //     Toast.error("Something went wrong when casting a vote");
+  //   }
+  // }
 
   // const isEnterPressed = (key: any) => {
   //   if (key === "Enter") {
@@ -1004,7 +1033,7 @@ function User() {
                     if (user && user.email) { setEditableEmail(user.email); }
                   }}
                 >
-                Back
+                  Back
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
@@ -1844,9 +1873,9 @@ function User() {
                                     color="danger"
                                     onClick={() => {
                                       if ("url" in post && post.url && post.url.length > 0) {
-                                        deletePost(index, post.url);
+                                        deletePost(index, post.key, post.url);
                                       } else {
-                                        deletePost(index, "");
+                                        deletePost(index, post.key, "");
                                       }
                                     }}
                                   >
@@ -1903,10 +1932,10 @@ function User() {
                 <div>
                   {user && yourPolls ? (
                     <FadeIn>
-                      {yourPolls.map((poll) => {
+                      {yourPolls.map((poll, index) => {
                         return (
                           <IonCard mode='ios' key={poll.key}>
-                            <IonCardContent style={{ minHeight: "60vh" }}>
+                            <IonCardContent style={{ minHeight: "50vh" }}>
                               <p>{poll.userName}</p>
                               <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
                               <br />
@@ -1921,6 +1950,20 @@ function User() {
                               </IonList>
                               <IonFab vertical="bottom" horizontal="start">
                                 <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                              </IonFab>
+                              <IonFab vertical='bottom' horizontal="end">
+                                <IonButton
+                                  size="small"
+                                  disabled={disabledDeleteButton}
+                                  mode="ios"
+                                  fill="outline"
+                                  color="danger"
+                                  onClick={() => {
+                                    deletePoll(index, poll.key);
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IonButton>
                               </IonFab>
                             </IonCardContent>
                           </IonCard>

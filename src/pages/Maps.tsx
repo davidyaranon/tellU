@@ -212,7 +212,6 @@ function Maps() {
       //console.log(tempMarkers);
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
-      // setBusy(false);
     }
   };
   const setDefaultCenter = () => {

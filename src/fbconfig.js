@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
-import { getStorage, uploadString, deleteObject, ref, uploadBytes, getDownloadURL, } from "firebase/storage";
+import { getStorage, deleteObject, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   deleteField,
   serverTimestamp,
@@ -189,8 +189,6 @@ export const addMessage = async (
     if (auth.currentUser != null) {
       if (auth.currentUser.uid != null) {
         var name = auth.currentUser.displayName;
-        const userListOfPosts = doc(db, "userData", auth.currentUser.uid);
-        const snap = await getDoc(userListOfPosts);
         var url = "";
         let imgSrc = "";
         let lat = 0;
@@ -205,7 +203,7 @@ export const addMessage = async (
           long = pos.coords.longitude;
           marker = true;
         }
-        const docRef = await addDoc(
+        await addDoc(
           collection(db, "schoolPosts", school.replace(/\s+/g, ""), "allPosts"),
           {
             userName: name,
@@ -223,18 +221,6 @@ export const addMessage = async (
             postType: postType,
             imgSrc: imgSrc,
             marker: marker,
-          }
-        );
-        await setDoc(
-          doc(
-            db,
-            "schoolPosts",
-            school.replace(/\s+/g, ""),
-            "comments",
-            docRef.id
-          ),
-          {
-            commentsArr: {},
           }
         );
         return "true";
@@ -275,7 +261,7 @@ export const getYourPolls = async (schoolName, userUid) => {
   try {
     if (auth && db) {
       const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
-      const q = query(pollsRef, where("uid", "==", userUid), orderBy("timestamp", "desc"), limit(100));
+      const q = query(pollsRef, where("uid", "==", userUid), orderBy("timestamp", "desc"), limit(25));
       const querySnapshot = await getDocs(q);
       let yourPolls = [];
       const docs = querySnapshot.docs;
@@ -301,7 +287,7 @@ export async function getAllPostsNextBatch(schoolName, key) {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), startAfter(key), limit(50));
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), startAfter(key), limit(25));
       const querySnapshot = await getDocs(q);
       const allPosts = [];
       const docs = querySnapshot.docs;
@@ -333,7 +319,7 @@ export async function getAllPosts(schoolName) {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(250));
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(50));
       const querySnapshot = await getDocs(q);
       const allPosts = [];
       const docs = querySnapshot.docs;
@@ -563,12 +549,12 @@ export const getPolls = async (schoolName) => {
     if (auth && db) {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setHours(0, 0, 0, 0);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 4);
       const tomorrow = new Date();
       tomorrow.setHours(24, 0, 0, 0);
-      tomorrow.setDate(sevenDaysAgo.getDate() + 9);
+      tomorrow.setDate(sevenDaysAgo.getDate() + 6);
       const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
-      const q = query(pollsRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"));
+      const q = query(pollsRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"), limit(100));
       const querySnapshot = await getDocs(q);
       let polls = [];
       const docs = querySnapshot.docs;
@@ -581,6 +567,42 @@ export const getPolls = async (schoolName) => {
       return polls;
     }
   } catch (err) {
+    console.log(err);
+  }
+}
+
+export const submitShowcase = async (schoolName, blob, uniqueId, showcaseText) => {
+  try {
+    if (auth.currentUser != null) {
+      if (auth.currentUser.uid != null) {
+        var name = auth.currentUser.displayName;
+        var url = "";
+        let imgSrc = "";
+        if (blob) {
+          url = "images/" + auth.currentUser.uid.toString() + uniqueId;
+          imgSrc = await getDownloadURL(ref(storage, url));
+        }
+        await addDoc(
+          collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "showcase"),
+          {
+            userName: name,
+            timestamp: serverTimestamp(),
+            message: showcaseText,
+            url: url,
+            likes: {},
+            dislikes: {},
+            uid: auth.currentUser.uid,
+            commentAmount: 0,
+            upVotes: 0,
+            downVotes: 0,
+            photoURL: auth.currentUser.photoURL,
+            imgSrc: imgSrc,
+          }
+        );
+        return true;
+      }
+    }
+  } catch(err) {
     console.log(err);
   }
 }
@@ -603,6 +625,33 @@ export const submitPollFb = async (pollText, pollOptions, schoolName, userName, 
         return false;
       });
       return true;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const getShowcase = async (schoolName) => {
+  try {
+    if(auth && db){
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 2);
+      const tomorrow = new Date();
+      tomorrow.setHours(24, 0, 0, 0);
+      tomorrow.setDate(sevenDaysAgo.getDate() + 4);
+      const showcaseRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "showcase");
+      const q = query(showcaseRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      let showcase = [];
+      const docs = querySnapshot.docs;
+      for (const doc of docs) {
+        showcase.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+      }
+      return showcase;
     }
   } catch (err) {
     console.log(err);
@@ -662,26 +711,26 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
   }
 };
 
-export const getWeatherData = async (schoolName) => {
-  try {
-    if(db) {
-      const weatherDocRef = doc(db, "schoolWeather", schoolName.replace(/\s+/g, ""));
-      const snap = await getDoc(weatherDocRef);
-      if(snap.exists()) {
-        const weatherData = {};
-        weatherData.feelsLike = snap.data().feelsLike;
-        weatherData.humidity = snap.data().humidity;
-        weatherData.icon = snap.data().icon;
-        weatherData.index = snap.data().index;
-        weatherData.temp = snap.data().temp;
-        weatherData.text = snap.data().text;
-        return weatherData;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
+// export const getWeatherData = async (schoolName) => {
+//   try {
+//     if(db) {
+//       const weatherDocRef = doc(db, "schoolWeather", schoolName.replace(/\s+/g, ""));
+//       const snap = await getDoc(weatherDocRef);
+//       if(snap.exists()) {
+//         const weatherData = {};
+//         weatherData.feelsLike = snap.data().feelsLike;
+//         weatherData.humidity = snap.data().humidity;
+//         weatherData.icon = snap.data().icon;
+//         weatherData.index = snap.data().index;
+//         weatherData.temp = snap.data().temp;
+//         weatherData.text = snap.data().text;
+//         return weatherData;
+//       }
+//     }
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
 
 export const pollVote = async (schoolName, index, postKey, userUid) => {
   try {
@@ -1020,6 +1069,24 @@ export const addComment = async (postKey, schoolName, commentString) => {
     console.log(err);
   }
 };
+
+export const removePoll = async(postKey, schoolName) => {
+  try {
+    const postRef = doc(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "polls",
+      postKey
+    );
+    const batch = writeBatch(db);
+    batch.delete(postRef);
+    await batch.commit().catch((err) => console.log(err));
+    return true;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 export const removePost = async (postKey, schoolName, postUrl) => {
   try {

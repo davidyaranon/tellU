@@ -168,9 +168,9 @@ function Home() {
 
   const sharePost = async (post: any) => {
     await Share.share({
-      title: 'Let me tellU about this post I saw by' + post.userName,
-      text: post.message,
-      url: 'tellUapp.com/post/' + post.key,
+      title: post.userName + "'s Post",
+      text: 'Let me tellU about this post I saw by' + post.userName + '\n' + post.message,
+      url: 'http://tellUapp.com/post/' + post.key,
     });
   }
 

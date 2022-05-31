@@ -151,7 +151,6 @@ const App: React.FunctionComponent = () => {
   const [busy, setBusy] = useState(true);
   const Toast = useToast();
   const dispatch = useDispatch();
-  const history = useHistory();
   const darkMode = localStorage.getItem("darkMode") || "false";
   const keyStyleOptionsDark: KeyboardStyleOptions = {
     style: KeyboardStyle.Dark
@@ -225,7 +224,7 @@ const App: React.FunctionComponent = () => {
           addListeners();
         });
       }
-      return () => PushNotifications.removeAllListeners().then(() => console.log("listeners removed"));
+      // return () => PushNotifications.removeAllListeners().then(() => console.log("listeners removed"));
     });
     hasLoadedUser.catch((err: any) => {
       console.log(err);
