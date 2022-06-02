@@ -51,6 +51,7 @@ import {
   updateUserInfo,
   getCurrentUserData,
   removePoll,
+  getLikes,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -152,6 +153,7 @@ function User() {
   const [showEditEmailModal, setShowEditEmailModal] = useState<boolean>(false);
   const [userDataHasLoaded, setUserDataHasLoaded] = useState<boolean>(false);
   const [showEditUsernameModal, setShowEditUsernameModal] = useState<boolean>(false);
+  // const [showDeletePostAlert, setShowDeletePostAlert] = useState<boolean>(false);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 
   // const handleLogin = () => {
@@ -580,19 +582,15 @@ function User() {
     }
   }
   const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(schoolName, postKey, post);
+    const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
-        tempPosts[index].upVotes += val;
-        // setCommentModalPostUpvotes(commentModalPostUpvotes + val);
         if (tempPosts[index].likes[user.uid]) {
           delete tempPosts[index].likes[user.uid];
         } else {
           if (tempPosts[index].dislikes[user.uid]) {
             delete tempPosts[index].dislikes[user.uid];
-            tempPosts[index].downVotes -= 1;
-            // setCommentModalPostDownvotes(commentModalPostDownvotes - 1);
           }
           tempPosts[index].likes[user.uid] = true;
         }
@@ -607,19 +605,15 @@ function User() {
   };
 
   const handleDownVote = async (postKey: string, index: number, post: any) => {
-    const val = await downVote(schoolName, postKey, post);
+    const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
-        // setCommentModalPostDownvotes(commentModalPostDownvotes + val);
-        tempPosts[index].downVotes += val;
         if (tempPosts[index].dislikes[user.uid]) {
           delete tempPosts[index].dislikes[user.uid];
         } else {
           if (tempPosts[index].likes[user.uid]) {
             delete tempPosts[index].likes[user.uid];
-            tempPosts[index].upVotes -= 1;
-            // setCommentModalPostUpvotes(commentModalPostUpvotes - 1);
           }
           tempPosts[index].dislikes[user.uid] = true;
         }
@@ -643,8 +637,20 @@ function User() {
   const fetchMorePosts = () => {
     if (lastKey && user) {
       getNextBatchUserPosts(schoolName, user.uid, lastKey)
-        .then((res: any) => {
+        .then(async (res: any) => {
           setLastKey(res.lastKey);
+          for(let i = 0; i < res.userPosts.length; ++i) {
+            const data = await getLikes(res.userPosts[i].key);
+            if(data){
+              res.userPosts[i].likes = data.likes;
+              res.userPosts[i].dislikes = data.dislikes;
+              res.userPosts[i].commentAmount = data.commentAmount;
+            } else {
+              res.userPosts[i].likes = {};
+              res.userPosts[i].dislikes = {};
+              res.userPosts[i].commentAmount = 0;
+            }
+          }
           setUserPosts(userPosts?.concat(res.userPosts)!);
           if (res.userPosts.length == 0) {
             setNoMorePosts(true);
@@ -786,9 +792,20 @@ function User() {
         5000,
         getUserPosts(schoolName, user.uid)
       );
-      hasLoaded.then((res) => {
+      hasLoaded.then(async (res) => {
         if (res.userPosts.length > 0) {
-          //console.log(res.userPosts);
+          for(let i = 0; i < res.userPosts.length; ++i) {
+            const data = await getLikes(res.userPosts[i].key);
+            if(data){
+              res.userPosts[i].likes = data.likes;
+              res.userPosts[i].dislikes = data.dislikes;
+              res.userPosts[i].commentAmount = data.commentAmount;
+            } else {
+              res.userPosts[i].likes = {};
+              res.userPosts[i].dislikes = {};
+              res.userPosts[i].commentAmount = 0;
+            }
+          }
           setUserPosts(res.userPosts);
           setLastKey(res.lastKey);
           setLoadingUserPosts(false);
@@ -848,7 +865,7 @@ function User() {
   }
   return (
     <IonPage>
-      <IonContent ref={contentRef}>
+      <IonContent ref={contentRef} className="no-scroll-content">
         {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
         <IonToolbar mode="ios">
           <IonButtons slot="start">
@@ -1822,7 +1839,7 @@ function User() {
                                   }}
                                 >
                                   <KeyboardArrowUpIcon />
-                                  <p>{Object.keys(post.likes).length} </p>
+                                  <p>{Object.keys(post.likes).length - 1} </p>
                                 </IonButton>
                                 <p>&nbsp;</p>
                                 <IonButton
@@ -1863,7 +1880,7 @@ function User() {
                                   }}
                                 >
                                   <KeyboardArrowDownIcon />
-                                  <p>{Object.keys(post.dislikes).length} </p>
+                                  <p>{Object.keys(post.dislikes).length - 1} </p>
                                 </IonButton>
                                 <IonFab horizontal="end">
                                   <IonButton

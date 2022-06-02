@@ -27,11 +27,12 @@ import {
   IonSpinner,
   IonNote,
   useIonViewWillEnter,
+  useIonViewDidLeave,
   IonPage,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
 } from "@ionic/react";
-import auth, { getAllPostsNextBatch, storage } from "../fbconfig";
+import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
 import {
   addMessage,
   uploadImage,
@@ -134,42 +135,68 @@ function Home() {
   const [newPostsLoaded, setNewPostsLoaded] = useState<boolean>(false);
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [originalLastKey, setOriginalLastKey] = useState<string>("");
 
   useIonViewWillEnter(() => {
     setShowTabs(true);
-    if (posts && schoolName) {
-      setBusy(true);
-      let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
-      tempPosts.then((res: any) => {
-        if (res.allPosts && res.allPosts != [] && res.allPosts.length != 0) { // newly updated posts
-          let caught = false;
-          let length = posts.length > res.allPosts.length ? res.allPosts.length : posts.length;
-          for (let i = 0; i < length; ++i) {
-            if (res.allPosts[i].message != posts[i].message) {
-              setNewPostsLoaded(true);
-              setNewPosts(res.allPosts);
-              caught = true;
-              break;
-            }
-          }
-          if (!caught) {
-            setPosts(res.allPosts);
-          }
-          setLastKey(res.lastKey);
-        }
-        setBusy(false);
-      });
-      tempPosts.catch((err: any) => {
-        Toast.error(err + "\n Check your internet connection");
-        setBusy(false);
-      });
-    }
+    // console.log(lastKey);
+    // if (posts && schoolName) {
+    //   setBusy(true);
+    //   let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
+    //   tempPosts.then(async (res: any) => {
+    //     if (res.allPosts && res.allPosts != [] && res.allPosts.length != 0) { // newly updated posts
+    //       let caught = false;
+    //       let length = posts.length > res.allPosts.length ? res.allPosts.length : posts.length;
+    //       for (let i = 0; i < length; ++i) {
+    //         if (res.allPosts[i].message != posts[i].message) {
+    //           for(let i = 0; i < res.allPosts.length; ++i) {
+    //             const data = await getLikes(res.allPosts[i].key);
+    //             if(data){
+    //               res.allPosts[i].likes = data.likes;
+    //               res.allPosts[i].dislikes = data.dislikes;
+    //               res.allPosts[i].commentAmount = data.commentAmount;
+    //             } else {
+    //               res.allPosts[i].likes = {};
+    //               res.allPosts[i].dislikes = {};
+    //               res.allPosts[i].commentAmount = 0;
+    //             }
+    //           }
+    //           setNewPostsLoaded(true);
+    //           setNewPosts(res.allPosts);
+    //           caught = true;
+    //           break;
+    //         }
+    //       }
+    //       if (!caught) {
+    //         for(let i = 0; i < res.allPosts.length; ++i) {
+    //           const data = await getLikes(res.allPosts[i].key);
+    //           if(data){
+    //             res.allPosts[i].likes = data.likes;
+    //             res.allPosts[i].dislikes = data.dislikes;
+    //             res.allPosts[i].commentAmount = data.commentAmount;
+    //           } else {
+    //             res.allPosts[i].likes = {};
+    //             res.allPosts[i].dislikes = {};
+    //             res.allPosts[i].commentAmount = 0;
+    //           }
+    //         }
+    //         setPosts(res.allPosts);
+    //       }
+    //       setLastKey(res.lastKey);
+    //     }
+    //     setBusy(false);
+    //   });
+    //   tempPosts.catch((err: any) => {
+    //     Toast.error(err + "\n Check your internet connection");
+    //     setBusy(false);
+    //   });
+    // }
   }, [posts, schoolName]);
 
   const sharePost = async (post: any) => {
     await Share.share({
       title: post.userName + "'s Post",
-      text: 'Let me tellU about this post I saw by' + post.userName + '\n' + post.message,
+      text: 'Let me tellU about this post I saw. \n\n' + "\"" + post.message + '\"\n\n',
       url: 'http://tellUapp.com/post/' + post.key,
     });
   }
@@ -194,7 +221,7 @@ function Home() {
   };
 
   const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(schoolName, postKey, post);
+    const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (posts && user) {
         let tempPosts: any[] = [...posts];
@@ -221,7 +248,7 @@ function Home() {
   };
 
   const handleDownVote = async (postKey: string, index: number, post: any) => {
-    const val = await downVote(schoolName, postKey, post);
+    const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
       if (posts && user) {
         let tempPosts: any[] = [...posts];
@@ -333,9 +360,20 @@ function Home() {
     setBusy(true);
     if (lastKey && user) {
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
-      tempPosts.then((res: any) => {
+      tempPosts.then(async (res: any) => {
         if (res.allPosts && res.allPosts != []) {
-          // console.log(res.allPosts);
+          for(let i = 0; i < res.allPosts.length; ++i) {
+            const data = await getLikes(res.allPosts[i].key);
+            if(data){
+              res.allPosts[i].likes = data.likes;
+              res.allPosts[i].dislikes = data.dislikes;
+              res.allPosts[i].commentAmount = data.commentAmount;
+            } else {
+              res.allPosts[i].likes = {};
+              res.allPosts[i].dislikes = {};
+              res.allPosts[i].commentAmount = 0;
+            }
+          }
           setPosts(posts?.concat(res.allPosts)!);
           setLastKey(res.lastKey);
           event.target.complete();
@@ -358,10 +396,24 @@ function Home() {
   const handleLoadPosts = () => {
     setBusy(true);
     let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
-    tempPosts.then((res: any) => {
+    tempPosts.then(async (res: any) => {
       if (res.allPosts && res.allPosts != []) {
+        for(let i = 0; i < res.allPosts.length; ++i) {
+          const data = await getLikes(res.allPosts[i].key);
+          if(data){
+            res.allPosts[i].likes = data.likes;
+            res.allPosts[i].dislikes = data.dislikes;
+            res.allPosts[i].commentAmount = data.commentAmount;
+          } else {
+            res.allPosts[i].likes = {};
+            res.allPosts[i].dislikes = {};
+            res.allPosts[i].commentAmount = 0;
+          }
+        }
+        console.log(res.allPosts);
         setPosts(res.allPosts);
         setLastKey(res.lastKey);
+        setOriginalLastKey(res.lastKey);
       } else {
         Toast.error("Unable to load posts");
       }
@@ -378,6 +430,7 @@ function Home() {
   async function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     setNewPostsLoaded(false);
     setNoMorePosts(false);
+    setLastKey(originalLastKey);
     handleLoadPosts();
     setTimeout(() => {
       event.detail.complete();
@@ -1003,7 +1056,7 @@ function Home() {
                       }}
                     >
                       <KeyboardArrowUpIcon />
-                      <p>{Object.keys(post.likes).length} </p>
+                      <p>{Object.keys(post.likes).length - 1} </p>
                     </IonButton>
                     <p>&nbsp;</p>
                     <IonButton
@@ -1043,7 +1096,7 @@ function Home() {
                       }}
                     >
                       <KeyboardArrowDownIcon />
-                      <p>{Object.keys(post.dislikes).length} </p>
+                      <p>{Object.keys(post.dislikes).length - 1} </p>
                     </IonButton>
                     <IonButton color="medium" slot="end" onClick={() => { sharePost(post); }}>
                       <IonIcon icon={shareOutline} />
@@ -1066,7 +1119,7 @@ function Home() {
             </div>
           )}
           <IonInfiniteScroll
-            onIonInfinite={(e: any) => { handleLoadPostsNextBatch(e) }}
+            onIonInfinite={(e: any) => { console.log("handling infinite"); handleLoadPostsNextBatch(e) }}
             disabled={(lastKey.length == 0)}
           >
             <IonInfiniteScrollContent

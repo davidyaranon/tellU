@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import auth, { addCommentNew, addTestMessage, downVoteComment, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
+import auth, { addCommentNew, addTestMessage, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
 import {
   upVote,
   downVote,
@@ -75,8 +75,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [likeAnimationComments, setLikeAnimationComments] = useState<number>(-1);
   const [dislikeAnimationComments, setDislikeAnimationComments] = useState<number>(-1);
   const [user] = useAuthState(auth);
-  const [postUpvotes, setPostUpvotes] = useState<number>(-1);
-  const [postDownvotes, setPostDownvotes] = useState<number>(-1);
   const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
   const [lastKey, setLastKey] = useState<string>("");
   const contentRef = useRef<HTMLIonContentElement | null>(null);
@@ -113,10 +111,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         10000,
         addCommentNew(postKey, schoolName, comment, blob, uniqueId.toString(),)
       );
-      hasTimedOut.then((commentSent: any) => {
+      hasTimedOut.then(async (commentSent: any) => {
         if (commentSent) {
           Toast.success("Comment added");
           if (comments) {
+            commentSent.likes = {"null" : true};
+            commentSent.dislikes = {"null" : true};
             setComments(comments?.concat(commentSent));
           }
         } else {
@@ -135,11 +135,17 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const getPost = () => {
     if (postKey && schoolName) {
       const onePost = promiseTimeout(7500, getOnePost(postKey, schoolName));
-      onePost.then((res) => {
+      onePost.then(async (res) => {
         if (res) {
+          const data = await getLikes(postKey);
+          if (data) {
+            res.likes = data.likes;
+            res.dislikes = data.dislikes;
+          } else {
+            res.likes = {};
+            res.dislikes = {};
+          }
           setPost(res);
-          setPostUpvotes(Object.keys(res.likes).length);
-          setPostDownvotes(Object.keys(res.dislikes).length);
         } else {
           Toast.error("Post has been deleted");
           setShowPictureAddButton(false);
@@ -177,8 +183,20 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const handleLoadCommentsNextBatch = async (event: any) => {
     if (postKey && schoolName && lastKey) {
       const commentsLoaded = promiseTimeout(7500, loadCommentsNewNextBatch(postKey, schoolName, lastKey));
-      commentsLoaded.then((res) => {
+      commentsLoaded.then(async (res) => {
         if (res) {
+          for (let i = 0; i < res.comments.length; ++i) {
+            const data = await getLikes(res.comments[i].key);
+            if (data) {
+              res.comments[i].likes = data.likes;
+              res.comments[i].dislikes = data.dislikes;
+              res.comments[i].commentAmount = data.commentAmount;
+            } else {
+              res.comments[i].likes = {};
+              res.comments[i].dislikes = {};
+              res.comments[i].commentAmount = 0;
+            }
+          }
           setComments(comments?.concat(res.comments));
           setLastKey(res.lastKey);
           event.target.complete();
@@ -206,8 +224,20 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     setCommentsLoading(true);
     if (postKey && schoolName) {
       const commentsLoaded = promiseTimeout(7500, loadCommentsNew(postKey, schoolName));
-      commentsLoaded.then((res) => {
+      commentsLoaded.then(async (res) => {
         if (res) {
+          for (let i = 0; i < res.comments.length; ++i) {
+            const data = await getLikes(res.comments[i].key);
+            if (data) {
+              res.comments[i].likes = data.likes;
+              res.comments[i].dislikes = data.dislikes;
+              res.comments[i].commentAmount = data.commentAmount;
+            } else {
+              res.comments[i].likes = {};
+              res.comments[i].dislikes = {};
+              res.comments[i].commentAmount = 0;
+            }
+          }
           setComments(res.comments);
           setLastKey(res.lastKey);
         }
@@ -261,7 +291,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const handleUpVoteComment = async (commentKey: string, index: number) => {
-    const val = await upVoteComment(schoolName, postKey, commentKey);
+    const val = await upVoteComment(commentKey);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
         let tempComments: any[] = [...comments];
@@ -284,7 +314,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const handleDownVoteComment = async (commentKey: string, index: number) => {
-    const val = await downVoteComment(schoolName, postKey, commentKey);
+    const val = await downVoteComment(commentKey);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
         let tempComments: any[] = [...comments];
@@ -308,19 +338,15 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const handleUpVote = async (post: any) => {
-    const val = await upVote(schoolName, postKey, post);
+    const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
         let tempPost = post;
-        tempPost.upVotes += val;
-        setPostUpvotes(postUpvotes + val);
         if (tempPost.likes[user.uid]) {
           delete tempPost.likes[user.uid];
         } else {
           if (tempPost.dislikes[user.uid]) {
             delete tempPost.dislikes[user.uid];
-            tempPost.downVotes -= 1;
-            setPostDownvotes(postDownvotes - 1);
           }
           tempPost.likes[user.uid] = true;
         }
@@ -335,19 +361,15 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const handleDownVote = async (post: any) => {
-    const val = await downVote(schoolName, postKey, post);
+    const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
       if (post && user) {
         let tempPost = post;
-        setPostDownvotes(postDownvotes + val);
-        tempPost.downVotes += val;
         if (tempPost.dislikes[user.uid]) {
           delete tempPost.dislikes[user.uid];
         } else {
           if (tempPost.likes[user.uid]) {
             delete tempPost.likes[user.uid];
-            tempPost.upVotes -= 1;
-            setPostUpvotes(postUpvotes - 1);
           }
           tempPost.dislikes[user.uid] = true;
         }
@@ -569,7 +591,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       }}
                     >
                       <KeyboardArrowUpIcon />
-                      <p>{postUpvotes} </p>
+                      <p>{Object.keys(post.likes).length - 1} </p>
                     </IonButton>
                     <p>&nbsp;</p>
                     <IonButton
@@ -603,7 +625,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       }}
                     >
                       <KeyboardArrowDownIcon />
-                      <p>{postDownvotes} </p>
+                      <p>{Object.keys(post.dislikes).length - 1} </p>
                     </IonButton>
                   </IonItem>
                 </IonList>
@@ -733,7 +755,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           }}
                         >
                           <KeyboardArrowUpIcon />
-                          <p>{Object.keys(comment.likes).length} </p>
+                          <p>{Object.keys(comment.likes).length - 1} </p>
                         </IonButton>
                         <IonButton
                           mode="ios"
@@ -763,7 +785,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           }}
                         >
                           <KeyboardArrowDownIcon />
-                          <p>{Object.keys(comment.dislikes).length} </p>
+                          <p>{Object.keys(comment.dislikes).length - 1} </p>
                         </IonButton>
                         {user && user.uid === comment.uid ? (
                           <IonFab horizontal="end">

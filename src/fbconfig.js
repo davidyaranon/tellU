@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
 import { getStorage, deleteObject, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
+  deleteDoc,
   deleteField,
   serverTimestamp,
   increment,
@@ -35,10 +36,14 @@ import {
   indexedDBLocalPersistence,
 } from "firebase/auth";
 import { Capacitor } from '@capacitor/core';
+import { getDatabase, set, get, runTransaction as rtdbRunTransaction, 
+  remove, update, increment as rtdbIncrement } from "firebase/database";
+import { ref as rtdbRef } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
   authDomain: "quantum-61b84.firebaseapp.com",
+  databaseURL: "https://quantum-61b84-default-rtdb.firebaseio.com",
   projectId: "quantum-61b84",
   storageBucket: "quantum-61b84.appspot.com",
   messagingSenderId: "461090594003",
@@ -60,10 +65,7 @@ export default auth;
 export const functions = getFunctions(app);
 export const db = getFirestore(app);
 export const storage = getStorage();
-
-function timeout(delay) {
-  return new Promise((res) => setTimeout(res, delay));
-}
+export const database = getDatabase();
 
 export const addTestMessage = httpsCallable(functions, 'addNewDoc');
 export const toUpperFirestoreDoc = httpsCallable(functions, 'makeUppercase');
@@ -84,7 +86,7 @@ export async function uploadImage(location, blob, url) {
       .catch((err) => {
         console.log(err);
         return false;
-    });
+      });
   } catch (err) {
     console.log(err.message);
     return false;
@@ -177,6 +179,16 @@ export function getCurrentUser() {
   });
 }
 
+export const getLikes = async (key) => {
+  try {
+    const likesRef = rtdbRef(database, key);
+    const snapshot = await get(likesRef);
+    return snapshot.val();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const addMessage = async (
   mess,
   blob,
@@ -203,19 +215,14 @@ export const addMessage = async (
           long = pos.coords.longitude;
           marker = true;
         }
-        await addDoc(
+        const docId = await addDoc(
           collection(db, "schoolPosts", school.replace(/\s+/g, ""), "allPosts"),
           {
             userName: name,
             timestamp: serverTimestamp(),
             message: mess,
             url: url,
-            likes: {},
-            dislikes: {},
             uid: auth.currentUser.uid,
-            commentAmount: 0,
-            upVotes: 0,
-            downVotes: 0,
             photoURL: auth.currentUser.photoURL,
             location: [lat, long],
             postType: postType,
@@ -223,6 +230,17 @@ export const addMessage = async (
             marker: marker,
           }
         );
+
+        await set(rtdbRef(database, docId.id), {
+          likes: {
+            'null': true
+          },
+          dislikes: {
+            'null': true
+          },
+          commentAmount: 0,
+        });
+
         return "true";
       } else {
         console.log("uid missing");
@@ -602,7 +620,7 @@ export const submitShowcase = async (schoolName, blob, uniqueId, showcaseText) =
         return true;
       }
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 }
@@ -633,7 +651,7 @@ export const submitPollFb = async (pollText, pollOptions, schoolName, userName, 
 
 export const getShowcase = async (schoolName) => {
   try {
-    if(auth && db){
+    if (auth && db) {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setHours(0, 0, 0, 0);
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 2);
@@ -732,73 +750,71 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
 //   }
 // }
 
+// await runTransaction(db, async (transaction) => {
+//   const snap = await transaction.get(commentDocRef);
+//   if (snap.exists) {
+//     if (snap.data().dislikes[userUid]) {
+//       transaction.update(commentDocRef, {
+//         [`dislikes.${userUid}`]: deleteField(),
+//         downVotes: increment(-1),
+//       });
+//       inc = -1;
+//     }
+//   }
+// });
+
 export const pollVote = async (schoolName, index, postKey, userUid) => {
   try {
     if (auth && db) {
-      console.log(postKey);
-      console.log(index);
-      console.log(schoolName);
-      console.log(userUid);
+      let hasVoted = false;
       const pollsDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls", postKey);
-      const snap = await getDoc(pollsDocRef);
-      if (snap.exists) {
-        if ("voteMap" in snap.data() && snap.data().voteMap[userUid] === undefined) {
-          let tempResults = [...snap.data().results];
-          tempResults[index] += 1;
-          await updateDoc(pollsDocRef, {
-            [`voteMap.${userUid}`]: index,
-            votes: increment(1),
-            results: tempResults,
-          }).catch((err) => { console.log(err); });
-          return true;
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(pollsDocRef);
+        if (snap.exists) {
+          if ("voteMap" in snap.data() && snap.data().voteMap[userUid] === undefined) {
+            let tempResults = [...snap.data().results];
+            tempResults[index] += 1;
+            transaction.update(pollsDocRef, {
+              [`voteMap.${userUid}`]: index,
+              votes: increment(1),
+              results: tempResults,
+            });
+            hasVoted = true;
+          }
         }
-      }
+      });
+      return hasVoted;
     }
   } catch (err) {
     console.log(err);
   }
 }
 
-export const downVoteComment = async (schoolName, postKey, commentKey) => {
+export const downVoteComment = async (commentKey) => {
   try {
-    if (db && auth && auth.currentUser) {
+    if (auth && auth.currentUser) {
+      let inc = null;
       const userUid = auth.currentUser.uid;
-      const commentDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey,
-        "comments",
-        commentKey
-      );
-      let inc = 0;
-      await runTransaction(db, async (transaction) => {
-        const snap = await transaction.get(commentDocRef);
-        if (snap.exists) {
-          if (snap.data().dislikes[userUid]) {
-            transaction.update(commentDocRef, {
-              [`dislikes.${userUid}`]: deleteField(),
-              downVotes: increment(-1),
-            });
+      let deleteLike = false;
+      const likesRef = rtdbRef(database, commentKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.dislikes[userUid]) { // if disliked before
+            post.dislikes[userUid] = null;
             inc = -1;
           } else {
-            if (snap.data().likes[userUid]) {
-              transaction.update(commentDocRef, {
-                dislikes: { [`${userUid}`]: true },
-                downVotes: increment(1),
-                [`likes.${userUid}`]: deleteField(),
-                upVotes: increment(-1),
-              });
-            } else {
-              transaction.update(commentDocRef, {
-                dislikes: { [`${userUid}`]: true },
-                downVotes: increment(1),
-              });
+            if (!post.dislikes) {
+              post.dislikes = {};
+            }
+            if (post.likes[userUid]) { // if liked before
+              post.likes[userUid] = null;
+              deleteLike = true;
             }
             inc = 1;
+            post.dislikes[userUid] = true;
           }
         }
+        return post;
       });
       return inc;
     }
@@ -807,45 +823,29 @@ export const downVoteComment = async (schoolName, postKey, commentKey) => {
   }
 }
 
-export const upVoteComment = async (schoolName, postKey, commentKey) => {
+export const upVoteComment = async (commentKey) => {
   try {
-    if (db && auth && auth.currentUser) {
+    if (db && database && auth && auth.currentUser) {
+      let inc = null;
       const userUid = auth.currentUser.uid;
-      const commentDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey,
-        "comments",
-        commentKey
-      );
-      let inc = 0;
-      await runTransaction(db, async (transaction) => {
-        const snap = await transaction.get(commentDocRef);
-        if (snap.exists) {
-          if (snap.data().likes[userUid]) {
-            transaction.update(commentDocRef, {
-              [`likes.${userUid}`]: deleteField(),
-            });
+      const likesRef = rtdbRef(database, commentKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.likes[userUid]) { // if liked before
+            post.likes[userUid] = null;
             inc = -1;
           } else {
-            if (snap.data().dislikes[userUid]) {
-              transaction.update(commentDocRef, {
-                [`dislikes.${userUid}`]: deleteField(),
-                likes: { [`${userUid}`]: true },
-                upVotes: increment(1),
-                downVotes: increment(-1),
-              });
-            } else {
-              transaction.update(commentDocRef, {
-                likes: { [`${userUid}`]: true },
-                upVotes: increment(1),
-              });
+            if (!post.likes) {
+              post.likes = {};
+            }
+            if (post.dislikes[userUid]) { // if disliked before
+              post.dislikes[userUid] = null;
             }
             inc = 1;
+            post.likes[userUid] = true;
           }
         }
+        return post;
       });
       return inc;
     }
@@ -854,81 +854,21 @@ export const upVoteComment = async (schoolName, postKey, commentKey) => {
   }
 }
 
-export const upVote = async (schoolName, postKey, post) => {
+export const likePost = (schoolName, postKey, post, userUid) => {
   try {
-    if (db && auth && auth.currentUser) {
-      const batch = writeBatch(db);
-      const userUid = auth.currentUser.uid;
-      const postDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey
-      );
-      const userLikesDocRef = doc(
-        db,
-        "userData",
-        userUid,
-        "likes",
-        postKey
-      );
-      const snap = await getDoc(postDocRef);
-      if (snap.exists) {
-        if (snap.data().likes[userUid]) {
-          batch.update(postDocRef, {
-            [`likes.${userUid}`]: deleteField(),
-            upVotes: increment(-1),
-          });
-          batch.delete(userLikesDocRef);
-          await batch.commit().catch((err) => { console.log(err); });
-          return -1;
-        } else {
-          if (snap.data().dislikes[userUid]) {
-            batch.update(postDocRef, {
-              [`dislikes.${userUid}`]: deleteField(),
-              likes: { [`${userUid}`]: true },
-              upVotes: increment(1),
-              downVotes: increment(-1),
-            });
-          } else {
-            batch.update(postDocRef, {
-              likes: { [`${userUid}`]: true },
-              upVotes: increment(1),
-            });
-          }
-          batch.set(userLikesDocRef, {
-            imgSrc: post.imgSrc,
-            message: post.message,
-            photoURL: post.photoURL,
-            timestamp: post.timestamp,
-            likeTimestamp: serverTimestamp(),
-            uid: post.uid,
-            userName: post.userName,
-            postType: post.postType,
-          });
-          await batch.commit().catch((err) => { console.log(err); });
-          return 1;
-        }
-      }
+    const data = {
+
     }
   } catch (err) {
     console.log(err);
   }
 };
 
-export const downVote = async (schoolName, postKey, post) => {
+export const upVote = async (postKey, post) => {
   try {
-    if (auth && auth.currentUser) {
+    if (db && database && auth && auth.currentUser) {
+      let inc = null;
       const userUid = auth.currentUser.uid;
-      const batch = writeBatch(db);
-      const postDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey
-      );
       const userLikesDocRef = doc(
         db,
         "userData",
@@ -936,39 +876,85 @@ export const downVote = async (schoolName, postKey, post) => {
         "likes",
         postKey
       );
-      const snap = await getDoc(postDocRef);
-      if (snap.exists) {
-        if (snap.data().dislikes[userUid]) {
-          batch.update(postDocRef, {
-            [`dislikes.${userUid}`]: deleteField(),
-            downVotes: increment(-1),
-          });
-          await batch.commit().catch((err) => { console.log(err); });
-          return -1;
-        } else {
-          if (snap.data().likes[userUid]) {
-            batch.update(
-              postDocRef,
-              {
-                dislikes: { [`${userUid}`]: true },
-                downVotes: increment(1),
-                [`likes.${userUid}`]: deleteField(),
-                upVotes: increment(-1),
-              }
-            );
-            batch.delete(userLikesDocRef);
+      let deleteLike = false;
+      const likesRef = rtdbRef(database, postKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.likes[userUid]) { // if liked before
+            post.likes[userUid] = null;
+            deleteLike = true;
+            inc = -1;
           } else {
-            batch.update(
-              postDocRef,
-              {
-                dislikes: { [`${userUid}`]: true },
-                downVotes: increment(1),
-              });
+            if (!post.likes) {
+              post.likes = {};
+            }
+            if (post.dislikes[userUid]) { // if disliked before
+              post.dislikes[userUid] = null;
+            }
+            inc = 1;
+            post.likes[userUid] = true;
           }
-          await batch.commit().catch((err) => { console.log(err); });
-          return 1;
         }
+        return post;
+      });
+      if (deleteLike) {
+        await deleteDoc(userLikesDocRef);
+      } else { // add to liked posts
+        await setDoc(userLikesDocRef, {
+          imgSrc: post.imgSrc,
+          message: post.message,
+          photoURL: post.photoURL,
+          timestamp: post.timestamp,
+          likeTimestamp: serverTimestamp(),
+          uid: post.uid,
+          userName: post.userName,
+          postType: post.postType,
+        });
       }
+      return inc;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const downVote = async (postKey) => {
+  try {
+    if (auth && auth.currentUser) {
+      let inc = null;
+      const userUid = auth.currentUser.uid;
+      const userLikesDocRef = doc(
+        db,
+        "userData",
+        userUid,
+        "likes",
+        postKey
+      );
+      let deleteLike = false;
+      const likesRef = rtdbRef(database, postKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.dislikes[userUid]) { // if disliked before
+            post.dislikes[userUid] = null;
+            inc = -1;
+          } else {
+            if (!post.dislikes) {
+              post.dislikes = {};
+            }
+            if (post.likes[userUid]) { // if liked before
+              post.likes[userUid] = null;
+              deleteLike = true;
+            }
+            inc = 1;
+            post.dislikes[userUid] = true;
+          }
+        }
+        return post;
+      });
+      if (deleteLike) {
+        await deleteDoc(userLikesDocRef);
+      }
+      return inc;
     }
   } catch (err) {
     console.log(err);
@@ -977,7 +963,7 @@ export const downVote = async (schoolName, postKey, post) => {
 ///schoolPosts/UCBerkeley/allPosts/IsfZKvyHB9pWIElkzzDt/comments
 export const addCommentNew = async (postKey, schoolName, commentString, blob, id) => {
   try {
-    if (auth && auth.currentUser && db) {
+    if (auth && database && auth.currentUser && db) {
       const uid = auth.currentUser.uid;
       const userName = auth.currentUser.displayName;
       const photoURL = auth.currentUser.photoURL;
@@ -990,19 +976,26 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
         url = "commentImages/" + auth.currentUser.uid.toString() + id;
         imgSrc = await getDownloadURL(ref(storage, url));
       }
-      await updateDoc(postRef, {
-        commentAmount: increment(1),
-      });
       const addedDoc = await addDoc(commentsRef, {
         comment: commentString,
         photoURL: photoURL,
         userName: userName,
         uid: uid,
-        likes: {},
-        dislikes: {},
         timestamp: serverTimestamp(),
-        url : url,
-        imgSrc : imgSrc
+        url: url,
+        imgSrc: imgSrc
+      });
+      await set(rtdbRef(database, addedDoc.id), {
+        likes: {
+          'null': true
+        },
+        dislikes: {
+          'null': true
+        },
+      });
+      const likesRef = rtdbRef(database, postKey);
+      await update(likesRef, {
+        commentAmount: rtdbIncrement(1)
       });
       return {
         comment: commentString,
@@ -1013,8 +1006,8 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
         dislikes: {},
         timestamp: serverTimestamp(),
         key: addedDoc.id,
-        url : url,
-        imgSrc : imgSrc
+        url: url,
+        imgSrc: imgSrc
       };
     }
   } catch (err) {
@@ -1070,7 +1063,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
   }
 };
 
-export const removePoll = async(postKey, schoolName) => {
+export const removePoll = async (postKey, schoolName) => {
   try {
     const postRef = doc(
       db,
@@ -1112,6 +1105,8 @@ export const removePost = async (postKey, schoolName, postUrl) => {
       const pictureRef = ref(storage, postUrl);
       await deleteObject(pictureRef).catch((err) => console.log(err));
     }
+    const p = rtdbRef(database, postKey);
+    await remove(p);
     return true;
   } catch (err) {
     console.log(err);
@@ -1131,26 +1126,17 @@ export const removeCommentNew = async (comment, schoolName, postKey, commentUrl)
         "comments",
         commentKey
       );
-      const postDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey,
-      );
-      await runTransaction(db, async (transaction) => {
-        const snap = await transaction.get(postDocRef);
-        if (snap.exists()) {
-          transaction.update(postDocRef, {
-            commentAmount: increment(-1),
-          });
-        }
-        transaction.delete(commentRef);
-      });
+      await deleteDoc(commentRef);
       if (commentUrl.length > 0) {
         const pictureRef = ref(storage, commentUrl);
         await deleteObject(pictureRef).catch((err) => console.log(err));
       }
+      const c = rtdbRef(database, commentKey);
+      await remove(c);
+      const likesRef = rtdbRef(database, postKey);
+      await update(likesRef, {
+        commentAmount: rtdbIncrement(-1)
+      });
       return true;
     }
   } catch (err) {
@@ -1274,3 +1260,4 @@ export const loadComments = async (postKey, schoolName) => {
     console.log(err);
   }
 }
+

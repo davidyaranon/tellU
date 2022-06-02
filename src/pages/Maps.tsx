@@ -18,7 +18,7 @@ import {
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
-import auth from "../fbconfig";
+import auth, { getLikes } from "../fbconfig";
 import {
   db,
 } from "../fbconfig";
@@ -39,6 +39,7 @@ import { useToast } from "@agney/ir-toast";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
+import { getColor } from "../components/functions";
 
 const schoolInfo = {
   "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 16.25],
@@ -96,23 +97,6 @@ function Maps() {
       getSchoolLocation();
     }
   }, [user, schoolName])
-
-  const getMarkerColor = (postType: string) => {
-    switch (postType) {
-      case "general":
-        return "#61DBFB";
-      case "alert":
-        return "#ff3e3e";
-      case "buy/Sell":
-        return "#179b59";
-      case "event":
-        return "#fc4ad3";
-      case "sighting":
-        return "#eed202";
-      default:
-        break;
-    }
-  };
 
   const getSchoolLocation = () => {
     if (schoolInfo[schoolName as keyof typeof schoolInfo] !== undefined) {
@@ -209,7 +193,18 @@ function Maps() {
           key: doc.id,
         });
       }
-      //console.log(tempMarkers);
+      for(let i = 0; i < tempMarkers.length; ++i){
+        const data = await getLikes(tempMarkers[i].key);
+          if(data){
+            tempMarkers[i].likes = data.likes;
+            tempMarkers[i].dislikes = data.dislikes;
+            tempMarkers[i].commentAmount = data.commentAmount;
+          } else {
+            tempMarkers[i].likes = {};
+            tempMarkers[i].dislikes = {};
+            tempMarkers[i].commentAmount = 0;
+          }
+      }
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
     }
@@ -221,7 +216,7 @@ function Maps() {
 
   return (
     <IonPage>
-      <IonContent fullscreen={true}>
+      <IonContent fullscreen={true} className="no-scroll-content">
         <IonLoading
           spinner="dots"
           message="Adding comment"
@@ -292,7 +287,7 @@ function Maps() {
                     setOverlayIndex(-1);
                     setOverlayIndex(index);
                   }}
-                  color={getMarkerColor(marker.postType)}
+                  color={getColor(marker.postType)}
                   key={marker.key}
                   anchor={[marker.location[0], marker.location[1]]}
                   width={50}
@@ -324,7 +319,7 @@ function Maps() {
                       style={{
                         fontWeight: "bold",
                         fontSize: "2.5vw",
-                        color: getMarkerColor(markers[overlayIndex].postType),
+                        color: getColor(markers[overlayIndex].postType),
                       }}
                     >
                       {markers[overlayIndex].postType.toUpperCase()}
@@ -366,7 +361,7 @@ function Maps() {
                         }
                       >
                         <KeyboardArrowUpIcon />
-                        <p>{Object.keys(markers[overlayIndex].likes).length} </p>
+                        <p>{Object.keys(markers[overlayIndex].likes).length - 1} </p>
                       </IonButton>
                     </IonCol>
                     <IonCol size="4">
@@ -397,7 +392,7 @@ function Maps() {
                         }
                       >
                         <KeyboardArrowDownIcon />
-                        <p>{Object.keys(markers[overlayIndex].dislikes).length} </p>
+                        <p>{Object.keys(markers[overlayIndex].dislikes).length - 1} </p>
                       </IonButton>
                     </IonCol>
                   </IonRow>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth from '../fbconfig';
+import auth, { getLikes } from '../fbconfig';
 import {
   getUserPosts,
   getNextBatchUserPosts,
@@ -79,17 +79,15 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const Toast = useToast();
 
   const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(schoolName, postKey, post);
+    const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
-        tempPosts[index].upVotes += val;
         if (tempPosts[index].likes[user.uid]) {
           delete tempPosts[index].likes[user.uid];
         } else {
           if (tempPosts[index].dislikes[user.uid]) {
             delete tempPosts[index].dislikes[user.uid];
-            tempPosts[index].downVotes -= 1;
           }
           tempPosts[index].likes[user.uid] = true;
         }
@@ -104,17 +102,15 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   };
 
   const handleDownVote = async (postKey: string, index: number, post: any) => {
-    const val = await downVote(schoolName, postKey, post);
+    const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
-        tempPosts[index].downVotes += val;
         if (tempPosts[index].dislikes[user.uid]) {
           delete tempPosts[index].dislikes[user.uid];
         } else {
           if (tempPosts[index].likes[user.uid]) {
             delete tempPosts[index].likes[user.uid];
-            tempPosts[index].upVotes -= 1;
           }
           tempPosts[index].dislikes[user.uid] = true;
         }
@@ -142,8 +138,20 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const fetchMorePosts = (event: any) => {
     if (lastKey) {
       getNextBatchUserPosts(schoolName, uid, lastKey)
-        .then((res: any) => {
+        .then(async (res: any) => {
           setLastKey(res.lastKey);
+          for(let i = 0; i < res.userPosts.length; ++i) {
+            const data = await getLikes(res.userPosts[i].key);
+            if(data){
+              res.userPosts[i].likes = data.likes;
+              res.userPosts[i].dislikes = data.dislikes;
+              res.userPosts[i].commentAmount = data.commentAmount;
+            } else {
+              res.userPosts[i].likes = {};
+              res.userPosts[i].dislikes = {};
+              res.userPosts[i].commentAmount = 0;
+            }
+          }
           setUserPosts(userPosts.concat(res.userPosts));
           event.target.complete();
           if (res.userPosts.length == 0) {
@@ -173,10 +181,21 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             setUserSnapchat(res.snapchat);
             setUserTiktok(res.tiktok);
             getUserPosts(schoolName, uid)
-              .then((res: any) => {
+              .then(async (res: any) => {
                 // first batch
                 if (res.userPosts.length > 0) {
-                  // console.log(res.userPosts);
+                  for(let i = 0; i < res.userPosts.length; ++i) {
+                    const data = await getLikes(res.userPosts[i].key);
+                    if(data){
+                      res.userPosts[i].likes = data.likes;
+                      res.userPosts[i].dislikes = data.dislikes;
+                      res.userPosts[i].commentAmount = data.commentAmount;
+                    } else {
+                      res.userPosts[i].likes = {};
+                      res.userPosts[i].dislikes = {};
+                      res.userPosts[i].commentAmount = 0;
+                    }
+                  }
                   setUserPosts(res.userPosts);
                   setLastKey(res.lastKey);
                 } else {
@@ -496,7 +515,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               }}
                             >
                               <KeyboardArrowUpIcon />
-                              <p>{Object.keys(post.likes).length} </p>
+                              <p>{Object.keys(post.likes).length - 1} </p>
                             </IonButton>
                             <p>&nbsp;</p>
                             <IonButton
@@ -536,7 +555,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               }}
                             >
                               <KeyboardArrowDownIcon />
-                              <p>{Object.keys(post.dislikes).length} </p>
+                              <p>{Object.keys(post.dislikes).length - 1} </p>
                             </IonButton>
                           </IonItem>
                         </FadeIn>

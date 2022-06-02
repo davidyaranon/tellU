@@ -23,20 +23,17 @@ import {
   useIonViewWillEnter,
   IonInput,
   IonCardSubtitle,
-  IonGrid,
-  IonTextarea,
 } from "@ionic/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
 import {
   addCircleOutline,
   arrowBack,
-  cameraOutline,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getPolls, getShowcase, getTopWeeklyPosts, pollVote, submitPollFb, submitShowcase, uploadImage } from "../fbconfig";
+import auth, { getLikes, getPolls, getTopWeeklyPosts, pollVote, submitPollFb } from "../fbconfig";
 import {
   downVote,
   getTopPostsWithinPastDay,
@@ -56,7 +53,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useSelector } from "react-redux";
 import "swiper/css";
 import "swiper/css/pagination";
-import { v4 as uuidv4 } from "uuid";
 import FadeIn from "react-fade-in";
 import { getColor, timeout } from '../components/functions';
 import UIContext from '../my-context';
@@ -205,16 +201,41 @@ function Community() {
         //   console.log(err + '\nCheck your internet connection');
         // });
         const topPostsLoaded = promiseTimeout(10000, getTopPostsWithinPastDay(schoolName));
-        topPostsLoaded.then((res: any) => {
+        topPostsLoaded.then(async (res: any) => {
+          console.log(res);
+          for(let i = 0; i < res.length; ++i) {
+            const data = await getLikes(res[i].key);
+            if(data){
+              res[i].data.likes = data.likes;
+              res[i].data.dislikes = data.dislikes;
+              res[i].data.commentAmount = data.commentAmount;
+            } else {
+              res[i].data.likes = {};
+              res[i].data.dislikes = {};
+              res[i].data.commentAmount = 0;
+            }
+          }
           setTopPosts(res);
         });
         topPostsLoaded.catch((err) => {
           Toast.error(err + "\n Check your internet connection");
         });
         const topWeeklyPostsLoaded = promiseTimeout(10000, getTopWeeklyPosts(schoolName));
-        topWeeklyPostsLoaded.then((res) => {
+        topWeeklyPostsLoaded.then(async (res) => {
           let tempArr = res;
           tempArr = tempArr.sort((a: any, b: any) => (b.data.upVotes) - (a.data.upVotes));
+          for(let i = 0; i < tempArr.length; ++i) {
+            const data = await getLikes(tempArr[i].key);
+            if(data){
+              tempArr[i].data.likes = data.likes;
+              tempArr[i].data.dislikes = data.dislikes;
+              tempArr[i].data.commentAmount = data.commentAmount;
+            } else {
+              tempArr[i].data.likes = {};
+              tempArr[i].data.dislikes = {};
+              tempArr[i].data.commentAmount = 0;
+            }
+          }
           setTopWeeklyPosts(tempArr);
         });
         topWeeklyPostsLoaded.catch((err) => {
@@ -233,7 +254,7 @@ function Community() {
   }, [user, schoolName]);
 
   const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(schoolName, postKey, post);
+    const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (topPosts && user) {
         let tempPosts: any[] = [...topPosts];
@@ -258,7 +279,7 @@ function Community() {
   };
 
   const handleDownVote = async (postKey: string, index: number, post: any) => {
-    const val = await downVote(schoolName, postKey, post);
+    const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
       if (topPosts && user) {
         let tempPosts: any[] = [...topPosts];
@@ -633,9 +654,9 @@ function Community() {
         </IonHeader>
         </FadeIn>
 
-        <FadeIn>
-          <hr />
-        </FadeIn>
+        {/* <FadeIn>
+          <hr style={{width: "95%"}}/>
+        </FadeIn> */}
         {/* <FadeIn transitionDuration={500}>
           <IonToolbar mode="ios">
             <IonCardTitle style={{ marginLeft: "5%" }}>Showcase</IonCardTitle>
@@ -788,18 +809,18 @@ function Community() {
             </>
           ) : (
             <>
-              <FadeIn transitionDuration={500}>
+              {/* <FadeIn transitionDuration={500}>
                 {/* <IonHeader class="ion-no-border"> */}
-                <IonToolbar mode="ios">
-                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Top Posts (All Time)</IonCardTitle>
+                {/* <IonToolbar mode="ios">
+                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Top Posts (All Time)</IonCardTitle> */}
                   {/* <IonFab horizontal="end">
                   <IonIcon icon={chevronForward} />
                 </IonFab>
                 <IonFab horizontal="start">
                   <IonIcon icon={chevronBack} />
-                </IonFab> */}
+                </IonFab> 
                 </IonToolbar>
-                {/* </IonHeader> */}
+                {/* </IonHeader>
                 <Swiper
                   slidesPerView={1.25}
                 >
@@ -886,7 +907,7 @@ function Community() {
                                       }
                                     >
                                       <KeyboardArrowUpIcon />
-                                      <p>{Object.keys(post.data.likes).length} </p>
+                                      <p>{Object.keys(post.data.likes).length - 1} </p>
                                     </IonButton>
                                   </IonCol>
                                   <IonCol size="4">
@@ -936,7 +957,7 @@ function Community() {
                                       }
                                     >
                                       <KeyboardArrowDownIcon />
-                                      <p>{Object.keys(post.data.dislikes).length} </p>
+                                      <p>{Object.keys(post.data.dislikes).length - 1} </p>
                                     </IonButton>
                                   </IonCol>
                                 </IonRow>
@@ -948,20 +969,20 @@ function Community() {
                     })
                     : null}
                 </Swiper>
-              </FadeIn>
-              <FadeIn>
-                <hr />
-              </FadeIn>
+              </FadeIn> */}
+              {/* <FadeIn>
+                <hr style={{width: "95%"}}/>
+              </FadeIn> */}
 
-              <FadeIn transitionDuration={500}>
+              {/* <FadeIn transitionDuration={500}>
                 <IonToolbar mode="ios">
                   <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Top Posts (Weekly)</IonCardTitle>
-                  {/* <IonFab horizontal="end">
+                  <IonFab horizontal="end">
                   <IonIcon icon={chevronForward} />
                 </IonFab>
                 <IonFab horizontal="start">
                   <IonIcon icon={chevronBack} />
-                </IonFab> */}
+                </IonFab>
                 </IonToolbar>
                 <Swiper slidesPerView={1.25}>
                   {topWeeklyPosts && topWeeklyPosts.length > 0
@@ -1047,7 +1068,7 @@ function Community() {
                                     }
                                   >
                                     <KeyboardArrowUpIcon />
-                                    <p>{Object.keys(post.data.likes).length} </p>
+                                    <p>{Object.keys(post.data.likes).length - 1} </p>
                                   </IonButton>
                                 </IonCol>
                                 <IonCol size="4">
@@ -1097,7 +1118,7 @@ function Community() {
                                     }
                                   >
                                     <KeyboardArrowDownIcon />
-                                    <p>{Object.keys(post.data.dislikes).length} </p>
+                                    <p>{Object.keys(post.data.dislikes).length - 1}</p>
                                   </IonButton>
                                 </IonCol>
                               </IonRow>
@@ -1110,9 +1131,9 @@ function Community() {
                       <div style={{ textAlign: "center" }}><p>No posts within past week</p></div>
                       <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
                 </Swiper>
-              </FadeIn>
+              </FadeIn> */}
               <FadeIn>
-                <hr />
+                <hr style={{width: "95%"}}/>
               </FadeIn>
               <FadeIn transitionDuration={500}>
                 {/* <IonHeader class="ion-no-border"> */}
@@ -1120,7 +1141,7 @@ function Community() {
                   {/* <p style={{fontWeight:"bold" ,fontSize: "1em", marginLeft: "5vw"}}>Polls</p>
                    */}
                   <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Polls</IonCardTitle>
-                  <IonButton color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
+                  <IonButton style={{marginRight: "3%"}} color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
                     <IonIcon icon={addCircleOutline} /> {'\u00A0'}New Poll
                   </IonButton>
                 </IonToolbar>
