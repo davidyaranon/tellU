@@ -830,12 +830,25 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                     </IonList>
                   ))
                   : null}
+                {kbHeight !== 0 || kbHeight > 0 ? 
+                <>
+                <IonItem lines="none" mode="ios" hidden>
+                </IonItem>
+                <IonItem lines="none" mode="ios" hidden>
+                </IonItem>
+                <IonItem lines="none" mode="ios" hidden>
+                </IonItem>
+                <IonItem lines="none" mode="ios" hidden>
+                </IonItem>
+                </>
+                :
+                null}
               </div>
             </FadeIn>
           )}
           <IonInfiniteScroll
             onIonInfinite={(e: any) => { handleLoadCommentsNextBatch(e) }}
-            disabled={(lastKey.length == 0) || (commentsLoading)}
+            disabled={(lastKey.length == 0) || (commentsLoading) || (comments && comments.length < 20)}
             position="bottom"
           >
             <IonInfiniteScrollContent
