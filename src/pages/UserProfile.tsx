@@ -299,7 +299,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                             src={profilePhoto} />
                         </IonAvatar>
                       </IonCol>
-                      {userMajor.length > 0 ? (
+                      {userMajor && userMajor.length > 0 ? (
                         <IonCol class="ion-padding-top" size="8">
                           <p style={{ fontSize: "1.5em" }}>{username}</p>
                           <IonNote style={{ fontSize: "1em" }}>
@@ -310,7 +310,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                         <p className="ion-padding-top" style={{ fontSize: "1.5em" }}> {username}</p>
                       </IonCol>}
                     </IonRow>
-                    {userSnapchat.length > 0 ? (
+                    {userSnapchat && userSnapchat.length > 0 ? (
                       <>
                         <IonCol size="12">
                           <IonText style={{ fontSize: "0.75em" }}>
@@ -321,7 +321,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                         </IonCol>
                       </>
                     ) : null}
-                    {userInstagram.length > 0 ? (
+                    {userInstagram && userInstagram.length > 0 ? (
                       <>
                         <IonCol size="12">
                           <IonText style={{ fontSize: "0.75em" }}>
@@ -332,7 +332,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                         </IonCol>
                       </>
                     ) : null}
-                    {userTiktok.length > 0 ? (
+                    {userTiktok && userTiktok.length > 0 ? (
                       <>
                         <IonCol size="12">
                           <IonText style={{ fontSize: "0.75em" }}>
@@ -343,12 +343,12 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                         </IonCol>
                       </>
                     ) : null}
-                    {userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0 ? (
+                    {userTiktok && userSnapchat && userInstagram && ( userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0 ) ? (
                       <>
                         <br />
                       </>
                     ) : null}
-                    {userBio.length > 0 ? (
+                    {userBio && userBio.length > 0 ? (
                       <>
                         <br />
                         <IonRow class="ion-justify-content-start">

@@ -42,7 +42,7 @@ import ForumIcon from "@mui/icons-material/Forum";
 import { getColor } from "../components/functions";
 
 const schoolInfo = {
-  "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 16.25],
+  "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 15.75],
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
   "UC Davis": [38.53906813693881, -121.7519863294826, 15],
   "UC Irvine": [33.642798513829284, -117.83657521816043, 14.5],

@@ -49,6 +49,7 @@ import {
 } from "@capacitor/camera";
 import { ref, getDownloadURL } from "firebase/storage";
 import { Geolocation, Geoposition } from "@awesome-cordova-plugins/geolocation";
+import { Keyboard } from "@capacitor/keyboard";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   add,
@@ -410,7 +411,7 @@ function Home() {
             res.allPosts[i].commentAmount = 0;
           }
         }
-        console.log(res.allPosts);
+        // console.log(res.allPosts);
         setPosts(res.allPosts);
         setLastKey(res.lastKey);
         setOriginalLastKey(res.lastKey);
@@ -806,7 +807,9 @@ function Home() {
                       onClick={() => {
                         setPhoto(null);
                         setBlob(null);
-                        setShowModal(false);
+                        Keyboard.hide().then(() => {
+                          setTimeout(() => setShowModal(false), 100)
+                        });
                       }}
                     >
                       <IonIcon icon={arrowBack}></IonIcon> Back
@@ -821,7 +824,7 @@ function Home() {
                       <>
                         <IonCol size="2">
                           <IonAvatar>
-                            <IonImg
+                            <img
                               src={profilePhoto} />
                           </IonAvatar>
                         </IonCol>

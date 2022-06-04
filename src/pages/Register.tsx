@@ -37,6 +37,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserState } from "../redux/actions";
 import { FCM } from "@capacitor-community/fcm";
 import { PushNotifications } from "@capacitor/push-notifications";
+import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
+
+const defaultResizeOptions: KeyboardResizeOptions = {
+  mode: KeyboardResize.Native,
+}
 
 const Register: React.FC = () => {
   const Toast = useToast();
@@ -162,6 +167,15 @@ const Register: React.FC = () => {
     };
   }, [user, loading]);
 
+  useEffect(() => {
+    Keyboard.addListener('keyboardWillShow', info => {
+      Keyboard.setResizeMode(defaultResizeOptions);
+    });
+    return() => {
+      Keyboard.removeAllListeners();
+    };
+  });
+
   return (
     <IonPage>
       <IonContent>
@@ -279,7 +293,7 @@ const Register: React.FC = () => {
               clearInput={true}
               value={userNameSignUp}
               type="text"
-              placeholder="quantum1234"
+              placeholder="userName1234"
               id="userNameSignUp"
               onIonChange={(e: any) => {handleUsernameInput(e)}}
             ></IonInput>

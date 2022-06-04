@@ -15,6 +15,11 @@ import { setUserState } from '../redux/actions';
 import { timeout } from '../components/functions';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { FCM } from '@capacitor-community/fcm';
+import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
+
+const defaultResizeOptions: KeyboardResizeOptions = {
+  mode: KeyboardResize.Native,
+}
 
 const LandingPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -98,6 +103,15 @@ const LandingPage: React.FC = () => {
       setBusy(false);
     }
   }, [user, loading]);
+
+  useEffect(() => {
+    Keyboard.addListener('keyboardWillShow', info => {
+      Keyboard.setResizeMode(defaultResizeOptions);
+    });
+    return() => {
+      Keyboard.removeAllListeners();
+    };
+  })
 
   if (busy) {
     return (<IonSpinner class='ion-spinner' name="dots" color="primary" />);

@@ -34,6 +34,7 @@ import {
   IonPage,
   IonRow,
   IonSkeletonText,
+  IonSpinner,
   IonText,
   IonTextarea,
   IonToolbar,
@@ -46,14 +47,22 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, arrowBack } from "ionicons/icons";
+import { cameraOutline, arrowBack, options } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
-import { Keyboard } from "@capacitor/keyboard";
+import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import Linkify from 'linkify-react';
 
 interface MatchUserPostParams {
   key: string;
+}
+
+const resizeOptions: KeyboardResizeOptions = {
+  mode: KeyboardResize.None,
+}
+
+const defaultResizeOptions: KeyboardResizeOptions = {
+  mode: KeyboardResize.Native,
 }
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
@@ -81,6 +90,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [blob, setBlob] = useState<any | null>(null);
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [showPictureAddButton, setShowPictureAddButton] = useState<boolean>(true);
+  const [kbHeight, setKbHeight] = useState<number>(0);
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
@@ -99,7 +109,11 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const handleCommentSubmit = async () => {
     if (comment.trim().length == 0 && photo === null && blob === null) {
       Toast.error("Input a comment");
+      Keyboard.hide();
     } else {
+      const tempComment = comment;
+      setComment("");
+      Keyboard.hide();
       setCommentsLoading(true);
       let uniqueId = uuidv4();
       if (blob) {
@@ -109,20 +123,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       }
       const hasTimedOut = promiseTimeout(
         10000,
-        addCommentNew(postKey, schoolName, comment, blob, uniqueId.toString(),)
+        addCommentNew(postKey, schoolName, tempComment, blob, uniqueId.toString(),)
       );
       hasTimedOut.then(async (commentSent: any) => {
         if (commentSent) {
           Toast.success("Comment added");
           if (comments) {
-            commentSent.likes = {"null" : true};
-            commentSent.dislikes = {"null" : true};
-            setComments(comments?.concat(commentSent));
+            commentSent.likes = { "null": true };
+            commentSent.dislikes = { "null": true };
+            const newCommentsArr: any[] = [commentSent, ...comments];
+            setComments(newCommentsArr);
           }
         } else {
           Toast.error("Unable to comment on post");
         }
-        setComment("");
+
         setCommentsLoading(false);
       });
       hasTimedOut.catch((err) => {
@@ -385,7 +400,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const isEnterPressed = (key: any) => {
     if (key === "Enter") {
-      Keyboard.hide().then(() => { handleCommentSubmit() });
+      handleCommentSubmit();
     }
   };
 
@@ -420,6 +435,18 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     if (user && schoolName) {
       getPost();
       getPostComments();
+      Keyboard.addListener('keyboardWillShow', info => {
+        Keyboard.setResizeMode(resizeOptions);
+        setKbHeight(info.keyboardHeight);
+      });
+
+      Keyboard.addListener('keyboardWillHide', () => {
+        Keyboard.setResizeMode(defaultResizeOptions);
+        setKbHeight(0);
+      });
+      return () => {
+        Keyboard.removeAllListeners();
+      };
     }
   }, [user, schoolName]);
 
@@ -440,8 +467,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           </IonToolbar>
         </div>
         {/* <div style={darkModeToggled ? { top: "70vh", bottom: "5vh", height: "25vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}> */}
-        <IonFab style={darkModeToggled ? { resize: "none", height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
-          : { resize: "none", height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
+        <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
+          : { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={darkModeToggled ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
           <IonTextarea
             mode="ios"
@@ -556,7 +583,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             </IonNote>
                           </IonFab>
                         )}
-                      <Linkify tagName="h2" className="h2-message">
+                      <Linkify tagName="h3" className="h2-message">
                         {post.message}
                       </Linkify>
                     </IonLabel>
@@ -675,7 +702,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 display: "flex",
               }}
             >
-              {/* <IonSpinner color="primary" /> */}
+              <IonSpinner color="primary" />
             </div>
           ) : (
             <FadeIn>
@@ -703,7 +730,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               {comment.userName}
                             </p>
                           </IonText>
-                          <Linkify tagName="h2" className="h2-message">
+                          <Linkify tagName="h3" className="h2-message">
                             {comment.comment}
                           </Linkify>
                           {"imgSrc" in comment && comment.imgSrc && comment.imgSrc.length > 0 ? (
@@ -823,6 +850,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </div>
             </FadeIn>
           ) : (null)}
+          <br></br><br></br>
         </div>
       </IonContent>
     </IonPage>

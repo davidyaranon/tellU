@@ -58,6 +58,7 @@ import { getColor, timeout } from '../components/functions';
 import UIContext from '../my-context';
 import tellU_Community from '../images/tellU_Community.png';
 import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
+import { Keyboard } from "@capacitor/keyboard";
 
 // import UC_Berkeley_Community_Dark from '../images/UC_Berkeley_Community_Dark.png';
 // import UC_Berkeley_Community_Light from '../images/UC_Berkeley_Community_Light.png';
@@ -372,7 +373,9 @@ function Community() {
         Toast.error("Something went wrong when submitting poll, please try again");
       }
       setPollSubmitting(false);
-      setPollModalOpen(false);
+      Keyboard.hide().then(() => {
+        setTimeout(() => setPollModalOpen(false), 100);
+      });
     });
     pollSubmitted.catch((err) => {
       Toast.error(err + "\n Check your internet connection");
@@ -534,7 +537,9 @@ function Community() {
                   <IonButtons slot="start">
                     <IonButton
                       onClick={() => {
-                        setPollModalOpen(false);
+                        Keyboard.hide().then(() => {
+                          setTimeout(() => setPollModalOpen(false), 100);
+                        });
                         setPollText("");
                       }}
                     >
@@ -803,7 +808,7 @@ function Community() {
         )} */}
 
         {
-          (polls && polls.length <= 0) && (topPosts && topPosts.length <= 0) && (topWeeklyPosts && topWeeklyPosts.length <= 0) ? (
+          !polls ? (
             <>
               <IonSpinner className='ion-spinner' color="primary" />
             </>

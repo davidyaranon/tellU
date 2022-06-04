@@ -23,6 +23,7 @@ import {
   addDoc,
   writeBatch,
   runTransaction,
+  
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
@@ -337,7 +338,7 @@ export async function getAllPosts(schoolName) {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(50));
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(300));
       const querySnapshot = await getDocs(q);
       const allPosts = [];
       const docs = querySnapshot.docs;
@@ -418,6 +419,11 @@ export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok) =>
       const uid = auth.currentUser.uid;
       const batch = writeBatch(db);
       const userDocRef = doc(db, "userData", uid);
+      if(!bio) {bio = "";}
+      if(!instagram){instagram = "";}
+      if(!major){major = "";}
+      if(!snapchat){snapchat = "";}
+      if(!tiktok){tiktok = "";}
       batch.update(userDocRef, {
         bio: bio,
         instagram: instagram,

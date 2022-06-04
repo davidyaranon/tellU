@@ -15,35 +15,37 @@ class Header extends Component<any, any>{
     const dark: boolean = this.props.darkMode;
     if (dark) {
       return (
-
-        <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
-          <IconButton>
-            <img
-              draggable={false}
-              className='quantum_logo'
-              src={tellU_white}
-              alt="QUANTUM"
-              style={{ zoom: 1.2 }}
-            />
-          </IconButton>
-          <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
-        </IonHeader>
+        <div style={{ width: "100%" }}>
+          <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
+            <IconButton>
+              <img
+                draggable={false}
+                className='quantum_logo'
+                src={tellU_white}
+                alt="QUANTUM"
+                style={{ zoom: 1.2 }}
+              />
+            </IconButton>
+            <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
+          </IonHeader>
+        </div>
       )
     } else {
       return (
-
-        <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
-          <IconButton>
-            <img
-              draggable={false}
-              className='quantum_logo'
-              src={tellU}
-              alt="QUANTUM"
-              style={{ zoom: 1.2 }}
-            />
-          </IconButton>
-          <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
-        </IonHeader>
+        <div style={{ width: "100%" }}>
+          <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
+            <IconButton>
+              <img
+                draggable={false}
+                className='quantum_logo'
+                src={tellU}
+                alt="QUANTUM"
+                style={{ zoom: 1.2 }}
+              />
+            </IconButton>
+            <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
+          </IonHeader>
+        </div>
       )
     }
   }

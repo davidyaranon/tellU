@@ -332,11 +332,11 @@ function User() {
 
   const handleUpdateAboutUser = async () => {
     setUserDataHasLoaded(false);
-    if (editableUserBio.trim() == userBio.trim()
-      && editableUserInstagram.trim() == userInstagram.trim()
-      && editableUserSnapchat.trim() == userSnapchat.trim()
-      && editableUserMajor.trim() == userMajor.trim()
-      && editableUserTiktok.trim() == userTiktok.trim()) {
+    if (String(editableUserBio).trim() == String(userBio).trim()
+      && String(editableUserInstagram).trim() == String(userInstagram).trim()
+      && String(editableUserSnapchat).trim() == String(userSnapchat).trim()
+      && String(editableUserMajor).trim() == String(userMajor).trim()
+      && String(editableUserTiktok).trim() == String(userTiktok).trim()) {
       Toast.error("No changes made");
       setUserDataHasLoaded(true);
       return;
@@ -349,6 +349,9 @@ function User() {
         setUserInstagram(editableUserInstagram);
         setUserTiktok(editableUserTiktok);
         setUserMajor(editableUserMajor);
+        Keyboard.hide().then(() => {
+          setTimeout(() => setShowAboutModal(false), 100);
+        })
         Toast.success("Updated!");
       } else {
         Toast.error("Something went wrong, try again");
@@ -359,6 +362,7 @@ function User() {
       Toast.error(err);
       setUserDataHasLoaded(true);
     });
+    setUserDataHasLoaded(true);
   };
 
   const deletePoll = async (index : number, postKey : string) => {
@@ -432,7 +436,9 @@ function User() {
 
   async function handleUsernameChange() {
     // update all messages to include updated username + include duplicate username check
-    setCredentialsUserModal(false);
+    Keyboard.hide().then(() => {
+      setTimeout(() => setCredentialsUserModal(false), 100);
+    });
     setBusy(true);
     const isUnique = await checkUsernameUniqueness(editableUsername.trim());
     if (!isUnique) {
@@ -466,7 +472,9 @@ function User() {
                 usernameDocChange.then(() => {
                   Toast.success("Updated username");
                   setUsername(editableUsername);
-                  setCredentialsUserModal(false);
+                  Keyboard.hide().then(() => {
+                    setTimeout(() => setCredentialsUserModal(false), 100);
+                  });
                   setBusy(false);
                 });
                 usernameDocChange.catch((err: any) => {
@@ -529,7 +537,9 @@ function User() {
       if (user.email == editableEmail) {
         Toast.error("No changes made");
         setBusy(false);
-        setCredentialsModal(false);
+        Keyboard.hide().then(() => {
+          setTimeout(() => setCredentialsModal(false), 100);
+        });
       } else {
         const credentials = EmailAuthProvider.credential(
           user.email!,
@@ -547,7 +557,9 @@ function User() {
                     .then(() => {
                       Toast.success("Updated email");
                       setEmail(editableEmail);
-                      setCredentialsModal(false);
+                      Keyboard.hide().then(() => {
+                        setTimeout(() => setCredentialsModal(false), 100);
+                      });
                       setBusy(false);
                     })
                     .catch((err) => {
@@ -932,7 +944,9 @@ function User() {
                   <IonButton
                     mode="ios"
                     onClick={() => {
-                      setShowAboutModal(false);
+                      Keyboard.hide().then(() => {
+                        setTimeout(() => setShowAboutModal(false), 100);
+                      })
                       setEditableUserBio(userBio);
                       setEditableUserInstagram(userInstagram);
                       setEditableUserMajor(userMajor);
@@ -1046,7 +1060,9 @@ function User() {
                 <IonButton
                   mode="ios"
                   onClick={() => {
-                    setShowEditEmailModal(false);
+                    Keyboard.hide().then(() => {
+                      setTimeout(() => setShowEditEmailModal(false), 100);
+                    });
                     if (user && user.email) { setEditableEmail(user.email); }
                   }}
                 >
@@ -1080,7 +1096,9 @@ function User() {
                 <IonButton
                   mode="ios"
                   onClick={() => {
-                    setShowEditUsernameModal(false);
+                    Keyboard.hide().then(() => {
+                      setTimeout(() => setShowEditUsernameModal(false), 100);
+                    });
                     if (user && user.displayName) { setEditableUsername(user.displayName); }
                   }}
                 >
@@ -1421,7 +1439,9 @@ function User() {
                 color="danger"
                 mode="ios"
                 onClick={() => {
-                  setCredentialsModal(false);
+                  Keyboard.hide().then(() => {
+                    setTimeout(() => setCredentialsModal(false), 100);
+                  });
                   setEditableEmail(email);
                 }}
                 shape="round"
@@ -1475,7 +1495,9 @@ function User() {
                 color="danger"
                 mode="ios"
                 onClick={() => {
-                  setCredentialsUserModal(false);
+                  Keyboard.hide().then(() => {
+                    setTimeout(() => setCredentialsUserModal(false), 100);
+                  });
                   setEditableUsername(username);
                   setPasswordReAuth("");
                 }}
@@ -1952,7 +1974,7 @@ function User() {
                       {yourPolls.map((poll, index) => {
                         return (
                           <IonCard mode='ios' key={poll.key}>
-                            <IonCardContent style={{ minHeight: "50vh" }}>
+                            <IonCardContent style={{ minHeight: "60vh" }}>
                               <p>{poll.userName}</p>
                               <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
                               <br />
