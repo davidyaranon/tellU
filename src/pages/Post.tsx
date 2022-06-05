@@ -832,13 +832,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   : null}
                 {kbHeight !== 0 || kbHeight > 0 ? 
                 <>
-                <IonItem lines="none" mode="ios" hidden>
+                <IonItem lines="none" mode="ios" disabled>
                 </IonItem>
-                <IonItem lines="none" mode="ios" hidden>
+                <IonItem lines="none" mode="ios" disabled>
                 </IonItem>
-                <IonItem lines="none" mode="ios" hidden>
+                <IonItem lines="none" mode="ios" disabled>
                 </IonItem>
-                <IonItem lines="none" mode="ios" hidden>
+                <IonItem lines="none" mode="ios" disabled>
                 </IonItem>
                 </>
                 :

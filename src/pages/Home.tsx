@@ -27,7 +27,6 @@ import {
   IonSpinner,
   IonNote,
   useIonViewWillEnter,
-  useIonViewDidLeave,
   IonPage,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
@@ -363,9 +362,9 @@ function Home() {
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
       tempPosts.then(async (res: any) => {
         if (res.allPosts && res.allPosts != []) {
-          for(let i = 0; i < res.allPosts.length; ++i) {
+          for (let i = 0; i < res.allPosts.length; ++i) {
             const data = await getLikes(res.allPosts[i].key);
-            if(data){
+            if (data) {
               res.allPosts[i].likes = data.likes;
               res.allPosts[i].dislikes = data.dislikes;
               res.allPosts[i].commentAmount = data.commentAmount;
@@ -399,9 +398,9 @@ function Home() {
     let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
     tempPosts.then(async (res: any) => {
       if (res.allPosts && res.allPosts != []) {
-        for(let i = 0; i < res.allPosts.length; ++i) {
+        for (let i = 0; i < res.allPosts.length; ++i) {
           const data = await getLikes(res.allPosts[i].key);
-          if(data){
+          if (data) {
             res.allPosts[i].likes = data.likes;
             res.allPosts[i].dislikes = data.dislikes;
             res.allPosts[i].commentAmount = data.commentAmount;
@@ -671,7 +670,6 @@ function Home() {
             </IonHeader>
           </FadeIn>
           <IonModal
-            showBackdrop={true}
             isOpen={locationPinModal}
             onDidDismiss={() => {
               setLocationPinModal(false);
@@ -679,20 +677,21 @@ function Home() {
             }}
             breakpoints={[0, 0.95]}
             initialBreakpoint={0.95}
-            backdropBreakpoint={0.2}
+            backdropBreakpoint={0.9}
+            handle={false}
           >
-            <IonContent>
+            {/* <IonContent> */}
               <IonHeader translucent>
                 <IonToolbar mode="ios">
                   <IonTitle>Post</IonTitle>
-                  <IonButtons slot="end">
+                  <IonButtons slot="start">
                     <IonButton
                       mode="ios"
                       onClick={() => {
                         setLocationPinModal(false);
                       }}
                     >
-                      Close
+                      Back
                     </IonButton>
                   </IonButtons>
                 </IonToolbar>
@@ -779,31 +778,34 @@ function Home() {
                   />
                 </IonItem>
               </IonList>
-              <p style={{textAlign:"center"}}>*Location pin stays on map for up to two days</p>
+              <p style={{ textAlign: "center" }}>*Location pin stays on map for up to two days</p>
               <div className="ion-button-container">
                 <IonButton
                   onClick={() => {
                     handleSendMessage();
                   }}
-                  expand="full"
+                  expand="block"
                   color="transparent"
                   mode="ios"
                   shape="round"
                   fill="outline"
                   id="message"
+                  style={{width: "75vw"}}
                 >
                   Post
                 </IonButton>
               </div>
-            </IonContent>
+            {/* </IonContent> */}
           </IonModal>
 
-          <IonModal backdropDismiss={false} isOpen={showModal}>
+          <IonModal backdropDismiss={false} isOpen={showModal} animated mode='ios'
+            >
             <IonContent ref={modalContentRef} scrollEvents={true}>
               <div style={{ width: "100%" }}>
                 <IonToolbar mode="ios">
                   <IonButtons slot="start">
                     <IonButton
+                      mode="ios"
                       onClick={() => {
                         setPhoto(null);
                         setBlob(null);
@@ -812,7 +814,7 @@ function Home() {
                         });
                       }}
                     >
-                      <IonIcon icon={arrowBack}></IonIcon> Back
+                      Close
                     </IonButton>
                   </IonButtons>
                 </IonToolbar>

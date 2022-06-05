@@ -23,8 +23,10 @@ import {
   useIonViewWillEnter,
   IonInput,
   IonCardSubtitle,
+  IonText,
+  IonGrid,
 } from "@ionic/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
@@ -33,7 +35,7 @@ import {
   arrowBack,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getLikes, getPolls, getTopWeeklyPosts, pollVote, submitPollFb } from "../fbconfig";
+import auth, { getLikes, getPolls, getTopWeeklyPosts, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
 import {
   downVote,
   getTopPostsWithinPastDay,
@@ -59,14 +61,15 @@ import UIContext from '../my-context';
 import tellU_Community from '../images/tellU_Community.png';
 import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
 import { Keyboard } from "@capacitor/keyboard";
-
-// import UC_Berkeley_Community_Dark from '../images/UC_Berkeley_Community_Dark.png';
-// import UC_Berkeley_Community_Light from '../images/UC_Berkeley_Community_Light.png';
-// import UC_Davis_Community_Dark from '../images/UC_Davis_Community_Dark.png';
-// import UC_Davis_Community_Light from '../images/UC_Davis_Community_Light.png';
-// import UC_Irvine_Light from '../images/UC_Irvine_Light.png';
-// import UC_Irvine_Dark from '../images/UC_Irvine_Dark.png';
-// import UCLA_Light from '../images/UCLA_Light.png';
+import feedback from '../images/feedback.png';
+import { Navigation } from "swiper";
+import clouds_96 from '../images/icons8-clouds-96.png';
+import sun_96 from '../images/icons8-sun-96.png';
+import partly_cloudy from '../images/icons8-partly-cloudy-day-96.png';
+import sunny_rainy from '../images/icons8-rain-cloud-96.png';
+import rainy from '../images/icons8-rain-96.png';
+import stormy from '../images/icons8-storm-96.png';
+import nighttime from '../images/icons8-moon-phase-96.png';
 
 interface PollAnswer {
   text: string,
@@ -108,7 +111,7 @@ function Community() {
   const [pollSubmitting, setPollSubmitting] = useState<boolean>(false);
   const [pollModalOpen, setPollModalOpen] = useState<boolean>(false);
   const [pollText, setPollText] = useState<string>("");
-  const [weatherData, setWeatherData] = useState<any | null>(null);
+  const [weatherData, setWeatherData] = useState<any>();
   const [isDay, setIsDay] = useState<boolean>(false);
   const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
   const [flip, setFlip] = useState<boolean>(false);
@@ -204,9 +207,9 @@ function Community() {
         const topPostsLoaded = promiseTimeout(10000, getTopPostsWithinPastDay(schoolName));
         topPostsLoaded.then(async (res: any) => {
           console.log(res);
-          for(let i = 0; i < res.length; ++i) {
+          for (let i = 0; i < res.length; ++i) {
             const data = await getLikes(res[i].key);
-            if(data){
+            if (data) {
               res[i].data.likes = data.likes;
               res[i].data.dislikes = data.dislikes;
               res[i].data.commentAmount = data.commentAmount;
@@ -225,9 +228,9 @@ function Community() {
         topWeeklyPostsLoaded.then(async (res) => {
           let tempArr = res;
           tempArr = tempArr.sort((a: any, b: any) => (b.data.upVotes) - (a.data.upVotes));
-          for(let i = 0; i < tempArr.length; ++i) {
+          for (let i = 0; i < tempArr.length; ++i) {
             const data = await getLikes(tempArr[i].key);
-            if(data){
+            if (data) {
               tempArr[i].data.likes = data.likes;
               tempArr[i].data.dislikes = data.dislikes;
               tempArr[i].data.commentAmount = data.commentAmount;
@@ -417,16 +420,17 @@ function Community() {
     }
   }
 
-  // useEffect(() => {
-  //   if (schoolName) {
-  //     getWeatherData(schoolName).then((data: any) => {
-  //       setWeatherData(data);
-  //       if (data.icon.toString().includes('day')) {
-  //         setIsDay(true);
-  //       }
-  //     });
-  //   }
-  // }, [schoolName]);
+  useEffect(() => {
+    if (schoolName) {
+      getWeatherData(schoolName).then((data: any) => {
+        if(data && data.icon.toString().includes('day')){
+          setIsDay(true);
+          console.log('is day');
+        }
+        setWeatherData(data);
+      });
+    }
+  }, [schoolName]);
 
   return (
     <IonPage>
@@ -632,13 +636,13 @@ function Community() {
         </FadeIn > */}
 
         <FadeIn>
-        <IonHeader mode='ios'>
-          {/* {schoolName && schoolName == "UC Berkeley" ? ( */}
-          <div>
-            <img draggable={false} src={darkModeToggled ? tellU_Community_Dark : tellU_Community} />
-          </div>
-          {/* ) : null} */}
-          {/* {schoolName && schoolName != "UC Berkeley" ? (
+          <IonHeader mode='ios'>
+            {/* {schoolName && schoolName == "UC Berkeley" ? ( */}
+            <div>
+              <img draggable={false} src={darkModeToggled ? tellU_Community_Dark : tellU_Community} />
+            </div>
+            {/* ) : null} */}
+            {/* {schoolName && schoolName != "UC Berkeley" ? (
             <div style={{paddingRight : "2.5%"}}>
               <img src={darkModeToggled ? UC_Davis_Community_Dark : UC_Davis_Community_Light} />
             </div>
@@ -653,10 +657,10 @@ function Community() {
               <img src={darkModeToggled ? UC_Irvine_Dark : UCLA_Light} />
             </div>
           ) : null}                */}
-          {/* <div>
+            {/* <div>
             <IonTitle style={{paddingTop:"50%"}}>COMMUNITY</IonTitle>
           </div> */}
-        </IonHeader>
+          </IonHeader>
         </FadeIn>
 
         {/* <FadeIn>
@@ -816,9 +820,9 @@ function Community() {
             <>
               {/* <FadeIn transitionDuration={500}>
                 {/* <IonHeader class="ion-no-border"> */}
-                {/* <IonToolbar mode="ios">
+              {/* <IonToolbar mode="ios">
                   <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Top Posts (All Time)</IonCardTitle> */}
-                  {/* <IonFab horizontal="end">
+              {/* <IonFab horizontal="end">
                   <IonIcon icon={chevronForward} />
                 </IonFab>
                 <IonFab horizontal="start">
@@ -1138,7 +1142,222 @@ function Community() {
                 </Swiper>
               </FadeIn> */}
               <FadeIn>
-                <hr style={{width: "95%"}}/>
+                <hr style={{ width: "95%" }} />
+              </FadeIn>
+              {weatherData ? (
+                <FadeIn transitionDuration={500}>
+                  <Swiper slidesPerView={2} spaceBetween={-15} loopFillGroupWithBlank={true} modules={[Navigation]} navigation={true} loop={true}>
+                    <SwiperSlide>
+                      <IonCard mode="ios" style={{
+                        opacity: "100%",
+                        minHeight: "30vh",
+                        background: isDay ? "linear-gradient(180deg, rgba(46,80,153,1) 0%, rgba(47,146,209,1) 23%, rgba(0,212,255,1) 60%, rgba(0,211,255,1) 98%, rgba(156,238,255,1) 100%, rgba(20,93,149,1) 1232%)" :
+                          "linear-gradient(180deg, rgba(0,8,22,1) 0%, rgba(0,4,56,1) 38%, rgba(47,63,105,1) 100%)"
+                      }}>
+                        <IonCardContent style={{ minHeight: "30vh" }}>
+                          <IonFab horizontal="start" vertical="top">
+                            <IonNote style={{ color: "white" }}>
+                              {weatherData.location}
+                            </IonNote>
+                            <IonCardTitle style={{ color: "white" }}>{Math.round(weatherData.temp)}{'\u00b0'}</IonCardTitle>
+                          </IonFab>
+                          <IonFab horizontal="start" vertical="bottom">
+                            <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                              {weatherData.text}
+                            </IonNote>
+                            <p></p>
+                            <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                              Humidity: {weatherData.humidity}%
+                            </IonNote>
+                          </IonFab>
+                          <IonFab horizontal="end" style={{ marginLeft: "20vw" }}>
+                            {weatherData && weatherData.icon === '/day/113.png' &&
+                              <IonImg style={{ width: "70%" }} src={sun_96} />
+                            }
+                            {weatherData && weatherData.icon === '/day/116.png' &&
+                              <IonImg style={{ width: "70%" }} src={partly_cloudy} />
+                            }
+                            {weatherData && (weatherData.icon === '/day/119.png'
+                              || weatherData.icon === '/day/122.png'
+                              || weatherData.icon === '/day/143.png')
+                              &&
+                              <IonImg style={{ width: "70%" }} src={clouds_96} />
+                            }
+                            {weatherData && (weatherData.icon === '/day/386.png'
+                              || weatherData.icon === '/day/389.png'
+                              || weatherData.icon === '/day/395.png'
+                              || weatherData.icon === '/day/392.png')
+                              &&
+                              <IonImg style={{ width: "70%" }} src={stormy} />
+                            }
+                            {weatherData && (weatherData.icon === '/day/176.png'
+                              || weatherData.icon === '/day/293.png'
+                              || weatherData.icon === '/day/299.png'
+                              || weatherData.icon === '/day/305.png'
+                              || weatherData.icon === '/day/323.png'
+                              || weatherData.icon === '/day/329.png'
+                              || weatherData.icon === '/day/335.png'
+                              || weatherData.icon === '/day/353.png'
+                              || weatherData.icon === '/day/356.png'
+                              || weatherData.icon === '/day/359.png'
+                              || weatherData.icon === '/day/362png'
+                              || weatherData.icon === '/day/182.png')
+                              &&
+                              <IonImg style={{ width: "70%" }} src={sunny_rainy} />
+                            }
+                            {weatherData && (weatherData.icon === '/day/185.png'
+                              || weatherData.icon === '/day/263.png'
+                              || weatherData.icon === '/day/281.png'
+                              || weatherData.icon === '/day/296.png'
+                              || weatherData.icon === '/day/308.png'
+                              || weatherData.icon === '/day/314.png'
+                              || weatherData.icon === '/day/318.png'
+                              || weatherData.icon === '/day/320.png'
+                              || weatherData.icon === '/day/311.png'
+                              || weatherData.icon === '/day/302.png'
+                              || weatherData.icon === '/day/284.png'
+                              || weatherData.icon === '/day/266.png')
+                              &&
+                              <IonImg style={{ width: "70%" }} src={rainy} />
+                            }
+                            {weatherData && weatherData.icon.toString().includes('night') && (
+                              <>
+                                {weatherData.icon === '/night/113.png'
+                                  || weatherData.icon === '/night/116.png'
+                                  || weatherData.icon === '/night/119.png'
+                                  || weatherData.icon === '/night/122.png'
+                                  || weatherData.icon === '/night/143.png' ? (
+                                  <IonImg style={{ width: "50%", marginTop: "1.5vh" }} src={nighttime} />
+                                ) : (
+                                  <IonImg style={{ width: "70%" }} src={rainy} />
+
+                                )}
+                              </>
+                            )}
+                          </IonFab>
+                        </IonCardContent>
+                      </IonCard>
+                    </SwiperSlide>
+                    <SwiperSlide>
+                      <IonCard mode="ios" style={{
+                        minHeight: "30vh",
+                        background: !darkModeToggled ? 'linear-gradient(180deg, rgba(184,182,182,1) 0%, rgba(207,207,207,1) 20%, rgba(236,236,236,1) 100%)' : 'linear-gradient(180deg, rgba(47,47,47,1) 0%, rgba(59,59,59,1) 20%, rgba(92,92,92,1) 100%)'
+                      }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
+                        <IonCardContent style={{ minHeight: "30vh" }}>
+                          <IonFab horizontal="start" vertical="top">
+                            <IonCardTitle>
+                              Feedback
+                            </IonCardTitle>
+                          </IonFab>
+                          <div><br /></div>
+                          <div>
+                            <IonGrid >
+                              <IonRow class="ion-align-items-center">
+                                <IonCol></IonCol>
+                              </IonRow>
+                              <IonRow class="ion-align-items-center">
+                                <IonCol>
+                                  <IonImg src={feedback} />
+                                </IonCol>
+                              </IonRow >
+                              <IonRow class="ion-align-items-center">
+                                <IonCol></IonCol>
+                              </IonRow>
+                            </IonGrid>
+                          </div>
+                          <IonFab horizontal="start" vertical="bottom">
+                            <p>Let us know what you think of the app</p>
+                          </IonFab>
+                        </IonCardContent>
+                      </IonCard>
+                    </SwiperSlide>
+                    <SwiperSlide>
+                      <IonCard mode="ios" style={{
+                        minHeight: "30vh",
+                        background: "linear-gradient(135deg, #7158fe, #9d4de6"
+                        // background: !darkModeToggled ? 'linear-gradient(180deg, rgba(184,182,182,1) 0%, rgba(207,207,207,1) 20%, rgba(236,236,236,1) 100%)' : 'linear-gradient(180deg, rgba(47,47,47,1) 0%, rgba(59,59,59,1) 20%, rgba(92,92,92,1) 100%)'
+                      }}>
+                        <IonCardContent style={{ minHeight: "30vh" }}>
+                          <IonFab vertical="top" horizontal="start">
+                            {/* <IonCardTitle style={{ color: "white" }}>Coupon</IonCardTitle> */}
+                          </IonFab>
+                          <br /> <br /> <br />
+                          <IonCardTitle style={{ marginLeft: "25%" }}>50% OFF</IonCardTitle>
+                          <IonFab vertical="bottom" style={{ width: "70vw", fontSize: "0.85em", color:"white", alignText:"center" }}>
+                            USE CODE: TELLU50
+                          </IonFab>
+                        </IonCardContent>
+                      </IonCard>
+                    </SwiperSlide>
+                  </Swiper>
+                </FadeIn>
+              ) : (
+                <FadeIn transitionDuration={500}>
+                  <Swiper slidesPerView={2} spaceBetween={-15} loopFillGroupWithBlank={true} modules={[Navigation]} navigation={true} loop={true}>
+                    <SwiperSlide>
+                      <IonCard mode="ios" style={{
+                        opacity: "100%",
+                        minHeight: "30vh",
+                        background: "linear-gradient(180deg, rgba(46,80,153,1) 0%, rgba(47,146,209,1) 23%, rgba(0,212,255,1) 60%, rgba(0,211,255,1) 98%, rgba(156,238,255,1) 100%, rgba(20,93,149,1) 1232%)"
+                      }}>
+                        <IonCardContent style={{ minHeight: "30vh" }}>
+                          <IonFab horizontal="start" vertical="top">
+                            <IonNote style={{ color: "white" }}>
+                              {/* {weatherData.location} */}
+                            </IonNote>
+                            <IonCardTitle style={{ color: "white" }}>
+                              {/* {weatherData.temp}{'\u00b0'} */}
+                            </IonCardTitle>
+                          </IonFab>
+                          <IonFab horizontal="start" vertical="bottom">
+                            <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                              {/* {weatherData.text} */}
+                            </IonNote>
+                            <p></p>
+                            <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                              {/* Humidity: {weatherData.humidity}% */}
+                            </IonNote>
+                          </IonFab>
+                        </IonCardContent>
+                      </IonCard>
+                    </SwiperSlide>
+                    <SwiperSlide>
+                      <IonCard mode="ios" style={{ minHeight: "30vh" }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
+                        <IonCardContent style={{ minHeight: "30vh" }}>
+                          <IonFab horizontal="start" vertical="top">
+                            <IonCardTitle>
+                              <IonText color='medium'>
+                                {/* Feedback */}
+                              </IonText>
+                            </IonCardTitle>
+                          </IonFab>
+                          <div><br /></div>
+                          <div>
+                            <IonGrid >
+                              <IonRow class="ion-align-items-center">
+                                <IonCol></IonCol>
+                              </IonRow>
+                              <IonRow class="ion-align-items-center">
+                                <IonCol>
+                                  {/* <IonImg src={feedback} /> */}
+                                </IonCol>
+                              </IonRow >
+                              <IonRow class="ion-align-items-center">
+                                <IonCol></IonCol>
+                              </IonRow>
+                            </IonGrid>
+                          </div>
+                          <IonFab horizontal="start" vertical="bottom">
+                            {/* <p>Let us know what you think of the app</p> */}
+                          </IonFab>
+                        </IonCardContent>
+                      </IonCard>
+                    </SwiperSlide>
+                  </Swiper>
+                </FadeIn>
+              )}
+              <FadeIn>
+                <hr style={{ width: "95%" }} />
               </FadeIn>
               <FadeIn transitionDuration={500}>
                 {/* <IonHeader class="ion-no-border"> */}
@@ -1146,7 +1365,7 @@ function Community() {
                   {/* <p style={{fontWeight:"bold" ,fontSize: "1em", marginLeft: "5vw"}}>Polls</p>
                    */}
                   <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Polls</IonCardTitle>
-                  <IonButton style={{marginRight: "3%"}} color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
+                  <IonButton style={{ marginRight: "3%" }} color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
                     <IonIcon icon={addCircleOutline} /> {'\u00A0'}New Poll
                   </IonButton>
                 </IonToolbar>
@@ -1190,13 +1409,13 @@ function Community() {
                               <IonCard mode='ios'>
                                 <IonCardContent style={{ minHeight: "50vh" }}>
                                   <p style={{ fontSize: "1em" }}>{poll.userName}</p>
-                                  <IonCardTitle style={{ fontSize: "1.5em", width: "95%", marginLeft: "0%" }}>{
+                                  <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
                                     poll.question}</IonCardTitle>
                                   <br />
                                   <IonList lines="full" mode="ios">
                                     {poll.options.map((option: any, index: number) => {
                                       return (
-                                        <IonItem style={{ fontWeight: "bold" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                        <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
                                           <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
                                         </IonItem>
                                       )

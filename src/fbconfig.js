@@ -735,26 +735,27 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
   }
 };
 
-// export const getWeatherData = async (schoolName) => {
-//   try {
-//     if(db) {
-//       const weatherDocRef = doc(db, "schoolWeather", schoolName.replace(/\s+/g, ""));
-//       const snap = await getDoc(weatherDocRef);
-//       if(snap.exists()) {
-//         const weatherData = {};
-//         weatherData.feelsLike = snap.data().feelsLike;
-//         weatherData.humidity = snap.data().humidity;
-//         weatherData.icon = snap.data().icon;
-//         weatherData.index = snap.data().index;
-//         weatherData.temp = snap.data().temp;
-//         weatherData.text = snap.data().text;
-//         return weatherData;
-//       }
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
+export const getWeatherData = async (schoolName) => {
+  try {
+    if(db) {
+      const weatherDocRef = doc(db, "schoolWeather", schoolName.replace(/\s+/g, ""));
+      const snap = await getDoc(weatherDocRef);
+      if(snap.exists()) {
+        const weatherData = {};
+        weatherData.feelsLike = snap.data().feelsLike;
+        weatherData.humidity = snap.data().humidity;
+        weatherData.icon = snap.data().icon;
+        weatherData.index = snap.data().index;
+        weatherData.temp = snap.data().temp;
+        weatherData.text = snap.data().text;
+        weatherData.location = snap.data().location;
+        return weatherData;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 // await runTransaction(db, async (transaction) => {
 //   const snap = await transaction.get(commentDocRef);
