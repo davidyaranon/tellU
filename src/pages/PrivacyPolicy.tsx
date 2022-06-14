@@ -1,13 +1,10 @@
-import { IonButton, IonButtons, IonCard, IonCardContent, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import { arrowBack } from "ionicons/icons";
+import { IonButton, IonButtons, IonCard, IonCardContent, IonCardTitle, IonContent, IonIcon, IonPage, IonToolbar } from "@ionic/react";
+import { chevronBackOutline } from "ionicons/icons";
 import React, { useEffect } from "react";
 import { useHistory } from "react-router";
-import UIContext from "../my-context";
-import { ionHeaderStyle } from "./Header";
 
 
 export const PrivacyPolicy = () => {
-  const { setShowTabs } = React.useContext(UIContext);
   const history = useHistory();
   useEffect(() => {
   }, [])
@@ -17,13 +14,13 @@ export const PrivacyPolicy = () => {
       <IonContent>
         <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
-            <IonButtons slot="start">
+            <IonButtons style={{marginLeft: "-2.5%"}}>
               <IonButton
                 onClick={() => {
                   history.replace("/user");
                 }}
               >
-                <IonIcon icon={arrowBack}></IonIcon> Back
+                <IonIcon icon={chevronBackOutline} ></IonIcon> Back
               </IonButton>
             </IonButtons>
           </IonToolbar>
@@ -256,7 +253,7 @@ export const PrivacyPolicy = () => {
 
           </IonCardContent>
         </IonCard>
-        <IonCard mode="ios">
+        {/* <IonCard mode="ios">
           <IonCardContent>
             <IonCardTitle>Things to look forward to: </IonCardTitle>
             <p>We created this app for university students just like me who want a place to be notified of nearby events and also for students who want a place to meet new people :)</p>
@@ -267,7 +264,7 @@ export const PrivacyPolicy = () => {
             <p>- Including more California universities (CSUs!)</p>
             <p>- Submit your feedback <a href="https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link">HERE</a></p>
           </IonCardContent>
-        </IonCard>
+        </IonCard> */}
       </IonContent>
     </IonPage>
   )

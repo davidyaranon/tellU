@@ -12,7 +12,6 @@ import UIContext from '../my-context'
 import { useToast } from "@agney/ir-toast";
 import { useDispatch, useSelector } from "react-redux"
 import { setUserState } from '../redux/actions';
-import { timeout } from '../components/functions';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { FCM } from '@capacitor-community/fcm';
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";

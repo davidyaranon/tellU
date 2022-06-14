@@ -4,7 +4,6 @@ import {
   IonCardTitle,
   IonCard,
   IonModal,
-  IonImg,
   IonList,
   IonItem,
   IonLoading,
@@ -35,16 +34,12 @@ import React, { useEffect, useState } from "react";
 // import ForumIcon from "@mui/icons-material/Forum";
 import {
   addCircleOutline,
-  arrowBack,
-  chevronDownCircleOutline,
+  chevronBackOutline,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getLikes, getPolls, getTopWeeklyPosts, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
+import auth, { getPolls, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
 import {
-  downVote,
-  getTopPostsWithinPastDay,
   promiseTimeout,
-  upVote,
 } from "../fbconfig";
 // import {
 //   Camera,
@@ -64,7 +59,7 @@ import tellU_Community from '../images/tellU_Community.png';
 import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
 import { Keyboard } from "@capacitor/keyboard";
 import feedback from '../images/feedback.png';
-import { Navigation, Pagination } from "swiper";
+import { Navigation } from "swiper";
 import clouds_96 from '../images/icons8-clouds-96.png';
 import sun_96 from '../images/icons8-sun-96.png';
 import partly_cloudy from '../images/icons8-partly-cloudy-day-96.png';
@@ -72,8 +67,6 @@ import sunny_rainy from '../images/icons8-rain-cloud-96.png';
 import rainy from '../images/icons8-rain-96.png';
 import stormy from '../images/icons8-storm-96.png';
 import nighttime from '../images/icons8-moon-phase-96.png';
-import amazon from '../images/amazon.png';
-import taco_bell from '../images/taco_bell.svg';
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -176,6 +169,7 @@ function Community() {
       history.replace("/landing-page");
     } else {
       if (schoolName) {
+        // add listener to weather docs and polls docs !
         getWeatherData(schoolName).then((data: any) => {
           if (data && data.icon.toString().includes('day')) {
             setIsDay(true);
@@ -197,6 +191,7 @@ function Community() {
       }
       setBusy(false);
     }
+    return () => {}
   }, [user, schoolName]);
 
   // const handleUpVote = async (postKey: string, index: number, post: any) => {
@@ -377,11 +372,11 @@ function Community() {
       <IonContent>
 
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-        <IonRefresherContent
-              pullingText="Pull to refresh"
-              refreshingSpinner="crescent"
-              refreshingText="Refreshing..."
-            ></IonRefresherContent>
+          <IonRefresherContent
+            pullingText="Pull to refresh"
+            refreshingSpinner="crescent"
+            refreshingText="Refreshing..."
+          ></IonRefresherContent>
         </IonRefresher>
 
         <IonLoading
@@ -408,7 +403,7 @@ function Community() {
             <div>
               <div style={{ width: "100%" }}>
                 <IonToolbar mode="ios">
-                  <IonButtons slot="start">
+                  <IonButtons style={{marginLeft: "-2.5%"}}>
                     <IonButton
                       onClick={() => {
                         Keyboard.hide().then(() => {
@@ -417,7 +412,7 @@ function Community() {
                         setPollText("");
                       }}
                     >
-                      <IonIcon icon={arrowBack}></IonIcon> Back
+                      <IonIcon icon={chevronBackOutline}></IonIcon> Back
                     </IonButton>
                   </IonButtons>
                 </IonToolbar>
@@ -802,7 +797,7 @@ function Community() {
 
 export default React.memo(Community);
 
-  // const epaStandards: string[] = [
+// const epaStandards: string[] = [
 //   '',
 //   'Good',
 //   'Moderate',
@@ -821,40 +816,40 @@ export default React.memo(Community);
 //   'Health effects will be immediately felt by sensitive groups and should avoid outdoor activity. Healthy individuals are likely to experience difficulty breathing and throat irritation; consider staying indoors and rescheduling outdoor activities.',
 //   'Any exposure to the air, even for a few minutes, can lead to serious health effects on everybody. Avoid outdoor activities.',
 // ]
-  // async function sendImage(blob: any, uniqueId: string) {
-  //   const res = await uploadImage("images", blob, uniqueId);
-  //   if (res == false || photo == null || photo?.webPath == null) {
-  //     Toast.error("unable to select photo");
-  //   } else {
-  //     // Toast.success("photo uploaded successfully");
-  //   }
-  // }
+// async function sendImage(blob: any, uniqueId: string) {
+//   const res = await uploadImage("images", blob, uniqueId);
+//   if (res == false || photo == null || photo?.webPath == null) {
+//     Toast.error("unable to select photo");
+//   } else {
+//     // Toast.success("photo uploaded successfully");
+//   }
+// }
 
-  // const postShowcase = async () => {
-  //   if (showcaseText.trim().length == 0 && !blob && !photo) {
-  //     Toast.error("Input a message!");
-  //     return;
-  //   }
-  //   setShowcaseModal(false);
-  //   setShowcaseText('');
-  //   let uniqueId = uuidv4();
-  //   if (blob) {
-  //     await sendImage(blob, uniqueId.toString());
-  //     setBlob(null);
-  //     setPhoto(null);
-  //   }
-  //   const res = await submitShowcase(schoolName, blob, uniqueId.toString(), showcaseText);
-  //   if (res) {
-  //     Toast.success("Uploaded!");
-  //     const showcaseLoaded = promiseTimeout(10000, getShowcase(schoolName));
-  //     showcaseLoaded.then((res) => {
-  //       setShowcase(res);
-  //     });
-  //     showcaseLoaded.catch((err) => {
-  //       console.log(err + '\nCheck your internet connection');
-  //     });
-  //   }
-  // }
+// const postShowcase = async () => {
+//   if (showcaseText.trim().length == 0 && !blob && !photo) {
+//     Toast.error("Input a message!");
+//     return;
+//   }
+//   setShowcaseModal(false);
+//   setShowcaseText('');
+//   let uniqueId = uuidv4();
+//   if (blob) {
+//     await sendImage(blob, uniqueId.toString());
+//     setBlob(null);
+//     setPhoto(null);
+//   }
+//   const res = await submitShowcase(schoolName, blob, uniqueId.toString(), showcaseText);
+//   if (res) {
+//     Toast.success("Uploaded!");
+//     const showcaseLoaded = promiseTimeout(10000, getShowcase(schoolName));
+//     showcaseLoaded.then((res) => {
+//       setShowcase(res);
+//     });
+//     showcaseLoaded.catch((err) => {
+//       console.log(err + '\nCheck your internet connection');
+//     });
+//   }
+// }
 
 {/* <IonModal backdropDismiss={false} isOpen={showcaseModal}>
           <IonContent>
@@ -1300,10 +1295,10 @@ export default React.memo(Community);
           </IonCard>
         </FadeIn > */}
 
-        {/* <FadeIn>
+{/* <FadeIn>
           <hr style={{width: "95%"}}/>
         </FadeIn> */}
-        {/* <FadeIn transitionDuration={500}>
+{/* <FadeIn transitionDuration={500}>
           <IonToolbar mode="ios">
             <IonCardTitle style={{ marginLeft: "5%" }}>Showcase</IonCardTitle>
             <IonButton color="medium" fill="outline" size="small" onClick={() => { setShowcaseModal(true); }} slot="end">
@@ -1311,7 +1306,7 @@ export default React.memo(Community);
             </IonButton>
           </IonToolbar>
         </FadeIn> */}
-        {/* {showcase.length <= 0 ? (
+{/* {showcase.length <= 0 ? (
           <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
             <div style={{ textAlign: "center" }}><p>No showcase posts made within past week</p></div>
             <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>

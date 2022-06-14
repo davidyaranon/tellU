@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import auth, { addCommentNew, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
+import auth, { addCommentNew, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
 import {
   upVote,
   downVote,
@@ -42,18 +42,20 @@ import {
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { v4 as uuidv4 } from "uuid";
-import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 // import { PhotoViewer, Image } from '@capacitor-community/photoviewer'; USE THIS WHEN IMPLEMENTING VIDEOS
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, arrowBack, options, shareOutline } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import Linkify from 'linkify-react';
 import { Share } from "@capacitor/share";
+import { Dialog } from '@capacitor/dialog';
 
 interface MatchUserPostParams {
   key: string;
@@ -260,6 +262,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const deleteComment = async (index: number, commentUrl: string) => {
+    const { value } = await Dialog.confirm({
+      title: 'Delete Comment',
+      message: `Are you sure you'd like to delete your comment?`,
+      okButtonTitle: 'Delete'
+    });
+    if (!value){ return; }
     setCommentsLoading(true);
     if (comments && schoolName) {
       const commentBeingDeleted = comments[index];
@@ -452,13 +460,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             {post && post.userName &&
               <IonTitle>{post.userName}'s Post</IonTitle>
             }
-            <IonButtons slot="start">
+            <IonButtons style={{marginLeft: "-2.5%"}}>
               <IonButton
                 onClick={() => {
                   history.go(-1);
                 }}
               >
-                <IonIcon icon={arrowBack}></IonIcon> Back
+                <IonIcon icon={chevronBackOutline}></IonIcon> Back
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
@@ -595,10 +603,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           <br></br>
                           <div
                             className="ion-img-container"
-                            style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                            style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                              const img : CapacitorImage = {
+                                url: post.imgSrc,
+                                title: `${post.userName}'s post`
+                              };
+                              CapacitorPhotoViewer.show({
+                                options: {
+                                  title: true
+                                },
+                                images: [img],
+                                mode: 'one',                               
+                              });
+                              // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
                           >
                           </div>
@@ -743,10 +762,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               <br></br>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${comment.imgSrc})`, borderRadius: '7.5px' }}
+                                style={{ backgroundImage: `url(${comment.imgSrc})`, borderRadius: '10px' }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
+                                  const img : CapacitorImage = {
+                                    url: comment.imgSrc,
+                                    title: `${comment.userName}'s comment`
+                                  };
+                                  CapacitorPhotoViewer.show({
+                                    options: {
+                                      title: true
+                                    },
+                                    images: [img],
+                                    mode: 'one',                               
+                                  });
+                                  // PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
                                 }}
                               >
                               </div>

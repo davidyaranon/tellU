@@ -29,7 +29,6 @@ import {
   IonRow,
   IonCol,
   IonGrid,
-  IonActionSheet,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -48,7 +47,6 @@ import {
   getUserLikedPostsNextBatch,
   getUserLikedPosts,
   getYourPolls,
-  pollVote,
   updateUserInfo,
   getCurrentUserData,
   removePoll,
@@ -76,7 +74,7 @@ import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
-import { cameraReverseOutline, logoInstagram, logoSnapchat, logoTiktok, moon } from "ionicons/icons";
+import { cameraReverseOutline, chevronBackOutline, logoInstagram, logoSnapchat, logoTiktok, moon } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setDarkMode } from "../redux/actions";
@@ -85,7 +83,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
-import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { informationCircleOutline } from "ionicons/icons";
@@ -98,6 +97,7 @@ import {
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { getColor, timeout } from '../components/functions';
 import UIContext from "../my-context";
+import { Dialog } from "@capacitor/dialog";
 
 
 function User() {
@@ -154,13 +154,6 @@ function User() {
   const [showEditEmailModal, setShowEditEmailModal] = useState<boolean>(false);
   const [userDataHasLoaded, setUserDataHasLoaded] = useState<boolean>(false);
   const [showEditUsernameModal, setShowEditUsernameModal] = useState<boolean>(false);
-  const [deletePollActionSheet, setDeletePollActionSheet] = useState<boolean>(false);
-  const [deletePollIndex, setDeletePollIndex] = useState<number | null>(null);
-  const [deletePollKey, setDeletePollKey] = useState<string | null>(null);
-  const [deletePostActionSheet, setDeletePostActionSheet] = useState<boolean>(false);
-  const [deletePostIndex, setDeletePostIndex] = useState<number | null>(null);
-  const [deletePostKey, setDeletePostKey] = useState<string | null>(null);
-  const [deletePostUrl, setDeletePostUrl] = useState<string | null>(null);
   // const [showDeletePostAlert, setShowDeletePostAlert] = useState<boolean>(false);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 
@@ -373,9 +366,15 @@ function User() {
     setUserDataHasLoaded(true);
   };
 
-  const deletePoll = async () => {
+  const deletePoll = async (deletePollIndex: number, deletePollKey: string) => {
+    const { value } = await Dialog.confirm({
+      title: 'Delete Poll',
+      message: `Are you sure you'd like to delete your poll?`,
+      okButtonTitle: 'Delete'
+    });
+    if (!value) { return; }
     setDisabledDeleteButton(true);
-    if (yourPolls && yourPolls.length > 0 && schoolName && deletePollIndex !== null && deletePollKey !== null) {
+    if (yourPolls && yourPolls.length > 0 && schoolName) {
       const didDelete = promiseTimeout(10000, removePoll(deletePollKey, schoolName));
       didDelete.then((res) => {
         if (res) {
@@ -400,14 +399,18 @@ function User() {
       Toast.error("Unable to delete poll");
       setDisabledDeleteButton(false);
     }
-    setDeletePollIndex(null);
-    setDeletePollKey(null);
 
   };
 
-  const deletePost = async () => {
+  const deletePost = async (deletePostIndex: number, deletePostKey: string, deletePostUrl: string) => {
+    const { value } = await Dialog.confirm({
+      title: 'Delete Post',
+      message: `Are you sure you'd like to delete your post?`,
+      okButtonTitle: 'Delete'
+    });
+    if (!value) { return; }
     setDisabledDeleteButton(true);
-    if (userPosts && userPosts.length > 0 && schoolName && deletePostIndex != null && deletePostKey != null && deletePostUrl != null) {
+    if (userPosts && userPosts.length > 0 && schoolName) {
       let tempPosts: any[] = [];
       let oldPosts: any[] = [];
       for (let i = 0; i < userPosts.length; ++i) {
@@ -435,9 +438,6 @@ function User() {
       Toast.error("Unable to delete post rn");
     }
     setDisabledDeleteButton(false);
-    setDeletePostUrl(null);
-    setDeletePostIndex(null);
-    setDeletePostKey(null);
   };
 
   const getDate = (timestamp: any) => {
@@ -926,60 +926,6 @@ function User() {
           </IonButtons>
         </IonToolbar>
 
-        <IonActionSheet
-          isOpen={deletePollActionSheet}
-          onDidDismiss={() => { setDeletePollActionSheet(false); setDeletePollIndex(null); setDeletePollKey(null); }}
-          buttons={[
-            {
-              text: 'Delete',
-              role: 'destructive',
-              id: 'delete_button',
-              data: {
-                type: 'delete'
-              },
-              handler: () => {
-                deletePoll();
-              }
-            },
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              handler: () => {
-                setDeletePollIndex(null); setDeletePollKey(null);
-              }
-            }
-          ]}
-        >
-
-        </IonActionSheet>
-
-        <IonActionSheet
-          isOpen={deletePostActionSheet}
-          onDidDismiss={() => { setDeletePostActionSheet(false); setDeletePostIndex(null); setDeletePostKey(null); }}
-          buttons={[
-            {
-              text: 'Delete',
-              role: 'destructive',
-              id: 'delete_button',
-              data: {
-                type: 'delete'
-              },
-              handler: () => {
-                deletePost();
-              }
-            },
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              handler: () => {
-                setDeletePostIndex(null); setDeletePostKey(null);
-              }
-            }
-          ]}
-        >
-
-        </IonActionSheet>
-
         <IonHeader mode="ios" class="ion-no-border" style={{ textAlign: "center" }}>
           <IonToolbar mode="ios">
             <IonAvatar className="user-avatar">
@@ -1017,7 +963,7 @@ function User() {
           <IonContent>
             <div slot="fixed" style={{ width: "100%" }}>
               <IonToolbar mode="ios" >
-                <IonButtons slot="start">
+                <IonButtons style={{ marginLeft: "-2.5%" }}>
                   <IonButton
                     mode="ios"
                     onClick={() => {
@@ -1031,7 +977,7 @@ function User() {
                       setEditableUserSnapchat(userSnapchat);
                     }}
                   >
-                    Back
+                    <IonIcon icon={chevronBackOutline}></IonIcon> Back
                   </IonButton>
                 </IonButtons>
                 <IonButtons slot="end">
@@ -1133,7 +1079,7 @@ function User() {
         <IonModal backdropDismiss={false} isOpen={showEditEmailModal}>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios" >
-              <IonButtons slot="start">
+              <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
                   mode="ios"
                   onClick={() => {
@@ -1143,7 +1089,7 @@ function User() {
                     if (user && user.email) { setEditableEmail(user.email); }
                   }}
                 >
-                  Back
+                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
@@ -1169,7 +1115,7 @@ function User() {
         <IonModal backdropDismiss={false} isOpen={showEditUsernameModal}>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios" >
-              <IonButtons slot="start">
+              <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
                   mode="ios"
                   onClick={() => {
@@ -1179,7 +1125,7 @@ function User() {
                     if (user && user.displayName) { setEditableUsername(user.displayName); }
                   }}
                 >
-                  Back
+                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
@@ -1880,10 +1826,21 @@ function User() {
                                     <br></br>
                                     <div
                                       className="ion-img-container"
-                                      style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                      style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                        const img: CapacitorImage = {
+                                          url: post.imgSrc,
+                                          title: `${post.userName}'s post`
+                                        };
+                                        CapacitorPhotoViewer.show({
+                                          options: {
+                                            title: true
+                                          },
+                                          images: [img],
+                                          mode: 'one',
+                                        });
+                                        // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                       }}
                                     >
                                     </div>
@@ -1895,10 +1852,21 @@ function User() {
                                         <br></br>
                                         <div
                                           className="ion-img-container"
-                                          style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                          style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                            const img: CapacitorImage = {
+                                              url: post.imgSrc,
+                                              title: `${post.userName}'s post`
+                                            };
+                                            CapacitorPhotoViewer.show({
+                                              options: {
+                                                title: true
+                                              },
+                                              images: [img],
+                                              mode: 'one',
+                                            });
+                                            // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                           }}
                                         >
                                         </div>
@@ -1989,14 +1957,11 @@ function User() {
                                     fill="outline"
                                     color="danger"
                                     onClick={() => {
-                                      setDeletePostIndex(index);
-                                      setDeletePostKey(post.key);
                                       if ("url" in post && post.url && post.url.length > 0) {
-                                        setDeletePostUrl(post.url);
+                                        deletePost(index, post.key, post.url);
                                       } else {
-                                        setDeletePostUrl("");
+                                        deletePost(index, post.key, "");
                                       }
-                                      setDeletePostActionSheet(true);
                                     }}
                                   >
                                     <DeleteIcon />
@@ -2108,10 +2073,21 @@ function User() {
                                   <br></br>
                                   <div
                                     className="ion-img-container"
-                                    style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                    style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                      const img: CapacitorImage = {
+                                        url: post.imgSrc,
+                                        title: `${post.userName}'s post`
+                                      };
+                                      CapacitorPhotoViewer.show({
+                                        options: {
+                                          title: true
+                                        },
+                                        images: [img],
+                                        mode: 'one',
+                                      });
+                                      // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                     }}
                                   >
                                   </div>
@@ -2191,9 +2167,7 @@ function User() {
                                   fill="outline"
                                   color="danger"
                                   onClick={() => {
-                                    setDeletePollIndex(index);
-                                    setDeletePollKey(poll.key);
-                                    setDeletePollActionSheet(true);
+                                    deletePoll(index, poll.key)
                                   }}
                                 >
                                   <DeleteIcon />

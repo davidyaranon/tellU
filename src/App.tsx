@@ -1,4 +1,4 @@
-import { Route, Redirect, useHistory } from "react-router-dom";
+import { Route, Redirect } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import {
   IonApp,

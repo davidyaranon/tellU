@@ -31,13 +31,11 @@ import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonFooter,
-  useIonViewDidEnter,
 } from "@ionic/react";
 import { uploadBytesResumable } from "firebase/storage";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
 import {
   addMessage,
-  uploadImage,
   getAllPosts,
   promiseTimeout,
   upVote,
@@ -55,14 +53,14 @@ import { Keyboard } from "@capacitor/keyboard";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   add,
-  arrowBack,
   cameraOutline,
   shareOutline,
 } from "ionicons/icons";
 import RoomIcon from '@mui/icons-material/Room';
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
-import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 // import { PhotoViewer, Image } from '@capacitor-community/photoviewer';  USE THIS WHEN IMPLEMENTING VIDEOS, FOR NOW CAUSES STRANGE FLICKER (RE-REDNERING?)
 import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
@@ -112,9 +110,7 @@ function Home() {
   const [photo, setPhoto] = useState<Photo | null>();
   const Toast = useToast();
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showModalPicture, setShowModalPicture] = useState<boolean>(false);
   const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
-  const [modalImgSrc, setModalImgSrc] = useState("");
   const [blob, setBlob] = useState<any | null>(null);
   const [posts, setPosts] = useState<any[] | null>(null);
   const [message, setMessage] = useState("");
@@ -144,61 +140,61 @@ function Home() {
   const [progressPercentage, setProgressPercentage] = useState<string>("5");
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
 
-  useIonViewWillEnter(() => {
-    setShowTabs(true);
-  console.log(lastKey);
-  if (posts && schoolName) {
-    setBusy(true);
-    let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
-    tempPosts.then(async (res: any) => {
-      if (res.allPosts && res.allPosts != [] && res.allPosts.length != 0) { // newly updated posts
-        let caught = false;
-        let length = posts.length > res.allPosts.length ? res.allPosts.length : posts.length;
-        for (let i = 0; i < length; ++i) {
-          if (res.allPosts[i].message != posts[i].message) {
-            for(let i = 0; i < res.allPosts.length; ++i) {
-              const data = await getLikes(res.allPosts[i].key);
-              if(data){
-                res.allPosts[i].likes = data.likes;
-                res.allPosts[i].dislikes = data.dislikes;
-                res.allPosts[i].commentAmount = data.commentAmount;
-              } else {
-                res.allPosts[i].likes = {};
-                res.allPosts[i].dislikes = {};
-                res.allPosts[i].commentAmount = 0;
-              }
-            }
-            setNewPostsLoaded(true);
-            setNewPosts(res.allPosts);
-            caught = true;
-            break;
-          }
-        }
-        if (!caught) {
-          for(let i = 0; i < res.allPosts.length; ++i) {
-            const data = await getLikes(res.allPosts[i].key);
-            if(data){
-              res.allPosts[i].likes = data.likes;
-              res.allPosts[i].dislikes = data.dislikes;
-              res.allPosts[i].commentAmount = data.commentAmount;
-            } else {
-              res.allPosts[i].likes = {};
-              res.allPosts[i].dislikes = {};
-              res.allPosts[i].commentAmount = 0;
-            }
-          }
-          setPosts(res.allPosts);
-        }
-        setLastKey(res.lastKey);
-      }
-      setBusy(false);
-    });
-    tempPosts.catch((err: any) => {
-      Toast.error(err + "\n Check your internet connection");
-      setBusy(false);
-    });
-  }
-  }, [posts, schoolName]);
+  // useIonViewWillEnter(() => {
+  //   setShowTabs(true);
+  //   // console.log(lastKey);
+  //   if (posts && schoolName) {
+  //     setBusy(true);
+  //     let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
+  //     tempPosts.then(async (res: any) => {
+  //       if (res.allPosts && res.allPosts != [] && res.allPosts.length != 0) { // newly updated posts
+  //         let caught = false;
+  //         let length = posts.length > res.allPosts.length ? res.allPosts.length : posts.length;
+  //         for (let i = 0; i < length; ++i) {
+  //           if (res.allPosts[i].message != posts[i].message) {
+  //             for (let i = 0; i < res.allPosts.length; ++i) {
+  //               const data = await getLikes(res.allPosts[i].key);
+  //               if (data) {
+  //                 res.allPosts[i].likes = data.likes;
+  //                 res.allPosts[i].dislikes = data.dislikes;
+  //                 res.allPosts[i].commentAmount = data.commentAmount;
+  //               } else {
+  //                 res.allPosts[i].likes = {};
+  //                 res.allPosts[i].dislikes = {};
+  //                 res.allPosts[i].commentAmount = 0;
+  //               }
+  //             }
+  //             setNewPostsLoaded(true);
+  //             setNewPosts(res.allPosts);
+  //             caught = true;
+  //             break;
+  //           }
+  //         }
+  //         if (!caught) {
+  //           for (let i = 0; i < res.allPosts.length; ++i) {
+  //             const data = await getLikes(res.allPosts[i].key);
+  //             if (data) {
+  //               res.allPosts[i].likes = data.likes;
+  //               res.allPosts[i].dislikes = data.dislikes;
+  //               res.allPosts[i].commentAmount = data.commentAmount;
+  //             } else {
+  //               res.allPosts[i].likes = {};
+  //               res.allPosts[i].dislikes = {};
+  //               res.allPosts[i].commentAmount = 0;
+  //             }
+  //           }
+  //           setPosts(res.allPosts);
+  //         }
+  //         setLastKey(res.lastKey);
+  //       }
+  //       setBusy(false);
+  //     });
+  //     tempPosts.catch((err: any) => {
+  //       Toast.error(err + "\n Check your internet connection");
+  //       setBusy(false);
+  //     });
+  //   }
+  // }, [posts, schoolName]);
 
   const sharePost = async (post: any) => {
     await Share.share({
@@ -587,11 +583,13 @@ function Home() {
       history.replace("/landing-page");
     } else if (schoolName) {
       handleLoadPosts();
+      // add snapshot listener for new posts + like/dislike??
       getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL"))
         .then((url: string) => {
           setProfilePhoto(url);
         })
     }
+    return () => {};
   }, [schoolName]);
 
   if (posts) {
@@ -630,7 +628,7 @@ function Home() {
           ></IonLoading>
 
           <FadeIn transitionDuration={1500}>
-            <IonHeader class="ion-no-border" style={ionHeaderStyle}>
+            <IonHeader class="ion-no-border" style={ionHeaderStyle} >
               <Header darkMode={darkModeToggled} schoolName={schoolName} />
             </IonHeader>
           </FadeIn>
@@ -1005,10 +1003,21 @@ function Home() {
                           <br></br>
                           <div
                             className="ion-img-container"
-                            style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                            style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                              const img : CapacitorImage = {
+                                url: post.imgSrc,
+                                title: `${post.userName}'s post`
+                              };
+                              CapacitorPhotoViewer.show({
+                                options: {
+                                  title: true
+                                },
+                                images: [img],
+                                mode: 'one',                               
+                              });
+                              // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
                           >
                           </div>

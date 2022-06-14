@@ -23,7 +23,6 @@ import {
   IonCol,
   IonContent,
   IonFab,
-  IonHeader,
   IonIcon,
   IonImg,
   IonInfiniteScroll,
@@ -47,7 +46,7 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { arrowBack, chatbubbleOutline, chatbubblesOutline, logoInstagram, logoSnapchat, logoTiktok, shareOutline } from "ionicons/icons";
+import { chatbubblesOutline, chevronBackOutline, logoInstagram, logoSnapchat, logoTiktok, shareOutline } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
 import { getColor, timeout } from '../components/functions';
 import Linkify from 'linkify-react';
@@ -255,14 +254,14 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
         <IonContent>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios" >
-              <IonButtons slot="start">
+              <IonButtons style={{marginLeft: "-2.5%"}}>
                 <IonButton
                   mode="ios"
                   onClick={() => {
                     history.go(-1);
                   }}
                 >
-                  Back
+                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
@@ -511,7 +510,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                 <br></br>
                                 <div
                                   className="ion-img-container"
-                                  style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                  style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
@@ -526,7 +525,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                     <br></br>
                                     <div
                                       className="ion-img-container"
-                                      style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                      style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
@@ -643,7 +642,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     history.go(-1);
                   }}
                 >
-                  Back
+                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">

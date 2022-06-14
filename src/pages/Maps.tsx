@@ -2,7 +2,6 @@ import {
   IonContent,
   IonCardTitle,
   IonCard,
-  IonImg,
   IonLabel,
   IonLoading,
   IonButton,
@@ -11,8 +10,6 @@ import {
   IonCardContent,
   IonSelect,
   IonSelectOption,
-  IonRow,
-  IonCol,
   IonPage,
   useIonViewDidEnter,
 } from "@ionic/react";
@@ -36,9 +33,6 @@ import { useHistory } from "react-router";
 import { useSelector } from "react-redux";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import { useToast } from "@agney/ir-toast";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import ForumIcon from "@mui/icons-material/Forum";
 import { getColor } from "../components/functions";
 
 const schoolInfo = {
@@ -336,7 +330,7 @@ function Maps() {
                       <br></br>
                       <div
                         className="ion-img-container"
-                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc})`, borderRadius: '7.5px' }}
+                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc})`, borderRadius: '10px' }}
                       >
                       </div>
                     </>

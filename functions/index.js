@@ -155,7 +155,7 @@ exports.updateWeather = functions.pubsub.schedule('every 30 minutes').onRun((con
       feelsLike: data.current.feelslike_f,
       temp: data.current.temp_f,
       humidity: data.current.humidity,
-      location: data.location.name,
+      location: 'Westwood Village'
     };
     admin.firestore().collection('schoolWeather').doc('UCLA').update({
       feelsLike : weatherData.feelsLike,

@@ -3,7 +3,6 @@ import { IonHeader } from '@ionic/react';
 import IconButton from '@mui/material/IconButton';
 import tellU from '../images/tellU.png';
 import tellU_white from '../images/tellU_white.png';
-import tellU_gray from '../images/tellU_gray.png';
 import '../App.css';
 export const ionHeaderStyle = {
   textAlign: 'center',
