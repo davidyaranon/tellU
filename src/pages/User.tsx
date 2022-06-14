@@ -29,6 +29,7 @@ import {
   IonRow,
   IonCol,
   IonGrid,
+  IonActionSheet,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -135,7 +136,7 @@ function User() {
   const [credentialsUserModal, setCredentialsUserModal] =
     useState<boolean>(false);
   const [loadingUserPosts, setLoadingUserPosts] = useState<boolean>(false);
-  const [yourPolls, setYourPolls] = useState<any[]>([]);
+  const [yourPolls, setYourPolls] = useState<any[] | null>(null);
   const [profilePhoto, setProfilePhoto] = useState("");
   const [busy, setBusy] = useState<boolean>(false);
   const contentRef = useRef<HTMLIonContentElement | null>(null);
@@ -153,6 +154,13 @@ function User() {
   const [showEditEmailModal, setShowEditEmailModal] = useState<boolean>(false);
   const [userDataHasLoaded, setUserDataHasLoaded] = useState<boolean>(false);
   const [showEditUsernameModal, setShowEditUsernameModal] = useState<boolean>(false);
+  const [deletePollActionSheet, setDeletePollActionSheet] = useState<boolean>(false);
+  const [deletePollIndex, setDeletePollIndex] = useState<number | null>(null);
+  const [deletePollKey, setDeletePollKey] = useState<string | null>(null);
+  const [deletePostActionSheet, setDeletePostActionSheet] = useState<boolean>(false);
+  const [deletePostIndex, setDeletePostIndex] = useState<number | null>(null);
+  const [deletePostKey, setDeletePostKey] = useState<string | null>(null);
+  const [deletePostUrl, setDeletePostUrl] = useState<string | null>(null);
   // const [showDeletePostAlert, setShowDeletePostAlert] = useState<boolean>(false);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 
@@ -365,16 +373,16 @@ function User() {
     setUserDataHasLoaded(true);
   };
 
-  const deletePoll = async (index : number, postKey : string) => {
+  const deletePoll = async () => {
     setDisabledDeleteButton(true);
-    if(yourPolls && yourPolls.length > 0 && schoolName) {
-      const didDelete = promiseTimeout(10000, removePoll(postKey, schoolName));
+    if (yourPolls && yourPolls.length > 0 && schoolName && deletePollIndex !== null && deletePollKey !== null) {
+      const didDelete = promiseTimeout(10000, removePoll(deletePollKey, schoolName));
       didDelete.then((res) => {
-        if(res) {
+        if (res) {
           Toast.success("Poll deleted");
-          let tempPolls : any[] = [];
-          for(let i = 0; i < yourPolls.length; ++i) {
-            if( i !== index) {
+          let tempPolls: any[] = [];
+          for (let i = 0; i < yourPolls.length; ++i) {
+            if (i !== deletePollIndex) {
               tempPolls.push(yourPolls[i]);
             }
           }
@@ -392,35 +400,44 @@ function User() {
       Toast.error("Unable to delete poll");
       setDisabledDeleteButton(false);
     }
+    setDeletePollIndex(null);
+    setDeletePollKey(null);
+
   };
 
-  const deletePost = async (index : number, postKey : string, postUrl: string) => {
+  const deletePost = async () => {
     setDisabledDeleteButton(true);
-    if (userPosts && userPosts.length > 0 && schoolName) {
-      const didDelete = promiseTimeout(10000, removePost(postKey, schoolName, postUrl));
+    if (userPosts && userPosts.length > 0 && schoolName && deletePostIndex != null && deletePostKey != null && deletePostUrl != null) {
+      let tempPosts: any[] = [];
+      let oldPosts: any[] = [];
+      for (let i = 0; i < userPosts.length; ++i) {
+        if (i !== deletePostIndex) {
+          tempPosts.push(userPosts[i]);
+        }
+      }
+      setUserPosts(tempPosts);
+      const didDelete = promiseTimeout(20000, removePost(deletePostKey, schoolName, deletePostUrl));
       didDelete.then((res) => {
         if (res) {
           Toast.success("Post deleted");
-          let tempPosts: any[] = [];
-          for (let i = 0; i < userPosts.length; ++i) {
-            if (i !== index) {
-              tempPosts.push(userPosts[i]);
-            }
-          }
-          setUserPosts(tempPosts);
         } else {
           Toast.error("Unable to delete post rn");
+          setUserPosts(oldPosts);
         }
         setDisabledDeleteButton(false);
       });
       didDelete.catch((err) => {
         Toast.error(err);
+        setUserPosts(oldPosts);
         setDisabledDeleteButton(false);
       });
     } else {
       Toast.error("Unable to delete post rn");
     }
     setDisabledDeleteButton(false);
+    setDeletePostUrl(null);
+    setDeletePostIndex(null);
+    setDeletePostKey(null);
   };
 
   const getDate = (timestamp: any) => {
@@ -648,12 +665,13 @@ function User() {
 
   const fetchMorePosts = () => {
     if (lastKey && user) {
+      setLoadingUserPosts(true);
       getNextBatchUserPosts(schoolName, user.uid, lastKey)
         .then(async (res: any) => {
           setLastKey(res.lastKey);
-          for(let i = 0; i < res.userPosts.length; ++i) {
+          for (let i = 0; i < res.userPosts.length; ++i) {
             const data = await getLikes(res.userPosts[i].key);
-            if(data){
+            if (data) {
               res.userPosts[i].likes = data.likes;
               res.userPosts[i].dislikes = data.dislikes;
               res.userPosts[i].commentAmount = data.commentAmount;
@@ -667,6 +685,7 @@ function User() {
           if (res.userPosts.length == 0) {
             setNoMorePosts(true);
           }
+          setLoadingUserPosts(false);
         })
         .catch((err: any) => {
           Toast.error(err.message.toString());
@@ -684,6 +703,9 @@ function User() {
         console.log(res);
         setLastLikesKey(res.lastKey);
         setUserLikedPosts(userLikedPosts?.concat(res.userLikes)!);
+        if (res.userLikes.length == 0) {
+          setNoMoreLikes(true);
+        }
       }).catch((err: any) => {
         Toast.error(err.message.toString());
       });
@@ -806,9 +828,9 @@ function User() {
       );
       hasLoaded.then(async (res) => {
         if (res.userPosts.length > 0) {
-          for(let i = 0; i < res.userPosts.length; ++i) {
+          for (let i = 0; i < res.userPosts.length; ++i) {
             const data = await getLikes(res.userPosts[i].key);
-            if(data){
+            if (data) {
               res.userPosts[i].likes = data.likes;
               res.userPosts[i].dislikes = data.dislikes;
               res.userPosts[i].commentAmount = data.commentAmount;
@@ -903,6 +925,61 @@ function User() {
             </IonButton>
           </IonButtons>
         </IonToolbar>
+
+        <IonActionSheet
+          isOpen={deletePollActionSheet}
+          onDidDismiss={() => { setDeletePollActionSheet(false); setDeletePollIndex(null); setDeletePollKey(null); }}
+          buttons={[
+            {
+              text: 'Delete',
+              role: 'destructive',
+              id: 'delete_button',
+              data: {
+                type: 'delete'
+              },
+              handler: () => {
+                deletePoll();
+              }
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => {
+                setDeletePollIndex(null); setDeletePollKey(null);
+              }
+            }
+          ]}
+        >
+
+        </IonActionSheet>
+
+        <IonActionSheet
+          isOpen={deletePostActionSheet}
+          onDidDismiss={() => { setDeletePostActionSheet(false); setDeletePostIndex(null); setDeletePostKey(null); }}
+          buttons={[
+            {
+              text: 'Delete',
+              role: 'destructive',
+              id: 'delete_button',
+              data: {
+                type: 'delete'
+              },
+              handler: () => {
+                deletePost();
+              }
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              handler: () => {
+                setDeletePostIndex(null); setDeletePostKey(null);
+              }
+            }
+          ]}
+        >
+
+        </IonActionSheet>
+
         <IonHeader mode="ios" class="ion-no-border" style={{ textAlign: "center" }}>
           <IonToolbar mode="ios">
             <IonAvatar className="user-avatar">
@@ -1523,7 +1600,6 @@ function User() {
           </div>
         </IonModal>
         <Swiper
-          autoHeight
           pagination={{ dynamicBullets: true }}
           modules={[Pagination]}
           slidesPerView={1}
@@ -1539,10 +1615,10 @@ function User() {
                 loadUserPosts();
                 break;
               case 3:
-                loadYourPolls();
+                loadUserLikes();
                 break;
               case 4:
-                loadUserLikes();
+                loadYourPolls();
                 break;
               default:
                 break;
@@ -1740,7 +1816,7 @@ function User() {
                                   <h3
                                     className="h2-message"
                                     style={{
-                                      marginLeft: "2.5%",
+                                      marginLeft: "2%",
                                       marginTop: "5%",
                                     }}
                                   >
@@ -1767,7 +1843,7 @@ function User() {
                       return (
                         <FadeIn key={post.key}>
                           <IonList inset={true} mode="ios">
-                            <IonItem lines="none" mode="ios">
+                            <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
                               <IonLabel>
                                 <IonFab horizontal="end">
                                   <IonNote style={{ fontSize: "0.75em" }}>
@@ -1775,7 +1851,7 @@ function User() {
                                     {getDate(post.timestamp)}{" "}
                                   </IonNote>
                                 </IonFab>
-                                <IonFab horizontal="start">
+                                <IonFab horizontal="start" style={{ marginLeft: '-1.5%' }}>
                                   {post.postType != "general" ? (
                                     <p
                                       style={{
@@ -1791,7 +1867,7 @@ function User() {
                                 <h3
                                   className="h2-message"
                                   style={{
-                                    marginLeft: "4.5%",
+                                    marginLeft: "2%",
                                     marginTop: "5%",
                                   }}
                                 >
@@ -1800,31 +1876,33 @@ function User() {
                                 </h3>
 
                                 {post.imgSrc && post.imgSrc.length > 0 ? (
-                                  <div>
+                                  <>
                                     <br></br>
-                                    <br></br>
-                                    <IonImg
+                                    <div
                                       className="ion-img-container"
-                                      onClick={() => {
-                                        PhotoViewer.show(post.imgSrc);
+                                      style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                       }}
-                                      src={post.imgSrc}
-                                    />
-                                  </div>
+                                    >
+                                    </div>
+                                  </>
                                 ) : (
                                   <>
                                     {post.url.length > 0 ? (
-                                      <div>
+                                      <>
                                         <br></br>
-                                        <br></br>
-                                        <IonImg
+                                        <div
                                           className="ion-img-container"
-                                          onClick={() => {
-                                            PhotoViewer.show(post.imgSrc);
+                                          style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                           }}
-                                          src={post.imgSrc}
-                                        />
-                                      </div>
+                                        >
+                                        </div>
+                                      </>
                                     ) : null}
                                   </>
                                 )}
@@ -1911,11 +1989,14 @@ function User() {
                                     fill="outline"
                                     color="danger"
                                     onClick={() => {
+                                      setDeletePostIndex(index);
+                                      setDeletePostKey(post.key);
                                       if ("url" in post && post.url && post.url.length > 0) {
-                                        deletePost(index, post.key, post.url);
+                                        setDeletePostUrl(post.url);
                                       } else {
-                                        deletePost(index, post.key, "");
+                                        setDeletePostUrl("");
                                       }
+                                      setDeletePostActionSheet(true);
                                     }}
                                   >
                                     <DeleteIcon />
@@ -1927,7 +2008,7 @@ function User() {
                         </FadeIn>
                       );
                     })
-                    : null}
+                    : <IonSpinner className="ion-spinner" color="primary"></IonSpinner>}
                 </>
                 {loadingUserPosts ? (
                   <div style={{ textAlign: "center" }}>
@@ -1943,12 +2024,124 @@ function User() {
                       mode="ios"
                       fill="outline"
                       expand="block"
-                      disabled={noMorePosts}
+                      disabled={!userPosts || loadingUserPosts || noMorePosts}
                       onClick={() => {
                         fetchMorePosts();
                       }}
                     >
                       LOAD MORE POSTS{" "}
+                    </IonButton>
+                  </div>
+                </FadeIn>
+              </div>
+            </IonCard>
+          </SwiperSlide>
+          <SwiperSlide>
+            <IonCard className="user-card">
+              <div>
+                <IonHeader
+                  class="ion-no-border"
+                  style={{
+                    textAlign: "center",
+                    padding: "2vh",
+                    fontSize: "1.25em",
+                  }}
+                >
+                  Liked Posts
+                </IonHeader>
+                {userLikedPosts ? (
+                  <FadeIn>
+                    <IonList mode="ios" lines="none" inset>
+                      {userLikedPosts.map((post, index) => {
+                        return (
+                          <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
+                            <IonLabel>
+                              <IonText color="medium">
+                                <IonRow>
+                                  <IonCol size="6">
+                                    <p>
+                                      <IonAvatar
+                                        class="posts-avatar"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          history.push("home/about/" + post.uid);
+                                        }}
+                                      >
+                                        <IonImg src={post?.photoURL!}></IonImg>
+                                      </IonAvatar>
+                                      {post.userName}
+                                    </p>
+                                  </IonCol>
+                                  <IonCol>
+                                    {post.postType && post.postType != "general" ? (
+                                      <IonFab horizontal="end">
+                                        <p
+                                          style={{
+                                            fontWeight: "bold",
+                                            color: getColor(post.postType),
+                                          }}
+                                        >
+                                          {post.postType.toUpperCase()}
+                                        </p>
+                                      </IonFab>
+                                    ) : null}
+                                    <IonFab style={{ bottom: "1vh" }} horizontal="end">
+                                      <IonNote style={{ fontSize: "0.85em" }}>
+                                        {getDate(post.timestamp)}
+                                      </IonNote>
+                                    </IonFab>
+                                  </IonCol>
+                                </IonRow>
+                              </IonText>
+                              <h3
+                                className="h2-message"
+                                style={{
+                                  marginLeft: "2%",
+                                  marginTop: "5%",
+                                }}
+                              >
+                                {" "}
+                                {post.message}{" "}
+                              </h3>
+                              {post.imgSrc.length > 0 ? (
+                                <>
+                                  <br></br>
+                                  <div
+                                    className="ion-img-container"
+                                    style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                    }}
+                                  >
+                                  </div>
+                                </>
+                              ) : null}
+                            </IonLabel>
+                          </IonItem>
+                        )
+                      })}
+                    </IonList>
+                  </FadeIn>
+                ) :
+                  <IonSpinner color='primary' className='ion-spinner'></IonSpinner>
+                }
+                {userLikedPosts && userLikedPosts.length <= 0 ? (
+                  <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
+                ) : (null)}
+                <FadeIn>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <IonButton
+                      disabled={!userLikedPosts || noMoreLikes}
+                      color="medium"
+                      mode="ios"
+                      fill="outline"
+                      expand="block"
+                      onClick={() => {
+                        fetchMoreLikes();
+                      }}
+                    >
+                      LOAD MORE LIKES{" "}
                     </IonButton>
                   </div>
                 </FadeIn>
@@ -1998,7 +2191,9 @@ function User() {
                                   fill="outline"
                                   color="danger"
                                   onClick={() => {
-                                    deletePoll(index, poll.key);
+                                    setDeletePollIndex(index);
+                                    setDeletePollKey(poll.key);
+                                    setDeletePollActionSheet(true);
                                   }}
                                 >
                                   <DeleteIcon />
@@ -2010,112 +2205,9 @@ function User() {
                       })}
                     </FadeIn>) : (<IonSpinner color="primary" className="ion-spinner" />)}
                 </div>
-                {yourPolls && yourPolls.length <= 0 ? (
+                {/* {yourPolls && yourPolls.length <= 0 ? (
                   <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
-                ) : (null)}
-              </div>
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <IonCard className="user-card">
-              <div>
-                <IonHeader
-                  class="ion-no-border"
-                  style={{
-                    textAlign: "center",
-                    padding: "2vh",
-                    fontSize: "1.25em",
-                  }}
-                >
-                  Liked Posts
-                </IonHeader>
-                {userLikedPosts ? (
-                  <FadeIn>
-                    <IonList mode="ios" lines="none" inset>
-                      {userLikedPosts.map((post, index) => {
-                        return (
-                          <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
-                            <IonLabel>
-                              <IonText color="medium">
-                                <IonRow>
-                                  <IonCol size="6">
-                                    <p>
-                                      <IonAvatar
-                                        class="posts-avatar"
-                                      >
-                                        <IonImg src={post?.photoURL!}></IonImg>
-                                      </IonAvatar>
-                                      {post.userName}
-                                    </p>
-                                  </IonCol>
-                                  <IonCol>
-                                    {post.postType && post.postType != "general" ? (
-                                      <IonFab horizontal="end">
-                                        <p
-                                          style={{
-                                            fontWeight: "bold",
-                                            color: getColor(post.postType),
-                                          }}
-                                        >
-                                          {post.postType.toUpperCase()}
-                                        </p>
-                                      </IonFab>
-                                    ) : null}
-                                    <IonFab style={{ bottom: "1vh" }} horizontal="end">
-                                      <IonNote style={{ fontSize: "0.85em" }}>
-                                        {getDate(post.timestamp)}
-                                      </IonNote>
-                                    </IonFab>
-                                  </IonCol>
-                                </IonRow>
-                              </IonText>
-                              <h3
-                                className="h2-message"
-                                style={{
-                                  marginLeft: "4.5%",
-                                  marginTop: "5%",
-                                }}
-                              >
-                                {" "}
-                                {post.message}{" "}
-                              </h3>
-                              {post.imgSrc.length > 0 ? (
-                                <div className="ion-img-container">
-                                  <br></br>
-                                  <IonImg
-                                    onClick={() => {
-                                      PhotoViewer.show(post.imgSrc);
-                                    }}
-                                    src={post.imgSrc}
-                                  />
-                                </div>
-                              ) : null}
-                            </IonLabel>
-                          </IonItem>
-                        )
-                      })}
-                    </IonList>
-                  </FadeIn>
-                ) : (null)}
-                {userLikedPosts && userLikedPosts.length <= 0 ? (
-                  <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
-                ) : (null)}
-                <FadeIn>
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <IonButton
-                      disabled={noMoreLikes}
-                      color="medium"
-                      mode="ios"
-                      fill="outline"
-                      expand="block"
-                      onClick={() => {
-                        fetchMoreLikes();
-                      }}
-                    >
-                      LOAD MORE LIKES{" "}
-                    </IonButton>
-                  </div>
-                </FadeIn>
+                ) : (null)} */}
               </div>
             </IonCard>
           </SwiperSlide>

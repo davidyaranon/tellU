@@ -193,17 +193,17 @@ function Maps() {
           key: doc.id,
         });
       }
-      for(let i = 0; i < tempMarkers.length; ++i){
+      for (let i = 0; i < tempMarkers.length; ++i) {
         const data = await getLikes(tempMarkers[i].key);
-          if(data){
-            tempMarkers[i].likes = data.likes;
-            tempMarkers[i].dislikes = data.dislikes;
-            tempMarkers[i].commentAmount = data.commentAmount;
-          } else {
-            tempMarkers[i].likes = {};
-            tempMarkers[i].dislikes = {};
-            tempMarkers[i].commentAmount = 0;
-          }
+        if (data) {
+          tempMarkers[i].likes = data.likes;
+          tempMarkers[i].dislikes = data.dislikes;
+          tempMarkers[i].commentAmount = data.commentAmount;
+        } else {
+          tempMarkers[i].likes = {};
+          tempMarkers[i].dislikes = {};
+          tempMarkers[i].commentAmount = 0;
+        }
       }
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
@@ -256,7 +256,7 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ left: "85%", top: "50%" }} buttonStyle={{
+          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={{
             width: "50px",
             height: '50px',
             borderRadius: '1px',
@@ -278,10 +278,10 @@ function Maps() {
             ? markers.map((marker, index) => {
               return (
                 <Marker
-                  style={{ opacity: "90%" }}
+                  style={{ opacity: "85%" }}
                   onClick={(e) => {
                     setCenter([
-                      marker.location[0],
+                      marker.location[0] - 0.0005,
                       marker.location[1],
                     ]);
                     setOverlayIndex(-1);
@@ -326,77 +326,23 @@ function Maps() {
                     </p>
                   </IonFab>
                   <p>
-                    {markers[overlayIndex].message.length > 140
-                      ? markers[overlayIndex].message.substring(0, 140) + "..."
+                    {markers[overlayIndex].message.length > 120
+                      ? markers[overlayIndex].message.substring(0, 120) + "..."
                       : markers[overlayIndex].message}
                   </p>
                   {markers[overlayIndex].imgSrc &&
                     markers[overlayIndex].imgSrc.length > 0 ? (
-                    <IonImg
-                      class="ion-img-container"
-                      src={markers[overlayIndex].imgSrc}
-                    />
+                    <>
+                      <br></br>
+                      <div
+                        className="ion-img-container"
+                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc})`, borderRadius: '7.5px' }}
+                      >
+                      </div>
+                    </>
                   ) : null}
                 </IonCardContent>
-                <br></br>
-                <br></br>
-                <br></br>
-                <IonFab vertical="bottom">
-                  <IonRow>
-                    <IonCol size="4">
-                      <IonButton
-                        disabled={true}
-                        style={{ width: "16vw" }}
-                        mode="ios"
-                        fill="outline"
-                        color={
-                          overlayIndex != -1 &&
-                            markers &&
-                            markers[overlayIndex] &&
-                            "likes" in markers[overlayIndex] &&
-                            user &&
-                            markers[overlayIndex].likes[user.uid] !== undefined
-                            ? "primary"
-                            : "medium"
-                        }
-                      >
-                        <KeyboardArrowUpIcon />
-                        <p>{Object.keys(markers[overlayIndex].likes).length - 1} </p>
-                      </IonButton>
-                    </IonCol>
-                    <IonCol size="4">
-                      <IonButton
-                        disabled={true}
-                        style={{ width: "16vw" }}
-                        mode="ios"
-                        color="medium"
-                      >
-                        <ForumIcon />
-                        <p>{markers[overlayIndex].commentAmount} </p>
-                      </IonButton>
-                    </IonCol>
-                    <IonCol size="4">
-                      <IonButton
-                        disabled={true}
-                        style={{ width: "16vw" }}
-                        mode="ios"
-                        fill="outline"
-                        color={
-                          markers &&
-                            overlayIndex != -1 &&
-                            user &&
-                            "dislikes" in markers[overlayIndex] &&
-                            markers[overlayIndex].dislikes[user.uid] !== undefined
-                            ? "danger"
-                            : "medium"
-                        }
-                      >
-                        <KeyboardArrowDownIcon />
-                        <p>{Object.keys(markers[overlayIndex].dislikes).length - 1} </p>
-                      </IonButton>
-                    </IonCol>
-                  </IonRow>
-                </IonFab>
+
               </IonCard>
             </Overlay>
           ) : null}

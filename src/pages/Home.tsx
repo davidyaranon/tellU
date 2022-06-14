@@ -30,7 +30,10 @@ import {
   IonPage,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
+  IonFooter,
+  useIonViewDidEnter,
 } from "@ionic/react";
+import { uploadBytesResumable } from "firebase/storage";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
 import {
   addMessage,
@@ -82,6 +85,7 @@ import { getColor, timeout } from '../components/functions';
 import { Share } from '@capacitor/share';
 import Map from "@mui/icons-material/Map";
 import Linkify from 'linkify-react';
+import ProgressBar from "./ProgressBar";
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -96,7 +100,7 @@ export interface UserPhoto {
 defineCustomElements(window);
 
 function Home() {
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<HTMLIonTextareaElement>(null);
   const [newPosts, setNewPosts] = useState<any[] | null>(null);
   const pageRef = useRef();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
@@ -136,61 +140,64 @@ function Home() {
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [originalLastKey, setOriginalLastKey] = useState<string>("");
+  const [showProgressBar, setShowProgressBar] = useState<boolean>(false);
+  const [progressPercentage, setProgressPercentage] = useState<string>("5");
+  const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
 
   useIonViewWillEnter(() => {
     setShowTabs(true);
-    // console.log(lastKey);
-    // if (posts && schoolName) {
-    //   setBusy(true);
-    //   let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
-    //   tempPosts.then(async (res: any) => {
-    //     if (res.allPosts && res.allPosts != [] && res.allPosts.length != 0) { // newly updated posts
-    //       let caught = false;
-    //       let length = posts.length > res.allPosts.length ? res.allPosts.length : posts.length;
-    //       for (let i = 0; i < length; ++i) {
-    //         if (res.allPosts[i].message != posts[i].message) {
-    //           for(let i = 0; i < res.allPosts.length; ++i) {
-    //             const data = await getLikes(res.allPosts[i].key);
-    //             if(data){
-    //               res.allPosts[i].likes = data.likes;
-    //               res.allPosts[i].dislikes = data.dislikes;
-    //               res.allPosts[i].commentAmount = data.commentAmount;
-    //             } else {
-    //               res.allPosts[i].likes = {};
-    //               res.allPosts[i].dislikes = {};
-    //               res.allPosts[i].commentAmount = 0;
-    //             }
-    //           }
-    //           setNewPostsLoaded(true);
-    //           setNewPosts(res.allPosts);
-    //           caught = true;
-    //           break;
-    //         }
-    //       }
-    //       if (!caught) {
-    //         for(let i = 0; i < res.allPosts.length; ++i) {
-    //           const data = await getLikes(res.allPosts[i].key);
-    //           if(data){
-    //             res.allPosts[i].likes = data.likes;
-    //             res.allPosts[i].dislikes = data.dislikes;
-    //             res.allPosts[i].commentAmount = data.commentAmount;
-    //           } else {
-    //             res.allPosts[i].likes = {};
-    //             res.allPosts[i].dislikes = {};
-    //             res.allPosts[i].commentAmount = 0;
-    //           }
-    //         }
-    //         setPosts(res.allPosts);
-    //       }
-    //       setLastKey(res.lastKey);
-    //     }
-    //     setBusy(false);
-    //   });
-    //   tempPosts.catch((err: any) => {
-    //     Toast.error(err + "\n Check your internet connection");
-    //     setBusy(false);
-    //   });
-    // }
+  console.log(lastKey);
+  if (posts && schoolName) {
+    setBusy(true);
+    let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
+    tempPosts.then(async (res: any) => {
+      if (res.allPosts && res.allPosts != [] && res.allPosts.length != 0) { // newly updated posts
+        let caught = false;
+        let length = posts.length > res.allPosts.length ? res.allPosts.length : posts.length;
+        for (let i = 0; i < length; ++i) {
+          if (res.allPosts[i].message != posts[i].message) {
+            for(let i = 0; i < res.allPosts.length; ++i) {
+              const data = await getLikes(res.allPosts[i].key);
+              if(data){
+                res.allPosts[i].likes = data.likes;
+                res.allPosts[i].dislikes = data.dislikes;
+                res.allPosts[i].commentAmount = data.commentAmount;
+              } else {
+                res.allPosts[i].likes = {};
+                res.allPosts[i].dislikes = {};
+                res.allPosts[i].commentAmount = 0;
+              }
+            }
+            setNewPostsLoaded(true);
+            setNewPosts(res.allPosts);
+            caught = true;
+            break;
+          }
+        }
+        if (!caught) {
+          for(let i = 0; i < res.allPosts.length; ++i) {
+            const data = await getLikes(res.allPosts[i].key);
+            if(data){
+              res.allPosts[i].likes = data.likes;
+              res.allPosts[i].dislikes = data.dislikes;
+              res.allPosts[i].commentAmount = data.commentAmount;
+            } else {
+              res.allPosts[i].likes = {};
+              res.allPosts[i].dislikes = {};
+              res.allPosts[i].commentAmount = 0;
+            }
+          }
+          setPosts(res.allPosts);
+        }
+        setLastKey(res.lastKey);
+      }
+      setBusy(false);
+    });
+    tempPosts.catch((err: any) => {
+      Toast.error(err + "\n Check your internet connection");
+      setBusy(false);
+    });
+  }
   }, [posts, schoolName]);
 
   const sharePost = async (post: any) => {
@@ -244,6 +251,7 @@ function Home() {
       }
     } else {
       Toast.error("Unable to like post :(");
+      setDisabledLikeButtons(-1);
     }
   };
 
@@ -271,6 +279,7 @@ function Home() {
       }
     } else {
       Toast.error("Unable to dislike post :(");
+      setDisabledLikeButtons(-1);
     }
   };
 
@@ -438,113 +447,11 @@ function Home() {
   }
 
   async function sendImage(blob: any, uniqueId: string) {
-    const res = await uploadImage("images", blob, uniqueId);
-    if (res == false || photo == null || photo?.webPath == null) {
-      Toast.error("unable to select photo");
-    } else {
-      // Toast.success("photo uploaded successfully");
+    try {
+
+    } catch (err) {
+      console.log(err);
     }
-  }
-
-  // function b64ToBlob(b64Data: any, contentType: string, sliceSize: number) {
-  //   var byteCharacters = atob(b64Data);
-  //   var byteArrays = [];
-
-  //   for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-  //     var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-  //     var byteNumbers = new Array(slice.length);
-  //     for (var i = 0; i < slice.length; i++) {
-  //       byteNumbers[i] = slice.charCodeAt(i);
-  //     }
-
-  //     var byteArray = new Uint8Array(byteNumbers);
-
-  //     byteArrays.push(byteArray);
-  //   }
-
-  //   var blob = new Blob(byteArrays, { type: contentType });
-  //   return blob;
-  // }
-
-  // function makeFileIntoBlob(_imagePath: string, contentType: string) {
-  //   // INSTALL PLUGIN - cordova plugin add cordova-plugin-file
-  //   return new Promise((resolve, reject) => {
-  //     let fileName = "";
-  //     File
-  //       .resolveLocalFilesystemUrl(_imagePath)
-  //       .then(fileEntry => {
-  //         let { name, nativeURL } = fileEntry;
-
-  //         // get the path..
-  //         let path = nativeURL.substring(0, nativeURL.lastIndexOf("/"));
-
-  //         fileName = name;
-
-  //         // we are provided the name, so now read the file into a buffer
-  //         return File.readAsArrayBuffer(path, name);
-  //       })
-  //       .then(buffer => {
-  //         // get the buffer and make a blob to be saved
-  //         let imgBlob = new Blob([buffer], {
-  //           type: contentType
-  //         });
-  //         console.log(imgBlob);
-  //         setBlob(imgBlob);
-  //         // pass back blob and the name of the file for saving
-  //         // into fire base
-  //         resolve({
-  //           fileName,
-  //           imgBlob
-  //         });
-  //       })
-  //       .catch(e => reject(e));
-  //   });
-  // }
-
-  // function getBlob(b64Data: string, contentType: string, sliceSize: number = 512) {
-  //   contentType = contentType || '';
-  //   sliceSize = sliceSize || 512;
-  //   let byteCharacters = atob(b64Data);
-  //   let byteArrays = [];
-
-  //   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-  //     let slice = byteCharacters.slice(offset, offset + sliceSize);
-
-  //     let byteNumbers = new Array(slice.length);
-  //     for (let i = 0; i < slice.length; i++) {
-  //       byteNumbers[i] = slice.charCodeAt(i);
-  //     }
-
-  //     let byteArray = new Uint8Array(byteNumbers);
-
-  //     byteArrays.push(byteArray);
-  //   }
-  //   let blob = new Blob(byteArrays, { type: contentType });
-  //   return blob;
-  // }
-
-
-  // function success(fileEntry: any) {
-  //   fileEntry.file(function (file: any) {
-  //     var reader = new FileReader();
-  //     reader.onloadend = function (e) {
-  //       var content = this.result;
-  //       // console.log(content);
-  //     };
-  //   });
-  // }
-
-  var win = function (r: any) {
-    // console.log("Code = " + r.responseCode);
-    // console.log("Response = " + r.response);
-    // console.log("Sent = " + r.bytesSent);
-  }
-
-  var fail = function (error: any) {
-    // alert("An error has occurred: Code = " + error.code);
-    // console.log("upload error source " + error.source);
-    // console.log("upload error target " + error.target);
   }
 
   async function takePicture() {
@@ -584,33 +491,91 @@ function Home() {
     ) {
       Toast.error("Select a post type");
     } else {
-      //setBusy(true);
-      //const toast = Toast.create({message: "Uploading..."});
-      //toast.present();
+      setPrevPostUploading(true);
+      setShowProgressBar(true);
       let uniqueId = uuidv4();
-      if (blob) {
-        await sendImage(blob, uniqueId.toString());
-        setBlob(null);
+      if (blob && photo) {
         setPhoto(null);
-      }
-      const res = await addMessage(
-        message,
-        blob,
-        uniqueId.toString(),
-        position,
-        schoolName,
-        checkboxSelection
-      );
-      if (res == "false") {
-        //toast.dismiss();
-        Toast.error("Unable to process message :(");
+        if (user) {
+          const currentUserUid = user.uid;
+          const storageRef = ref(
+            storage,
+            "images/" + currentUserUid.toString() + uniqueId
+          );
+          const uploadTask = uploadBytesResumable(
+            storageRef, blob
+          );
+          uploadTask.on('state_changed',
+            (snapshot) => {
+              const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log('Upload is ' + p + '% done');
+              setShowProgressBar(true);
+              setProgressPercentage((p + 5).toString());
+              switch (snapshot.state) {
+                case 'paused':
+                  console.log('Upload is paused');
+                  break;
+                case 'running':
+                  console.log('Upload is running');
+                  break;
+              }
+            },
+            (error) => {
+              setShowProgressBar(false);
+              setPrevPostUploading(false);
+              Toast.error(error.message.toString());
+            },
+            async () => {
+              // success
+              setBlob(null);
+              setProgressPercentage('150');
+              const res = await addMessage(
+                message,
+                blob,
+                uniqueId.toString(),
+                position,
+                schoolName,
+                checkboxSelection
+              );
+              if (res == "false") {
+                Toast.error("Unable to process message :(");
+                setShowProgressBar(false);
+              } else {
+                Toast.success("Uploaded!");
+                setMessage("");
+                handleLoadPosts();
+                setProgressPercentage('200');
+                setPrevPostUploading(false);
+                setShowProgressBar(false);
+              }
+              setBusy(false);
+            }
+          );
+        }
       } else {
-        //toast.dismiss();
-        Toast.success("Uploaded!");
-        setMessage("");
-        handleLoadPosts();
+        setProgressPercentage('50');
+        const res = await addMessage(
+          message,
+          blob,
+          uniqueId.toString(),
+          position,
+          schoolName,
+          checkboxSelection
+        );
+        if (res == "false") {
+          Toast.error("Unable to process message :(");
+          setShowProgressBar(false);
+          setPrevPostUploading(false);
+        } else {
+          setProgressPercentage('100');
+          Toast.success("Uploaded!");
+          setMessage("");
+          handleLoadPosts();
+          setShowProgressBar(false);
+          setPrevPostUploading(false);
+        }
+        setBusy(false);
       }
-      setBusy(false);
     }
   }
 
@@ -632,7 +597,7 @@ function Home() {
   if (posts) {
     return (
       <IonPage ref={pageRef}>
-        <IonContent ref={contentRef} scrollEvents={true}>
+        <IonContent ref={contentRef} scrollEvents={true} fullscreen={true}>
           {newPostsLoaded ? (
             <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
               <IonFabButton className="load-new-posts" mode="ios" onClick={() => { setNoMorePosts(false); setNewPostsLoaded(false); setPosts(newPosts); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
@@ -669,137 +634,138 @@ function Home() {
               <Header darkMode={darkModeToggled} schoolName={schoolName} />
             </IonHeader>
           </FadeIn>
+
           <IonModal
             isOpen={locationPinModal}
             onDidDismiss={() => {
               setLocationPinModal(false);
               handleCheckboxChange("general");
             }}
-            breakpoints={[0, 0.95]}
-            initialBreakpoint={0.95}
-            backdropBreakpoint={0.9}
+            breakpoints={[0, 0.99]}
+            initialBreakpoint={0.99}
             handle={false}
           >
             {/* <IonContent> */}
-              <IonHeader translucent>
-                <IonToolbar mode="ios">
-                  <IonTitle>Post</IonTitle>
-                  <IonButtons slot="start">
-                    <IonButton
-                      mode="ios"
-                      onClick={() => {
-                        setLocationPinModal(false);
-                      }}
-                    >
-                      Back
-                    </IonButton>
-                  </IonButtons>
-                </IonToolbar>
-              </IonHeader>
-              <IonList inset={true} mode="ios">
-                {/* <IonListHeader mode="ios">Select One</IonListHeader> */}
-                <IonItem lines="none" mode="ios">
-                  <IonLabel>General</IonLabel>
-                  <IonCheckbox
-                    id="generalCheckbox"
-                    checked={generalChecked}
-                    slot="start"
-                    onIonChange={(e) => {
-                      handleCheckboxChange("general");
-                      setGeneralChecked(e.detail.checked);
-                      if (e.detail.checked) setCheckboxSelection("general");
+            <IonHeader translucent>
+              <IonToolbar mode="ios">
+                <IonTitle>Post</IonTitle>
+                <IonButtons slot="start">
+                  <IonButton
+                    mode="ios"
+                    onClick={() => {
+                      setLocationPinModal(false);
                     }}
-                  ></IonCheckbox>
-                </IonItem>
-                <IonItem lines="none" mode="ios">
-                  <IonLabel>Alert</IonLabel>
-                  <IonCheckbox
-                    id="alertCheckbox"
-                    checked={alertChecked}
-                    slot="start"
-                    onIonChange={(e) => {
-                      handleCheckboxChange("alert");
-                      setAlertChecked(e.detail.checked);
-                      if (e.detail.checked) setCheckboxSelection("alert");
-                    }}
-                  ></IonCheckbox>
-                </IonItem>
-                <IonItem lines="none" mode="ios">
-                  <IonLabel>Buy/Sell</IonLabel>
-                  <IonCheckbox
-                    id="buySellCheckbox"
-                    checked={buySellChecked}
-                    slot="start"
-                    onIonChange={(e) => {
-                      handleCheckboxChange("buySell");
-                      setBuySellChecked(e.detail.checked);
-                      if (e.detail.checked) setCheckboxSelection("buy/Sell");
-                    }}
-                  ></IonCheckbox>
-                </IonItem>
-                <IonItem lines="none" mode="ios">
-                  <IonLabel>Sighting</IonLabel>
-                  <IonCheckbox
-                    id="sightingCheckbox"
-                    checked={sightingChecked}
-                    slot="start"
-                    onIonChange={(e) => {
-                      handleCheckboxChange("sighting");
-                      setSightingChecked(e.detail.checked);
-                      if (e.detail.checked) setCheckboxSelection("sighting");
-                    }}
-                  ></IonCheckbox>
-                </IonItem>
-                <IonItem lines="none" mode="ios">
-                  <IonLabel>Event</IonLabel>
-                  <IonCheckbox
-                    id="eventCheckbox"
-                    checked={eventsChecked}
-                    slot="start"
-                    onIonChange={(e) => {
-                      handleCheckboxChange("event");
-                      setEventsChecked(e.detail.checked);
-                      if (e.detail.checked) setCheckboxSelection("event");
-                    }}
-                  ></IonCheckbox>
-                </IonItem>
-              </IonList>
-              <IonList inset={true} mode="ios">
-                <IonItem mode="ios" lines="none">
-                  <IonLabel> Add pin to map?*</IonLabel><Map />
-                  <IonCheckbox
-                    slot="start"
-                    checked={locationChecked}
-                    onIonChange={(e) => {
-                      setLocationChecked(e.detail.checked);
-                      if (e.detail.checked) getLocation();
-                      else setPosition(null);
-                    }}
-                  />
-                </IonItem>
-              </IonList>
-              <p style={{ textAlign: "center" }}>*Location pin stays on map for up to two days</p>
-              <div className="ion-button-container">
-                <IonButton
-                  onClick={() => {
-                    handleSendMessage();
+                  >
+                    Back
+                  </IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </IonHeader>
+            <IonList inset={true} mode="ios">
+              {/* <IonListHeader mode="ios">Select One</IonListHeader> */}
+              <IonItem lines="none" mode="ios">
+                <IonLabel>General</IonLabel>
+                <IonCheckbox
+                  id="generalCheckbox"
+                  checked={generalChecked}
+                  slot="start"
+                  onIonChange={(e) => {
+                    handleCheckboxChange("general");
+                    setGeneralChecked(e.detail.checked);
+                    if (e.detail.checked) setCheckboxSelection("general");
                   }}
-                  expand="block"
-                  color="transparent"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  id="message"
-                  style={{width: "75vw"}}
-                >
-                  Post
-                </IonButton>
-              </div>
+                ></IonCheckbox>
+              </IonItem>
+              <IonItem lines="none" mode="ios">
+                <IonLabel>Alert</IonLabel>
+                <IonCheckbox
+                  id="alertCheckbox"
+                  checked={alertChecked}
+                  slot="start"
+                  onIonChange={(e) => {
+                    handleCheckboxChange("alert");
+                    setAlertChecked(e.detail.checked);
+                    if (e.detail.checked) setCheckboxSelection("alert");
+                  }}
+                ></IonCheckbox>
+              </IonItem>
+              <IonItem lines="none" mode="ios">
+                <IonLabel>Buy/Sell</IonLabel>
+                <IonCheckbox
+                  id="buySellCheckbox"
+                  checked={buySellChecked}
+                  slot="start"
+                  onIonChange={(e) => {
+                    handleCheckboxChange("buySell");
+                    setBuySellChecked(e.detail.checked);
+                    if (e.detail.checked) setCheckboxSelection("buy/Sell");
+                  }}
+                ></IonCheckbox>
+              </IonItem>
+              <IonItem lines="none" mode="ios">
+                <IonLabel>Sighting</IonLabel>
+                <IonCheckbox
+                  id="sightingCheckbox"
+                  checked={sightingChecked}
+                  slot="start"
+                  onIonChange={(e) => {
+                    handleCheckboxChange("sighting");
+                    setSightingChecked(e.detail.checked);
+                    if (e.detail.checked) setCheckboxSelection("sighting");
+                  }}
+                ></IonCheckbox>
+              </IonItem>
+              <IonItem lines="none" mode="ios">
+                <IonLabel>Event</IonLabel>
+                <IonCheckbox
+                  id="eventCheckbox"
+                  checked={eventsChecked}
+                  slot="start"
+                  onIonChange={(e) => {
+                    handleCheckboxChange("event");
+                    setEventsChecked(e.detail.checked);
+                    if (e.detail.checked) setCheckboxSelection("event");
+                  }}
+                ></IonCheckbox>
+              </IonItem>
+            </IonList>
+            <IonList inset={true} mode="ios">
+              <IonItem mode="ios" lines="none">
+                <IonLabel> Add pin to map?*</IonLabel><Map />
+                <IonCheckbox
+                  slot="start"
+                  checked={locationChecked}
+                  onIonChange={(e) => {
+                    setLocationChecked(e.detail.checked);
+                    if (e.detail.checked) getLocation();
+                    else setPosition(null);
+                  }}
+                />
+              </IonItem>
+            </IonList>
+            <IonNote style={{ textAlign: "center" }}>*Location pin stays on map for up to two days</IonNote>
+            <br />
+            <div className="ion-button-container">
+              <IonButton
+                onClick={() => {
+                  handleSendMessage();
+                }}
+                expand="block"
+                color="transparent"
+                mode="ios"
+                shape="round"
+                fill="outline"
+                id="message"
+                style={{ width: "75vw" }}
+              >
+                Post
+              </IonButton>
+            </div>
             {/* </IonContent> */}
           </IonModal>
 
           <IonModal backdropDismiss={false} isOpen={showModal} animated mode='ios'
-            >
+          >
             <IonContent ref={modalContentRef} scrollEvents={true}>
               <div style={{ width: "100%" }}>
                 <IonToolbar mode="ios">
@@ -832,11 +798,14 @@ function Home() {
                         </IonCol>
                         <IonCol>
                           <IonTextarea
-                            ref={(ref) => inputRef.current = ref}
+                            debounce={250}
+                            spellcheck={true}
+                            ref={inputRef}
                             rows={4}
                             color="secondary"
                             maxlength={500}
                             // style={ionInputStyle}
+                            disabled={prevPostUploading}
                             value={message}
                             placeholder="Start typing..."
                             id="message"
@@ -850,13 +819,15 @@ function Home() {
                       : (
                         <>
                           <IonTextarea
-                            autofocus={true}
-                            ref={(ref) => inputRef.current = ref}
-                            rows={5}
+                            debounce={250}
+                            spellcheck={true}
+                            ref={inputRef}
+                            rows={4}
                             color="secondary"
                             maxlength={500}
                             style={ionInputStyle}
                             value={message}
+                            disabled={prevPostUploading}
                             placeholder="Start typing..."
                             id="message"
                             onIonChange={(e: any) => {
@@ -872,7 +843,7 @@ function Home() {
                       textAlign: "center", alignItems: "center",
                       alignSelf: "center", display: "flex", paddingTop: ""
                     }}>
-                      <IonButton onClick={takePicture} mode="ios" color="" fill='clear'>
+                      <IonButton onClick={takePicture} mode="ios" color="" fill='clear' disabled={prevPostUploading}>
                         <IonIcon icon={cameraOutline} />
                       </IonButton>
                       <IonButton
@@ -884,6 +855,7 @@ function Home() {
                         shape="round"
                         fill="clear"
                         id="message"
+                        disabled={prevPostUploading}
                       >
                         Post
                       </IonButton>
@@ -901,14 +873,15 @@ function Home() {
 
                 </div>
               </IonCard>
+              {prevPostUploading &&
+                <p style={{ textAlign: "center" }}>Wait until previous post has <br />uploaded to post again</p>}
             </IonContent>
           </IonModal>
 
-          <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{}}>
             <IonFabButton
               onClick={() => {
                 setShowModal(true);
-                // inputRef.current.setFocus();
               }}
             >
               <IonIcon icon={add} />
@@ -945,14 +918,15 @@ function Home() {
             posts?.map((post, index) => (
               <FadeIn key={post.key}>
                 <IonList inset={true} mode="ios">
-                  <IonItem lines="none" mode="ios">
+                  <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
                         <IonRow>
                           <IonCol size="6">
                             <p>
                               <IonAvatar
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   handleUserPageNavigation(post.uid);
                                 }}
                                 class="posts-avatar"
@@ -982,7 +956,8 @@ function Home() {
                                     {post.marker ? (
                                       <RoomIcon
                                         style={{ fontSize: "1em" }}
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           localStorage.setItem("lat", (post.location[0].toString()));
                                           localStorage.setItem("long", (post.location[1].toString()));
                                           history.push("maps");
@@ -998,7 +973,8 @@ function Home() {
                                     }}
                                   >
                                     {post.marker ? (
-                                      <RoomIcon onClick={() => {
+                                      <RoomIcon onClick={(e) => {
+                                        e.stopPropagation()
                                         localStorage.setItem("lat", (post.location[0].toString()));
                                         localStorage.setItem("long", (post.location[1].toString()));
                                         history.push("maps");
@@ -1025,15 +1001,18 @@ function Home() {
                         {post.message}{" "}
                       </h3> */}
                       {"imgSrc" in post && post.imgSrc && post.imgSrc.length > 0 ? (
-                        <div className="ion-img-container">
+                        <>
                           <br></br>
-                          <IonImg
-                            onClick={() => {
+                          <div
+                            className="ion-img-container"
+                            style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
                               PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
-                            src={post.imgSrc}
-                          />
-                        </div>
+                          >
+                          </div>
+                        </>
                       ) : null}
                     </IonLabel>
                   </IonItem>
@@ -1124,7 +1103,7 @@ function Home() {
             </div>
           )}
           <IonInfiniteScroll
-            onIonInfinite={(e: any) => { console.log("handling infinite"); handleLoadPostsNextBatch(e) }}
+            onIonInfinite={(e: any) => { handleLoadPostsNextBatch(e) }}
             disabled={(lastKey.length == 0)}
           >
             <IonInfiniteScrollContent
@@ -1133,6 +1112,17 @@ function Home() {
             ></IonInfiniteScrollContent>
           </IonInfiniteScroll>
         </IonContent>
+        {showProgressBar &&
+          <FadeIn>
+            {/* <div slot="fixed" style={{ width: "100%" }}> */}
+            <IonFooter mode='ios' >
+              {/* <IonToolbar mode="ios" translucen> */}
+              <ProgressBar percentage={progressPercentage} />
+              {/* </IonToolbar> */}
+            </IonFooter>
+            {/* </div> */}
+          </FadeIn>
+        }
       </IonPage>
     );
   } else if (showReloadMessage) {

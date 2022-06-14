@@ -68,8 +68,9 @@ export const db = getFirestore(app);
 export const storage = getStorage();
 export const database = getDatabase();
 
-export const addTestMessage = httpsCallable(functions, 'addNewDoc');
-export const toUpperFirestoreDoc = httpsCallable(functions, 'makeUppercase');
+export const deletePoll = httpsCallable(functions, 'deletePoll');
+export const deleteImage = httpsCallable(functions, 'deleteImage');
+export const deleteLikesDocFromRtdb = httpsCallable(functions, 'deleteLikesDocFromRtdb');
 
 export async function uploadImage(location, blob, url) {
   try {
@@ -757,19 +758,6 @@ export const getWeatherData = async (schoolName) => {
   }
 }
 
-// await runTransaction(db, async (transaction) => {
-//   const snap = await transaction.get(commentDocRef);
-//   if (snap.exists) {
-//     if (snap.data().dislikes[userUid]) {
-//       transaction.update(commentDocRef, {
-//         [`dislikes.${userUid}`]: deleteField(),
-//         downVotes: increment(-1),
-//       });
-//       inc = -1;
-//     }
-//   }
-// });
-
 export const pollVote = async (schoolName, index, postKey, userUid) => {
   try {
     if (auth && db) {
@@ -1072,6 +1060,11 @@ export const addComment = async (postKey, schoolName, commentString) => {
 
 export const removePoll = async (postKey, schoolName) => {
   try {
+    // await deletePoll({
+    //   schoolName: schoolName.replace(/\s+/g, ""),
+    //   postKey: postKey,
+    // }).catch((err) => console.log(err));
+    // return true;
     const postRef = doc(
       db,
       "schoolPosts",
@@ -1090,6 +1083,18 @@ export const removePoll = async (postKey, schoolName) => {
 
 export const removePost = async (postKey, schoolName, postUrl) => {
   try {
+    if (postUrl.length > 0) {
+      // const pictureRef = ref(storage, postUrl);
+      // await deleteObject(pictureRef).catch((err) => console.log(err));
+      deleteImage({
+        path: postUrl
+      }).catch((err) => {
+        console.log(err);
+      });
+    }
+    deleteLikesDocFromRtdb({
+      key: postKey
+    });
     const postRef = doc(
       db,
       "schoolPosts",
@@ -1108,12 +1113,6 @@ export const removePost = async (postKey, schoolName, postUrl) => {
     batch.delete(postRef);
     batch.delete(postDocRef);
     await batch.commit().catch((err) => console.log(err));
-    if (postUrl.length > 0) {
-      const pictureRef = ref(storage, postUrl);
-      await deleteObject(pictureRef).catch((err) => console.log(err));
-    }
-    const p = rtdbRef(database, postKey);
-    await remove(p);
     return true;
   } catch (err) {
     console.log(err);
@@ -1123,7 +1122,18 @@ export const removePost = async (postKey, schoolName, postUrl) => {
 export const removeCommentNew = async (comment, schoolName, postKey, commentUrl) => {
   try {
     if (db) {
-      const commentKey = comment.key;
+      if (commentUrl.length > 0) {
+        // const pictureRef = ref(storage, commentUrl);
+        // deleteObject(pictureRef).catch((err) => console.log(err));
+        deleteImage({
+          path: commentUrl
+        }).catch((err) => {
+          console.log(err);
+        })
+      }
+      deleteLikesDocFromRtdb({
+        key : comment.key,
+      });
       const commentRef = doc(
         db,
         "schoolPosts",
@@ -1131,17 +1141,11 @@ export const removeCommentNew = async (comment, schoolName, postKey, commentUrl)
         "allPosts",
         postKey,
         "comments",
-        commentKey
+        comment.key,
       );
       await deleteDoc(commentRef);
-      if (commentUrl.length > 0) {
-        const pictureRef = ref(storage, commentUrl);
-        await deleteObject(pictureRef).catch((err) => console.log(err));
-      }
-      const c = rtdbRef(database, commentKey);
-      await remove(c);
       const likesRef = rtdbRef(database, postKey);
-      await update(likesRef, {
+      update(likesRef, {
         commentAmount: rtdbIncrement(-1)
       });
       return true;

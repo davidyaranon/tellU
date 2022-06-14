@@ -3,6 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import auth, { getLikes } from '../fbconfig';
+import RoomIcon from '@mui/icons-material/Room';
 import {
   getUserPosts,
   getNextBatchUserPosts,
@@ -33,6 +34,7 @@ import {
   IonLoading,
   IonNote,
   IonPage,
+  IonPopover,
   IonRow,
   IonSkeletonText,
   IonText,
@@ -45,10 +47,11 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { arrowBack, logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
+import { arrowBack, chatbubbleOutline, chatbubblesOutline, logoInstagram, logoSnapchat, logoTiktok, shareOutline } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
 import { getColor, timeout } from '../components/functions';
 import Linkify from 'linkify-react';
+import { Share } from "@capacitor/share";
 
 interface MatchParams {
   uid: string;
@@ -77,6 +80,14 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [userSnapchat, setUserSnapchat] = useState<string>("");
   const [userInstagram, setUserInstagram] = useState<string>("");
   const Toast = useToast();
+
+  const sharePost = async () => {
+    await Share.share({
+      title: username + "\'s tellU Profile",
+      text: 'Check him out!',
+      url: "http://tellUapp.com/home/about/" + uid,
+    });
+  }
 
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(postKey, post);
@@ -140,9 +151,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       getNextBatchUserPosts(schoolName, uid, lastKey)
         .then(async (res: any) => {
           setLastKey(res.lastKey);
-          for(let i = 0; i < res.userPosts.length; ++i) {
+          for (let i = 0; i < res.userPosts.length; ++i) {
             const data = await getLikes(res.userPosts[i].key);
-            if(data){
+            if (data) {
               res.userPosts[i].likes = data.likes;
               res.userPosts[i].dislikes = data.dislikes;
               res.userPosts[i].commentAmount = data.commentAmount;
@@ -184,9 +195,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               .then(async (res: any) => {
                 // first batch
                 if (res.userPosts.length > 0) {
-                  for(let i = 0; i < res.userPosts.length; ++i) {
+                  for (let i = 0; i < res.userPosts.length; ++i) {
                     const data = await getLikes(res.userPosts[i].key);
-                    if(data){
+                    if (data) {
                       res.userPosts[i].likes = data.likes;
                       res.userPosts[i].dislikes = data.dislikes;
                       res.userPosts[i].commentAmount = data.commentAmount;
@@ -251,7 +262,34 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     history.go(-1);
                   }}
                 >
-                  <IonIcon icon={arrowBack}></IonIcon> Back
+                  Back
+                </IonButton>
+              </IonButtons>
+              <IonButtons slot="end">
+                {/* <div> */}
+                <span id='trigger-popover'>
+                  <IonButton
+                    slot="end"
+                    mode="ios"
+                    disabled={true}
+                  >
+                    <IonIcon icon={chatbubblesOutline} />
+                  </IonButton>
+                </span>
+                <IonPopover mode='ios' arrow={true} animated={true} trigger='trigger-popover' showBackdrop={true}>
+                  {/* <IonContent> */}
+                  <p style={{ textAlign: 'center' }}>Coming soon!</p>
+                  {/* </IonContent> */}
+                </IonPopover>
+                {/* </div> */}
+                <IonButton
+                  slot="end"
+                  mode="ios"
+                  onClick={() => {
+                    sharePost();
+                  }}
+                >
+                  <IonIcon icon={shareOutline} />
                 </IonButton>
               </IonButtons>
             </IonToolbar>
@@ -343,7 +381,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                         </IonCol>
                       </>
                     ) : null}
-                    {userTiktok && userSnapchat && userInstagram && ( userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0 ) ? (
+                    {userTiktok && userSnapchat && userInstagram && (userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0) ? (
                       <>
                         <br />
                       </>
@@ -352,7 +390,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       <>
                         <br />
                         <IonRow class="ion-justify-content-start">
-                          <p style={{ fontSize: "1em" }}>{userBio}</p>
+                          <p style={{ fontSize: "1em", marginLeft: "2%" }}>{userBio}</p>
                         </IonRow>
                       </>
                     ) : null}
@@ -384,7 +422,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                   }}
                                 />
                               </IonFab>
-                              <IonFab horizontal="start">
+                              <IonFab horizontal="start" style={{ marginLeft: '-1.5%' }}>
                                 <p
                                   style={{
                                     fontWeight: "bold",
@@ -431,7 +469,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                   return (
                     <FadeIn key={post.key}>
                       <IonList inset={true} mode="ios">
-                        <IonItem lines="none" mode="ios">
+                        <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
                           <IonLabel>
                             <IonFab horizontal="end">
                               <IonNote style={{ fontSize: "0.75em" }}>
@@ -439,7 +477,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                 {getDate(post.timestamp)}{" "}
                               </IonNote>
                             </IonFab>
-                            <IonFab horizontal="start">
+                            <IonFab horizontal="start" style={{ marginLeft: '-1%' }}>
                               {post.postType != "general" ? (
                                 <p
                                   style={{
@@ -448,40 +486,54 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                   }}
                                 >
                                   {post.postType.toUpperCase()}
+                                  &nbsp;
+                                  {post.marker ? (
+                                    <RoomIcon
+                                      style={{ fontSize: "1em" }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        localStorage.setItem("lat", (post.location[0].toString()));
+                                        localStorage.setItem("long", (post.location[1].toString()));
+                                        history.push("maps");
+                                      }}
+                                    />
+                                  ) : null}
                                 </p>
                               ) : null}
                             </IonFab>
                             <br></br>
-                            <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "4.5%", marginTop: "5%" }}>
+                            <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.5%", marginTop: "5%" }}>
                               {post.message}
                             </Linkify>
 
                             {post.imgSrc && post.imgSrc.length > 0 ? (
-                              <div>
+                              <>
                                 <br></br>
-                                <br></br>
-                                <IonImg
+                                <div
                                   className="ion-img-container"
-                                  onClick={() => {
-                                    PhotoViewer.show(post.imgSrc);
+                                  style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                   }}
-                                  src={post.imgSrc}
-                                />
-                              </div>
+                                >
+                                </div>
+                              </>
                             ) : (
                               <>
                                 {post.url.length > 0 ? (
-                                  <div>
+                                  <>
                                     <br></br>
-                                    <br></br>
-                                    <IonImg
+                                    <div
                                       className="ion-img-container"
-                                      onClick={() => {
-                                        PhotoViewer.show(post.imgSrc);
+                                      style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                       }}
-                                      src={post.imgSrc}
-                                    />
-                                  </div>
+                                    >
+                                    </div>
+                                  </>
                                 ) : null}
                               </>
                             )}
@@ -582,37 +634,148 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     return (
       <IonPage>
         <IonContent>
-          <IonHeader mode="ios">
-            <IonToolbar mode="ios">
+          <div slot="fixed" style={{ width: "100%" }}>
+            <IonToolbar mode="ios" >
               <IonButtons slot="start">
                 <IonButton
+                  mode="ios"
                   onClick={() => {
                     history.go(-1);
                   }}
                 >
-                  <IonIcon icon={arrowBack}></IonIcon>
                   Back
                 </IonButton>
               </IonButtons>
+              <IonButtons slot="end">
+                {/* <div> */}
+                <span id='trigger-popover'>
+                  <IonButton
+                    slot="end"
+                    mode="ios"
+                    disabled={true}
+                  >
+                    <IonIcon icon={chatbubblesOutline} />
+                  </IonButton>
+                </span>
+                <IonPopover mode='ios' arrow={true} animated={true} trigger='trigger-popover' showBackdrop={true}>
+                  {/* <IonContent> */}
+                  <p style={{ textAlign: 'center' }}>Coming soon!</p>
+                  {/* </IonContent> */}
+                </IonPopover>
+                {/* </div> */}
+                <IonButton
+                  slot="end"
+                  mode="ios"
+                  onClick={() => {
+                    sharePost();
+                  }}
+                >
+                  <IonIcon icon={shareOutline} />
+                </IonButton>
+              </IonButtons>
             </IonToolbar>
-          </IonHeader>
-
+          </div>
+          <br></br><br></br>
           <FadeIn>
-            <IonCard>
+            <IonCard mode="ios">
               <IonCardContent>
-                <IonAvatar className="user-avatar">
-                  <IonImg src={profilePhoto} />
-                </IonAvatar>
-                <IonFab vertical="center">
-                  <p style={{ fontSize: "1.5em" }}>{username}</p>
-                  <IonNote style={{ fontSize: "1em" }}>{schoolName}</IonNote>
-                </IonFab>
+                {busy ? (
+                  <div>
+                    <IonAvatar className="user-avatar">
+                      <IonLabel>
+                        <IonSkeletonText animated={true} />
+                      </IonLabel>
+                    </IonAvatar>
+                    <IonFab vertical="center">
+                      <IonLabel>
+                        <IonSkeletonText
+                          animated={true}
+                          style={{ width: "50vw", height: "1.75em" }}
+                        />
+                        <IonSkeletonText
+                          animated={true}
+                          style={{ width: "50vw" }}
+                        />
+                      </IonLabel>
+                    </IonFab>
+                  </div>
+                ) : (
+                  <div>
+                    <IonRow class="ion-justify-content-start">
+                      <IonCol size="4">
+                        <IonAvatar className="user-avatar">
+                          <IonImg onClick={() => {
+                            PhotoViewer.show(profilePhoto, username);
+                          }}
+                            src={profilePhoto} />
+                        </IonAvatar>
+                      </IonCol>
+                      {userMajor && userMajor.length > 0 ? (
+                        <IonCol class="ion-padding-top" size="8">
+                          <p style={{ fontSize: "1.5em" }}>{username}</p>
+                          <IonNote style={{ fontSize: "1em" }}>
+                            {userMajor}
+                          </IonNote>
+                        </IonCol>
+                      ) : <IonCol class="ion-padding-top" size="8">
+                        <p className="ion-padding-top" style={{ fontSize: "1.5em" }}> {username}</p>
+                      </IonCol>}
+                    </IonRow>
+                    {userSnapchat && userSnapchat.length > 0 ? (
+                      <>
+                        <IonCol size="12">
+                          <IonText style={{ fontSize: "0.75em" }}>
+                            <IonIcon style={{}} icon={logoSnapchat} />
+                            {'\u00A0'}
+                            {userSnapchat}
+                          </IonText>
+                        </IonCol>
+                      </>
+                    ) : null}
+                    {userInstagram && userInstagram.length > 0 ? (
+                      <>
+                        <IonCol size="12">
+                          <IonText style={{ fontSize: "0.75em" }}>
+                            <IonIcon style={{}} icon={logoInstagram} />
+                            {'\u00A0'}
+                            {userInstagram}
+                          </IonText>
+                        </IonCol>
+                      </>
+                    ) : null}
+                    {userTiktok && userTiktok.length > 0 ? (
+                      <>
+                        <IonCol size="12">
+                          <IonText style={{ fontSize: "0.75em" }}>
+                            <IonIcon style={{}} icon={logoTiktok} />
+                            {'\u00A0'}
+                            {userTiktok}
+                          </IonText>
+                        </IonCol>
+                      </>
+                    ) : null}
+                    {userTiktok && userSnapchat && userInstagram && (userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0) ? (
+                      <>
+                        <br />
+                      </>
+                    ) : null}
+                    {userBio && userBio.length > 0 ? (
+                      <>
+                        <br />
+                        <IonRow class="ion-justify-content-start">
+                          <p style={{ fontSize: "1em", marginLeft: "2%" }}>{userBio}</p>
+                        </IonRow>
+                      </>
+                    ) : null}
+                  </div>
+                )}
               </IonCardContent>
             </IonCard>
             <div style={{ textAlign: "center", alignItems: "center" }}>
-              <IonLabel>NO POSTS YET</IonLabel>
+              <IonLabel>Posts</IonLabel>
             </div>
           </FadeIn>
+
         </IonContent>
       </IonPage>
     );

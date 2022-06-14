@@ -8,7 +8,6 @@ import {
   setupIonicReact,
   IonTabBar,
   IonTabButton,
-  IonRippleEffect,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -58,7 +57,6 @@ import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { FCM } from "@capacitor-community/fcm";
 import AppUrlListener from "./pages/AppUrlListener";
-import MapsGivenMarker from "./pages/MapsGivenMarker";
 
 // // set up base push notifications with Capacitor
 // await PushNotifications.requestPermissions();
@@ -75,14 +73,15 @@ setupIonicReact({
 
 const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
+  const [selectedTab, setSelectedTab] = useState<string>("home");
   let tabBarStyle = showTabs ? undefined : { display: "none" };
   useEffect(() => { }, []);
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <IonReactRouter>
-      <AppUrlListener></AppUrlListener>
+        <AppUrlListener></AppUrlListener>
         {/* <IonPage id="app"> */}
-        <IonTabs>
+        <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab) }}>
           <IonRouterOutlet>
             <Route path="/:tab(home)" exact={true}>
               {" "}
@@ -96,7 +95,6 @@ const RoutingSystem: React.FunctionComponent = () => {
               exact={true}
             />
             <Route path="/:tab(maps)" component={Maps} exact={true} />
-            {/* <Route path=":/tab(maps)/marker/:lat/:long" component={MapsGivenMarker} /> */}
             <Route path="/:tab(user)" exact={true}>
               {" "}
               <User />{" "}
@@ -114,30 +112,31 @@ const RoutingSystem: React.FunctionComponent = () => {
               path="/"
               render={() => <Redirect to="/home" />}
             />
-            {/* <Route component={RedirectComponent} /> */}
           </IonRouterOutlet>
           <IonTabBar slot="bottom" style={tabBarStyle}>
             <IonTabButton tab="home" href="/home">
               <HomeTwoToneIcon
-                fontSize="large"
-                style={{ fontSize: "4.10vh" }}
+                fontSize="medium"
+                style={selectedTab === 'home' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
-              <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
             <IonTabButton tab="community" href="/community">
-              <GroupsIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
-              <IonRippleEffect></IonRippleEffect>
+              <GroupsIcon
+                fontSize="medium"
+                style={selectedTab === 'community' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
+              />
             </IonTabButton>
             <IonTabButton tab="maps" href="/maps">
-              <MapIcon fontSize="large" style={{ fontSize: "4.10vh" }} />
-              <IonRippleEffect></IonRippleEffect>
+              <MapIcon
+                fontSize="medium"
+                style={ selectedTab === 'maps' ? { fontSize: "4.25vh"} : {fontSize: "4.00vh"} }
+              />
             </IonTabButton>
             <IonTabButton tab="user" href="/user">
               <AccountCircleTwoToneIcon
-                fontSize="large"
-                style={{ fontSize: "4.10vh" }}
+                fontSize="medium"
+                style={ selectedTab === 'user' ? { fontSize: "4.25vh"} : {fontSize: "4.00vh"} }
               />
-              <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
@@ -197,22 +196,34 @@ const App: React.FunctionComponent = () => {
       Keyboard.setStyle(keyStyleOptionsDark);
       StatusBar.setStyle({ style: Style.Dark });
     }
-    const hasLoadedUser = promiseTimeout(10000, getCurrentUser());
+    const hasLoadedUser = promiseTimeout(30000, getCurrentUser());
     hasLoadedUser.then((user: any) => {
       if (user) {
         let school = "";
         const userRef = doc(db, "userData", user.uid);
-        const docLoaded = promiseTimeout(10000, getDoc(userRef));
+        const docLoaded = promiseTimeout(30000, getDoc(userRef));
         docLoaded.then((userSnap) => {
           if (userSnap.exists()) {
             school = userSnap.data().school;
           }
+          // const userData : any = {
+          //   displayName : user.displayName,
+          //   email : user.email,
+          //   school : school,
+          // }
+          // localStorage.setItem("userData", JSON.stringify(userData));
           dispatch(setUserState(user.displayName, user.email, false, school));
           setBusy(false);
           window.history.replaceState({}, "", "/home");
         });
         docLoaded.catch((err) => {
           console.log(err);
+          // const userData : any = {
+          //   displayName : user.displayName,
+          //   email : user.email,
+          //   school : school,
+          // }
+          // localStorage.setItem("userData", JSON.stringify(userData));
           dispatch(setUserState(user.displayName, user.email, false, ""));
           setBusy(false);
           window.history.replaceState({}, "", "/home");

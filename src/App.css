@@ -159,6 +159,7 @@ ion-checkbox {
   text-align: center;
 }
 
+
 .posts-avatar {
   border: 1px solid rgb(119, 119, 119);
   overflow: hidden;
@@ -264,7 +265,7 @@ ion-toolbar {
 
 .ion-img-comment {
   aspect-ratio: 1;
-  border-color:transparent;
+  border-color: transparent;
   width: 50px;
 
 }
@@ -303,14 +304,9 @@ ion-toolbar {
 }
 
 .ion-img-container {
-  max-height: 25vh;
-  max-width: 90vw;
-  height: auto;
-  width: auto;
-  overflow: hidden;
-  border-radius: 1%;
-  justify-content: center;
-  /* border: 2px solid #5e5e5e; */
+  background-size: cover;
+  background-position: center center;
+  height: 30vh;
 }
 
 
@@ -414,7 +410,7 @@ ion-input[disabled] {
 }
 
 hr {
-  border-top: 1px solid ;
+  border-top: 1px solid;
 }
 
 .ion-header {

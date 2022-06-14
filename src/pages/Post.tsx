@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import auth, { addCommentNew, addTestMessage, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
+import auth, { addCommentNew, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeComment, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
 import {
   upVote,
   downVote,
@@ -37,6 +37,7 @@ import {
   IonSpinner,
   IonText,
   IonTextarea,
+  IonTitle,
   IonToolbar,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
@@ -47,11 +48,12 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, arrowBack, options } from "ionicons/icons";
+import { cameraOutline, arrowBack, options, shareOutline } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import Linkify from 'linkify-react';
+import { Share } from "@capacitor/share";
 
 interface MatchUserPostParams {
   key: string;
@@ -91,6 +93,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [showPictureAddButton, setShowPictureAddButton] = useState<boolean>(true);
   const [kbHeight, setKbHeight] = useState<number>(0);
+  const [previousCommentLoading, setPreviousCommentLoading] = useState<boolean>(false);
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
@@ -106,20 +109,31 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
+  const sharePost = async () => {
+    if (post && postKey) {
+      await Share.share({
+        title: post.userName + "'s Post",
+        text: 'Let me tellU about this post I saw. \n\n' + "\"" + post.message + '\"\n\n',
+        url: 'http://tellUapp.com/post/' + postKey,
+      });
+    }
+  }
+
   const handleCommentSubmit = async () => {
-    if (comment.trim().length == 0 && photo === null && blob === null) {
+    if (comment.trim().length == 0 && photo === null) {
       Toast.error("Input a comment");
       Keyboard.hide();
     } else {
+      setPhoto(null);
       const tempComment = comment;
       setComment("");
       Keyboard.hide();
       setCommentsLoading(true);
+      setPreviousCommentLoading(true);
       let uniqueId = uuidv4();
       if (blob) {
         await sendImage(blob, uniqueId.toString());
         setBlob(null);
-        setPhoto(null);
       }
       const hasTimedOut = promiseTimeout(
         10000,
@@ -137,12 +151,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         } else {
           Toast.error("Unable to comment on post");
         }
-
         setCommentsLoading(false);
+        setPreviousCommentLoading(false);
       });
       hasTimedOut.catch((err) => {
-        Toast.error(err);
+        Toast.warning('Slow internet connection, comment will be uploaded soon...');
         setCommentsLoading(false);
+        setPreviousCommentLoading(false);
       });
     }
   };
@@ -173,27 +188,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       Toast.error("Unable to load message rn");
     }
   };
-
-
-  const sendTestMessage = () => {
-    let messageText = "testDoc";
-    addTestMessage({ text: messageText })
-      .then((result) => {
-        // Read result of the Cloud Function.
-        /** @type {any} */
-        const data: any = result.data;
-        const sanitizedMessage = data.text;
-        console.log(data + '\n' + sanitizedMessage);
-      })
-      .catch((error) => {
-        // Getting the Error details.
-        const code = error.code;
-        const message = error.message;
-        const details = error.details;
-        console.log(code + '\n' + message + '\n' + details);
-        // ...
-      });
-  }
 
   const handleLoadCommentsNextBatch = async (event: any) => {
     if (postKey && schoolName && lastKey) {
@@ -455,6 +449,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       <IonContent ref={contentRef} scrollEvents>
         <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
+            {post && post.userName &&
+              <IonTitle>{post.userName}'s Post</IonTitle>
+            }
             <IonButtons slot="start">
               <IonButton
                 onClick={() => {
@@ -462,6 +459,11 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 }}
               >
                 <IonIcon icon={arrowBack}></IonIcon> Back
+              </IonButton>
+            </IonButtons>
+            <IonButtons slot='end'>
+              <IonButton slot="end" onClick={() => { sharePost(); }}>
+                <IonIcon icon={shareOutline} />
               </IonButton>
             </IonButtons>
           </IonToolbar>
@@ -480,7 +482,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             spellcheck={true}
             maxlength={200}
             value={comment}
-            placeholder="Leave a comment..."
+            disabled={previousCommentLoading}
+            placeholder={!previousCommentLoading ? "Leave a comment..." : "Please wait until previous comment has posted..."}
             id="commentModal"
             onKeyPress={e => isEnterPressed(e.key)}
             onIonChange={(e: any) => {
@@ -494,7 +497,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 {photo !== null && photo !== undefined ? (
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
-                <IonFabButton disabled={!showPictureAddButton} onClick={() => { takePicture(); }} color="medium" size="small" mode="ios">
+                <IonFabButton disabled={!showPictureAddButton || previousCommentLoading} onClick={() => { takePicture(); }} color="medium" size="small" mode="ios">
                   <IonIcon size="small" icon={cameraOutline} />
                 </IonFabButton>
               </IonRow>
@@ -586,6 +589,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       <Linkify tagName="h3" className="h2-message">
                         {post.message}
                       </Linkify>
+                      {"imgSrc" in post && post.imgSrc &&
+                        post.imgSrc.length > 0 ? (
+                        <>
+                          <br></br>
+                          <div
+                            className="ion-img-container"
+                            style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '7.5px' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                            }}
+                          >
+                          </div>
+                        </>
+                      ) : null}
                     </IonLabel>
                     <div
                       id={post.postType.replace("/", "")}
@@ -657,19 +675,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </IonItem>
                 </IonList>
                 <div className="verticalLine"></div>
-                {"imgSrc" in post && post.imgSrc &&
-                  post.imgSrc.length > 0 ? (
-                  <IonCard style={{ bottom: "7.5vh" }}>
-                    <IonCardContent>
-                      <IonImg
-                        onClick={() => {
-                          PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
-                        }}
-                        src={post.imgSrc}
-                      ></IonImg>
-                    </IonCardContent>
-                  </IonCard>
-                ) : null}
               </div>
             </FadeIn>
 
@@ -711,7 +716,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   ? comments?.map((comment: any, index: number) => (
                     <IonList inset={true} key={index}>
                       {" "}
-                      <IonItem lines="none">
+                      <IonItem mode="ios" lines="none">
                         <IonLabel class="ion-text-wrap">
                           <IonText color="medium">
                             <p>
@@ -734,16 +739,18 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             {comment.comment}
                           </Linkify>
                           {"imgSrc" in comment && comment.imgSrc && comment.imgSrc.length > 0 ? (
-                            <div className="ion-img-container">
+                            <>
                               <br></br>
-                              <IonImg
-                                onClick={() => {
+                              <div
+                                className="ion-img-container"
+                                style={{ backgroundImage: `url(${comment.imgSrc})`, borderRadius: '7.5px' }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
-                                }
-                                }
-                                src={comment.imgSrc}
-                              />
-                            </div>
+                                }}
+                              >
+                              </div>
+                            </>
                           ) : null}
                         </IonLabel>
                         {"timestamp" in comment ? (
@@ -830,19 +837,19 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                     </IonList>
                   ))
                   : null}
-                {kbHeight !== 0 || kbHeight > 0 ? 
-                <>
-                <IonItem lines="none" mode="ios" disabled>
-                </IonItem>
-                <IonItem lines="none" mode="ios" disabled>
-                </IonItem>
-                <IonItem lines="none" mode="ios" disabled>
-                </IonItem>
-                <IonItem lines="none" mode="ios" disabled>
-                </IonItem>
-                </>
-                :
-                null}
+                {kbHeight !== 0 || kbHeight > 0 ?
+                  <>
+                    <IonItem lines="none" mode="ios" disabled>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios" disabled>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios" disabled>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios" disabled>
+                    </IonItem>
+                  </>
+                  :
+                  null}
               </div>
             </FadeIn>
           )}
