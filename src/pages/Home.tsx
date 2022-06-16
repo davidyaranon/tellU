@@ -84,6 +84,8 @@ import { Share } from '@capacitor/share';
 import Map from "@mui/icons-material/Map";
 import Linkify from 'linkify-react';
 import ProgressBar from "./ProgressBar";
+import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestore";
+import { db } from '../fbconfig';
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -113,6 +115,8 @@ function Home() {
   const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
   const [blob, setBlob] = useState<any | null>(null);
   const [posts, setPosts] = useState<any[] | null>(null);
+  const postsRef = useRef<any>();
+  postsRef.current = posts;
   const [message, setMessage] = useState("");
   const [generalChecked, setGeneralChecked] = useState<boolean>(true);
   const [locationChecked, setLocationChecked] = useState<boolean>(false);
@@ -133,12 +137,14 @@ function Home() {
   const contentRef = useRef<HTMLIonContentElement | null>(null);
   const modalContentRef = useRef<HTMLIonContentElement | null>(null);
   const [newPostsLoaded, setNewPostsLoaded] = useState<boolean>(false);
-  const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [originalLastKey, setOriginalLastKey] = useState<string>("");
+  const originalLastKeyRef = useRef<any>();
+  originalLastKeyRef.current = originalLastKey;
   const [showProgressBar, setShowProgressBar] = useState<boolean>(false);
   const [progressPercentage, setProgressPercentage] = useState<string>("5");
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
+  const [scrollPosition, setScrollPosition] = useState<number>(0);
 
   // useIonViewWillEnter(() => {
   //   setShowTabs(true);
@@ -394,7 +400,7 @@ function Home() {
         setShowReloadMessage(true);
       });
     } else {
-      setNoMorePosts(true);
+      // setNoMorePosts(true);
     }
   };
 
@@ -418,6 +424,7 @@ function Home() {
         // console.log(res.allPosts);
         setPosts(res.allPosts);
         setLastKey(res.lastKey);
+        console.log(res.lastKey);
         setOriginalLastKey(res.lastKey);
       } else {
         Toast.error("Unable to load posts");
@@ -434,7 +441,7 @@ function Home() {
 
   async function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     setNewPostsLoaded(false);
-    setNoMorePosts(false);
+    // setNoMorePosts(false);
     setLastKey(originalLastKey);
     handleLoadPosts();
     setTimeout(() => {
@@ -582,23 +589,66 @@ function Home() {
       setBusy(false);
       history.replace("/landing-page");
     } else if (schoolName) {
-      handleLoadPosts();
+      // handleLoadPosts();
       // add snapshot listener for new posts + like/dislike??
       getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL"))
         .then((url: string) => {
           setProfilePhoto(url);
-        })
+        }).catch((err) => {
+          console.log(err);
+          Toast.error(err);
+        });
     }
-    return () => {};
+    const q = query(collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts"), orderBy("timestamp", "desc"), limit(250));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const data: any = [];
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          data.push({
+            ...change.doc.data(),
+            key: change.doc.id,
+          });
+        }
+      });
+      if (data.length > 0) {
+        for (let i = 0; i < data.length; ++i) {
+          const likesData = await getLikes(data[i].key);
+          if (likesData) {
+            data[i].likes = likesData.likes;
+            data[i].dislikes = likesData.dislikes;
+            data[i].commentAmount = likesData.commentAmount;
+          } else {
+            data[i].likes = {};
+            data[i].dislikes = {};
+            data[i].commentAmount = 0;
+          }
+        }
+        if(postsRef.current) {
+          await timeout(1000);
+          setPosts([...data, ...postsRef.current]);
+          setNewPostsLoaded(true);
+        } else {
+          setPosts(data);
+          setLastKey(data[data.length - 1].timestamp);
+          setOriginalLastKey(data[data.length - 1].timestamp);
+        }
+      }
+    });
+    return () => { unsubscribe(); };
   }, [schoolName]);
 
   if (posts) {
     return (
       <IonPage ref={pageRef}>
-        <IonContent ref={contentRef} scrollEvents={true} fullscreen={true}>
-          {newPostsLoaded ? (
+        <IonContent ref={contentRef} scrollEvents={true} fullscreen={true} onIonScroll={(e) => {
+          setScrollPosition(e.detail.scrollTop);
+          if(scrollPosition < 50) {
+            setNewPostsLoaded(false);
+          }
+        }}>
+          {newPostsLoaded && scrollPosition > 50 ? (
             <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
-              <IonFabButton className="load-new-posts" mode="ios" onClick={() => { setNoMorePosts(false); setNewPostsLoaded(false); setPosts(newPosts); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
+              <IonFabButton className="load-new-posts" mode="ios" onClick={() => { setNewPostsLoaded(false); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
             </IonFab>
           ) : (null)}
 
@@ -1006,7 +1056,7 @@ function Home() {
                             style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              const img : CapacitorImage = {
+                              const img: CapacitorImage = {
                                 url: post.imgSrc,
                                 title: `${post.userName}'s post`
                               };
@@ -1015,7 +1065,7 @@ function Home() {
                                   title: true
                                 },
                                 images: [img],
-                                mode: 'one',                               
+                                mode: 'one',
                               });
                               // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
@@ -1112,7 +1162,7 @@ function Home() {
             </div>
           )}
           <IonInfiniteScroll
-            onIonInfinite={(e: any) => { handleLoadPostsNextBatch(e) }}
+            onIonInfinite={(e: any) => { console.log('inf'); handleLoadPostsNextBatch(e) }}
             disabled={(lastKey.length == 0)}
           >
             <IonInfiniteScrollContent

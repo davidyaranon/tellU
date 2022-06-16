@@ -96,6 +96,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [showPictureAddButton, setShowPictureAddButton] = useState<boolean>(true);
   const [kbHeight, setKbHeight] = useState<number>(0);
   const [previousCommentLoading, setPreviousCommentLoading] = useState<boolean>(false);
+  const [deleted, setDeleted] = useState<boolean>(false);
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
@@ -180,6 +181,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           setPost(res);
         } else {
           Toast.error("Post has been deleted");
+          setDeleted(true);
           setShowPictureAddButton(false);
         }
       });
@@ -488,10 +490,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               : { width: "69vw", marginLeft: "2.5vw" }}
             color="secondary"
             spellcheck={true}
-            maxlength={200}
+            maxlength={300}
             value={comment}
-            disabled={previousCommentLoading}
-            placeholder={!previousCommentLoading ? "Leave a comment..." : "Please wait until previous comment has posted..."}
+            disabled={deleted || previousCommentLoading}
+            placeholder={previousCommentLoading || deleted ? "Please wait..." : "Leave a comment..." }
             id="commentModal"
             onKeyPress={e => isEnterPressed(e.key)}
             onIonChange={(e: any) => {
@@ -611,11 +613,11 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                 title: `${post.userName}'s post`
                               };
                               CapacitorPhotoViewer.show({
-                                options: {
-                                  title: true
-                                },
                                 images: [img],
-                                mode: 'one',                               
+                                mode: 'one',     
+                                options: {
+                                  backgroundcolor: 'dimgrey',
+                                }                          
                               });
                               // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}

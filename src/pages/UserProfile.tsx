@@ -41,7 +41,8 @@ import {
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { ref, getDownloadURL } from "firebase/storage";
-import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -83,7 +84,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const sharePost = async () => {
     await Share.share({
       title: username + "\'s tellU Profile",
-      text: 'Check him out!',
+      text: 'Check them out!',
       url: "http://tellUapp.com/home/about/" + uid,
     });
   }
@@ -331,7 +332,18 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       <IonCol size="4">
                         <IonAvatar className="user-avatar">
                           <IonImg onClick={() => {
-                            PhotoViewer.show(profilePhoto, username);
+                            const img : CapacitorImage = {
+                              url: profilePhoto,
+                              title: username
+                            };
+                            CapacitorPhotoViewer.show({
+                              options: {
+                                title: true
+                              },
+                              images: [img],
+                              mode: 'one',                               
+                            });
+                            // PhotoViewer.show(profilePhoto, username);
                           }}
                             src={profilePhoto} />
                         </IonAvatar>
@@ -513,7 +525,18 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                   style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                    const img : CapacitorImage = {
+                                      url: post.imgSrc,
+                                      title: `${post.userName}'s post`
+                                    };
+                                    CapacitorPhotoViewer.show({
+                                      options: {
+                                        title: true
+                                      },
+                                      images: [img],
+                                      mode: 'one',                               
+                                    });
+                                    // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                   }}
                                 >
                                 </div>
@@ -528,7 +551,18 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                       style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                        const img : CapacitorImage = {
+                                          url: post.imgSrc,
+                                          title: `${post.userName}'s post`
+                                        };
+                                        CapacitorPhotoViewer.show({
+                                          options: {
+                                            title: true
+                                          },
+                                          images: [img],
+                                          mode: 'one',                               
+                                        });
+                                        // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                       }}
                                     >
                                     </div>
@@ -704,7 +738,18 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       <IonCol size="4">
                         <IonAvatar className="user-avatar">
                           <IonImg onClick={() => {
-                            PhotoViewer.show(profilePhoto, username);
+                            const img : CapacitorImage = {
+                              url: profilePhoto,
+                              title: username
+                            };
+                            CapacitorPhotoViewer.show({
+                              options: {
+                                title: true
+                              },
+                              images: [img],
+                              mode: 'one',                               
+                            });
+                            // PhotoViewer.show(profilePhoto, username);
                           }}
                             src={profilePhoto} />
                         </IonAvatar>
