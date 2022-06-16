@@ -15,7 +15,7 @@ import {
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
-import auth, { getLikes } from "../fbconfig";
+import auth from "../fbconfig";
 import {
   db,
 } from "../fbconfig";
@@ -187,18 +187,6 @@ function Maps() {
           key: doc.id,
         });
       }
-      for (let i = 0; i < tempMarkers.length; ++i) {
-        const data = await getLikes(tempMarkers[i].key);
-        if (data) {
-          tempMarkers[i].likes = data.likes;
-          tempMarkers[i].dislikes = data.dislikes;
-          tempMarkers[i].commentAmount = data.commentAmount;
-        } else {
-          tempMarkers[i].likes = {};
-          tempMarkers[i].dislikes = {};
-          tempMarkers[i].commentAmount = 0;
-        }
-      }
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
     }
@@ -242,6 +230,8 @@ function Maps() {
         <Map
           center={center}
           zoom={zoom}
+          animate={true}
+          attributionPrefix={false}
           onBoundsChanged={({ center, zoom }) => {
             setCenter(center);
             setZoom(zoom);
@@ -336,7 +326,6 @@ function Maps() {
                     </>
                   ) : null}
                 </IonCardContent>
-
               </IonCard>
             </Overlay>
           ) : null}

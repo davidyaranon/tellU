@@ -37,10 +37,11 @@ import {
   chevronBackOutline,
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getPolls, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
+import auth, { db, getPolls, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
 import {
   promiseTimeout,
 } from "../fbconfig";
+import { doc, onSnapshot } from "firebase/firestore";
 // import {
 //   Camera,
 //   CameraResultType,
@@ -169,18 +170,6 @@ function Community() {
       history.replace("/landing-page");
     } else {
       if (schoolName) {
-        // add listener to weather docs and polls docs !
-        getWeatherData(schoolName).then((data: any) => {
-          if (data && data.icon.toString().includes('day')) {
-            setIsDay(true);
-          } else {
-            setIsDay(false);
-          }
-          setWeatherData(data);
-        }).catch((err) => {
-          console.log(err);
-          Toast.error('Unable to load weather data');
-        });
         const pollsLoaded = promiseTimeout(10000, getPolls(schoolName));
         pollsLoaded.then((res) => {
           setPolls(res);
@@ -191,7 +180,7 @@ function Community() {
       }
       setBusy(false);
     }
-    return () => {}
+    return () => { }
   }, [user, schoolName]);
 
   // const handleUpVote = async (postKey: string, index: number, post: any) => {
@@ -354,17 +343,20 @@ function Community() {
   }
 
   useEffect(() => {
-    if (schoolName) {
-      getWeatherData(schoolName).then((data: any) => {
-        if (data && data.icon.toString().includes('day')) {
+    const unsub = onSnapshot(doc(db, "schoolWeather", schoolName.replace(/\s+/g, "")), (doc) => {
+      const data = doc.data();
+      if (data) {
+        if (data.icon.includes('day')) {
           setIsDay(true);
+        } else {
+          setIsDay(false);
         }
-        setWeatherData(data);
-      }).catch((err) => {
-        console.log(err);
-        Toast.error('Unable to load weather data');
-      });
-    }
+      } else {
+        Toast.error("Something went wrong when loading weather data");
+      }
+      setWeatherData(data);
+    });
+    return () => { unsub(); }
   }, [schoolName]);
 
   return (
@@ -403,7 +395,7 @@ function Community() {
             <div>
               <div style={{ width: "100%" }}>
                 <IonToolbar mode="ios">
-                  <IonButtons style={{marginLeft: "-2.5%"}}>
+                  <IonButtons style={{ marginLeft: "-2.5%" }}>
                     <IonButton
                       onClick={() => {
                         Keyboard.hide().then(() => {
@@ -511,23 +503,23 @@ function Community() {
                             </IonFab>
                             <IonFab horizontal="end" style={{ marginLeft: "20vw" }}>
                               {weatherData && weatherData.icon === '/day/113.png' &&
-                                <img style={{ width: "70%" }} src={sun_96} />
+                                <img style={{ width: "70%", marginTop: "1vh" }} src={sun_96} />
                               }
                               {weatherData && weatherData.icon === '/day/116.png' &&
-                                <img style={{ width: "70%" }} src={partly_cloudy} />
+                                <img style={{ width: "70%", marginTop: "1vh" }} src={partly_cloudy} />
                               }
                               {weatherData && (weatherData.icon === '/day/119.png'
                                 || weatherData.icon === '/day/122.png'
                                 || weatherData.icon === '/day/143.png')
                                 &&
-                                <img style={{ width: "70%" }} src={clouds_96} />
+                                <img style={{ width: "70%", marginTop: "1vh" }} src={clouds_96} />
                               }
                               {weatherData && (weatherData.icon === '/day/386.png'
                                 || weatherData.icon === '/day/389.png'
                                 || weatherData.icon === '/day/395.png'
                                 || weatherData.icon === '/day/392.png')
                                 &&
-                                <img style={{ width: "70%" }} src={stormy} />
+                                <img style={{ width: "70%", marginTop: "1vh" }} src={stormy} />
                               }
                               {weatherData && (weatherData.icon === '/day/176.png'
                                 || weatherData.icon === '/day/293.png'
@@ -542,7 +534,7 @@ function Community() {
                                 || weatherData.icon === '/day/362png'
                                 || weatherData.icon === '/day/182.png')
                                 &&
-                                <img style={{ width: "70%" }} src={sunny_rainy} />
+                                <img style={{ width: "70%", marginTop: "1vh" }} src={sunny_rainy} />
                               }
                               {weatherData && (weatherData.icon === '/day/185.png'
                                 || weatherData.icon === '/day/263.png'
@@ -557,7 +549,7 @@ function Community() {
                                 || weatherData.icon === '/day/284.png'
                                 || weatherData.icon === '/day/266.png')
                                 &&
-                                <img style={{ width: "70%" }} src={rainy} />
+                                <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
                               }
                               {weatherData && weatherData.icon.toString().includes('night') && (
                                 <>
@@ -566,9 +558,9 @@ function Community() {
                                     || weatherData.icon === '/night/119.png'
                                     || weatherData.icon === '/night/122.png'
                                     || weatherData.icon === '/night/143.png' ? (
-                                    <img style={{ width: "50%", marginTop: "1.5vh" }} src={nighttime} />
+                                    <img style={{ width: "50%", marginTop: "1vh" }} src={nighttime} />
                                   ) : (
-                                    <img style={{ width: "70%" }} src={rainy} />
+                                    <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
 
                                   )}
                                 </>

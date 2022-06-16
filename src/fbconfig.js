@@ -569,6 +569,26 @@ export const getNextBatchUsers = async (key) => {
   }
 };
 
+export const getOnePoll = async (schoolName, pollKey) => {
+  try {
+    if (db) {
+      const pollDocRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "polls",
+        pollKey
+      );
+      const snap = await getDoc(pollDocRef);
+      if (snap.exists) {
+        return snap.data();
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const getPolls = async (schoolName) => {
   try {
     if (auth && db) {

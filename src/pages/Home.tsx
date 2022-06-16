@@ -593,8 +593,6 @@ function Home() {
       setBusy(false);
       history.replace("/landing-page");
     } else if (schoolName) {
-      // handleLoadPosts();
-      // add snapshot listener for new posts + like/dislike??
       getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL"))
         .then((url: string) => {
           setProfilePhoto(url);
@@ -1171,7 +1169,7 @@ function Home() {
             </div>
           )}
           <IonInfiniteScroll
-            onIonInfinite={(e: any) => { console.log('inf'); handleLoadPostsNextBatch(e) }}
+            onIonInfinite={(e: any) => { handleLoadPostsNextBatch(e) }}
             disabled={(lastKey.length == 0)}
           >
             <IonInfiniteScrollContent
