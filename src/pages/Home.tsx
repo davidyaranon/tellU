@@ -211,7 +211,7 @@ function Home() {
   }
 
   const scrollToTop = () => {
-    contentRef.current && contentRef.current.scrollToTop(1500);
+    contentRef.current && contentRef.current.scrollToTop(1000);
   };
 
   const ionInputStyle = {
@@ -302,6 +302,9 @@ function Home() {
   };
 
   const getDate = (timestamp: any) => {
+    if (!timestamp) {
+      return '';
+    }
     if ("seconds" in timestamp && "nanoseconds" in timestamp) {
       const time = new Date(
         timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
@@ -441,7 +444,6 @@ function Home() {
 
   async function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     setNewPostsLoaded(false);
-    // setNoMorePosts(false);
     setLastKey(originalLastKey);
     handleLoadPosts();
     setTimeout(() => {
@@ -550,6 +552,7 @@ function Home() {
                 setProgressPercentage('200');
                 setPrevPostUploading(false);
                 setShowProgressBar(false);
+                scrollToTop();
               }
               setBusy(false);
             }
@@ -573,7 +576,8 @@ function Home() {
           setProgressPercentage('100');
           Toast.success("Uploaded!");
           setMessage("");
-          handleLoadPosts();
+          // handleLoadPosts();
+          scrollToTop();
           setShowProgressBar(false);
           setPrevPostUploading(false);
         }
@@ -611,23 +615,28 @@ function Home() {
         }
       });
       if (data.length > 0) {
-        for (let i = 0; i < data.length; ++i) {
-          const likesData = await getLikes(data[i].key);
-          if (likesData) {
-            data[i].likes = likesData.likes;
-            data[i].dislikes = likesData.dislikes;
-            data[i].commentAmount = likesData.commentAmount;
-          } else {
-            data[i].likes = {};
-            data[i].dislikes = {};
+        if (postsRef.current) {
+          for (let i = 0; i < data.length; ++i) {
+            data[i].likes = { 'null': true };
+            data[i].dislikes = { 'null': true };
             data[i].commentAmount = 0;
           }
-        }
-        if(postsRef.current) {
           await timeout(1000);
           setPosts([...data, ...postsRef.current]);
           setNewPostsLoaded(true);
         } else {
+          for (let i = 0; i < data.length; ++i) {
+            const likesData = await getLikes(data[i].key);
+            if (likesData) {
+              data[i].likes = likesData.likes;
+              data[i].dislikes = likesData.dislikes;
+              data[i].commentAmount = likesData.commentAmount;
+            } else {
+              data[i].likes = { 'null': true };
+              data[i].dislikes = { 'null': true };
+              data[i].commentAmount = 0;
+            }
+          }
           setPosts(data);
           setLastKey(data[data.length - 1].timestamp);
           setOriginalLastKey(data[data.length - 1].timestamp);
@@ -642,11 +651,11 @@ function Home() {
       <IonPage ref={pageRef}>
         <IonContent ref={contentRef} scrollEvents={true} fullscreen={true} onIonScroll={(e) => {
           setScrollPosition(e.detail.scrollTop);
-          if(scrollPosition < 50) {
+          if (scrollPosition < 100) {
             setNewPostsLoaded(false);
           }
         }}>
-          {newPostsLoaded && scrollPosition > 50 ? (
+          {newPostsLoaded && scrollPosition >= 100 ? (
             <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
               <IonFabButton className="load-new-posts" mode="ios" onClick={() => { setNewPostsLoaded(false); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
             </IonFab>

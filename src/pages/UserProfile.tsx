@@ -136,6 +136,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   };
 
   const getDate = (timestamp: any) => {
+    if(!timestamp) {
+      return '';
+    }
     if ("seconds" in timestamp && "nanoseconds" in timestamp) {
       const time = new Date(
         timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
