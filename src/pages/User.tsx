@@ -902,7 +902,7 @@ function User() {
   }
   return (
     <IonPage>
-      <IonContent ref={contentRef} className="no-scroll-content">
+      <IonContent ref={contentRef} className="no-scroll-content" scrollY={false}>
         {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
         <IonToolbar mode="ios">
           <IonButtons slot="start">
@@ -1264,8 +1264,8 @@ function User() {
           </div>
         </IonModal>
         <Swiper
-          // pagination={{ dynamicBullets: true }}
-          // modules={[Pagination]}
+          pagination={{ dynamicBullets: true }}
+          modules={[Pagination]}
           slidesPerView={1}
           onSlideChange={(e) => {
             scrollToTop();
@@ -1290,17 +1290,19 @@ function User() {
           }}
         >
           <SwiperSlide>
+            <br />
+            <IonHeader
+              class="ion-no-border"
+              style={{
+                textAlign: "center",
+                padding: "2vh",
+                fontSize: "1em",
+                color: "#898989"
+              }}
+            >
+              Settings
+            </IonHeader>
             <IonCard className="user-card">
-              <IonHeader
-                class="ion-no-border"
-                style={{
-                  padding: "2vh",
-                  textAlign: "center",
-                  fontSize: "1.25em",
-                }}
-              >
-                Settings
-              </IonHeader>
               <IonList mode="ios" inset={true}>
                 <IonItem mode="ios">
                   <IonGrid>
@@ -1413,68 +1415,124 @@ function User() {
             </IonCard>
           </SwiperSlide>
           <SwiperSlide>
+          <br />
+            <IonHeader
+              class="ion-no-border"
+              style={{
+                textAlign: "center",
+                padding: "2vh",
+                fontSize: "1em",
+                color: "#898989"
+              }}
+            >
+              Notifictions
+            </IonHeader>
             <IonCard className="user-card">
               <div>
-                <IonHeader
-                  class="ion-no-border"
-                  style={{
-                    textAlign: "center",
-                    padding: "2vh",
-                    fontSize: "1.25em",
-                  }}
-                >
-                  Notifications
-                </IonHeader>
                 <IonList mode="ios"></IonList>
               </div>
             </IonCard>
           </SwiperSlide>
           <SwiperSlide>
+            <br />
+            <IonHeader
+              class="ion-no-border"
+              style={{
+                textAlign: "center",
+                padding: "2vh",
+                fontSize: "1em",
+                color: "#898989"
+              }}
+            >
+              Your Posts
+            </IonHeader>
             <IonCard className="user-card">
-              <IonHeader
-                class="ion-no-border"
-                style={{
-                  textAlign: "center",
-                  padding: "2vh",
-                  fontSize: "1.25em",
-                }}
-              >
-                Your Posts
-              </IonHeader>
-              <div>
-                <>
-                  {userPosts && userPosts.length > 0
-                    ? userPosts.map((post: any, index: number) => {
-                      if (busy) {
+              <IonContent>
+                <div>
+                  <>
+                    {userPosts && userPosts.length > 0
+                      ? userPosts.map((post: any, index: number) => {
+                        if (busy) {
+                          return (
+                            <FadeIn key={post.key}>
+                              <IonList inset={true} mode="ios">
+                                <IonItem lines="none" mode="ios">
+                                  <IonLabel>
+                                    <IonFab horizontal="end">
+                                      <IonSkeletonText
+                                        animated
+                                        style={{
+                                          fontSize: "0.75em",
+                                          width: "30vw",
+                                        }}
+                                      />
+                                    </IonFab>
+                                    <IonFab horizontal="start">
+                                      <p
+                                        style={{
+                                          fontWeight: "bold",
+                                          color: getColor(post.postType),
+                                        }}
+                                      >
+                                        <IonSkeletonText
+                                          style={{
+                                            width: "30vw",
+                                            height: "1.75em",
+                                          }}
+                                          animated
+                                        />
+                                      </p>
+                                    </IonFab>
+                                    <br></br>
+                                    <h3
+                                      className="h2-message"
+                                      style={{
+                                        marginLeft: "2%",
+                                        marginTop: "5%",
+                                      }}
+                                    >
+                                      {" "}
+                                      <IonSkeletonText animated />{" "}
+                                    </h3>
+
+                                    {post.imgSrc && post.imgSrc.length > 0 ? (
+                                      <div>
+                                        <br></br>
+                                        <br></br>
+                                        <IonSkeletonText
+                                          style={{ height: "50vw" }}
+                                          animated
+                                        />
+                                      </div>
+                                    ) : null}
+                                  </IonLabel>
+                                </IonItem>
+                              </IonList>
+                            </FadeIn>
+                          );
+                        }
                         return (
                           <FadeIn key={post.key}>
                             <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios">
+                              <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
                                 <IonLabel>
                                   <IonFab horizontal="end">
-                                    <IonSkeletonText
-                                      animated
-                                      style={{
-                                        fontSize: "0.75em",
-                                        width: "30vw",
-                                      }}
-                                    />
+                                    <IonNote style={{ fontSize: "0.75em" }}>
+                                      {" "}
+                                      {getDate(post.timestamp)}{" "}
+                                    </IonNote>
                                   </IonFab>
-                                  <IonFab horizontal="start">
-                                    <p
-                                      style={{
-                                        fontWeight: "bold",
-                                        color: getColor(post.postType),
-                                      }}
-                                    >
-                                      <IonSkeletonText
+                                  <IonFab horizontal="start" style={{ marginLeft: '-1.5%' }}>
+                                    {post.postType != "general" ? (
+                                      <p
                                         style={{
-                                          width: "30vw",
-                                          height: "1.75em",
+                                          fontWeight: "bold",
+                                          color: getColor(post.postType),
                                         }}
-                                        animated
-                                      />
-                                    </p>
+                                      >
+                                        {post.postType.toUpperCase()}
+                                      </p>
+                                    ) : null}
                                   </IonFab>
                                   <br></br>
                                   <h3
@@ -1485,49 +1543,250 @@ function User() {
                                     }}
                                   >
                                     {" "}
-                                    <IonSkeletonText animated />{" "}
+                                    {post.message}{" "}
                                   </h3>
 
                                   {post.imgSrc && post.imgSrc.length > 0 ? (
-                                    <div>
+                                    <>
                                       <br></br>
-                                      <br></br>
-                                      <IonSkeletonText
-                                        style={{ height: "50vw" }}
-                                        animated
-                                      />
-                                    </div>
-                                  ) : null}
+                                      <div
+                                        className="ion-img-container"
+                                        style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const img: CapacitorImage = {
+                                            url: post.imgSrc,
+                                            title: `${post.userName}'s post`
+                                          };
+                                          CapacitorPhotoViewer.show({
+                                            options: {
+                                              title: true
+                                            },
+                                            images: [img],
+                                            mode: 'one',
+                                          });
+                                          // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                        }}
+                                      >
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {post.url.length > 0 ? (
+                                        <>
+                                          <br></br>
+                                          <div
+                                            className="ion-img-container"
+                                            style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const img: CapacitorImage = {
+                                                url: post.imgSrc,
+                                                title: `${post.userName}'s post`
+                                              };
+                                              CapacitorPhotoViewer.show({
+                                                options: {
+                                                  title: true
+                                                },
+                                                images: [img],
+                                                mode: 'one',
+                                              });
+                                              // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
+                                            }}
+                                          >
+                                          </div>
+                                        </>
+                                      ) : null}
+                                    </>
+                                  )}
                                 </IonLabel>
                               </IonItem>
+                              <FadeIn>
+                                <IonItem lines="none" mode="ios">
+                                  <IonButton
+                                    onAnimationEnd={() => {
+                                      setLikeAnimation(-1);
+                                    }}
+                                    className={
+                                      likeAnimation === post.key
+                                        ? "likeAnimation"
+                                        : ""
+                                    }
+                                    disabled={disabledLikeButtons === index}
+                                    mode="ios"
+                                    fill="outline"
+                                    color={
+                                      userPosts &&
+                                        user &&
+                                        index >= 0 &&
+                                        index < userPosts.length &&
+                                        "likes" in userPosts[index] &&
+                                        userPosts[index].likes[user.uid] !== undefined
+                                        ? "primary"
+                                        : "medium"
+                                    }
+                                    onClick={() => {
+                                      setLikeAnimation(post.key);
+                                      setDisabledLikeButtons(index);
+                                      handleUpVote(post.key, index, post);
+                                    }}
+                                  >
+                                    <KeyboardArrowUpIcon />
+                                    <p>{Object.keys(post.likes).length - 1} </p>
+                                  </IonButton>
+                                  <p>&nbsp;</p>
+                                  <IonButton
+                                    mode="ios"
+                                    color="medium"
+                                    onClick={() => {
+                                      history.push("home/post/" + post.key);
+                                    }}
+                                  >
+                                    <ForumIcon />
+                                    <p>&nbsp; {post.commentAmount} </p>
+                                  </IonButton>
+                                  <IonButton
+                                    onAnimationEnd={() => {
+                                      setDislikeAnimation(-1);
+                                    }}
+                                    className={
+                                      dislikeAnimation === post.key
+                                        ? "likeAnimation"
+                                        : ""
+                                    }
+                                    disabled={disabledLikeButtons === index}
+                                    mode="ios"
+                                    fill="outline"
+                                    color={
+                                      userPosts &&
+                                        "dislikes" in userPosts[index] &&
+                                        user &&
+                                        userPosts[index].dislikes[user.uid] !==
+                                        undefined
+                                        ? "danger"
+                                        : "medium"
+                                    }
+                                    onClick={() => {
+                                      setDislikeAnimation(post.key);
+                                      setDisabledLikeButtons(index);
+                                      handleDownVote(post.key, index, post);
+                                    }}
+                                  >
+                                    <KeyboardArrowDownIcon />
+                                    <p>{Object.keys(post.dislikes).length - 1} </p>
+                                  </IonButton>
+                                  <IonFab horizontal="end">
+                                    <IonButton
+                                      disabled={disabledDeleteButton}
+                                      mode="ios"
+                                      fill="outline"
+                                      color="danger"
+                                      onClick={() => {
+                                        if ("url" in post && post.url && post.url.length > 0) {
+                                          deletePost(index, post.key, post.url);
+                                        } else {
+                                          deletePost(index, post.key, "");
+                                        }
+                                      }}
+                                    >
+                                      <DeleteIcon />
+                                    </IonButton>
+                                  </IonFab>
+                                </IonItem>
+                              </FadeIn>
                             </IonList>
                           </FadeIn>
                         );
-                      }
-                      return (
-                        <FadeIn key={post.key}>
-                          <IonList inset={true} mode="ios">
-                            <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
+                      })
+                      : <IonSpinner className="ion-spinner" color="primary"></IonSpinner>}
+                  </>
+                  {loadingUserPosts ? (
+                    <div style={{ textAlign: "center" }}>
+                      <IonSpinner color="primary" />
+                    </div>
+                  ) : (
+                    null
+                  )}
+                  <FadeIn>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <IonButton
+                        color="medium"
+                        mode="ios"
+                        fill="outline"
+                        expand="block"
+                        disabled={!userPosts || loadingUserPosts || noMorePosts}
+                        onClick={() => {
+                          fetchMorePosts();
+                        }}
+                      >
+                        LOAD MORE POSTS{" "}
+                      </IonButton>
+                    </div>
+                  </FadeIn>
+                </div>
+              </IonContent>
+            </IonCard>
+          </SwiperSlide>
+          <SwiperSlide>
+            <br />
+            <IonHeader
+              class="ion-no-border"
+              style={{
+                textAlign: "center",
+                padding: "2vh",
+                fontSize: "1em",
+                color: "#898989"
+              }}
+            >
+              Liked Posts
+            </IonHeader>
+            <IonCard className="user-card">
+              <IonContent>
+                <div>
+                  {userLikedPosts ? (
+                    <FadeIn>
+                      {userLikedPosts.map((post, index) => {
+                        return (
+                          <IonList mode="ios" lines="none" inset>
+                            <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
                               <IonLabel>
-                                <IonFab horizontal="end">
-                                  <IonNote style={{ fontSize: "0.75em" }}>
-                                    {" "}
-                                    {getDate(post.timestamp)}{" "}
-                                  </IonNote>
-                                </IonFab>
-                                <IonFab horizontal="start" style={{ marginLeft: '-1.5%' }}>
-                                  {post.postType != "general" ? (
-                                    <p
-                                      style={{
-                                        fontWeight: "bold",
-                                        color: getColor(post.postType),
-                                      }}
-                                    >
-                                      {post.postType.toUpperCase()}
-                                    </p>
-                                  ) : null}
-                                </IonFab>
-                                <br></br>
+                                <IonText color="medium">
+                                  <IonRow>
+                                    <IonCol size="6">
+                                      <p>
+                                        <IonAvatar
+                                          class="posts-avatar"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            history.push("home/about/" + post.uid);
+                                          }}
+                                        >
+                                          <IonImg src={post?.photoURL!}></IonImg>
+                                        </IonAvatar>
+                                        {post.userName}
+                                      </p>
+                                    </IonCol>
+                                    <IonCol>
+                                      {post.postType && post.postType != "general" ? (
+                                        <IonFab horizontal="end">
+                                          <p
+                                            style={{
+                                              fontWeight: "bold",
+                                              color: getColor(post.postType),
+                                            }}
+                                          >
+                                            {post.postType.toUpperCase()}
+                                          </p>
+                                        </IonFab>
+                                      ) : null}
+                                      <IonFab style={{ bottom: "1vh" }} horizontal="end">
+                                        <IonNote style={{ fontSize: "0.85em" }}>
+                                          {getDate(post.timestamp)}
+                                        </IonNote>
+                                      </IonFab>
+                                    </IonCol>
+                                  </IonRow>
+                                </IonText>
                                 <h3
                                   className="h2-message"
                                   style={{
@@ -1538,8 +1797,7 @@ function User() {
                                   {" "}
                                   {post.message}{" "}
                                 </h3>
-
-                                {post.imgSrc && post.imgSrc.length > 0 ? (
+                                {post.imgSrc.length > 0 ? (
                                   <>
                                     <br></br>
                                     <div
@@ -1563,344 +1821,103 @@ function User() {
                                     >
                                     </div>
                                   </>
-                                ) : (
-                                  <>
-                                    {post.url.length > 0 ? (
-                                      <>
-                                        <br></br>
-                                        <div
-                                          className="ion-img-container"
-                                          style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            const img: CapacitorImage = {
-                                              url: post.imgSrc,
-                                              title: `${post.userName}'s post`
-                                            };
-                                            CapacitorPhotoViewer.show({
-                                              options: {
-                                                title: true
-                                              },
-                                              images: [img],
-                                              mode: 'one',
-                                            });
-                                            // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
-                                          }}
-                                        >
-                                        </div>
-                                      </>
-                                    ) : null}
-                                  </>
-                                )}
+                                ) : null}
                               </IonLabel>
                             </IonItem>
-                            <FadeIn>
-                              <IonItem lines="none" mode="ios">
-                                <IonButton
-                                  onAnimationEnd={() => {
-                                    setLikeAnimation(-1);
-                                  }}
-                                  className={
-                                    likeAnimation === post.key
-                                      ? "likeAnimation"
-                                      : ""
-                                  }
-                                  disabled={disabledLikeButtons === index}
-                                  mode="ios"
-                                  fill="outline"
-                                  color={
-                                    userPosts &&
-                                      user &&
-                                      index >= 0 &&
-                                      index < userPosts.length &&
-                                      "likes" in userPosts[index] &&
-                                      userPosts[index].likes[user.uid] !== undefined
-                                      ? "primary"
-                                      : "medium"
-                                  }
-                                  onClick={() => {
-                                    setLikeAnimation(post.key);
-                                    setDisabledLikeButtons(index);
-                                    handleUpVote(post.key, index, post);
-                                  }}
-                                >
-                                  <KeyboardArrowUpIcon />
-                                  <p>{Object.keys(post.likes).length - 1} </p>
-                                </IonButton>
-                                <p>&nbsp;</p>
-                                <IonButton
-                                  mode="ios"
-                                  color="medium"
-                                  onClick={() => {
-                                    history.push("home/post/" + post.key);
-                                  }}
-                                >
-                                  <ForumIcon />
-                                  <p>&nbsp; {post.commentAmount} </p>
-                                </IonButton>
-                                <IonButton
-                                  onAnimationEnd={() => {
-                                    setDislikeAnimation(-1);
-                                  }}
-                                  className={
-                                    dislikeAnimation === post.key
-                                      ? "likeAnimation"
-                                      : ""
-                                  }
-                                  disabled={disabledLikeButtons === index}
-                                  mode="ios"
-                                  fill="outline"
-                                  color={
-                                    userPosts &&
-                                      "dislikes" in userPosts[index] &&
-                                      user &&
-                                      userPosts[index].dislikes[user.uid] !==
-                                      undefined
-                                      ? "danger"
-                                      : "medium"
-                                  }
-                                  onClick={() => {
-                                    setDislikeAnimation(post.key);
-                                    setDisabledLikeButtons(index);
-                                    handleDownVote(post.key, index, post);
-                                  }}
-                                >
-                                  <KeyboardArrowDownIcon />
-                                  <p>{Object.keys(post.dislikes).length - 1} </p>
-                                </IonButton>
-                                <IonFab horizontal="end">
+                          </IonList>
+                        )
+                      })}
+                    </FadeIn>
+                  ) :
+                    <IonSpinner color='primary' className='ion-spinner'></IonSpinner>
+                  }
+                  {userLikedPosts && userLikedPosts.length <= 0 ? (
+                    <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
+                  ) : (null)}
+                  <FadeIn>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <IonButton
+                        disabled={!userLikedPosts || noMoreLikes}
+                        color="medium"
+                        mode="ios"
+                        fill="outline"
+                        expand="block"
+                        onClick={() => {
+                          fetchMoreLikes();
+                        }}
+                      >
+                        LOAD MORE LIKES{" "}
+                      </IonButton>
+                    </div>
+                  </FadeIn>
+                </div>
+              </IonContent>
+            </IonCard>
+          </SwiperSlide>
+          <SwiperSlide>
+            <br />
+            <IonHeader
+              class="ion-no-border"
+              style={{
+                textAlign: "center",
+                padding: "2vh",
+                fontSize: "1em",
+                color: "#898989"
+              }}
+            >
+              Your Polls
+            </IonHeader>
+            <IonCard className="user-card">
+              <IonContent>
+                <div>
+                  <div>
+                    {user && yourPolls ? (
+                      <FadeIn>
+                        {yourPolls.map((poll, index) => {
+                          return (
+                            <IonCard mode='ios' key={poll.key}>
+                              <IonCardContent style={{ minHeight: "55vh" }}>
+                                <p>{poll.userName}</p>
+                                <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
+                                <br />
+                                <IonList lines="full" mode="ios">
+                                  {poll.options.map((option: any, index: number) => {
+                                    return (
+                                      <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                        {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
+                                      </IonItem>
+                                    )
+                                  })}
+                                </IonList>
+                                <IonFab vertical="bottom" horizontal="start">
+                                  <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                                </IonFab>
+                                <IonFab vertical='bottom' horizontal="end">
                                   <IonButton
+                                    size="small"
                                     disabled={disabledDeleteButton}
                                     mode="ios"
                                     fill="outline"
                                     color="danger"
                                     onClick={() => {
-                                      if ("url" in post && post.url && post.url.length > 0) {
-                                        deletePost(index, post.key, post.url);
-                                      } else {
-                                        deletePost(index, post.key, "");
-                                      }
+                                      deletePoll(index, poll.key)
                                     }}
                                   >
                                     <DeleteIcon />
                                   </IonButton>
                                 </IonFab>
-                              </IonItem>
-                            </FadeIn>
-                          </IonList>
-                        </FadeIn>
-                      );
-                    })
-                    : <IonSpinner className="ion-spinner" color="primary"></IonSpinner>}
-                </>
-                {loadingUserPosts ? (
-                  <div style={{ textAlign: "center" }}>
-                    <IonSpinner color="primary" />
+                              </IonCardContent>
+                            </IonCard>
+                          )
+                        })}
+                      </FadeIn>) : (<IonSpinner color="primary" className="ion-spinner" />)}
                   </div>
-                ) : (
-                  null
-                )}
-                <FadeIn>
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <IonButton
-                      color="medium"
-                      mode="ios"
-                      fill="outline"
-                      expand="block"
-                      disabled={!userPosts || loadingUserPosts || noMorePosts}
-                      onClick={() => {
-                        fetchMorePosts();
-                      }}
-                    >
-                      LOAD MORE POSTS{" "}
-                    </IonButton>
-                  </div>
-                </FadeIn>
-              </div>
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <IonCard className="user-card">
-              <div>
-                <IonHeader
-                  class="ion-no-border"
-                  style={{
-                    textAlign: "center",
-                    padding: "2vh",
-                    fontSize: "1.25em",
-                  }}
-                >
-                  Liked Posts
-                </IonHeader>
-                {userLikedPosts ? (
-                  <FadeIn>
-                    {userLikedPosts.map((post, index) => {
-                      return (
-                        <IonList mode="ios" lines="none" inset>
-                          <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
-                            <IonLabel>
-                              <IonText color="medium">
-                                <IonRow>
-                                  <IonCol size="6">
-                                    <p>
-                                      <IonAvatar
-                                        class="posts-avatar"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          history.push("home/about/" + post.uid);
-                                        }}
-                                      >
-                                        <IonImg src={post?.photoURL!}></IonImg>
-                                      </IonAvatar>
-                                      {post.userName}
-                                    </p>
-                                  </IonCol>
-                                  <IonCol>
-                                    {post.postType && post.postType != "general" ? (
-                                      <IonFab horizontal="end">
-                                        <p
-                                          style={{
-                                            fontWeight: "bold",
-                                            color: getColor(post.postType),
-                                          }}
-                                        >
-                                          {post.postType.toUpperCase()}
-                                        </p>
-                                      </IonFab>
-                                    ) : null}
-                                    <IonFab style={{ bottom: "1vh" }} horizontal="end">
-                                      <IonNote style={{ fontSize: "0.85em" }}>
-                                        {getDate(post.timestamp)}
-                                      </IonNote>
-                                    </IonFab>
-                                  </IonCol>
-                                </IonRow>
-                              </IonText>
-                              <h3
-                                className="h2-message"
-                                style={{
-                                  marginLeft: "2%",
-                                  marginTop: "5%",
-                                }}
-                              >
-                                {" "}
-                                {post.message}{" "}
-                              </h3>
-                              {post.imgSrc.length > 0 ? (
-                                <>
-                                  <br></br>
-                                  <div
-                                    className="ion-img-container"
-                                    style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const img: CapacitorImage = {
-                                        url: post.imgSrc,
-                                        title: `${post.userName}'s post`
-                                      };
-                                      CapacitorPhotoViewer.show({
-                                        options: {
-                                          title: true
-                                        },
-                                        images: [img],
-                                        mode: 'one',
-                                      });
-                                      // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
-                                    }}
-                                  >
-                                  </div>
-                                </>
-                              ) : null}
-                            </IonLabel>
-                          </IonItem>
-                        </IonList>
-                      )
-                    })}
-                  </FadeIn>
-                ) :
-                  <IonSpinner color='primary' className='ion-spinner'></IonSpinner>
-                }
-                {userLikedPosts && userLikedPosts.length <= 0 ? (
-                  <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
-                ) : (null)}
-                <FadeIn>
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <IonButton
-                      disabled={!userLikedPosts || noMoreLikes}
-                      color="medium"
-                      mode="ios"
-                      fill="outline"
-                      expand="block"
-                      onClick={() => {
-                        fetchMoreLikes();
-                      }}
-                    >
-                      LOAD MORE LIKES{" "}
-                    </IonButton>
-                  </div>
-                </FadeIn>
-              </div>
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <IonCard className="user-card">
-              <div>
-                <IonHeader
-                  class="ion-no-border"
-                  style={{
-                    textAlign: "center",
-                    padding: "2vh",
-                    fontSize: "1.25em",
-                  }}
-                >
-                  Your Polls
-                </IonHeader>
-                <div>
-                  {user && yourPolls ? (
-                    <FadeIn>
-                      {yourPolls.map((poll, index) => {
-                        return (
-                          <IonCard mode='ios' key={poll.key}>
-                            <IonCardContent style={{ minHeight: "60vh" }}>
-                              <p>{poll.userName}</p>
-                              <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
-                              <br />
-                              <IonList lines="full" mode="ios">
-                                {poll.options.map((option: any, index: number) => {
-                                  return (
-                                    <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
-                                      {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
-                                    </IonItem>
-                                  )
-                                })}
-                              </IonList>
-                              <IonFab vertical="bottom" horizontal="start">
-                                <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                              </IonFab>
-                              <IonFab vertical='bottom' horizontal="end">
-                                <IonButton
-                                  size="small"
-                                  disabled={disabledDeleteButton}
-                                  mode="ios"
-                                  fill="outline"
-                                  color="danger"
-                                  onClick={() => {
-                                    deletePoll(index, poll.key)
-                                  }}
-                                >
-                                  <DeleteIcon />
-                                </IonButton>
-                              </IonFab>
-                            </IonCardContent>
-                          </IonCard>
-                        )
-                      })}
-                    </FadeIn>) : (<IonSpinner color="primary" className="ion-spinner" />)}
+                  {yourPolls && yourPolls.length <= 0 ? (
+                    <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
+                  ) : (null)}
                 </div>
-                {yourPolls && yourPolls.length <= 0 ? (
-                  <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
-                ) : (null)}
-              </div>
+                <br /><br />
+              </IonContent>
             </IonCard>
           </SwiperSlide>
         </Swiper>
