@@ -8,6 +8,7 @@ import {
   setupIonicReact,
   IonTabBar,
   IonTabButton,
+  IonBadge,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -71,7 +72,12 @@ setupIonicReact({
   swipeBackEnabled: false,
 });
 
-const RoutingSystem: React.FunctionComponent = () => {
+interface Badge{
+  notifCount : number;
+}
+
+const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
+  const badgeCount = props.notifCount;
   const { showTabs } = React.useContext(UIContext);
   const [selectedTab, setSelectedTab] = useState<string>("home");
   let tabBarStyle = showTabs ? undefined : { display: "none" };
@@ -137,6 +143,8 @@ const RoutingSystem: React.FunctionComponent = () => {
                 fontSize="medium"
                 style={ selectedTab === 'user' ? { fontSize: "4.25vh"} : {fontSize: "4.00vh"} }
               />
+              {/* {true &&  */}
+              <IonBadge color="danger">{badgeCount}</IonBadge>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
@@ -249,7 +257,7 @@ const App: React.FunctionComponent = () => {
       {busy ? (
         <IonSpinner class="ion-spinner" name="dots" color="primary" />
       ) : (
-        <RoutingSystem />
+        <RoutingSystem notifCount={18}/>
       )}
     </IonApp>
   );

@@ -330,4 +330,24 @@ exports.deleteLikesDocFromRtdb = functions.https.onCall((data, context) => {
   })
 });
 
-// exports.
+exports.deleteCommentsFromDeletedPost = functions.https.onCall((data, context) => {
+  if(!context.auth){
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Something went wrong, try logging in again'
+    );
+  }
+  if(!data.key || !data.schoolName){
+    throw new functions.https.HttpsError(
+      'resource-exhausted',
+      'Invalid data, try again'
+    );
+  }
+  const key = data.key.toString();
+  const schoolName = data.schoolName.toString();
+  admin.firestore().collection('schoolPosts').doc(schoolName).collection('allPosts').doc(key).collection('comments').get().then(querySnapshot => {
+    querySnapshot.docs.forEach(snpashot => {
+      snpashot.ref.delete();
+    });
+  });
+});

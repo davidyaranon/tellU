@@ -805,7 +805,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           className={
                             likeAnimationComments === comment.key ? "likeAnimation" : ""
                           }
-                          disabled={disabledLikeButtonsComments === index}
+                          disabled={disabledLikeButtonsComments === index || deleted}
                           mode="ios"
                           fill="outline"
                           color={
@@ -830,7 +830,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           mode="ios"
                           fill="outline"
                           disabled={
-                            disabledLikeButtonsComments === index
+                            disabledLikeButtonsComments === index || deleted
                           }
                           onAnimationEnd={() => {
                             setDislikeAnimationComments(-1);

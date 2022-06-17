@@ -1,9 +1,8 @@
 import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
-import { getStorage, deleteObject, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   deleteDoc,
-  deleteField,
   serverTimestamp,
   increment,
   collection,
@@ -23,7 +22,6 @@ import {
   addDoc,
   writeBatch,
   runTransaction,
-  
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
@@ -37,9 +35,17 @@ import {
   indexedDBLocalPersistence,
 } from "firebase/auth";
 import { Capacitor } from '@capacitor/core';
-import { getDatabase, set, get, runTransaction as rtdbRunTransaction, 
-  remove, update, increment as rtdbIncrement } from "firebase/database";
+import {
+  getDatabase, 
+  set, 
+  get, 
+  runTransaction as rtdbRunTransaction,
+  update, 
+  increment as rtdbIncrement
+} from "firebase/database";
 import { ref as rtdbRef } from "firebase/database";
+
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
@@ -53,7 +59,6 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
-
 const auth = Capacitor.isNativePlatform
   ?
   initializeAuth(app, {
@@ -61,16 +66,18 @@ const auth = Capacitor.isNativePlatform
   })
   :
   getAuth();
-
 export default auth;
 export const functions = getFunctions(app);
 export const db = getFirestore(app);
 export const storage = getStorage();
 export const database = getDatabase();
 
+// cloud functions
 export const deletePoll = httpsCallable(functions, 'deletePoll');
 export const deleteImage = httpsCallable(functions, 'deleteImage');
 export const deleteLikesDocFromRtdb = httpsCallable(functions, 'deleteLikesDocFromRtdb');
+export const deleteCommentsFromDeletedPost = httpsCallable(functions, 'deleteCommentsFromDeletedPost');
+
 
 export async function uploadImage(location, blob, url) {
   try {
@@ -420,11 +427,11 @@ export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok) =>
       const uid = auth.currentUser.uid;
       const batch = writeBatch(db);
       const userDocRef = doc(db, "userData", uid);
-      if(!bio) {bio = "";}
-      if(!instagram){instagram = "";}
-      if(!major){major = "";}
-      if(!snapchat){snapchat = "";}
-      if(!tiktok){tiktok = "";}
+      if (!bio) { bio = ""; }
+      if (!instagram) { instagram = ""; }
+      if (!major) { major = ""; }
+      if (!snapchat) { snapchat = ""; }
+      if (!tiktok) { tiktok = ""; }
       batch.update(userDocRef, {
         bio: bio,
         instagram: instagram,
@@ -528,10 +535,6 @@ export const getUserData = async (uid) => {
       const usersRef = doc(db, "userData", uid.toString());
       const res = await getDoc(usersRef);
       if (res.exists()) {
-        // temp.push({
-        //   ...res.data(),
-        //   key: doc.id,
-        // });
         return { ...res.data(), key: doc.id }
       }
     }
@@ -758,10 +761,10 @@ export const getTopPostsWithinPastDay = async (schoolName) => {
 
 export const getWeatherData = async (schoolName) => {
   try {
-    if(db) {
+    if (db) {
       const weatherDocRef = doc(db, "schoolWeather", schoolName.replace(/\s+/g, ""));
       const snap = await getDoc(weatherDocRef);
-      if(snap.exists()) {
+      if (snap.exists()) {
         const weatherData = {};
         weatherData.feelsLike = snap.data().feelsLike;
         weatherData.humidity = snap.data().humidity;
@@ -868,16 +871,6 @@ export const upVoteComment = async (commentKey) => {
     console.log(err);
   }
 }
-
-export const likePost = (schoolName, postKey, post, userUid) => {
-  try {
-    const data = {
-
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 export const upVote = async (postKey, post) => {
   try {
@@ -1104,17 +1097,20 @@ export const removePoll = async (postKey, schoolName) => {
 export const removePost = async (postKey, schoolName, postUrl) => {
   try {
     if (postUrl.length > 0) {
-      // const pictureRef = ref(storage, postUrl);
-      // await deleteObject(pictureRef).catch((err) => console.log(err));
-      deleteImage({
+      deleteImage({ // cloud function to delete images attached to post
         path: postUrl
       }).catch((err) => {
         console.log(err);
       });
     }
-    deleteLikesDocFromRtdb({
+    deleteLikesDocFromRtdb({ // cloud function to delete rtdb document containing likes information
       key: postKey
     });
+    deleteCommentsFromDeletedPost({ // cloud function to delete all comments made on post
+      key: postKey, 
+      schoolName: schoolName.replace(/\s+/g, ""),
+    });
+
     const postRef = doc(
       db,
       "schoolPosts",
@@ -1122,17 +1118,7 @@ export const removePost = async (postKey, schoolName, postUrl) => {
       "allPosts",
       postKey
     );
-    const postDocRef = doc(
-      db,
-      "schoolPosts",
-      schoolName.replace(/\s+/g, ""),
-      "comments",
-      postKey
-    );
-    const batch = writeBatch(db);
-    batch.delete(postRef);
-    batch.delete(postDocRef);
-    await batch.commit().catch((err) => console.log(err));
+    await deleteDoc(postRef).catch((err) => {console.log(err);});
     return true;
   } catch (err) {
     console.log(err);
@@ -1143,8 +1129,6 @@ export const removeCommentNew = async (comment, schoolName, postKey, commentUrl)
   try {
     if (db) {
       if (commentUrl.length > 0) {
-        // const pictureRef = ref(storage, commentUrl);
-        // deleteObject(pictureRef).catch((err) => console.log(err));
         deleteImage({
           path: commentUrl
         }).catch((err) => {
@@ -1152,7 +1136,7 @@ export const removeCommentNew = async (comment, schoolName, postKey, commentUrl)
         })
       }
       deleteLikesDocFromRtdb({
-        key : comment.key,
+        key: comment.key,
       });
       const commentRef = doc(
         db,
@@ -1163,7 +1147,7 @@ export const removeCommentNew = async (comment, schoolName, postKey, commentUrl)
         "comments",
         comment.key,
       );
-      await deleteDoc(commentRef);
+      await deleteDoc(commentRef).catch((err) => {console.log(err);});
       const likesRef = rtdbRef(database, postKey);
       update(likesRef, {
         commentAmount: rtdbIncrement(-1)

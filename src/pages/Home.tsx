@@ -26,7 +26,6 @@ import {
   IonCol,
   IonSpinner,
   IonNote,
-  useIonViewWillEnter,
   IonPage,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
@@ -59,9 +58,7 @@ import {
 import RoomIcon from '@mui/icons-material/Room';
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
-// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
-// import { PhotoViewer, Image } from '@capacitor-community/photoviewer';  USE THIS WHEN IMPLEMENTING VIDEOS, FOR NOW CAUSES STRANGE FLICKER (RE-REDNERING?)
 import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
 import { chevronDownCircleOutline, caretUpOutline } from "ionicons/icons";
@@ -90,8 +87,6 @@ import { db } from '../fbconfig';
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
 
-declare var window: any;
-
 export interface UserPhoto {
   filepath: string;
   webviewPath?: string;
@@ -101,7 +96,6 @@ defineCustomElements(window);
 
 function Home() {
   const inputRef = useRef<HTMLIonTextareaElement>(null);
-  const [newPosts, setNewPosts] = useState<any[] | null>(null);
   const pageRef = useRef();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
@@ -129,7 +123,6 @@ function Home() {
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
-  const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
   const [user] = useAuthState(auth);
   const [lastKey, setLastKey] = useState<string>("");
   const history = useHistory();
@@ -145,62 +138,6 @@ function Home() {
   const [progressPercentage, setProgressPercentage] = useState<string>("5");
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
-
-  // useIonViewWillEnter(() => {
-  //   setShowTabs(true);
-  //   // console.log(lastKey);
-  //   if (posts && schoolName) {
-  //     setBusy(true);
-  //     let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
-  //     tempPosts.then(async (res: any) => {
-  //       if (res.allPosts && res.allPosts != [] && res.allPosts.length != 0) { // newly updated posts
-  //         let caught = false;
-  //         let length = posts.length > res.allPosts.length ? res.allPosts.length : posts.length;
-  //         for (let i = 0; i < length; ++i) {
-  //           if (res.allPosts[i].message != posts[i].message) {
-  //             for (let i = 0; i < res.allPosts.length; ++i) {
-  //               const data = await getLikes(res.allPosts[i].key);
-  //               if (data) {
-  //                 res.allPosts[i].likes = data.likes;
-  //                 res.allPosts[i].dislikes = data.dislikes;
-  //                 res.allPosts[i].commentAmount = data.commentAmount;
-  //               } else {
-  //                 res.allPosts[i].likes = {};
-  //                 res.allPosts[i].dislikes = {};
-  //                 res.allPosts[i].commentAmount = 0;
-  //               }
-  //             }
-  //             setNewPostsLoaded(true);
-  //             setNewPosts(res.allPosts);
-  //             caught = true;
-  //             break;
-  //           }
-  //         }
-  //         if (!caught) {
-  //           for (let i = 0; i < res.allPosts.length; ++i) {
-  //             const data = await getLikes(res.allPosts[i].key);
-  //             if (data) {
-  //               res.allPosts[i].likes = data.likes;
-  //               res.allPosts[i].dislikes = data.dislikes;
-  //               res.allPosts[i].commentAmount = data.commentAmount;
-  //             } else {
-  //               res.allPosts[i].likes = {};
-  //               res.allPosts[i].dislikes = {};
-  //               res.allPosts[i].commentAmount = 0;
-  //             }
-  //           }
-  //           setPosts(res.allPosts);
-  //         }
-  //         setLastKey(res.lastKey);
-  //       }
-  //       setBusy(false);
-  //     });
-  //     tempPosts.catch((err: any) => {
-  //       Toast.error(err + "\n Check your internet connection");
-  //       setBusy(false);
-  //     });
-  //   }
-  // }, [posts, schoolName]);
 
   const sharePost = async (post: any) => {
     await Share.share({
@@ -220,11 +157,6 @@ function Home() {
     marginLeft: "2.5vw",
   };
 
-  const sliderOpts = {
-    zoom: true,
-    maxRatio: 2,
-  };
-
   const handleUserPageNavigation = (uid: string) => {
     history.push("home/about/" + uid);
   };
@@ -235,19 +167,17 @@ function Home() {
       if (posts && user) {
         let tempPosts: any[] = [...posts];
         tempPosts[index].upVotes += val;
-        // setCommentModalPostUpvotes((prev) => prev + val);
         if (tempPosts[index].likes[user.uid]) {
           delete tempPosts[index].likes[user.uid];
         } else {
           if (tempPosts[index].dislikes[user.uid]) {
             delete tempPosts[index].dislikes[user.uid];
             tempPosts[index].downVotes -= 1;
-            // setCommentModalPostDownvotes((prev) => prev - 1);
           }
           tempPosts[index].likes[user.uid] = true;
         }
         setPosts(tempPosts);
-        await timeout(1000).then(() => {
+        await timeout(500).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -262,7 +192,6 @@ function Home() {
     if (val && (val === 1 || val === -1)) {
       if (posts && user) {
         let tempPosts: any[] = [...posts];
-        // setCommentModalPostDownvotes((prev) => prev + val);
         tempPosts[index].downVotes += val;
         if (tempPosts[index].dislikes[user.uid]) {
           delete tempPosts[index].dislikes[user.uid];
@@ -270,12 +199,11 @@ function Home() {
           if (tempPosts[index].likes[user.uid]) {
             delete tempPosts[index].likes[user.uid];
             tempPosts[index].upVotes -= 1;
-            // setCommentModalPostUpvotes((prev) => prev - 1);
           }
           tempPosts[index].dislikes[user.uid] = true;
         }
         setPosts(tempPosts);
-        await timeout(1000).then(() => {
+        await timeout(500).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -362,7 +290,6 @@ function Home() {
     try {
       const pos = await Geolocation.getCurrentPosition(locationOptions);
       setPosition(pos);
-      //console.log(pos.coords);
       setGettingLocation(false);
     } catch (e: any) {
       Toast.error("Location access denied by user, adjust in iOS Settings");
@@ -424,7 +351,6 @@ function Home() {
             res.allPosts[i].commentAmount = 0;
           }
         }
-        // console.log(res.allPosts);
         setPosts(res.allPosts);
         setLastKey(res.lastKey);
         console.log(res.lastKey);
@@ -449,15 +375,7 @@ function Home() {
     setTimeout(() => {
       event.detail.complete();
     }, 1000);
-  }
-
-  async function sendImage(blob: any, uniqueId: string) {
-    try {
-
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  };
 
   async function takePicture() {
     try {
@@ -482,7 +400,7 @@ function Home() {
     } catch (err: any) {
       // Toast.error(err.message.toString());
     }
-  }
+  };
 
   async function messageAdd() {
     if (message.trim().length == 0 && !blob && !photo) {
@@ -584,7 +502,7 @@ function Home() {
         setBusy(false);
       }
     }
-  }
+  };
 
   useEffect(() => { // run on app startup
     setShowTabs(true);
@@ -669,13 +587,6 @@ function Home() {
               refreshingText="Refreshing..."
             ></IonRefresherContent>
           </IonRefresher>
-
-          <IonLoading
-            spinner="dots"
-            message="Adding comment"
-            duration={0}
-            isOpen={commentsBusy}
-          ></IonLoading>
 
           <IonLoading
             spinner="dots"
@@ -859,7 +770,6 @@ function Home() {
                             rows={4}
                             color="secondary"
                             maxlength={500}
-                            // style={ionInputStyle}
                             disabled={prevPostUploading}
                             value={message}
                             placeholder="Start typing..."
@@ -942,32 +852,6 @@ function Home() {
               <IonIcon icon={add} />
             </IonFabButton>
           </IonFab>
-
-          {/* <IonModal backdropDismiss={false} isOpen={showModalPicture}>
-            <IonCard>
-              <IonHeader translucent>
-                <IonToolbar mode="ios">
-                  <IonButtons slot="end">
-                    <IonButton
-                      mode="ios"
-                      onClick={() => {
-                        setShowModalPicture(false);
-                      }}
-                    >
-                      Close
-                    </IonButton>
-                  </IonButtons>
-                </IonToolbar>
-              </IonHeader>
-              <IonSlides options={sliderOpts}>
-                <IonSlide>
-                  <div className="swiper zoom container">
-                    <IonImg src={modalImgSrc} />
-                  </div>
-                </IonSlide>
-              </IonSlides>
-            </IonCard>
-          </IonModal> */}
 
           {posts && posts.length > 0 ? (
             posts?.map((post, index) => (

@@ -270,9 +270,9 @@ ion-toolbar {
 
 }
 
-.swiper-pagination {
-  bottom: 98.6% !important;
-}
+/* .swiper-pagination {
+  bottom: 67.5vh !important;
+} */
 
 .swiper-pagination-bullet-active {
   background-color: #61DBFB !important;
