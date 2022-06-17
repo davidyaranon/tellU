@@ -107,10 +107,10 @@ const LandingPage: React.FC = () => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(defaultResizeOptions);
     });
-    return() => {
+    return () => {
       Keyboard.removeAllListeners();
     };
-  })
+  }, []);
 
   if (busy) {
     return (<IonSpinner class='ion-spinner' name="dots" color="primary" />);
@@ -133,7 +133,7 @@ const LandingPage: React.FC = () => {
 
           <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
             <IonItem mode='ios' >
-              <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="email" placeholder="Email" id="emailSignIn" onIonChange={(e: any) => { setEmailSignIn(e.detail.value); }} ></IonInput>
+              <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="email" placeholder="Email" id="emailSignIn" debounce={250} onIonChange={(e: any) => { setEmailSignIn(e.detail.value); }} ></IonInput>
             </IonItem>
             <IonItem mode='ios' >
               <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordSignIn} type="password" placeholder="Password" id="passwordSignIn" onIonChange={(e: any) => setPasswordSignIn(e.detail.value)} ></IonInput>
@@ -144,6 +144,8 @@ const LandingPage: React.FC = () => {
             <br />
           </IonList>
           <p className='sign-in-sign-up-list'> or <Link to="/register">register</Link> for an account</p>
+          <p className='sign-in-sign-up-list'> or <Link to="/forgot-password">forgot password?</Link></p>
+
         </IonContent>
       </IonPage>
     )

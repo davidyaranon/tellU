@@ -540,7 +540,7 @@ function Home() {
           await timeout(1000);
           setPosts([...data, ...postsRef.current]);
           setNewPostsLoaded(true);
-        } else {
+        } else { // on init
           for (let i = 0; i < data.length; ++i) {
             const likesData = await getLikes(data[i].key);
             if (likesData) {

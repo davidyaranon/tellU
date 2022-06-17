@@ -58,6 +58,7 @@ import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { FCM } from "@capacitor-community/fcm";
 import AppUrlListener from "./pages/AppUrlListener";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // // set up base push notifications with Capacitor
 // await PushNotifications.requestPermissions();
@@ -86,7 +87,6 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <IonReactRouter>
         <AppUrlListener></AppUrlListener>
-        {/* <IonPage id="app"> */}
         <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab) }}>
           <IonRouterOutlet>
             <Route path="/:tab(home)" exact={true}>
@@ -110,6 +110,7 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
               <LandingPage />{" "}
             </Route>
             <Route path="/register" component={Register} exact={true} />
+            <Route path="/forgot-password" component={ForgotPassword} exact={true} />
             <Route path="/privacy-policy" component={PrivacyPolicy} />
             <Route path="/post/:key" component={Post} />
             <Route path="/404" component={RedirectComponent} />
@@ -148,7 +149,6 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
-        {/* </IonPage> */}
       </IonReactRouter>
     </ToastProvider>
   );

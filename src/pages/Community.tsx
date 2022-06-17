@@ -29,9 +29,6 @@ import {
   RefresherEventDetail,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
-// import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-// import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-// import ForumIcon from "@mui/icons-material/Forum";
 import {
   addCircleOutline,
   chevronBackOutline,
@@ -88,8 +85,6 @@ function Community() {
     { text: "", },
   ]); // start with three options, include more programatically
   const [polls, setPolls] = useState<any[]>([]);
-  const [yourPollsSelected, setYourPollsSelected] = useState<boolean>(false);
-  const [yourPolls, setYourPolls] = useState<any[]>([]);
   const { setShowTabs } = React.useContext(UIContext);
 
   const doRefresh = (event: CustomEvent<RefresherEventDetail>) => {
@@ -626,65 +621,35 @@ function Community() {
 
                 {user && polls && polls.length > 0 ? (
                   <>
-                    {yourPollsSelected ? (
-                      <Swiper slidesPerView={1.25}>
-                        {yourPolls.map((poll) => {
-                          return (
-                            <SwiperSlide key={poll.key}>
-                              <IonCard mode='ios'>
-                                <IonCardContent style={{ minHeight: "65vh" }}>
-                                  <p>{poll.userName}</p>
-                                  <IonCardTitle style={{ fontSize: "1.25em" }}>{poll.question}</IonCardTitle>
-                                  <br />
-                                  <IonList lines="full" mode="ios">
-                                    {poll.options.map((option: any, index: number) => {
-                                      return (
-                                        <IonItem style={{ fontWeight: "bold" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
-                                          {option.text} <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
-                                        </IonItem>
-                                      )
-                                    })}
-                                  </IonList>
-                                  <IonFab vertical="bottom" horizontal="start">
-                                    <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                                  </IonFab>
-                                </IonCardContent>
-                              </IonCard>
-                            </SwiperSlide>
-                          )
-                        })}
-                      </Swiper>
-                    ) : (
-                      <Swiper slidesPerView={1.1} spaceBetween={-15}>
-                        {polls.map((poll) => {
-                          return (
-                            <SwiperSlide key={poll.key}>
-                              <IonCard mode='ios'>
-                                <IonCardContent style={{ minHeight: "50vh" }}>
-                                  <p style={{ fontSize: "1em" }}>{poll.userName}</p>
-                                  <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
-                                    poll.question}</IonCardTitle>
-                                  <br />
-                                  <IonList lines="full" mode="ios">
-                                    {poll.options.map((option: any, index: number) => {
-                                      return (
-                                        <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
-                                          <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
-                                        </IonItem>
-                                      )
-                                    })}
-                                  </IonList>
-                                  <br />
-                                  <IonFab vertical="bottom" horizontal="start">
-                                    <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                                  </IonFab>
-                                </IonCardContent>
-                              </IonCard>
-                            </SwiperSlide>
-                          )
-                        })}
-                      </Swiper>
-                    )}
+                    <Swiper slidesPerView={1.1} spaceBetween={-15}>
+                      {polls.map((poll) => {
+                        return (
+                          <SwiperSlide key={poll.key}>
+                            <IonCard mode='ios'>
+                              <IonCardContent style={{ minHeight: "50vh" }}>
+                                <p style={{ fontSize: "1em" }}>{poll.userName}</p>
+                                <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
+                                  poll.question}</IonCardTitle>
+                                <br />
+                                <IonList lines="full" mode="ios">
+                                  {poll.options.map((option: any, index: number) => {
+                                    return (
+                                      <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                        <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
+                                      </IonItem>
+                                    )
+                                  })}
+                                </IonList>
+                                <br />
+                                <IonFab vertical="bottom" horizontal="start">
+                                  <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                                </IonFab>
+                              </IonCardContent>
+                            </IonCard>
+                          </SwiperSlide>
+                        )
+                      })}
+                    </Swiper>
                   </>
                 ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
                   <div style={{ textAlign: "center" }}><p>No polls within past week</p></div>

@@ -36,11 +36,11 @@ import {
 } from "firebase/auth";
 import { Capacitor } from '@capacitor/core';
 import {
-  getDatabase, 
-  set, 
-  get, 
+  getDatabase,
+  set,
+  get,
   runTransaction as rtdbRunTransaction,
-  update, 
+  update,
   increment as rtdbIncrement
 } from "firebase/database";
 import { ref as rtdbRef } from "firebase/database";
@@ -89,7 +89,6 @@ export async function uploadImage(location, blob, url) {
 
     const res = await uploadBytes(storageRef, blob)
       .then((snapshot) => {
-        // console.log(snapshot);
         return true;
       })
       .catch((err) => {
@@ -151,10 +150,9 @@ export async function registerWithEmailAndPassword(
 export const sendPasswordReset = async (email) => {
   try {
     await sendPasswordResetEmail(auth, email);
-    alert("Password reset link sent!");
+    return true;
   } catch (err) {
     console.error(err);
-    alert(err.message);
   }
 };
 
@@ -1107,7 +1105,7 @@ export const removePost = async (postKey, schoolName, postUrl) => {
       key: postKey
     });
     deleteCommentsFromDeletedPost({ // cloud function to delete all comments made on post
-      key: postKey, 
+      key: postKey,
       schoolName: schoolName.replace(/\s+/g, ""),
     });
 
@@ -1118,7 +1116,7 @@ export const removePost = async (postKey, schoolName, postUrl) => {
       "allPosts",
       postKey
     );
-    await deleteDoc(postRef).catch((err) => {console.log(err);});
+    await deleteDoc(postRef).catch((err) => { console.log(err); });
     return true;
   } catch (err) {
     console.log(err);
@@ -1147,7 +1145,7 @@ export const removeCommentNew = async (comment, schoolName, postKey, commentUrl)
         "comments",
         comment.key,
       );
-      await deleteDoc(commentRef).catch((err) => {console.log(err);});
+      await deleteDoc(commentRef).catch((err) => { console.log(err); });
       const likesRef = rtdbRef(database, postKey);
       update(likesRef, {
         commentAmount: rtdbIncrement(-1)

@@ -3,7 +3,6 @@ import {
   IonCardTitle,
   IonCard,
   IonLabel,
-  IonLoading,
   IonButton,
   IonIcon,
   IonFab,
@@ -66,7 +65,6 @@ function Maps() {
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
   const history = useHistory();
-  const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
 
   useIonViewDidEnter(() => {
     if (!user) {
@@ -199,12 +197,6 @@ function Maps() {
   return (
     <IonPage>
       <IonContent fullscreen={true} className="no-scroll-content">
-        <IonLoading
-          spinner="dots"
-          message="Adding comment"
-          duration={0}
-          isOpen={commentsBusy}
-        ></IonLoading>
 
         <div className="overlaySearch">
           <IonLabel> FILTER: </IonLabel>
