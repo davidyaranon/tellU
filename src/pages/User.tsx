@@ -904,7 +904,7 @@ function User() {
     <IonPage>
       <IonContent ref={contentRef} className="no-scroll-content" scrollY={false}>
         {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
-        <IonToolbar mode="ios">
+        <IonToolbar mode="ios" style={{height: "4vh"}}>
           <IonButtons slot="start">
             <IonButton
               // style={{opacity: "40%"}}
@@ -929,8 +929,8 @@ function User() {
           </IonButtons>
         </IonToolbar>
 
-        <IonHeader mode="ios" class="ion-no-border" style={{ textAlign: "center" }}>
-          <IonToolbar mode="ios">
+        <IonHeader mode="ios" class="ion-no-border" style={{ textAlign: "center", }}>
+          {/* <IonToolbar mode="ios"> */}
             <IonAvatar className="user-avatar">
               <IonImg style={{ opacity: "80%" }} className="user-image" src={profilePhoto}></IonImg>
               <IonIcon size="large" icon={cameraReverseOutline} onClick={handleProfilePictureEdit}
@@ -945,15 +945,15 @@ function User() {
                     {" "}
                     Edit{" "}
                   </IonButton> */}
-          </IonToolbar>
+          {/* </IonToolbar> */}
         </IonHeader>
         <FadeIn>
-          <IonToolbar mode="ios">
+          {/* <IonToolbar mode="ios"> */}
             <IonTitle size="small" style={titleStyle}>
               Hello
               <IonText color="primary">&nbsp;{editableUsername}</IonText>
             </IonTitle>
-          </IonToolbar>
+          {/* </IonToolbar> */}
         </FadeIn>
         {/* </IonHeader> */}
         <IonLoading
@@ -1295,7 +1295,6 @@ function User() {
               class="ion-no-border"
               style={{
                 textAlign: "center",
-                padding: "2vh",
                 fontSize: "1em",
                 color: "#898989"
               }}
@@ -1420,7 +1419,6 @@ function User() {
               class="ion-no-border"
               style={{
                 textAlign: "center",
-                padding: "2vh",
                 fontSize: "1em",
                 color: "#898989"
               }}
@@ -1439,7 +1437,6 @@ function User() {
               class="ion-no-border"
               style={{
                 textAlign: "center",
-                padding: "2vh",
                 fontSize: "1em",
                 color: "#898989"
               }}
@@ -1724,6 +1721,7 @@ function User() {
                     </div>
                   </FadeIn>
                 </div>
+                <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
             </IonCard>
           </SwiperSlide>
@@ -1733,7 +1731,6 @@ function User() {
               class="ion-no-border"
               style={{
                 textAlign: "center",
-                padding: "2vh",
                 fontSize: "1em",
                 color: "#898989"
               }}
@@ -1851,6 +1848,7 @@ function User() {
                     </div>
                   </FadeIn>
                 </div>
+                <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
             </IonCard>
           </SwiperSlide>
@@ -1860,7 +1858,6 @@ function User() {
               class="ion-no-border"
               style={{
                 textAlign: "center",
-                padding: "2vh",
                 fontSize: "1em",
                 color: "#898989"
               }}
@@ -1916,7 +1913,7 @@ function User() {
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
                   ) : (null)}
                 </div>
-                <br /><br />
+                <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
             </IonCard>
           </SwiperSlide>
