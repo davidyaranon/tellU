@@ -1873,7 +1873,7 @@ function User() {
                         {yourPolls.map((poll, index) => {
                           return (
                             <IonCard mode='ios' key={poll.key}>
-                              <IonCardContent style={{ minHeight: "55vh" }}>
+                              <IonCardContent style={{ minHeight: "52.5vh" }}>
                                 <p>{poll.userName}</p>
                                 <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
                                 <br />
@@ -1886,10 +1886,10 @@ function User() {
                                     )
                                   })}
                                 </IonList>
-                                <IonFab vertical="bottom" horizontal="start">
+                                <IonFab vertical="bottom" horizontal="start" style={{marginBottom :"-1vh"}}>
                                   <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
                                 </IonFab>
-                                <IonFab vertical='bottom' horizontal="end">
+                                <IonFab vertical='bottom' horizontal="end" style={{marginBottom :"-1vh"}}>
                                   <IonButton
                                     size="small"
                                     disabled={disabledDeleteButton}
