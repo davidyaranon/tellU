@@ -69,6 +69,8 @@ const defaultResizeOptions: KeyboardResizeOptions = {
   mode: KeyboardResize.Native,
 }
 
+// const pattern = /\B@[a-z0-9_-]+/gi; // used for tagged users
+
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
   // const { setShowTabs } = React.useContext(UIContext);
@@ -97,10 +99,16 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [kbHeight, setKbHeight] = useState<number>(0);
   const [previousCommentLoading, setPreviousCommentLoading] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
+  // const [showTags, setShowTags] = useState<boolean>(false);
+  // const [listOfUsers, setListOfUsers] = useState<string[]>([]);
+  // const [listOfUsersMap, setListOfUsersMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
+  // const [attedUser, setAttedUser] = useState<string>("all");
+  // const [taggedUsers, setTaggedUsers] = useState<string[]>();
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
     setComment(currComment);
+    // setTaggedUsers(currComment.match(pattern));
   };
 
   async function sendImage(blob: any, uniqueId: string) {
@@ -149,6 +157,23 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             commentSent.likes = { "null": true };
             commentSent.dislikes = { "null": true };
             const newCommentsArr: any[] = [commentSent, ...comments];
+            // const tempUsernameList: string[] = [];
+            // const tempMap: Map<string, string[]> = new Map<string, string[]>();
+            // for (let i = 0; i < newCommentsArr.length; ++i) {
+            //   tempUsernameList.push(newCommentsArr[i].userName);
+            //   if (tempMap.get(newCommentsArr[i].userName[0]) !== undefined) {
+            //     const tempArr: string[] | undefined = tempMap.get(newCommentsArr[i].userName[0]);
+            //     if (tempArr !== undefined) {
+            //       tempArr.push(newCommentsArr[i].userName);
+            //       tempMap.set(newCommentsArr[i].userName[0], tempArr);
+            //     }
+            //   } else {
+            //     tempMap.set(newCommentsArr[i].userName[0], newCommentsArr[i].userName);
+            //   }
+            // }
+            // tempMap.set("all", tempUsernameList);
+            // setListOfUsersMap(tempMap);
+            // setListOfUsers(tempUsernameList);
             setComments(newCommentsArr);
           }
         } else {
@@ -210,7 +235,25 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               res.comments[i].commentAmount = 0;
             }
           }
-          setComments(comments?.concat(res.comments));
+          // const tempUsernameList: string[] = [];
+          const tempCommentsArr: any[] = comments?.concat(res.comments);
+          // const tempMap: Map<string, string[]> = new Map<string, string[]>();
+          // for (let i = 0; i < tempCommentsArr.length; ++i) {
+          //   tempUsernameList.push(tempCommentsArr[i].userName);
+          //   if (tempMap.get(tempCommentsArr[i].userName[0]) !== undefined) {
+          //     const tempArr: string[] | undefined = tempMap.get(tempCommentsArr[i].userName[0]);
+          //     if (tempArr !== undefined) {
+          //       tempArr.push(tempCommentsArr[i].userName);
+          //       tempMap.set(tempCommentsArr[i].userName[0], tempArr);
+          //     }
+          //   } else {
+          //     tempMap.set(tempCommentsArr[i].userName[0], tempCommentsArr[i].userName);
+          //   }
+          // }
+          // tempMap.set("all", tempUsernameList);
+          // setListOfUsersMap(tempMap);
+          // setListOfUsers(tempUsernameList);
+          setComments(tempCommentsArr);
           setLastKey(res.lastKey);
           event.target.complete();
         }
@@ -224,7 +267,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   const getDate = (timestamp: any) => {
-    if(!timestamp) {
+    if (!timestamp) {
       return '';
     }
     if (timestamp && "nanoseconds" in timestamp && "seconds" in timestamp) {
@@ -254,6 +297,28 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               res.comments[i].commentAmount = 0;
             }
           }
+          // const tempUsernameList: string[] = [];
+          // const tempMap: Map<string, string[]> = new Map<string, string[]>();
+          // for (let i = 0; i < res.comments.length; ++i) {
+            // tempUsernameList.push(res.comments[i].userName);
+            // if (tempMap.get(res.comments[i].userName[0]) !== undefined) {
+              // const tempArr: string[] | undefined = tempMap.get(res.comments[i].userName[0]);
+              // if (tempArr !== undefined) {
+                // tempArr.push(res.comments[i].userName);
+                // tempMap.set(res.comments[i].userName[0], tempArr);
+              // }
+            // } else {
+              // tempMap.set(res.comments[i].userName[0], res.comments[i].userName);
+            // }
+          // }
+          // tempMap.set("all", tempUsernameList);
+          // console.log(tempUsernameList);
+          // console.log(tempMap);
+          // tempMap.get("all")?.map((username: string, index: number) => {
+          //   console.log(username);
+          // });
+          // setListOfUsersMap(tempMap);
+          // setListOfUsers(tempUsernameList);
           setComments(res.comments);
           setLastKey(res.lastKey);
         }
@@ -272,7 +337,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       message: `Are you sure you'd like to delete your comment?`,
       okButtonTitle: 'Delete'
     });
-    if (!value){ return; }
+    if (!value) { return; }
     setCommentsLoading(true);
     if (comments && schoolName) {
       const commentBeingDeleted = comments[index];
@@ -282,12 +347,18 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           Toast.success("Comment deleted");
           if (comments.length == 0) {
             setComments([]);
+            // setListOfUsers([]);
+            // setListOfUsersMap(new Map<string, string[]>());
           } else {
             let tempComments: any[] = [];
             for (let i = 0; i < comments.length; ++i) {
               if (i !== index) {
                 tempComments.push(comments[i]);
               }
+            }
+            const tempUsernameList: string[] = [];
+            for (let i = 0; i < tempComments.length; ++i) {
+              tempUsernameList.push(tempComments[i].userName);
             }
             setComments(tempComments);
             console.log(tempComments);
@@ -326,7 +397,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempComments[index].likes[user.uid] = true;
         }
         setComments(tempComments);
-        await timeout(1000).then(() => {
+        await timeout(500).then(() => {
           setDisabledLikeButtonsComments(-1);
         });
       }
@@ -350,7 +421,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempComments[index].dislikes[user.uid] = true;
         }
         setComments(tempComments);
-        await timeout(1000).then(() => {
+        await timeout(500).then(() => {
           setDisabledLikeButtonsComments(-1);
         });
       }
@@ -373,7 +444,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempPost.likes[user.uid] = true;
         }
         setPost(tempPost);
-        await timeout(1000).then(() => {
+        await timeout(500).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -396,7 +467,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempPost.dislikes[user.uid] = true;
         }
         setPost(tempPost);
-        await timeout(1000).then(() => {
+        await timeout(500).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -465,7 +536,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             {post && post.userName &&
               <IonTitle>{post.userName}'s Post</IonTitle>
             }
-            <IonButtons style={{marginLeft: "-2.5%"}}>
+            <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
                 onClick={() => {
                   history.go(-1);
@@ -481,6 +552,29 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </IonButtons>
           </IonToolbar>
         </div>
+        {/* <IonFab
+          style={darkModeToggled ?
+            { bottom: `${kbHeight + 115}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } :
+            { bottom: `${kbHeight + 115}px`, height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }}
+          className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+          vertical="bottom"
+          edge={true}
+          hidden={!showTags}
+        >
+          <IonList mode="ios" inset lines="none">
+            {listOfUsers.length > 0 && listOfUsersMap &&
+              <>
+                {listOfUsersMap.get(attedUser)?.map((username: string, index: number) => {
+                  return (
+                    <IonItem mode="ios" key={index} lines="none">
+                      @{username}
+                    </IonItem>
+                  )
+                })}
+              </>
+            }
+          </IonList>
+        </IonFab> */}
         {/* <div style={darkModeToggled ? { top: "70vh", bottom: "5vh", height: "25vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}> */}
         <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
           : { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
@@ -496,9 +590,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             maxlength={300}
             value={comment}
             disabled={deleted || previousCommentLoading}
-            placeholder={previousCommentLoading || deleted ? "Please wait..." : "Leave a comment..." }
+            placeholder={previousCommentLoading || deleted ? "Please wait..." : "Leave a comment..."}
             id="commentModal"
-            onKeyPress={e => isEnterPressed(e.key)}
+            onKeyDown={e => isEnterPressed(e.key)}
+            // onKeyPress={e => isEnterPressed(e.key)}
             onIonChange={(e: any) => {
               handleChangeComment(e);
             }}
@@ -611,16 +706,16 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              const img : CapacitorImage = {
+                              const img: CapacitorImage = {
                                 url: post.imgSrc,
                                 title: `${post.userName}'s post`
                               };
                               CapacitorPhotoViewer.show({
                                 images: [img],
-                                mode: 'one',     
+                                mode: 'one',
                                 options: {
                                   backgroundcolor: 'dimgrey',
-                                }                          
+                                }
                               });
                               // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
@@ -770,7 +865,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                 style={{ backgroundImage: `url(${comment.imgSrc})`, borderRadius: '10px' }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  const img : CapacitorImage = {
+                                  const img: CapacitorImage = {
                                     url: comment.imgSrc,
                                     title: `${comment.userName}'s comment`
                                   };
@@ -779,7 +874,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                       title: true
                                     },
                                     images: [img],
-                                    mode: 'one',                               
+                                    mode: 'one',
                                   });
                                   // PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
                                 }}

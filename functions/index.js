@@ -19,7 +19,7 @@ const sf = ['37.76894651194302', '-122.42952641954717'];
 const sb = ['34.41302723872466', '-119.84749752183016'];
 const sc = ['36.994178678923895', '-122.05892788857311'];
 
-exports.updateWeather = functions.pubsub.schedule('every 30 minutes').onRun((context) => {
+exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((context) => {
   const fetchFromURLhumboldt = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + humboldt[0] + ',' + humboldt[1] + '&aqi=yes')).json();
   const fetchFromURLberkeley = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + berkeley[0] + ',' + berkeley[1] + '&aqi=yes')).json();
   const fetchFromURLmerced = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + merced[0] + ',' + merced[1] + '&aqi=yes')).json();

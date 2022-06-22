@@ -320,9 +320,9 @@ function Community() {
                 <br />
               </IonHeader>
               <IonInput
+                autoCorrect="on"
                 color="secondary"
                 type="text"
-                autoCapitalize="sentences"
                 style={{ width: "90vw", left: "5vw", fontWeight: "bold" }}
                 maxlength={100}
                 value={pollText}

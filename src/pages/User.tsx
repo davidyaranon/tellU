@@ -904,7 +904,7 @@ function User() {
     <IonPage>
       <IonContent ref={contentRef} className="no-scroll-content" scrollY={false}>
         {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
-        <IonToolbar mode="ios" style={{height: "4vh"}}>
+        <IonToolbar mode="ios" style={{ height: "4vh" }}>
           <IonButtons slot="start">
             <IonButton
               // style={{opacity: "40%"}}
@@ -931,13 +931,13 @@ function User() {
 
         <IonHeader mode="ios" class="ion-no-border" style={{ textAlign: "center", }}>
           {/* <IonToolbar mode="ios"> */}
-            <IonAvatar className="user-avatar">
-              <IonImg style={{ opacity: "80%" }} className="user-image" src={profilePhoto}></IonImg>
-              <IonIcon size="large" icon={cameraReverseOutline} onClick={handleProfilePictureEdit}
-                style={{ zIndex: "2", position: "absolute", margin: "auto", left: "54%", top: "0%" }}
-              />
-            </IonAvatar>
-            {/* <IonButton
+          <IonAvatar className="user-avatar">
+            <IonImg style={{ opacity: "80%" }} className="user-image" src={profilePhoto}></IonImg>
+            <IonIcon size="large" icon={cameraReverseOutline} onClick={handleProfilePictureEdit}
+              style={{ zIndex: "2", position: "absolute", margin: "auto", left: "54%", top: "0%" }}
+            />
+          </IonAvatar>
+          {/* <IonButton
             style={{zIndex: "999", right: "10%"}}
                     onClick={handleProfilePictureEdit}
                     color="primary"
@@ -949,10 +949,10 @@ function User() {
         </IonHeader>
         <FadeIn>
           {/* <IonToolbar mode="ios"> */}
-            <IonTitle size="small" style={titleStyle}>
-              Hello
-              <IonText color="primary">&nbsp;{editableUsername}</IonText>
-            </IonTitle>
+          <IonTitle size="small" style={titleStyle}>
+            Hello
+            <IonText color="primary">&nbsp;{editableUsername}</IonText>
+          </IonTitle>
           {/* </IonToolbar> */}
         </FadeIn>
         {/* </IonHeader> */}
@@ -1414,7 +1414,7 @@ function User() {
             </IonCard>
           </SwiperSlide>
           <SwiperSlide>
-          <br />
+            <br />
             <IonHeader
               class="ion-no-border"
               style={{
@@ -1695,7 +1695,8 @@ function User() {
                           </FadeIn>
                         );
                       })
-                      : <IonSpinner className="ion-spinner" color="primary"></IonSpinner>}
+                      : <p style={{ fontWeight: "bold", textAlign: "center" }}>No posts yet!</p>
+                    }
                   </>
                   {loadingUserPosts ? (
                     <div style={{ textAlign: "center" }}>
@@ -1704,22 +1705,24 @@ function User() {
                   ) : (
                     null
                   )}
-                  <FadeIn>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                      <IonButton
-                        color="medium"
-                        mode="ios"
-                        fill="outline"
-                        expand="block"
-                        disabled={!userPosts || loadingUserPosts || noMorePosts}
-                        onClick={() => {
-                          fetchMorePosts();
-                        }}
-                      >
-                        LOAD MORE POSTS{" "}
-                      </IonButton>
-                    </div>
-                  </FadeIn>
+                  {userPosts && userPosts.length > 10 &&
+                    <FadeIn>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <IonButton
+                          color="medium"
+                          mode="ios"
+                          fill="outline"
+                          expand="block"
+                          disabled={!userPosts || loadingUserPosts || noMorePosts}
+                          onClick={() => {
+                            fetchMorePosts();
+                          }}
+                        >
+                          LOAD MORE POSTS{" "}
+                        </IonButton>
+                      </div>
+                    </FadeIn>
+                  }
                 </div>
                 <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
@@ -1831,22 +1834,24 @@ function User() {
                   {userLikedPosts && userLikedPosts.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
                   ) : (null)}
-                  <FadeIn>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                      <IonButton
-                        disabled={!userLikedPosts || noMoreLikes}
-                        color="medium"
-                        mode="ios"
-                        fill="outline"
-                        expand="block"
-                        onClick={() => {
-                          fetchMoreLikes();
-                        }}
-                      >
-                        LOAD MORE LIKES{" "}
-                      </IonButton>
-                    </div>
-                  </FadeIn>
+                  {userLikedPosts && userLikedPosts.length > 10 &&
+                    <FadeIn>
+                      <div style={{ display: "flex", justifyContent: "center" }}>
+                        <IonButton
+                          disabled={!userLikedPosts || noMoreLikes}
+                          color="medium"
+                          mode="ios"
+                          fill="outline"
+                          expand="block"
+                          onClick={() => {
+                            fetchMoreLikes();
+                          }}
+                        >
+                          LOAD MORE LIKES{" "}
+                        </IonButton>
+                      </div>
+                    </FadeIn>
+                  }
                 </div>
                 <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
@@ -1886,10 +1891,10 @@ function User() {
                                     )
                                   })}
                                 </IonList>
-                                <IonFab vertical="bottom" horizontal="start" style={{marginBottom :"-1vh"}}>
+                                <IonFab vertical="bottom" horizontal="start" style={{ marginBottom: "-1vh" }}>
                                   <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
                                 </IonFab>
-                                <IonFab vertical='bottom' horizontal="end" style={{marginBottom :"-1vh"}}>
+                                <IonFab vertical='bottom' horizontal="end" style={{ marginBottom: "-1vh" }}>
                                   <IonButton
                                     size="small"
                                     disabled={disabledDeleteButton}
