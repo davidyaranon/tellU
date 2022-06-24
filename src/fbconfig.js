@@ -153,6 +153,7 @@ export const sendPasswordReset = async (email) => {
     return true;
   } catch (err) {
     console.error(err);
+
   }
 };
 

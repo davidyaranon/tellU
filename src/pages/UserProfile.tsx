@@ -52,6 +52,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 import { getColor, timeout } from '../components/functions';
 import Linkify from 'linkify-react';
 import { Share } from "@capacitor/share";
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 interface MatchParams {
   uid: string;
@@ -92,6 +93,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
         if (tempPosts[index].likes[user.uid]) {
@@ -103,7 +107,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
           tempPosts[index].likes[user.uid] = true;
         }
         setUserPosts(tempPosts);
-        await timeout(1000).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -115,6 +119,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const handleDownVote = async (postKey: string, index: number, post: any) => {
     const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
         if (tempPosts[index].dislikes[user.uid]) {
@@ -126,7 +133,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
           tempPosts[index].dislikes[user.uid] = true;
         }
         setUserPosts(tempPosts);
-        await timeout(1000).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -136,7 +143,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   };
 
   const getDate = (timestamp: any) => {
-    if(!timestamp) {
+    if (!timestamp) {
       return '';
     }
     if ("seconds" in timestamp && "nanoseconds" in timestamp) {
@@ -258,7 +265,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
         <IonContent>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios" >
-              <IonButtons style={{marginLeft: "-2.5%"}}>
+              <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
                   mode="ios"
                   onClick={() => {
@@ -335,7 +342,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       <IonCol size="4">
                         <IonAvatar className="user-avatar">
                           <IonImg onClick={() => {
-                            const img : CapacitorImage = {
+                            const img: CapacitorImage = {
                               url: profilePhoto,
                               title: username
                             };
@@ -344,7 +351,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                 title: true
                               },
                               images: [img],
-                              mode: 'one',                               
+                              mode: 'one',
                             });
                             // PhotoViewer.show(profilePhoto, username);
                           }}
@@ -516,19 +523,19 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               ) : null}
                             </IonFab>
                             <br></br>
-                            <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.5%", marginTop: "5%" }}>
+                            <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.25%", marginTop: "5%" }}>
                               {post.message}
                             </Linkify>
 
                             {post.imgSrc && post.imgSrc.length > 0 ? (
                               <>
-                                <br></br>
+                                <div style={{ height: "0.75vh" }}>{" "}</div>
                                 <div
                                   className="ion-img-container"
                                   style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    const img : CapacitorImage = {
+                                    const img: CapacitorImage = {
                                       url: post.imgSrc,
                                       title: `${post.userName}'s post`
                                     };
@@ -537,7 +544,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                         title: true
                                       },
                                       images: [img],
-                                      mode: 'one',                               
+                                      mode: 'one',
                                     });
                                     // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                   }}
@@ -554,7 +561,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                       style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        const img : CapacitorImage = {
+                                        const img: CapacitorImage = {
                                           url: post.imgSrc,
                                           title: `${post.userName}'s post`
                                         };
@@ -563,7 +570,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                             title: true
                                           },
                                           images: [img],
-                                          mode: 'one',                               
+                                          mode: 'one',
                                         });
                                         // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                       }}
@@ -741,7 +748,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       <IonCol size="4">
                         <IonAvatar className="user-avatar">
                           <IonImg onClick={() => {
-                            const img : CapacitorImage = {
+                            const img: CapacitorImage = {
                               url: profilePhoto,
                               title: username
                             };
@@ -750,7 +757,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                 title: true
                               },
                               images: [img],
-                              mode: 'one',                               
+                              mode: 'one',
                             });
                             // PhotoViewer.show(profilePhoto, username);
                           }}

@@ -83,6 +83,7 @@ import Linkify from 'linkify-react';
 import ProgressBar from "./ProgressBar";
 import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestore";
 import { db } from '../fbconfig';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -164,6 +165,9 @@ function Home() {
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (posts && user) {
         let tempPosts: any[] = [...posts];
         tempPosts[index].upVotes += val;
@@ -177,7 +181,7 @@ function Home() {
           tempPosts[index].likes[user.uid] = true;
         }
         setPosts(tempPosts);
-        await timeout(500).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -190,6 +194,9 @@ function Home() {
   const handleDownVote = async (postKey: string, index: number, post: any) => {
     const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (posts && user) {
         let tempPosts: any[] = [...posts];
         tempPosts[index].downVotes += val;
@@ -203,7 +210,7 @@ function Home() {
           tempPosts[index].dislikes[user.uid] = true;
         }
         setPosts(tempPosts);
-        await timeout(500).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -466,7 +473,7 @@ function Home() {
               } else {
                 Toast.success("Uploaded!");
                 setMessage("");
-                handleLoadPosts();
+                //handleLoadPosts();
                 setProgressPercentage('200');
                 setPrevPostUploading(false);
                 setShowProgressBar(false);
@@ -510,16 +517,21 @@ function Home() {
     if (!user) {
       setBusy(false);
       history.replace("/landing-page");
-    } else if (schoolName) {
+      setProfilePhoto(null);
+      setPosts([]);
+    } else if (schoolName && !profilePhoto) {
       getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL"))
         .then((url: string) => {
           setProfilePhoto(url);
         }).catch((err) => {
           console.log(err);
-          Toast.error(err);
         });
     }
-    const q = query(collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts"), orderBy("timestamp", "desc"), limit(250));
+    let school = "blank";
+    if (schoolName) {
+      school = schoolName.toString().replace(/\s+/g, "");
+    }
+    const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"), limit(250));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const data: any = [];
       snapshot.docChanges().forEach((change) => {
@@ -560,7 +572,7 @@ function Home() {
       }
     });
     return () => { unsubscribe(); };
-  }, [schoolName]);
+  }, [user, schoolName]);
 
   if (posts) {
     return (
@@ -860,88 +872,84 @@ function Home() {
                   <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
-                        <IonRow>
-                          <IonCol size="6">
-                            <p>
-                              <IonAvatar
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleUserPageNavigation(post.uid);
-                                }}
-                                class="posts-avatar"
-                              >
-                                <IonImg src={post?.photoURL!}></IonImg>
-                              </IonAvatar>
-                              {post.userName}
-                            </p>
-                          </IonCol>
-                          <IonCol>
-                            {post.postType ? (
-                              <IonFab horizontal="end">
-                                {post.postType !== "general" ?
-                                  <p
-                                    style={{
-                                      fontWeight: "bold",
-                                      color: getColor(post.postType),
-                                    }}
-                                  // onClick={() => {
-                                  //   localStorage.setItem("lat", (post.location[0].toString()));
-                                  //   localStorage.setItem("long", (post.location[1].toString()));
-                                  //   history.push("maps");
-                                  // }}
-                                  >
-                                    {post.postType.toUpperCase()}
-                                    &nbsp;
-                                    {post.marker ? (
-                                      <RoomIcon
-                                        style={{ fontSize: "1em" }}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          localStorage.setItem("lat", (post.location[0].toString()));
-                                          localStorage.setItem("long", (post.location[1].toString()));
-                                          history.push("maps");
-                                        }}
-                                      />
-                                    ) : null}
-                                  </p>
-                                  :
-                                  <p
-                                    style={{
-                                      fontWeight: "bold",
-                                      color: getColor(post.postType),
-                                    }}
-                                  >
-                                    {post.marker ? (
-                                      <RoomIcon onClick={(e) => {
-                                        e.stopPropagation()
-                                        localStorage.setItem("lat", (post.location[0].toString()));
-                                        localStorage.setItem("long", (post.location[1].toString()));
-                                        history.push("maps");
-                                      }}
-                                        style={{ fontSize: "1em" }} />
-                                    ) : null}
-                                  </p>
-                                }
-                              </IonFab>
-                            ) : null}
-                            <IonFab style={{ bottom: "1vh" }} horizontal="end">
-                              <IonNote style={{ fontSize: "0.85em" }}>
-                                {getDate(post.timestamp)}
-                              </IonNote>
-                            </IonFab>
-                          </IonCol>
-                        </IonRow>
+                        <p>
+                          <IonAvatar
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUserPageNavigation(post.uid);
+                            }}
+                            class="posts-avatar"
+                          >
+                            <IonImg src={post?.photoURL!}></IonImg>
+                          </IonAvatar>
+                          {post.userName}
+                        </p>
                       </IonText>
-                      <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "1.75%" }}>
+                      {post.postType ? (
+                        <IonFab vertical="top" horizontal="end">
+                          {post.postType !== "general" ?
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                color: getColor(post.postType),
+                              }}
+                            // onClick={() => {
+                            //   localStorage.setItem("lat", (post.location[0].toString()));
+                            //   localStorage.setItem("long", (post.location[1].toString()));
+                            //   history.push("maps");
+                            // }}
+                            >
+                              {post.postType.toUpperCase()}
+                              &nbsp;
+                              {post.marker ? (
+                                <RoomIcon
+                                  style={{ fontSize: "1em" }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    localStorage.setItem("lat", (post.location[0].toString()));
+                                    localStorage.setItem("long", (post.location[1].toString()));
+                                    history.push("maps");
+                                  }}
+                                />
+                              ) : null}
+                            </p>
+                            :
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                color: getColor(post.postType),
+                                marginLeft: "75%"
+                              }}
+                            >
+                              {post.marker ? (
+                                <RoomIcon onClick={() => {
+                                  localStorage.setItem("lat", (post.location[0].toString()));
+                                  localStorage.setItem("long", (post.location[1].toString()));
+                                  history.push("maps");
+                                }}
+                                  style={{ fontSize: "1em" }} />) : null}
+                            </p>
+                          }
+                          <IonNote style={{ fontSize: "0.85em" }}>
+                            {getDate(post.timestamp)}
+                          </IonNote>
+                        </IonFab>
+                      ) :
+                        (
+                          <IonFab vertical="top" horizontal="end">
+                            <IonNote style={{ fontSize: "0.85em" }}>
+                              {getDate(post.timestamp)}
+                            </IonNote>
+                          </IonFab>
+                        )}
+                      <div style={{ height: "0.75vh" }}>{" "}</div>
+                      <Linkify tagName="h3" className="h2-message">
                         {post.message}
                       </Linkify>
-                      {/* <h3 className="h2-message" style={{ marginLeft: "2.5%" }}>
-                        {" "}
-                        {post.message}{" "}
-                      </h3> */}
-                      {"imgSrc" in post && post.imgSrc && post.imgSrc.length > 0 ? (
+                      {"imgSrc" in post && post.imgSrc &&
+                        post.imgSrc.length > 0 ? (
                         <>
-                          <br></br>
+                          <div style={{ height: "0.75vh" }}>{" "}</div>
                           <div
                             className="ion-img-container"
                             style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
@@ -952,11 +960,11 @@ function Home() {
                                 title: `${post.userName}'s post`
                               };
                               CapacitorPhotoViewer.show({
-                                options: {
-                                  title: true
-                                },
                                 images: [img],
                                 mode: 'one',
+                                options: {
+                                  title: true
+                                }
                               });
                               // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}

@@ -98,6 +98,7 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import { getColor, timeout } from '../components/functions';
 import UIContext from "../my-context";
 import { Dialog } from "@capacitor/dialog";
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 
 function User() {
@@ -616,6 +617,9 @@ function User() {
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
+      if(val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
         if (tempPosts[index].likes[user.uid]) {
@@ -627,7 +631,7 @@ function User() {
           tempPosts[index].likes[user.uid] = true;
         }
         setUserPosts(tempPosts);
-        await timeout(1000).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -639,6 +643,9 @@ function User() {
   const handleDownVote = async (postKey: string, index: number, post: any) => {
     const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
+      if(val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (userPosts && user) {
         let tempPosts: any[] = [...userPosts];
         if (tempPosts[index].dislikes[user.uid]) {
@@ -650,7 +657,7 @@ function User() {
           tempPosts[index].dislikes[user.uid] = true;
         }
         setUserPosts(tempPosts);
-        await timeout(1000).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }

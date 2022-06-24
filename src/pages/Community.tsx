@@ -187,7 +187,6 @@ function Community() {
       return;
     }
     setPollSubmitting(true);
-    console.log(pollOptions);
     const pollSubmitted = promiseTimeout(10000, submitPollFb(pollText, pollOptions, schoolName, user.displayName, user.uid));
     pollSubmitted.then((res) => {
       if (res) {

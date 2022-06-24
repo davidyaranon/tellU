@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { sendPasswordReset } from "../fbconfig";
 import { useSelector } from "react-redux"
 import Header from "./Header";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import React from "react";
 import { useToast } from "@agney/ir-toast";
 import UIContext from '../my-context';
@@ -14,6 +14,7 @@ const ForgotPassword = () => {
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const Toast = useToast();
+  const history = useHistory();
   const { setShowTabs } = React.useContext(UIContext);
 
   useEffect(() => {
@@ -60,7 +61,9 @@ const ForgotPassword = () => {
           <br />
           <p className="sign-in-sign-up-list">
             {" "}
-            or <Link to="/landing-page">sign in</Link> to an exising account
+            or <Link to="" onClick={() => {
+              history.go(-1);
+            }}>sign in</Link> to an exising account
           </p>
         </IonList>
       </IonContent>

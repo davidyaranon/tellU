@@ -56,6 +56,7 @@ import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera
 import Linkify from 'linkify-react';
 import { Share } from "@capacitor/share";
 import { Dialog } from '@capacitor/dialog';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 interface MatchUserPostParams {
   key: string;
@@ -300,16 +301,16 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           // const tempUsernameList: string[] = [];
           // const tempMap: Map<string, string[]> = new Map<string, string[]>();
           // for (let i = 0; i < res.comments.length; ++i) {
-            // tempUsernameList.push(res.comments[i].userName);
-            // if (tempMap.get(res.comments[i].userName[0]) !== undefined) {
-              // const tempArr: string[] | undefined = tempMap.get(res.comments[i].userName[0]);
-              // if (tempArr !== undefined) {
-                // tempArr.push(res.comments[i].userName);
-                // tempMap.set(res.comments[i].userName[0], tempArr);
-              // }
-            // } else {
-              // tempMap.set(res.comments[i].userName[0], res.comments[i].userName);
-            // }
+          // tempUsernameList.push(res.comments[i].userName);
+          // if (tempMap.get(res.comments[i].userName[0]) !== undefined) {
+          // const tempArr: string[] | undefined = tempMap.get(res.comments[i].userName[0]);
+          // if (tempArr !== undefined) {
+          // tempArr.push(res.comments[i].userName);
+          // tempMap.set(res.comments[i].userName[0], tempArr);
+          // }
+          // } else {
+          // tempMap.set(res.comments[i].userName[0], res.comments[i].userName);
+          // }
           // }
           // tempMap.set("all", tempUsernameList);
           // console.log(tempUsernameList);
@@ -386,6 +387,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const handleUpVoteComment = async (commentKey: string, index: number) => {
     const val = await upVoteComment(commentKey);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (post && user) {
         let tempComments: any[] = [...comments];
         if (tempComments[index].likes[user.uid]) {
@@ -397,7 +401,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempComments[index].likes[user.uid] = true;
         }
         setComments(tempComments);
-        await timeout(500).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtonsComments(-1);
         });
       }
@@ -409,6 +413,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const handleDownVoteComment = async (commentKey: string, index: number) => {
     const val = await downVoteComment(commentKey);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (post && user) {
         let tempComments: any[] = [...comments];
         tempComments[index].downVotes += val;
@@ -421,7 +428,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempComments[index].dislikes[user.uid] = true;
         }
         setComments(tempComments);
-        await timeout(500).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtonsComments(-1);
         });
       }
@@ -433,6 +440,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const handleUpVote = async (post: any) => {
     const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (post && user) {
         let tempPost = post;
         if (tempPost.likes[user.uid]) {
@@ -444,7 +454,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempPost.likes[user.uid] = true;
         }
         setPost(tempPost);
-        await timeout(500).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -456,6 +466,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const handleDownVote = async (post: any) => {
     const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       if (post && user) {
         let tempPost = post;
         if (tempPost.dislikes[user.uid]) {
@@ -467,7 +480,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           tempPost.dislikes[user.uid] = true;
         }
         setPost(tempPost);
-        await timeout(500).then(() => {
+        await timeout(100).then(() => {
           setDisabledLikeButtons(-1);
         });
       }
@@ -694,13 +707,14 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             </IonNote>
                           </IonFab>
                         )}
+                      <div style={{ height: "0.75vh" }}>{" "}</div>
                       <Linkify tagName="h3" className="h2-message">
                         {post.message}
                       </Linkify>
                       {"imgSrc" in post && post.imgSrc &&
                         post.imgSrc.length > 0 ? (
                         <>
-                          <br></br>
+                          <div style={{ height: "0.75vh" }}>{" "}</div>
                           <div
                             className="ion-img-container"
                             style={{ backgroundImage: `url(${post.imgSrc})`, borderRadius: '10px' }}
@@ -714,7 +728,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                 images: [img],
                                 mode: 'one',
                                 options: {
-                                  backgroundcolor: 'dimgrey',
+                                  title: true
                                 }
                               });
                               // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);

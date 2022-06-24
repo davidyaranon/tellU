@@ -5,6 +5,22 @@
   transform: translate(-50%, -50%);
 }
 
+.onboard-img {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 75vw;
+}
+
+.onboard-txt {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 1150%);
+  width: 90vw;
+}
+
 ion-fab.fab-horizontal-center {
   margin-inline-start: -60px;
 }
