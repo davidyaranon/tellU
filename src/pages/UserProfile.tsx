@@ -30,7 +30,6 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonLoading,
   IonNote,
   IonPage,
   IonPopover,
@@ -77,14 +76,13 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [userBio, setUserBio] = useState<string>("");
   const [userMajor, setUserMajor] = useState<string>("");
   const [userTiktok, setUserTiktok] = useState<string>("");
-  const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
   const [userSnapchat, setUserSnapchat] = useState<string>("");
   const [userInstagram, setUserInstagram] = useState<string>("");
   const Toast = useToast();
 
   const sharePost = async () => {
     await Share.share({
-      title: username + "\'s tellU Profile",
+      title: username + "'s tellU Profile",
       text: 'Check them out!',
       url: "http://tellUapp.com/home/about/" + uid,
     });
@@ -305,12 +303,6 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             </IonToolbar>
           </div>
 
-          <IonLoading
-            spinner="dots"
-            message="Adding comment"
-            duration={0}
-            isOpen={commentsBusy}
-          ></IonLoading>
 
           <br></br><br></br>
           <FadeIn>

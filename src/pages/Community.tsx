@@ -113,7 +113,7 @@ function Community() {
         });
         setTimeout(() => {
           event.detail.complete();
-        }, 1000);
+        }, 250);
       }
       setBusy(false);
     }

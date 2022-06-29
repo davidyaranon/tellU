@@ -45,17 +45,15 @@ import {
 } from "firebase/database";
 import { ref as rtdbRef } from "firebase/database";
 
-
-
 const firebaseConfig = {
-  apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
-  authDomain: "quantum-61b84.firebaseapp.com",
-  databaseURL: "https://quantum-61b84-default-rtdb.firebaseio.com",
-  projectId: "quantum-61b84",
-  storageBucket: "quantum-61b84.appspot.com",
-  messagingSenderId: "461090594003",
-  appId: "1:461090594003:web:5cb1cac4a16e9031140826",
-  measurementId: "G-JRZ1RJ4P89",
+  apiKey: `${process.env.REACT_APP_FIREBASE_API_KEY}`,
+  authDomain: `${process.env.REACT_APP_FIREBASE_AUTH_DOMAIN}`,
+  databaseURL: `${process.env.REACT_APP_FIREBASE_DATABASE_URL}`,
+  projectId: `${process.env.REACT_APP_FIREBASE_PROJECT_ID}`,
+  storageBucket: `${process.env.REACT_APP_FIREBASE_STORAGE_BUCKET}`,
+  messagingSenderId: `${process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID}`,
+  appId: `${process.env.REACT_APP_FIREBASE_APP_ID}`,
+  measurementId: `${process.env.REACT_APP_FIREBASE_MEASUREMENT_ID}`,
 };
 
 export const app = initializeApp(firebaseConfig);
@@ -530,7 +528,6 @@ export const getCurrentUserData = async () => {
 export const getUserData = async (uid) => {
   try {
     if (auth && db) {
-      let temp = [];
       const usersRef = doc(db, "userData", uid.toString());
       const res = await getDoc(usersRef);
       if (res.exists()) {

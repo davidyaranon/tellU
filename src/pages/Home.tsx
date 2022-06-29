@@ -30,6 +30,7 @@ import {
   IonInfiniteScroll,
   IonInfiniteScrollContent,
   IonFooter,
+  IonProgressBar,
 } from "@ionic/react";
 import { uploadBytesResumable } from "firebase/storage";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
@@ -80,7 +81,7 @@ import { getColor, timeout } from '../components/functions';
 import { Share } from '@capacitor/share';
 import Map from "@mui/icons-material/Map";
 import Linkify from 'linkify-react';
-import ProgressBar from "./ProgressBar";
+// import ProgressBar from "./ProgressBar";
 import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestore";
 import { db } from '../fbconfig';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
@@ -102,7 +103,7 @@ function Home() {
   const timeAgo = new TimeAgo("en-US");
   const { setShowTabs } = React.useContext(UIContext);
   const schoolName = useSelector((state: any) => state.user.school);
-  const [busy, setBusy] = useState<boolean>(false);
+  // const [busy, setBusy] = useState<boolean>(false);
   const [gettingLocation, setGettingLocation] = useState<boolean>(false);
   const [photo, setPhoto] = useState<Photo | null>();
   const Toast = useToast();
@@ -143,7 +144,7 @@ function Home() {
   const sharePost = async (post: any) => {
     await Share.share({
       title: post.userName + "'s Post",
-      text: 'Let me tellU about this post I saw. \n\n' + "\"" + post.message + '\"\n\n',
+      text: 'Let me tellU about this post I saw. \n\n \"' + post.message + '\"\n\n',
       url: 'http://tellUapp.com/post/' + post.key,
     });
   }
@@ -305,7 +306,7 @@ function Home() {
   };
 
   const handleLoadPostsNextBatch = (event: any) => {
-    setBusy(true);
+    // setBusy(true);
     if (lastKey && user) {
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
       tempPosts.then(async (res: any) => {
@@ -328,11 +329,11 @@ function Home() {
         } else {
           Toast.error("Unable to load posts");
         }
-        setBusy(false);
+        // setBusy(false);
       });
       tempPosts.catch((err: any) => {
         Toast.error(err);
-        setBusy(false);
+        // setBusy(false);
         setPosts(null);
         setShowReloadMessage(true);
       });
@@ -342,7 +343,7 @@ function Home() {
   };
 
   const handleLoadPosts = () => {
-    setBusy(true);
+    // setBusy(true);
     let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
     tempPosts.then(async (res: any) => {
       if (res.allPosts && res.allPosts != []) {
@@ -360,16 +361,16 @@ function Home() {
         }
         setPosts(res.allPosts);
         setLastKey(res.lastKey);
-        console.log(res.lastKey);
+        // console.log(res.lastKey);
         setOriginalLastKey(res.lastKey);
       } else {
         Toast.error("Unable to load posts");
       }
-      setBusy(false);
+      // setBusy(false);
     });
     tempPosts.catch((err: any) => {
       Toast.error(err);
-      setBusy(false);
+      // setBusy(false);
       setPosts(null);
       setShowReloadMessage(true);
     });
@@ -381,7 +382,7 @@ function Home() {
     handleLoadPosts();
     setTimeout(() => {
       event.detail.complete();
-    }, 1000);
+    }, 250);
   };
 
   async function takePicture() {
@@ -438,17 +439,17 @@ function Home() {
           uploadTask.on('state_changed',
             (snapshot) => {
               const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log('Upload is ' + p + '% done');
+              // console.log('Upload is ' + p + '% done');
               setShowProgressBar(true);
               setProgressPercentage((p + 5).toString());
-              switch (snapshot.state) {
-                case 'paused':
-                  console.log('Upload is paused');
-                  break;
-                case 'running':
-                  console.log('Upload is running');
-                  break;
-              }
+              // switch (snapshot.state) {
+              //   case 'paused':
+              //     // console.log('Upload is paused');
+              //     break;
+              //   case 'running':
+              //     // console.log('Upload is running');
+              //     break;
+              // }
             },
             (error) => {
               setShowProgressBar(false);
@@ -479,7 +480,7 @@ function Home() {
                 setShowProgressBar(false);
                 scrollToTop();
               }
-              setBusy(false);
+              // setBusy(false);
             }
           );
         }
@@ -506,16 +507,16 @@ function Home() {
           setShowProgressBar(false);
           setPrevPostUploading(false);
         }
-        setBusy(false);
+        // setBusy(false);
       }
     }
   };
 
   useEffect(() => { // run on app startup
     setShowTabs(true);
-    setBusy(true);
+    // setBusy(true);
     if (!user) {
-      setBusy(false);
+      // setBusy(false);
       history.replace("/landing-page");
       setProfilePhoto(null);
       setPosts([]);
@@ -590,9 +591,6 @@ function Home() {
           ) : (null)}
 
           <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-            <br></br>
-            <br></br>
-            <br></br>
             <IonRefresherContent
               pullingText="Pull to refresh"
               refreshingSpinner="crescent"
@@ -1060,6 +1058,7 @@ function Home() {
               </div>
             </div>
           )}
+          <br></br><br></br><br></br>
           <IonInfiniteScroll
             onIonInfinite={(e: any) => { handleLoadPostsNextBatch(e) }}
             disabled={(lastKey.length == 0)}
@@ -1075,7 +1074,8 @@ function Home() {
             {/* <div slot="fixed" style={{ width: "100%" }}> */}
             <IonFooter mode='ios' >
               {/* <IonToolbar mode="ios" translucen> */}
-              <ProgressBar percentage={progressPercentage} />
+              {/* <ProgressBar percentage={progressPercentage} /> */}
+              <IonProgressBar type="indeterminate"></IonProgressBar>
               {/* </IonToolbar> */}
             </IonFooter>
             {/* </div> */}

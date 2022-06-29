@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { IonHeader } from '@ionic/react';
-import IconButton from '@mui/material/IconButton';
 import tellU from '../images/tellU.png';
 import tellU_white from '../images/tellU_white.png';
 import '../App.css';
@@ -16,7 +15,7 @@ class Header extends Component<any, any>{
       return (
         <div style={{ width: "100%" }}>
           <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
-            <IconButton>
+            {/* <IconButton> */}
               <img
                 draggable={false}
                 className='quantum_logo'
@@ -24,7 +23,7 @@ class Header extends Component<any, any>{
                 alt="QUANTUM"
                 style={{ zoom: 1.2 }}
               />
-            </IconButton>
+            {/* </IconButton> */}
             <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
           </IonHeader>
         </div>
@@ -33,7 +32,7 @@ class Header extends Component<any, any>{
       return (
         <div style={{ width: "100%" }}>
           <IonHeader class="ion-no-border" style={{ textAlign: "center" }}>
-            <IconButton>
+            {/* <IconButton> */}
               <img
                 draggable={false}
                 className='quantum_logo'
@@ -41,7 +40,7 @@ class Header extends Component<any, any>{
                 alt="QUANTUM"
                 style={{ zoom: 1.2 }}
               />
-            </IconButton>
+            {/* </IconButton> */}
             <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
           </IonHeader>
         </div>

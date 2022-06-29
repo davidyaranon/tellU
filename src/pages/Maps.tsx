@@ -49,6 +49,11 @@ const schoolInfo = {
   "": [37.250458, -120.350249, 6],
 };
 
+const customAlertOptions = {
+  header: 'Pin Filter',
+  subHeader: 'Select which type of pin to display on the map',
+};
+
 function Maps() {
   const Toast = useToast();
   const schoolName = useSelector((state: any) => state.user.school);
@@ -201,6 +206,8 @@ function Maps() {
         <div className="overlaySearch">
           <IonLabel> FILTER: </IonLabel>
           <IonSelect
+            interfaceOptions={customAlertOptions}
+            okText="Filter"
             mode="ios"
             value={markerFilter}
             placeholder="Filter: ALL"

@@ -1,5 +1,3 @@
-import { toggleSharp } from "ionicons/icons";
-
 const defaultState = {
   user: {},
   email: {},
@@ -12,7 +10,20 @@ const defaultState = {
 }
 
 
-export default function reducer(state = defaultState, { type, payload_username, payload_email, hasLoaded, toggled, school, allPosts, userPostsLoaded, scrollY }: { type: string, payload_username: any, payload_email: any, hasLoaded: boolean, toggled: boolean, school: string, allPosts: any, userPostsLoaded : boolean, scrollY : number }): any {
+export default function reducer(state = defaultState, {
+  type, payload_username, payload_email, hasLoaded, toggled, school, allPosts, userPostsLoaded, scrollY
+}: {
+  type: string,
+  payload_username: any,
+  payload_email: any,
+  hasLoaded: boolean,
+  toggled: boolean,
+  school: string,
+  allPosts: any,
+  userPostsLoaded: boolean,
+  scrollY: number
+}
+): any {
   switch (type) {
     case 'SET_USER_STATE':
       return {
@@ -31,16 +42,6 @@ export default function reducer(state = defaultState, { type, payload_username, 
           toggled: toggled,
         }
       }
-    // case 'SET_ALL_POSTS':
-    //   console.log(allPosts);
-    //   return {
-    //     ...state,
-    //     allUserPosts: {
-    //       posts: allPosts,
-    //       postsLoaded: userPostsLoaded,
-    //       scroll: scrollY,
-    //     }
-    //   }
   }
 
   return state;

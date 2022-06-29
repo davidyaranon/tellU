@@ -79,9 +79,9 @@ const Register: React.FC = () => {
       Toast.error("Enter a value in each field");
     } else if (schoolName.length == 0) {
       Toast.error("Select a university!");
-    } else if(((emailSignUp.trim() || '').match(emojis) || []).length > 0){
+    } else if (((emailSignUp.trim() || '').match(emojis) || []).length > 0) {
       Toast.error("Email cannot contain emojis ");
-    } else if(((userNameSignUp.trim() || '').match(emojis) || []).length > 0){ 
+    } else if (((userNameSignUp.trim() || '').match(emojis) || []).length > 0) {
       Toast.error("Username cannot contain emojis!");
     } else if (userNameSignUp.trim().length > 15) {
       Toast.error("Username must be no more than 15 characters!");
@@ -111,13 +111,13 @@ const Register: React.FC = () => {
         if (typeof res === "string") {
           Toast.error(res);
         } else {
-            FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
-            PushNotifications.register().then(() => {
-              FCM.subscribeTo({ topic: "commentNotifications" }).then(() => {
-                console.log("subscribed to comment notifications");
-              }).catch((err) => { console.error(err); })
-              FCM.getToken().then((r) => { console.log(r.token); }).catch((err) => console.error(err));
-            });
+          FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
+          PushNotifications.register().then(() => {
+            FCM.subscribeTo({ topic: "commentNotifications" }).then(() => {
+              console.log("subscribed to comment notifications");
+            }).catch((err) => { console.error(err); })
+            FCM.getToken().then((r) => { console.log(r.token); }).catch((err) => console.error(err));
+          });
           dispatch(
             setUserState(
               res!.user.displayName,
@@ -132,11 +132,9 @@ const Register: React.FC = () => {
     }
     setBusy(false);
   }
-  const handleEmojiEntered = () => {
-    Toast.error("Cannot have emojis in name :(");
-  };
-  const handleUsernameInput = (e : any) => {
-      setUserNameSignUp(e.detail.value);
+
+  const handleUsernameInput = (e: any) => {
+    setUserNameSignUp(e.detail.value);
   }
   useIonViewDidEnter(() => {
     setBusy(true);
@@ -170,7 +168,7 @@ const Register: React.FC = () => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(defaultResizeOptions);
     });
-    return() => {
+    return () => {
       Keyboard.removeAllListeners();
     };
   }, []);
@@ -253,36 +251,24 @@ const Register: React.FC = () => {
             ></IonInput>
           </IonItem>
           <IonItem class="ion-item-style">
-            <IonLabel position="stacked">School</IonLabel>
+            <IonLabel position="stacked">University</IonLabel>
             <IonSelect
               value={schoolName}
               placeholder="University of California"
-              onIonChange={(e: any) => {setSchoolName(e.detail.value)}}
+              onIonChange={(e: any) => { setSchoolName(e.detail.value) }}
             >
               <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
               <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
               <IonSelectOption value="UC Irvine">UC Irvine</IonSelectOption>
               <IonSelectOption value="UCLA">UCLA</IonSelectOption>
               <IonSelectOption value="UC Merced">UC Merced</IonSelectOption>
-              <IonSelectOption value="UC Riverside">
-                UC Riverside
-              </IonSelectOption>
-              <IonSelectOption value="UC San Diego">
-                UC San Diego
-              </IonSelectOption>
+              <IonSelectOption value="UC Riverside">UC Riverside</IonSelectOption>
+              <IonSelectOption value="UC San Diego">UC San Diego</IonSelectOption>
               <IonSelectOption value="UCSF">UCSF</IonSelectOption>
-              <IonSelectOption value="UC Santa Barbara">
-                UC Santa Barbara
-              </IonSelectOption>
-              <IonSelectOption value="UC Santa Cruz">
-                UC Santa Cruz
-              </IonSelectOption>
-              <IonSelectOption value="Cal Poly Humboldt">
-                Cal Poly Humboldt
-              </IonSelectOption>
-              <IonSelectOption disabled={true} value="More schools to come!...">
-                More schools to come!...
-              </IonSelectOption>
+              <IonSelectOption value="UC Santa Barbara">UC Santa Barbara</IonSelectOption>
+              <IonSelectOption value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
+              <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
+              <IonSelectOption disabled={true} value="More schools to come!...">More schools to come!...</IonSelectOption>
             </IonSelect>
           </IonItem>
           <IonItem class="ion-item-style">
@@ -294,7 +280,7 @@ const Register: React.FC = () => {
               type="text"
               placeholder="userName1234"
               id="userNameSignUp"
-              onIonChange={(e: any) => {handleUsernameInput(e)}}
+              onIonChange={(e: any) => { handleUsernameInput(e) }}
             ></IonInput>
           </IonItem>
           <IonItem class="ion-item-style">

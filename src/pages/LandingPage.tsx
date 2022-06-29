@@ -117,7 +117,7 @@ const LandingPage: React.FC = () => {
   }
   else {
     return (
-      <IonPage>
+      <IonPage className='app-root'>
         <IonContent >
           {loggingIn ? (
             <IonLoading

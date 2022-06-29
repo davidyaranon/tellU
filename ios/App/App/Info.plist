@@ -35,8 +35,7 @@
 	<string>tellU needs access to your photo library if you would like to upload a photo</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>tellU needs access to your photo library if you would like to upload a photo</string>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<key>UILaunchScreen</key> <dict> <key>UIColorName</key> <string>Splashscreen-Color</string> <key>UIImageRespectsSafeAreaInsets</key> <true/> </dict>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
