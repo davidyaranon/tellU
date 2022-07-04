@@ -5,6 +5,13 @@
   transform: translate(-50%, -50%);
 }
 
+.ion-spinner-iframe {
+  position: fixed;
+  top: 72.5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .onboard-img {
   position: fixed;
   top: 50%;

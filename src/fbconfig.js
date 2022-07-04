@@ -45,6 +45,9 @@ import {
 } from "firebase/database";
 import { ref as rtdbRef } from "firebase/database";
 
+import SpotifyWebApi from 'spotify-web-api-js';
+const spotifyApi = new SpotifyWebApi();
+
 const firebaseConfig = {
   apiKey: `${process.env.REACT_APP_FIREBASE_API_KEY}`,
   authDomain: `${process.env.REACT_APP_FIREBASE_AUTH_DOMAIN}`,
@@ -76,6 +79,27 @@ export const deleteImage = httpsCallable(functions, 'deleteImage');
 export const deleteLikesDocFromRtdb = httpsCallable(functions, 'deleteLikesDocFromRtdb');
 export const deleteCommentsFromDeletedPost = httpsCallable(functions, 'deleteCommentsFromDeletedPost');
 
+export const spotifySearch = async (query) => {
+  try {
+    console.log('search function');
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      body: 'grant_type=client_credentials&client_id=' + `${process.env.REACT_APP_SPOTIFY_CLIENT_ID}` + '&client_secret=' + `${process.env.REACT_APP_SPOTIFY_SECRET_ID}`,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    }).catch((err) => {
+      console.log(err);
+    });
+    const data = await res.json().catch((err) => {console.log(err); });
+    const token = data.access_token;
+    spotifyApi.setAccessToken(token);
+    const searchResults = await spotifyApi.search(query, ["track"], {limit: 25});
+    return searchResults.tracks.items;
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 export async function uploadImage(location, blob, url) {
   try {
@@ -129,6 +153,7 @@ export async function registerWithEmailAndPassword(
           snapchat: "",
           instagram: "",
           tiktok: "",
+          spotify: "",
           userName: name,
           userEmail: email,
           uid: user.uid,
@@ -418,7 +443,7 @@ export const getUserLikedPostsNextBatch = async (uid, key) => {
   }
 }
 
-export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok) => {
+export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, spotifyUri) => {
   try {
     if (db && auth && auth.currentUser) {
       const uid = auth.currentUser.uid;
@@ -429,12 +454,14 @@ export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok) =>
       if (!major) { major = ""; }
       if (!snapchat) { snapchat = ""; }
       if (!tiktok) { tiktok = ""; }
+      if(!spotifyUri) {spotifyUri = ""}
       batch.update(userDocRef, {
         bio: bio,
         instagram: instagram,
         major: major,
         snapchat: snapchat,
-        tiktok: tiktok
+        tiktok: tiktok,
+        spotify : spotifyUri,
       });
       await batch.commit().catch((err) => console.log(err));
       return true;

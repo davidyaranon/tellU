@@ -78,6 +78,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [userTiktok, setUserTiktok] = useState<string>("");
   const [userSnapchat, setUserSnapchat] = useState<string>("");
   const [userInstagram, setUserInstagram] = useState<string>("");
+  const [spotifyUri, setSpotifyUri] = useState<string>("");
+  const [iFrameLoader, setIframeLoader] = useState<boolean>(false);
   const Toast = useToast();
 
   const sharePost = async () => {
@@ -199,6 +201,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             setUserInstagram(res.instagram);
             setUserSnapchat(res.snapchat);
             setUserTiktok(res.tiktok);
+            if("spotify" in res) {
+              setSpotifyUri(res.spotify);
+            }
             getUserPosts(schoolName, uid)
               .then(async (res: any) => {
                 // first batch
@@ -409,12 +414,23 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     ) : null}
                   </div>
                 )}
+                <br />
+                {spotifyUri && spotifyUri.length > 0 &&
+                  <iframe style={ iFrameLoader ? { width: "82.5vw", borderRadius: "15px", visibility: "hidden"} : {width: "82.5vw", borderRadius: "15px"}} className='Music'
+                    onLoad={() => {setIframeLoader(false);}}
+                    src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                }
               </IonCardContent>
             </IonCard>
-            <div style={{ textAlign: "center", alignItems: "center" }}>
+
+            {/* <div style={{ textAlign: "center", alignItems: "center" }}>
               <IonLabel>Posts</IonLabel>
-            </div>
+            </div> */}
+
           </FadeIn>
+
+
+          <br />
 
           <div>
             <>

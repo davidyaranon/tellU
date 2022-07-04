@@ -51,6 +51,7 @@ import {
   getCurrentUserData,
   removePoll,
   getLikes,
+  spotifySearch,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -100,13 +101,7 @@ import UIContext from "../my-context";
 import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
-
 function User() {
-  // const {
-  //   REACT_APP_CLIENT_ID,
-  //   REACT_APP_AUTHORIZE_URL,
-  //   REACT_APP_REDIRECT_URL
-  // } = process.env;
   const timeAgo = new TimeAgo("en-US");
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
@@ -155,6 +150,12 @@ function User() {
   const [showEditEmailModal, setShowEditEmailModal] = useState<boolean>(false);
   const [userDataHasLoaded, setUserDataHasLoaded] = useState<boolean>(false);
   const [showEditUsernameModal, setShowEditUsernameModal] = useState<boolean>(false);
+  const [spotifyTextSearch, setSpotifyTextSearch] = useState<string>("");
+  const [spotifyModal, setSpotifyModal] = useState<boolean>(false);
+  const [spotifyLoading, setSpotifyLoading] = useState<boolean>(false);
+  const [spotifyResults, setSpotifyResults] = useState<any[]>([]);
+  const [spotifyUri, setSpotifyUri] = useState<string>("");
+  const [editableSpotifyUri, setEditableSpotifyUri] = useState<string>("");
   // const [showDeletePostAlert, setShowDeletePostAlert] = useState<boolean>(false);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 
@@ -202,11 +203,13 @@ function User() {
             setUserInstagram(res.instagram);
             setUserSnapchat(res.snapchat);
             setUserTiktok(res.tiktok);
+            setSpotifyUri(res.spotify);
             setEditableUserBio(res.bio);
             setEditableUserMajor(res.major);
             setEditableUserInstagram(res.instagram);
             setEditableUserSnapchat(res.snapchat);
             setEditableUserTiktok(res.tiktok);
+            setEditableSpotifyUri(res.spotify);
           } else {
             Toast.error("Trouble loading data");
           }
@@ -338,12 +341,13 @@ function User() {
       && String(editableUserInstagram).trim() == String(userInstagram).trim()
       && String(editableUserSnapchat).trim() == String(userSnapchat).trim()
       && String(editableUserMajor).trim() == String(userMajor).trim()
-      && String(editableUserTiktok).trim() == String(userTiktok).trim()) {
+      && String(editableUserTiktok).trim() == String(userTiktok).trim()
+      && String(editableSpotifyUri).trim() == String(spotifyUri).trim()) {
       Toast.error("No changes made");
       setUserDataHasLoaded(true);
       return;
     }
-    let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok));
+    let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok, editableSpotifyUri));
     userDataUpdated.then((res) => {
       if (res) {
         setUserBio(editableUserBio);
@@ -617,7 +621,7 @@ function User() {
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
-      if(val === 1) {
+      if (val === 1) {
         Haptics.impact({ style: ImpactStyle.Light });
       }
       if (userPosts && user) {
@@ -643,7 +647,7 @@ function User() {
   const handleDownVote = async (postKey: string, index: number, post: any) => {
     const val = await downVote(postKey);
     if (val && (val === 1 || val === -1)) {
-      if(val === 1) {
+      if (val === 1) {
         Haptics.impact({ style: ImpactStyle.Light });
       }
       if (userPosts && user) {
@@ -798,6 +802,10 @@ function User() {
     let currMajor = e.detail.value;
     setEditableUserMajor(currMajor);
   };
+  const handleSpotifyChange = (e: any) => {
+    let curr = e.detail.value;
+    setSpotifyTextSearch(curr);
+  }
   const handleUserTiktokChange = (e: any) => {
     let curr = e.detail.value;
     setEditableUserTiktok(curr);
@@ -861,6 +869,27 @@ function User() {
     }
     setLoadingUserPosts(false);
   };
+
+  const handleSpotifySearch = () => {
+    if (spotifyTextSearch.trim().length <= 0) {
+      Toast.error("Enter a search query");
+      return;
+    }
+    setSpotifyLoading(true);
+    setSpotifyModal(true);
+    spotifySearch(spotifyTextSearch).then((res: any) => {
+      console.log(res);
+      setSpotifyResults(res);
+      setSpotifyLoading(false);
+    }).catch((err) => {
+      console.log(err);
+      setSpotifyLoading(false);
+    });
+  }
+
+  // const handleSpotifySelection = () => {
+
+  // };
 
   useIonViewDidEnter(() => {
     // scrollToTop();
@@ -969,6 +998,50 @@ function User() {
           isOpen={busy}
         ></IonLoading>
 
+        <IonModal
+          isOpen={spotifyModal}
+          onDidDismiss={() => {
+          }}
+        >
+          <IonContent>
+            <IonToolbar mode="ios" >
+              <IonButtons style={{ marginLeft: "-2.5%" }}>
+                <IonButton
+                  mode="ios"
+                  onClick={() => {
+                    setSpotifyModal(false);
+                    setSpotifyTextSearch("");
+                    setSpotifyResults([]);
+                  }}
+                >
+                  Close
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+            {spotifyLoading &&
+              <IonSpinner color="primary" className='ion-spinner' />
+            }
+            {spotifyResults && spotifyResults.length > 0 &&
+              <>
+                <IonList mode="ios">
+                  {spotifyResults.map((track, index) => {
+                    return (
+                      <>
+                        <IonItem key={track.id} mode="ios">
+                          <iframe style={{ width: "90vw", borderRadius: "15px" }} className='Music'
+                            src={"https://embed.spotify.com/?uri=" + track.uri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                        </IonItem>
+                        <IonButton key={track.id + index.toString()} color="medium" mode="ios" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}> Select Track</IonButton>
+                        <br></br>
+                      </>
+                    )
+                  })}
+                </IonList>
+              </>
+            }
+          </IonContent>
+        </IonModal>
+
         <IonModal backdropDismiss={false} isOpen={showAboutModal}>
           <IonContent>
             <div slot="fixed" style={{ width: "100%" }}>
@@ -985,6 +1058,7 @@ function User() {
                       setEditableUserMajor(userMajor);
                       setEditableUserTiktok(userTiktok);
                       setEditableUserSnapchat(userSnapchat);
+                      setEditableSpotifyUri(spotifyUri);
                     }}
                   >
                     <IonIcon icon={chevronBackOutline}></IonIcon> Back
@@ -1082,7 +1156,36 @@ function User() {
                 />
               </IonCardContent>
             </IonCard>
-            {/* <IonButton onClick={() => {handleLogin(); }}>LOGIN SPOTIFY</IonButton> */}
+            <IonCard mode="ios">
+              <IonCardContent>
+                <IonLabel>Spotify Song Spotlight</IonLabel>
+                <br/><br />
+                {spotifyUri && spotifyUri.length > 0 &&
+                  <iframe style={{ width: "82.5vw", borderRadius: "15px" }} className='Music'
+                    src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+                  </iframe>
+                }
+                <IonTextarea
+                  style={{ fontWeight: "bold" }}
+                  mode="ios"
+                  id="bio"
+                  color="primary"
+                  maxlength={50}
+                  value={spotifyTextSearch}
+                  onIonChange={(e: any) => {
+                    handleSpotifyChange(e);
+                  }}
+                />
+                <IonButton
+                  color="transparent"
+                  mode="ios"
+                  shape="round"
+                  fill="outline"
+                  expand="block" onClick={() => {
+                    handleSpotifySearch();
+                  }}>Search</IonButton>
+              </IonCardContent>
+            </IonCard>
           </IonContent>
         </IonModal>
 

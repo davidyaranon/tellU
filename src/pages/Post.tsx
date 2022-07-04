@@ -74,11 +74,9 @@ const defaultResizeOptions: KeyboardResizeOptions = {
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
-  // const { setShowTabs } = React.useContext(UIContext);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
-  // const [busy, setBusy] = useState<boolean>(false);
   const [post, setPost] = useState<any | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
