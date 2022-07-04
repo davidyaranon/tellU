@@ -288,7 +288,7 @@ function Maps() {
             >
               <IonCard
                 onClick={() => {
-                  history.push("home/post/" + markers[overlayIndex].key);
+                  history.push("post/" + markers[overlayIndex].key);
                 }}
                 style={{ width: "55vw", opacity: "90%" }}
                 mode="ios"

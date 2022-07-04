@@ -1160,9 +1160,9 @@ function User() {
               <IonCardContent>
                 <IonLabel>Spotify Song Spotlight</IonLabel>
                 <br/><br />
-                {spotifyUri && spotifyUri.length > 0 &&
+                {editableSpotifyUri && editableSpotifyUri.length > 0 &&
                   <iframe style={{ width: "82.5vw", borderRadius: "15px" }} className='Music'
-                    src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+                    src={"https://embed.spotify.com/?uri=" + editableSpotifyUri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
                   </iframe>
                 }
                 <IonTextarea
@@ -1621,7 +1621,7 @@ function User() {
                         return (
                           <FadeIn key={post.key}>
                             <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
+                              <IonItem lines="none" mode="ios" onClick={() => { history.push("post/" + post.key); }}>
                                 <IonLabel>
                                   <IonFab horizontal="end">
                                     <IonNote style={{ fontSize: "0.75em" }}>
@@ -1746,7 +1746,7 @@ function User() {
                                     mode="ios"
                                     color="medium"
                                     onClick={() => {
-                                      history.push("home/post/" + post.key);
+                                      history.push("post/" + post.key);
                                     }}
                                   >
                                     <ForumIcon />
@@ -1858,7 +1858,7 @@ function User() {
                       {userLikedPosts.map((post, index) => {
                         return (
                           <IonList mode="ios" lines="none" inset>
-                            <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
+                            <IonItem onClick={() => { history.push("post/" + post.key); }} key={post.key} mode="ios">
                               <IonLabel>
                                 <IonText color="medium">
                                   <IonRow>
@@ -1868,7 +1868,7 @@ function User() {
                                           class="posts-avatar"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            history.push("home/about/" + post.uid);
+                                            history.push("about/" + post.uid);
                                           }}
                                         >
                                           <IonImg src={post?.photoURL!}></IonImg>

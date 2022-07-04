@@ -59,6 +59,7 @@ import { PushNotifications } from "@capacitor/push-notifications";
 import { FCM } from "@capacitor-community/fcm";
 import AppUrlListener from "./pages/AppUrlListener";
 import ForgotPassword from "./pages/ForgotPassword";
+import { createBrowserHistory } from "history";
 
 // // set up base push notifications with Capacitor
 // await PushNotifications.requestPermissions();
@@ -77,6 +78,8 @@ interface Badge{
   notifCount : number;
 }
 
+const history = createBrowserHistory();
+
 const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
   const badgeCount = props.notifCount;
   const { showTabs } = React.useContext(UIContext);
@@ -85,7 +88,7 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
   useEffect(() => { }, []);
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-      <IonReactRouter>
+      <IonReactRouter history={history}>
         <AppUrlListener></AppUrlListener>
         <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab) }}>
           <IonRouterOutlet>
