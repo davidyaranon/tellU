@@ -59,6 +59,7 @@ interface MatchParams {
 
 export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const uid = match.params.uid;
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
   const [busy, setBusy] = useState<boolean>(false);
   const [noPostsYet, setNoPostsYet] = useState<boolean>(false);
@@ -412,14 +413,19 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                         </IonRow>
                       </>
                     ) : null}
+                    {spotifyUri && spotifyUri.length > 0 &&
+                      <>
+                        <br />
+                        <iframe style={darkModeToggled ? { width: "82.5vw", backgroundColor : "#2f2f2f", borderRadius: "15px", maxHeight: "80px", } : { backgroundColor : "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", }} className='Music'
+                          onLoad={() => { setIframeLoader(false); }}
+                          src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture">
+                        </iframe>
+                      </>
+                    }
                   </div>
                 )}
-                <br />
-                {spotifyUri && spotifyUri.length > 0 &&
-                  <iframe style={iFrameLoader ? { width: "82.5vw", borderRadius: "15px", visibility: "hidden", display: "none", maxHeight: "80px" } : { width: "82.5vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
-                    onLoad={() => { setIframeLoader(false); }}
-                    src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture"></iframe>
-                }
+
+
               </IonCardContent>
             </IonCard>
 

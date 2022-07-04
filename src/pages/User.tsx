@@ -886,6 +886,7 @@ function User() {
       setSpotifyLoading(false);
     }).catch((err) => {
       console.log(err);
+      Toast.error("Something went wrong");
       setSpotifyLoading(false);
     });
   }
@@ -896,6 +897,7 @@ function User() {
 
   const isEnterPressed = (key: string) => {
     if (key === "Enter") {
+      Keyboard.hide();
       handleSpotifySearch();
     }
   };
@@ -1029,7 +1031,7 @@ function User() {
               <IonTitle>Spotify Search</IonTitle>
             </IonToolbar>
             <IonToolbar mode="ios" >
-              <IonSearchbar value={spotifyTextSearch} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} onIonChange={e => setSpotifyTextSearch(e.detail.value!)} showCancelButton="focus" animated={true}></IonSearchbar>
+              <IonSearchbar color={darkModeToggled ? "" : "medium"} value={spotifyTextSearch} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} onIonChange={e => setSpotifyTextSearch(e.detail.value!)} showCancelButton="focus" animated={true}></IonSearchbar>
             </IonToolbar>
             <hr style={{ opacity: "50%", width: "85vw" }}></hr>
             {spotifyLoading &&
@@ -1041,10 +1043,10 @@ function User() {
                   {spotifyResults.map((track, index) => {
                     return (
                       <>
-                        <IonItem key={track.id} mode="ios">
+                        <IonItem key={track.id} mode="ios" lines="none">
                           <iframe style={{ width: "75vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
                             src={"https://embed.spotify.com/?uri=" + track.uri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
-                          <IonButton style={{alignItems : "center",textAlign : "center", width : "25vw"}} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}>Select</IonButton>
+                          <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}>Select</IonButton>
                         </IonItem>
                         <br></br>
                       </>
@@ -1065,14 +1067,17 @@ function User() {
                     mode="ios"
                     onClick={() => {
                       Keyboard.hide().then(() => {
-                        setTimeout(() => setShowAboutModal(false), 100);
+                        setTimeout(() => {
+                          setShowAboutModal(false);
+                          setEditableUserBio(userBio);
+                          setEditableUserInstagram(userInstagram);
+                          setEditableUserMajor(userMajor);
+                          setEditableUserTiktok(userTiktok);
+                          setEditableUserSnapchat(userSnapchat);
+                          setEditableSpotifyUri(spotifyUri);
+                        }, 100);
                       })
-                      setEditableUserBio(userBio);
-                      setEditableUserInstagram(userInstagram);
-                      setEditableUserMajor(userMajor);
-                      setEditableUserTiktok(userTiktok);
-                      setEditableUserSnapchat(userSnapchat);
-                      setEditableSpotifyUri(spotifyUri);
+
                     }}
                   >
                     <IonIcon icon={chevronBackOutline}></IonIcon> Back
@@ -1671,7 +1676,7 @@ function User() {
                         return (
                           <FadeIn key={post.key}>
                             <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios" onClick={() => { history.push("post/" + post.key); }}>
+                              <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
                                 <IonLabel>
                                   <IonFab horizontal="end">
                                     <IonNote style={{ fontSize: "0.75em" }}>
@@ -1796,7 +1801,7 @@ function User() {
                                     mode="ios"
                                     color="medium"
                                     onClick={() => {
-                                      history.push("post/" + post.key);
+                                      history.push("home/post/" + post.key);
                                     }}
                                   >
                                     <ForumIcon />
@@ -1908,7 +1913,7 @@ function User() {
                       {userLikedPosts.map((post, index) => {
                         return (
                           <IonList mode="ios" lines="none" inset>
-                            <IonItem onClick={() => { history.push("post/" + post.key); }} key={post.key} mode="ios">
+                            <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
                               <IonLabel>
                                 <IonText color="medium">
                                   <IonRow>
