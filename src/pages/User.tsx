@@ -29,6 +29,7 @@ import {
   IonRow,
   IonCol,
   IonGrid,
+  IonSearchbar,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -164,7 +165,8 @@ function User() {
   // };
 
   const titleStyle = {
-    fontSize: "6.5vw",
+    fontSize: "1.4em",
+    textAlign: "center"
   };
 
   const scrollToTop = () => {
@@ -875,8 +877,9 @@ function User() {
       Toast.error("Enter a search query");
       return;
     }
+    setSpotifyTextSearch("");
     setSpotifyLoading(true);
-    setSpotifyModal(true);
+    // setSpotifyModal(true);
     spotifySearch(spotifyTextSearch).then((res: any) => {
       console.log(res);
       setSpotifyResults(res);
@@ -890,6 +893,12 @@ function User() {
   // const handleSpotifySelection = () => {
 
   // };
+
+  const isEnterPressed = (key: string) => {
+    if (key === "Enter") {
+      handleSpotifySearch();
+    }
+  };
 
   useIonViewDidEnter(() => {
     // scrollToTop();
@@ -1004,7 +1013,7 @@ function User() {
           }}
         >
           <IonContent>
-            <IonToolbar mode="ios" >
+            <IonToolbar mode="ios">
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
                   mode="ios"
@@ -1017,7 +1026,12 @@ function User() {
                   Close
                 </IonButton>
               </IonButtons>
+              <IonTitle>Spotify Search</IonTitle>
             </IonToolbar>
+            <IonToolbar mode="ios" >
+              <IonSearchbar value={spotifyTextSearch} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} onIonChange={e => setSpotifyTextSearch(e.detail.value!)} showCancelButton="focus" animated={true}></IonSearchbar>
+            </IonToolbar>
+            <hr style={{ opacity: "50%", width: "85vw" }}></hr>
             {spotifyLoading &&
               <IonSpinner color="primary" className='ion-spinner' />
             }
@@ -1028,10 +1042,10 @@ function User() {
                     return (
                       <>
                         <IonItem key={track.id} mode="ios">
-                          <iframe style={{ width: "90vw", borderRadius: "15px" }} className='Music'
+                          <iframe style={{ width: "75vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
                             src={"https://embed.spotify.com/?uri=" + track.uri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                          <IonButton style={{alignItems : "center",textAlign : "center", width : "25vw"}} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}>Select</IonButton>
                         </IonItem>
-                        <IonButton key={track.id + index.toString()} color="medium" mode="ios" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}> Select Track</IonButton>
                         <br></br>
                       </>
                     )
@@ -1159,13 +1173,13 @@ function User() {
             <IonCard mode="ios">
               <IonCardContent>
                 <IonLabel>Spotify Song Spotlight</IonLabel>
-                <br/><br />
+                <br /><br />
                 {editableSpotifyUri && editableSpotifyUri.length > 0 &&
-                  <iframe style={{ width: "82.5vw", borderRadius: "15px" }} className='Music'
+                  <iframe style={{ width: "82.5vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
                     src={"https://embed.spotify.com/?uri=" + editableSpotifyUri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
                   </iframe>
                 }
-                <IonTextarea
+                {/* <IonTextarea
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
@@ -1175,15 +1189,51 @@ function User() {
                   onIonChange={(e: any) => {
                     handleSpotifyChange(e);
                   }}
-                />
-                <IonButton
-                  color="transparent"
-                  mode="ios"
-                  shape="round"
-                  fill="outline"
-                  expand="block" onClick={() => {
-                    handleSpotifySearch();
-                  }}>Search</IonButton>
+                /> */}
+                {editableSpotifyUri && editableSpotifyUri.length > 0 ?
+                  <IonRow>
+                    <IonCol>
+                      <IonButton
+                        color="danger"
+                        mode="ios"
+                        shape="round"
+                        fill="clear"
+                        expand="block"
+                        onClick={() => { setEditableSpotifyUri(""); }}
+                      >
+                        Remove
+                      </IonButton>
+                    </IonCol>
+                    <IonCol>
+                      <IonButton
+                        color="transparent"
+                        mode="ios"
+                        shape="round"
+                        fill="clear"
+                        expand="block" onClick={() => {
+                          setSpotifyModal(true);
+                        }}>
+                        Change
+                      </IonButton>
+                    </IonCol>
+                  </IonRow>
+                  :
+                  <IonRow>
+                    <IonCol>
+                      <IonButton
+                        color="transparent"
+                        mode="ios"
+                        shape="round"
+                        fill="clear"
+                        expand="block" onClick={() => {
+                          setSpotifyModal(true);
+                        }}>
+                        Add
+                      </IonButton>
+                    </IonCol>
+                  </IonRow>
+                }
+
               </IonCardContent>
             </IonCard>
           </IonContent>
