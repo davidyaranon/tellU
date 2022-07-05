@@ -290,11 +290,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     <IonIcon icon={chatbubblesOutline} />
                   </IonButton>
                 </span>
-                <IonPopover mode='ios' arrow={true} animated={true} trigger='trigger-popover' showBackdrop={true}>
-                  {/* <IonContent> */}
-                  <p style={{ textAlign: 'center' }}>Coming soon!</p>
-                  {/* </IonContent> */}
-                </IonPopover>
+
                 {/* </div> */}
                 <IonButton
                   slot="end"
@@ -335,94 +331,118 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     </IonFab>
                   </div>
                 ) : (
-                  <div>
-                    <IonRow class="ion-justify-content-start">
-                      <IonCol size="4">
-                        <IonAvatar className="user-avatar">
-                          <IonImg onClick={() => {
-                            const img: CapacitorImage = {
-                              url: profilePhoto,
-                              title: username
-                            };
-                            CapacitorPhotoViewer.show({
-                              options: {
-                                title: true
-                              },
-                              images: [img],
-                              mode: 'one',
-                            });
-                            // PhotoViewer.show(profilePhoto, username);
-                          }}
-                            src={profilePhoto} />
-                        </IonAvatar>
-                      </IonCol>
-                      {userMajor && userMajor.length > 0 ? (
-                        <IonCol class="ion-padding-top" size="8">
-                          <p style={{ fontSize: "1.5em" }}>{username}</p>
-                          <IonNote style={{ fontSize: "1em" }}>
-                            {userMajor}
-                          </IonNote>
+                  <FadeIn>
+                    <div>
+                      <IonRow class="ion-justify-content-start">
+                        <IonCol size="4">
+                          <IonAvatar className="user-avatar">
+                            <IonImg onClick={() => {
+                              const img: CapacitorImage = {
+                                url: profilePhoto,
+                                title: username
+                              };
+                              CapacitorPhotoViewer.show({
+                                options: {
+                                  title: true
+                                },
+                                images: [img],
+                                mode: 'one',
+                              });
+                              // PhotoViewer.show(profilePhoto, username);
+                            }}
+                              src={profilePhoto} />
+                          </IonAvatar>
                         </IonCol>
-                      ) : <IonCol class="ion-padding-top" size="8">
-                        <p className="ion-padding-top" style={{ fontSize: "1.5em" }}> {username}</p>
-                      </IonCol>}
-                    </IonRow>
-                    {userSnapchat && userSnapchat.length > 0 ? (
-                      <>
-                        <IonCol size="12">
-                          <IonText style={{ fontSize: "0.75em" }}>
-                            <IonIcon style={{}} icon={logoSnapchat} />
-                            {'\u00A0'}
-                            {userSnapchat}
-                          </IonText>
-                        </IonCol>
-                      </>
-                    ) : null}
-                    {userInstagram && userInstagram.length > 0 ? (
-                      <>
-                        <IonCol size="12">
-                          <IonText style={{ fontSize: "0.75em" }}>
-                            <IonIcon style={{}} icon={logoInstagram} />
-                            {'\u00A0'}
-                            {userInstagram}
-                          </IonText>
-                        </IonCol>
-                      </>
-                    ) : null}
-                    {userTiktok && userTiktok.length > 0 ? (
-                      <>
-                        <IonCol size="12">
-                          <IonText style={{ fontSize: "0.75em" }}>
-                            <IonIcon style={{}} icon={logoTiktok} />
-                            {'\u00A0'}
-                            {userTiktok}
-                          </IonText>
-                        </IonCol>
-                      </>
-                    ) : null}
-                    {userTiktok && userSnapchat && userInstagram && (userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0) ? (
-                      <>
-                        <br />
-                      </>
-                    ) : null}
-                    {userBio && userBio.length > 0 ? (
-                      <>
-                        <br />
-                        <IonRow class="ion-justify-content-start">
-                          <p style={{ fontSize: "1em", marginLeft: "2%" }}>{userBio}</p>
-                        </IonRow>
-                      </>
-                    ) : null}
-                    {spotifyUri && spotifyUri.length > 0 &&
-                      <>
-                        <br />
-                        <iframe style={darkModeToggled ? { width: "82.5vw", backgroundColor : "#2f2f2f", borderRadius: "15px", maxHeight: "80px", } : { backgroundColor : "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", }} className='Music'
-                          onLoad={() => { setIframeLoader(false); }}
-                          src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture">
-                        </iframe>
-                      </>
-                    }
-                  </div>
+                        {userMajor && userMajor.length > 0 ? (
+                          <IonCol class="ion-padding-top" size="8">
+                            <p style={{ fontSize: "1.5em" }}>{username}</p>
+                            <IonNote style={{ fontSize: "1em" }}>
+                              {userMajor}
+                            </IonNote>
+                          </IonCol>
+                        ) : <IonCol class="ion-padding-top" size="8">
+                          <p className="ion-padding-top" style={{ fontSize: "1.5em" }}> {username}</p>
+                        </IonCol>}
+                      </IonRow>
+                      {userSnapchat && userSnapchat.length > 0 ? (
+                        <>
+                          <IonCol size="12">
+                            <IonText style={{ fontSize: "0.75em" }}>
+                              <IonIcon style={{}} icon={logoSnapchat} />
+                              {'\u00A0'}
+                              {userSnapchat}
+                            </IonText>
+                          </IonCol>
+                        </>
+                      ) : null}
+                      {userInstagram && userInstagram.length > 0 ? (
+                        <>
+                          <IonCol size="12">
+                            <IonText style={{ fontSize: "0.75em" }}>
+                              <IonIcon style={{}} icon={logoInstagram} />
+                              {'\u00A0'}
+                              {userInstagram}
+                            </IonText>
+                          </IonCol>
+                        </>
+                      ) : null}
+                      {userTiktok && userTiktok.length > 0 ? (
+                        <>
+                          <IonCol size="12">
+                            <IonText style={{ fontSize: "0.75em" }}>
+                              <IonIcon style={{}} icon={logoTiktok} />
+                              {'\u00A0'}
+                              {userTiktok}
+                            </IonText>
+                          </IonCol>
+                        </>
+                      ) : null}
+                      {userTiktok && userSnapchat && userInstagram && (userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0) ? (
+                        <>
+                          <br />
+                        </>
+                      ) : null}
+                      {userBio && userBio.length > 0 ? (
+                        <>
+                          <br />
+                          <IonRow class="ion-justify-content-start">
+                            <p style={{ fontSize: "1em", marginLeft: "2%" }}>{userBio}</p>
+                          </IonRow>
+                        </>
+                      ) : null}
+                      {spotifyUri && spotifyUri.length > 0 &&
+                        <FadeIn delay={250} transitionDuration={750}>
+                          <br />
+                          {darkModeToggled ?
+                            <iframe
+                              id="iframe1"
+                              style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
+                              className='Music'
+                              onLoad={() => { setIframeLoader(false); }}
+                              allowTransparency={true}
+                              src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
+                              seamless={true}
+                              loading="eager"
+                            >
+                            </iframe>
+                            :
+                            <iframe
+                              id="iframetwo"
+                              style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#f2f1f1", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { backgroundColor: "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
+                              className='Music'
+                              onLoad={() => { setIframeLoader(false); }}
+                              allowTransparency={true}
+                              src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
+                              seamless={true}
+                              loading="eager"
+                            >
+                            </iframe>
+                          }
+
+                        </FadeIn>
+                      }
+                    </div>
+                  </FadeIn>
                 )}
 
 
@@ -714,11 +734,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     <IonIcon icon={chatbubblesOutline} />
                   </IonButton>
                 </span>
-                <IonPopover mode='ios' arrow={true} animated={true} trigger='trigger-popover' showBackdrop={true}>
-                  {/* <IonContent> */}
-                  <p style={{ textAlign: 'center' }}>Coming soon!</p>
-                  {/* </IonContent> */}
-                </IonPopover>
+
                 {/* </div> */}
                 <IonButton
                   slot="end"

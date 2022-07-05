@@ -32,6 +32,8 @@ import React, { useEffect, useState } from "react";
 import {
   addCircleOutline,
   chevronBackOutline,
+  phoneLandscapeOutline,
+  phonePortraitOutline
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
 import auth, { db, getPolls, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
@@ -60,6 +62,7 @@ import stormy from '../images/icons8-storm-96.png';
 import nighttime from '../images/icons8-moon-phase-96.png';
 import "swiper/css";
 import "swiper/css/pagination";
+import { Device } from '@capacitor/device';
 
 interface PollAnswer {
   text: string,
@@ -78,6 +81,8 @@ function Community() {
   const [pollText, setPollText] = useState<string>("");
   const [weatherData, setWeatherData] = useState<any>();
   const [isDay, setIsDay] = useState<boolean>(false);
+  const [batteryPercentage, setBatteryPercentage] = useState<number>();
+  const [deviceName, setDeviceName] = useState<string | undefined>("");
   const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
   const [pollOptions, setPollOptions] = useState<PollAnswer[]>([
     { text: "", },
@@ -125,6 +130,11 @@ function Community() {
     if (!user) {
       history.replace("/landing-page");
     } else {
+      Device.getBatteryInfo().then((res) => {
+        if (res && res.batteryLevel) {
+          setBatteryPercentage(res.batteryLevel * 100);
+        }
+      });
       if (schoolName) {
         const pollsLoaded = promiseTimeout(10000, getPolls(schoolName));
         pollsLoaded.then((res) => {
@@ -246,6 +256,13 @@ function Community() {
       Toast.error("Something went wrong when casting a vote");
     }
   }
+
+  useEffect(() => {
+    Device.getInfo().then((res) => {
+      console.log(res);
+      setDeviceName(res.name);
+    });
+  }, []);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "schoolWeather", schoolName.replace(/\s+/g, "")), (doc) => {
@@ -374,140 +391,141 @@ function Community() {
                 <hr style={{ width: "95%" }} />
               </FadeIn>
               {weatherData ? (
-                <FadeIn>
-                  <div>
-                    <Swiper slidesPerView={2}
-                      spaceBetween={-15}
-                      loopFillGroupWithBlank={true}
-                      modules={[Navigation]}
-                      navigation={true}
-                      loop={true}
-                    >
-                      <SwiperSlide>
-                        <IonCard mode="ios" style={{
-                          opacity: "100%",
-                          minHeight: "30vh",
-                          background: isDay ? "linear-gradient(180deg, rgba(46,80,153,1) 0%, rgba(47,146,209,1) 23%, rgba(0,212,255,1) 60%, rgba(0,211,255,1) 98%, rgba(156,238,255,1) 100%, rgba(20,93,149,1) 1232%)" :
-                            "linear-gradient(180deg, rgba(0,8,22,1) 0%, rgba(0,4,56,1) 38%, rgba(47,63,105,1) 100%)"
-                        }}>
-                          <IonCardContent style={{ minHeight: "30vh" }}>
-                            <IonFab horizontal="start" vertical="top">
-                              <IonNote style={{ color: "white" }}>
-                                {weatherData.location}
-                              </IonNote>
-                              <IonCardTitle style={{ color: "white" }}>{Math.round(weatherData.temp)}{'\u00b0'}</IonCardTitle>
-                            </IonFab>
-                            <IonFab horizontal="start" vertical="bottom">
-                              <IonNote style={{ color: "white", fontSize: "0.90em" }}>
-                                {weatherData.text}
-                              </IonNote>
-                              <p></p>
-                              <IonNote style={{ color: "white", fontSize: "0.90em" }}>
-                                Humidity: {weatherData.humidity}%
-                              </IonNote>
-                            </IonFab>
-                            <IonFab horizontal="end" style={{ marginLeft: "20vw" }}>
-                              {weatherData && weatherData.icon === '/day/113.png' &&
-                                <img style={{ width: "70%", marginTop: "1vh" }} src={sun_96} />
-                              }
-                              {weatherData && weatherData.icon === '/day/116.png' &&
-                                <img style={{ width: "70%", marginTop: "1vh" }} src={partly_cloudy} />
-                              }
-                              {weatherData && (weatherData.icon === '/day/119.png'
-                                || weatherData.icon === '/day/122.png'
-                                || weatherData.icon === '/day/143.png')
-                                &&
-                                <img style={{ width: "70%", marginTop: "1vh" }} src={clouds_96} />
-                              }
-                              {weatherData && (weatherData.icon === '/day/386.png'
-                                || weatherData.icon === '/day/389.png'
-                                || weatherData.icon === '/day/395.png'
-                                || weatherData.icon === '/day/392.png')
-                                &&
-                                <img style={{ width: "70%", marginTop: "1vh" }} src={stormy} />
-                              }
-                              {weatherData && (weatherData.icon === '/day/176.png'
-                                || weatherData.icon === '/day/293.png'
-                                || weatherData.icon === '/day/299.png'
-                                || weatherData.icon === '/day/305.png'
-                                || weatherData.icon === '/day/323.png'
-                                || weatherData.icon === '/day/329.png'
-                                || weatherData.icon === '/day/335.png'
-                                || weatherData.icon === '/day/353.png'
-                                || weatherData.icon === '/day/356.png'
-                                || weatherData.icon === '/day/359.png'
-                                || weatherData.icon === '/day/362png'
-                                || weatherData.icon === '/day/182.png')
-                                &&
-                                <img style={{ width: "70%", marginTop: "1vh" }} src={sunny_rainy} />
-                              }
-                              {weatherData && (weatherData.icon === '/day/185.png'
-                                || weatherData.icon === '/day/263.png'
-                                || weatherData.icon === '/day/281.png'
-                                || weatherData.icon === '/day/296.png'
-                                || weatherData.icon === '/day/308.png'
-                                || weatherData.icon === '/day/314.png'
-                                || weatherData.icon === '/day/318.png'
-                                || weatherData.icon === '/day/320.png'
-                                || weatherData.icon === '/day/311.png'
-                                || weatherData.icon === '/day/302.png'
-                                || weatherData.icon === '/day/284.png'
-                                || weatherData.icon === '/day/266.png')
-                                &&
-                                <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
-                              }
-                              {weatherData && weatherData.icon.toString().includes('night') && (
-                                <>
-                                  {weatherData.icon === '/night/113.png'
-                                    || weatherData.icon === '/night/116.png'
-                                    || weatherData.icon === '/night/119.png'
-                                    || weatherData.icon === '/night/122.png'
-                                    || weatherData.icon === '/night/143.png' ? (
-                                    <img style={{ width: "50%", marginTop: "1vh" }} src={nighttime} />
-                                  ) : (
-                                    <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
+                <>
+                  <FadeIn>
+                    <div>
+                      <Swiper slidesPerView={2}
+                        spaceBetween={-15}
+                        loopFillGroupWithBlank={true}
+                        modules={[Navigation]}
+                        navigation={true}
+                        loop={true}
+                      >
+                        <SwiperSlide>
+                          <IonCard mode="ios" style={{
+                            opacity: "100%",
+                            height: "22.5vh",
+                            background: isDay ? "linear-gradient(180deg, rgba(46,80,153,1) 0%, rgba(47,146,209,1) 23%, rgba(0,212,255,1) 60%, rgba(0,211,255,1) 98%, rgba(156,238,255,1) 100%, rgba(20,93,149,1) 1232%)" :
+                              "linear-gradient(180deg, rgba(0,8,22,1) 0%, rgba(0,4,56,1) 38%, rgba(47,63,105,1) 100%)"
+                          }}>
+                            <IonCardContent style={{ height: "22.5vh" }}>
+                              <IonFab horizontal="start" vertical="top">
+                                <IonNote style={{ color: "white" }}>
+                                  {weatherData.location}
+                                </IonNote>
+                                <IonCardTitle style={{ color: "white" }}>{Math.round(weatherData.temp)}{'\u00b0'}</IonCardTitle>
+                              </IonFab>
+                              <IonFab horizontal="start" vertical="bottom">
+                                <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                                  {weatherData.text}
+                                </IonNote>
+                                <p></p>
+                                <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                                  Humidity: {weatherData.humidity}%
+                                </IonNote>
+                              </IonFab>
+                              <IonFab horizontal="end" style={{ marginLeft: "20vw" }}>
+                                {weatherData && weatherData.icon === '/day/113.png' &&
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sun_96} />
+                                }
+                                {weatherData && weatherData.icon === '/day/116.png' &&
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={partly_cloudy} />
+                                }
+                                {weatherData && (weatherData.icon === '/day/119.png'
+                                  || weatherData.icon === '/day/122.png'
+                                  || weatherData.icon === '/day/143.png')
+                                  &&
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={clouds_96} />
+                                }
+                                {weatherData && (weatherData.icon === '/day/386.png'
+                                  || weatherData.icon === '/day/389.png'
+                                  || weatherData.icon === '/day/395.png'
+                                  || weatherData.icon === '/day/392.png')
+                                  &&
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={stormy} />
+                                }
+                                {weatherData && (weatherData.icon === '/day/176.png'
+                                  || weatherData.icon === '/day/293.png'
+                                  || weatherData.icon === '/day/299.png'
+                                  || weatherData.icon === '/day/305.png'
+                                  || weatherData.icon === '/day/323.png'
+                                  || weatherData.icon === '/day/329.png'
+                                  || weatherData.icon === '/day/335.png'
+                                  || weatherData.icon === '/day/353.png'
+                                  || weatherData.icon === '/day/356.png'
+                                  || weatherData.icon === '/day/359.png'
+                                  || weatherData.icon === '/day/362png'
+                                  || weatherData.icon === '/day/182.png')
+                                  &&
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sunny_rainy} />
+                                }
+                                {weatherData && (weatherData.icon === '/day/185.png'
+                                  || weatherData.icon === '/day/263.png'
+                                  || weatherData.icon === '/day/281.png'
+                                  || weatherData.icon === '/day/296.png'
+                                  || weatherData.icon === '/day/308.png'
+                                  || weatherData.icon === '/day/314.png'
+                                  || weatherData.icon === '/day/318.png'
+                                  || weatherData.icon === '/day/320.png'
+                                  || weatherData.icon === '/day/311.png'
+                                  || weatherData.icon === '/day/302.png'
+                                  || weatherData.icon === '/day/284.png'
+                                  || weatherData.icon === '/day/266.png')
+                                  &&
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
+                                }
+                                {weatherData && weatherData.icon.toString().includes('night') && (
+                                  <>
+                                    {weatherData.icon === '/night/113.png'
+                                      || weatherData.icon === '/night/116.png'
+                                      || weatherData.icon === '/night/119.png'
+                                      || weatherData.icon === '/night/122.png'
+                                      || weatherData.icon === '/night/143.png' ? (
+                                      <img style={{ width: "50%", marginTop: "1vh" }} src={nighttime} />
+                                    ) : (
+                                      <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
 
-                                  )}
-                                </>
-                              )}
-                            </IonFab>
-                          </IonCardContent>
-                        </IonCard>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        <IonCard mode="ios" style={{
-                          minHeight: "30vh",
-                          background: 'linear-gradient(180deg, rgba(238,133,150,1) 0%, rgba(237,181,190,1) 98%)'
-                        }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
-                          <IonCardContent style={{ minHeight: "30vh" }}>
-                            <IonFab horizontal="start" vertical="top">
-                              <IonCardTitle style={{ fontSize: "1.25em" }}>
-                                Feedback
-                              </IonCardTitle>
-                            </IonFab>
-                            <div><br /></div>
-                            <div>
-                              <IonGrid >
-                                <IonRow class="ion-align-items-center">
-                                  <IonCol></IonCol>
-                                </IonRow>
-                                <IonRow class="ion-align-items-center">
-                                  <IonCol>
-                                    <img src={feedback} />
-                                  </IonCol>
-                                </IonRow >
-                                <IonRow class="ion-align-items-center">
-                                  <IonCol></IonCol>
-                                </IonRow>
-                              </IonGrid>
-                            </div>
-                            <IonFab horizontal="start" vertical="bottom">
-                              <p style={{ color: darkModeToggled ? "white" : "black" }}>Let us know what you think of the app</p>
-                            </IonFab>
-                          </IonCardContent>
-                        </IonCard>
-                      </SwiperSlide>
-                      {/* <SwiperSlide>
+                                    )}
+                                  </>
+                                )}
+                              </IonFab>
+                            </IonCardContent>
+                          </IonCard>
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <IonCard mode="ios" style={{
+                            height: "22.5vh",
+                            background: 'linear-gradient(180deg, rgba(238,133,150,1) 0%, rgba(237,181,190,1) 98%)'
+                          }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
+                            <IonCardContent style={{ height: "22.5vh" }}>
+                              <IonFab horizontal="start" vertical="top">
+                                <IonCardTitle style={{ fontSize: "1.25em" }}>
+                                  Feedback
+                                </IonCardTitle>
+                              </IonFab>
+                              <div><br /></div>
+                              <div>
+                                <IonGrid >
+                                  <IonRow class="ion-align-items-center">
+                                    <IonCol></IonCol>
+                                  </IonRow>
+                                  <IonRow class="ion-align-items-center">
+                                    {/* <IonCol> */}
+                                    <img className="ion-spinner-image" src={feedback} />
+                                    {/* </IonCol> */}
+                                  </IonRow >
+                                  <IonRow class="ion-align-items-center">
+                                    <IonCol></IonCol>
+                                  </IonRow>
+                                </IonGrid>
+                              </div>
+                              <IonFab horizontal="start" vertical="bottom">
+                                <p style={{ color: darkModeToggled ? "white" : "black" }}>Let us know what you think of the app</p>
+                              </IonFab>
+                            </IonCardContent>
+                          </IonCard>
+                        </SwiperSlide>
+                        {/* <SwiperSlide>
                         <IonCard mode="ios" style={{
                           minHeight: "30vh",
                           background: "linear-gradient(135deg, #7158fe, #9d4de6"
@@ -535,9 +553,35 @@ function Community() {
                           </IonCardContent>
                         </IonCard>
                       </SwiperSlide> */}
-                    </Swiper>
+                      </Swiper>
+                    </div>
+                  </FadeIn>
+                  <div style={{ marginTop: "-7.5%" }}>
+                    <FadeIn>
+                      <IonCard mode="ios" style={{
+                        opacity: "100%",
+                        height: "22.5vh",
+                      }}
+                      >
+                        <IonCardContent style={{ height: "22.5vh" }}>
+                          <IonFab horizontal="start" vertical="top">
+                            <IonCardTitle>
+                              {deviceName}
+                            </IonCardTitle>
+                          </IonFab>
+                          <IonFab horizontal="end" vertical="bottom">
+                            <IonCardTitle style={{ fontSize: "3em" }}>
+                              {batteryPercentage}%
+                            </IonCardTitle>
+                          </IonFab>
+                          <IonFab horizontal="start" vertical="bottom">
+                            <IonIcon size="large" style={{zoom : 1.5}} icon={phonePortraitOutline} />
+                          </IonFab>
+                        </IonCardContent>
+                      </IonCard>
+                    </FadeIn>
                   </div>
-                </FadeIn>
+                </>
               ) : (
                 <FadeIn transitionDuration={500}>
                   <Swiper slidesPerView={2} spaceBetween={-15} loopFillGroupWithBlank={true} modules={[Navigation]} navigation={true} loop={true}>

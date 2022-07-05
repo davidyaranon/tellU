@@ -357,6 +357,7 @@ function User() {
         setUserInstagram(editableUserInstagram);
         setUserTiktok(editableUserTiktok);
         setUserMajor(editableUserMajor);
+        setSpotifyUri(editableSpotifyUri);
         Keyboard.hide().then(() => {
           setTimeout(() => setShowAboutModal(false), 100);
         })
@@ -872,7 +873,8 @@ function User() {
     setLoadingUserPosts(false);
   };
 
-  const handleSpotifySearch = () => {
+  const handleSpotifySearch = async () => {
+    await timeout(100);
     if (spotifyTextSearch.trim().length <= 0) {
       Toast.error("Enter a search query");
       return;
@@ -1020,9 +1022,11 @@ function User() {
                 <IonButton
                   mode="ios"
                   onClick={() => {
-                    setSpotifyModal(false);
-                    setSpotifyTextSearch("");
-                    setSpotifyResults([]);
+                    Keyboard.hide().then(() => {
+                      setSpotifyModal(false);
+                      setSpotifyTextSearch("");
+                      setSpotifyResults([]);
+                    });
                   }}
                 >
                   Close
@@ -1031,7 +1035,7 @@ function User() {
               <IonTitle>Spotify Search</IonTitle>
             </IonToolbar>
             <IonToolbar mode="ios" >
-              <IonSearchbar color={darkModeToggled ? "" : "medium"} value={spotifyTextSearch} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} onIonChange={e => setSpotifyTextSearch(e.detail.value!)} showCancelButton="focus" animated={true}></IonSearchbar>
+              <IonSearchbar color={darkModeToggled ? "" : "medium"} debounce={0} value={spotifyTextSearch} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} onIonChange={e => setSpotifyTextSearch(e.detail.value!)} showCancelButton="focus" animated={true}></IonSearchbar>
             </IonToolbar>
             <hr style={{ opacity: "50%", width: "85vw" }}></hr>
             {spotifyLoading &&
