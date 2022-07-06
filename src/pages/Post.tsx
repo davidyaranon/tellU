@@ -57,6 +57,7 @@ import Linkify from 'linkify-react';
 import { Share } from "@capacitor/share";
 import { Dialog } from '@capacitor/dialog';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import ProfilePhoto from "./ProfilePhoto";
 
 interface MatchUserPostParams {
   key: string;
@@ -632,20 +633,20 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
                         <p>
-                          <IonAvatar
-                            onClick={() => {
-                              // setComments([]);
-                              setComment("");
-                              handleUserPageNavigation(
-                                post.uid
-                              );
-                            }}
-                            class="posts-avatar"
-                          >
-                            <IonImg
-                              src={post.photoURL}
-                            ></IonImg>
-                          </IonAvatar>
+                          <FadeIn>
+                            <IonAvatar
+                              onClick={() => {
+                                // setComments([]);
+                                setComment("");
+                                handleUserPageNavigation(
+                                  post.uid
+                                );
+                              }}
+                              class="posts-avatar"
+                            >
+                              <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                            </IonAvatar>
+                          </FadeIn>
                           {post.userName}
                         </p>
                       </IonText>
@@ -851,18 +852,19 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         <IonLabel class="ion-text-wrap">
                           <IonText color="medium">
                             <p>
-                              <IonAvatar
-                                onClick={() => {
-                                  // setComments([]);
-                                  setComment("");
-                                  handleUserPageNavigation(comment.uid);
-                                }}
-                                class="posts-avatar"
-                              >
-                                <IonImg
-                                  src={comment?.photoURL!}
-                                ></IonImg>
-                              </IonAvatar>
+                              <FadeIn >
+                                <IonAvatar
+                                  onClick={() => {
+                                    // setComments([]);
+                                    setComment("");
+                                    handleUserPageNavigation(comment.uid);
+                                  }}
+                                  class="posts-avatar"
+                                >
+                                  <ProfilePhoto uid={comment.uid}></ProfilePhoto>
+
+                                </IonAvatar>
+                              </FadeIn>
                               {comment.userName}
                             </p>
                           </IonText>

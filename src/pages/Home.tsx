@@ -85,6 +85,7 @@ import Linkify from 'linkify-react';
 import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestore";
 import { db } from '../fbconfig';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import ProfilePhoto from "./ProfilePhoto";
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -871,15 +872,18 @@ function Home() {
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
                         <p>
-                          <IonAvatar
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleUserPageNavigation(post.uid);
-                            }}
-                            class="posts-avatar"
-                          >
-                            <IonImg src={post?.photoURL!}></IonImg>
-                          </IonAvatar>
+                          <FadeIn>
+                            <IonAvatar
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUserPageNavigation(post.uid);
+                              }}
+                              class="posts-avatar"
+                            >
+                              {/* <IonImg src={post?.photoURL!}></IonImg> */}
+                              <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                            </IonAvatar>
+                          </FadeIn>
                           {post.userName}
                         </p>
                       </IonText>

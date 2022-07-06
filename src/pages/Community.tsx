@@ -63,6 +63,8 @@ import nighttime from '../images/icons8-moon-phase-96.png';
 import "swiper/css";
 import "swiper/css/pagination";
 import { Device } from '@capacitor/device';
+import { CircularProgressbar, buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 interface PollAnswer {
   text: string,
@@ -97,6 +99,11 @@ function Community() {
     if (!user) {
       history.replace("/landing-page");
     } else {
+      Device.getBatteryInfo().then((res) => {
+        if (res && res.batteryLevel) {
+          setBatteryPercentage(res.batteryLevel * 100);
+        }
+      })
       if (schoolName) {
         getWeatherData(schoolName).then((data: any) => {
           if (data && data.icon.toString().includes('day')) {
@@ -132,7 +139,7 @@ function Community() {
     } else {
       Device.getBatteryInfo().then((res) => {
         if (res && res.batteryLevel) {
-          setBatteryPercentage(res.batteryLevel * 100);
+          setBatteryPercentage(Math.round(res.batteryLevel * 100));
         }
       });
       if (schoolName) {
@@ -259,7 +266,6 @@ function Community() {
 
   useEffect(() => {
     Device.getInfo().then((res) => {
-      console.log(res);
       setDeviceName(res.name);
     });
   }, []);
@@ -279,7 +285,7 @@ function Community() {
       setWeatherData(data);
     });
     return () => { unsub(); }
-  }, [schoolName]);
+  }, [schoolName, Toast]);
 
   return (
     <IonPage>
@@ -395,7 +401,7 @@ function Community() {
                   <FadeIn>
                     <div>
                       <Swiper slidesPerView={2}
-                        spaceBetween={-15}
+                        spaceBetween={-10}
                         loopFillGroupWithBlank={true}
                         modules={[Navigation]}
                         navigation={true}
@@ -405,6 +411,7 @@ function Community() {
                           <IonCard mode="ios" style={{
                             opacity: "100%",
                             height: "22.5vh",
+                            borderRadius: "20px",
                             background: isDay ? "linear-gradient(180deg, rgba(46,80,153,1) 0%, rgba(47,146,209,1) 23%, rgba(0,212,255,1) 60%, rgba(0,211,255,1) 98%, rgba(156,238,255,1) 100%, rgba(20,93,149,1) 1232%)" :
                               "linear-gradient(180deg, rgba(0,8,22,1) 0%, rgba(0,4,56,1) 38%, rgba(47,63,105,1) 100%)"
                           }}>
@@ -495,6 +502,7 @@ function Community() {
                         <SwiperSlide>
                           <IonCard mode="ios" style={{
                             height: "22.5vh",
+                            borderRadius: "20px",
                             background: 'linear-gradient(180deg, rgba(238,133,150,1) 0%, rgba(237,181,190,1) 98%)'
                           }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
                             <IonCardContent style={{ height: "22.5vh" }}>
@@ -556,11 +564,127 @@ function Community() {
                       </Swiper>
                     </div>
                   </FadeIn>
-                  <div style={{ marginTop: "-7.5%" }}>
+                  <div style={{ marginTop: "-5%" }}>
                     <FadeIn>
                       <IonCard mode="ios" style={{
                         opacity: "100%",
                         height: "22.5vh",
+                        borderRadius: "20px",
+                      }}
+                      >
+                        <IonCardContent style={{ height: "22.5vh" }}>
+                          <IonFab horizontal="start" vertical="top">
+                            <IonCardTitle>
+                              {deviceName}
+                            </IonCardTitle>
+                          </IonFab>
+                          {batteryPercentage &&
+                            <IonFab horizontal="start" vertical="bottom">
+                              <div style={{ width: "40%" }}>
+                                {batteryPercentage > 25 ?
+                                  <CircularProgressbarWithChildren
+                                    value={batteryPercentage}
+                                    styles={buildStyles({
+                                      pathColor: `rgba(45, 211, 111, 1)`,
+                                    })}
+                                  >
+                                    <IonIcon size="large" style={{ zoom: 1.5 }} icon={phonePortraitOutline} />
+                                  </CircularProgressbarWithChildren>
+                                  :
+                                  <CircularProgressbarWithChildren
+                                    value={batteryPercentage}
+                                    styles={buildStyles({
+                                      pathColor: `rgba(235, 68, 90, 1)`,
+                                    })}
+                                  >
+                                    <IonIcon size="large" style={{ zoom: 1.5 }} icon={phonePortraitOutline} />
+                                  </CircularProgressbarWithChildren>
+                                }
+                              </div>
+                            </IonFab>
+                          }
+                          <IonFab horizontal="end" vertical="bottom">
+                            <IonCardTitle style={{ fontSize: "3em" }}>
+                              {batteryPercentage}%
+                            </IonCardTitle>
+                          </IonFab>
+                        </IonCardContent>
+                      </IonCard>
+                    </FadeIn>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <FadeIn transitionDuration={500}>
+                    <Swiper slidesPerView={2} spaceBetween={-15} loopFillGroupWithBlank={true} modules={[Navigation]} navigation={true} loop={true}>
+                      <SwiperSlide>
+                        <IonCard mode="ios" style={{
+                          opacity: "100%",
+                          minHeight: "22.5vh",
+                          borderRadius: "20px",
+                          background: "linear-gradient(180deg, rgba(46,80,153,1) 0%, rgba(47,146,209,1) 23%, rgba(0,212,255,1) 60%, rgba(0,211,255,1) 98%, rgba(156,238,255,1) 100%, rgba(20,93,149,1) 1232%)"
+                        }}>
+                          <IonCardContent style={{ minHeight: "22.5vh" }}>
+                            <IonFab horizontal="start" vertical="top">
+                              <IonNote style={{ color: "white" }}>
+                                {/* {weatherData.location} */}
+                              </IonNote>
+                              <IonCardTitle style={{ color: "white" }}>
+                                {/* {weatherData.temp}{'\u00b0'} */}
+                              </IonCardTitle>
+                            </IonFab>
+                            <IonFab horizontal="start" vertical="bottom">
+                              <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                                {/* {weatherData.text} */}
+                              </IonNote>
+                              <p></p>
+                              <IonNote style={{ color: "white", fontSize: "0.90em" }}>
+                                {/* Humidity: {weatherData.humidity}% */}
+                              </IonNote>
+                            </IonFab>
+                          </IonCardContent>
+                        </IonCard>
+                      </SwiperSlide>
+                      <SwiperSlide>
+                        <IonCard mode="ios" style={{ minHeight: "22.5vh", borderRadius: "20px", }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
+                          <IonCardContent style={{ minHeight: "22.5vh" }}>
+                            <IonFab horizontal="start" vertical="top">
+                              <IonCardTitle>
+                                <IonText color='medium'>
+                                  {/* Feedback */}
+                                </IonText>
+                              </IonCardTitle>
+                            </IonFab>
+                            <div><br /></div>
+                            <div>
+                              <IonGrid >
+                                <IonRow class="ion-align-items-center">
+                                  <IonCol></IonCol>
+                                </IonRow>
+                                <IonRow class="ion-align-items-center">
+                                  <IonCol>
+                                    {/* <IonImg src={feedback} /> */}
+                                  </IonCol>
+                                </IonRow >
+                                <IonRow class="ion-align-items-center">
+                                  <IonCol></IonCol>
+                                </IonRow>
+                              </IonGrid>
+                            </div>
+                            <IonFab horizontal="start" vertical="bottom">
+                              {/* <p>Let us know what you think of the app</p> */}
+                            </IonFab>
+                          </IonCardContent>
+                        </IonCard>
+                      </SwiperSlide>
+                    </Swiper>
+                  </FadeIn>
+                  <div style={{ marginTop: "-5%" }}>
+                    <FadeIn>
+                      <IonCard mode="ios" style={{
+                        opacity: "100%",
+                        height: "22.5vh",
+                        borderRadius: "20px",
                       }}
                       >
                         <IonCardContent style={{ height: "22.5vh" }}>
@@ -575,77 +699,13 @@ function Community() {
                             </IonCardTitle>
                           </IonFab>
                           <IonFab horizontal="start" vertical="bottom">
-                            <IonIcon size="large" style={{zoom : 1.5}} icon={phonePortraitOutline} />
+                            <IonIcon size="large" style={{ zoom: 1.5 }} icon={phonePortraitOutline} />
                           </IonFab>
                         </IonCardContent>
                       </IonCard>
                     </FadeIn>
                   </div>
                 </>
-              ) : (
-                <FadeIn transitionDuration={500}>
-                  <Swiper slidesPerView={2} spaceBetween={-15} loopFillGroupWithBlank={true} modules={[Navigation]} navigation={true} loop={true}>
-                    <SwiperSlide>
-                      <IonCard mode="ios" style={{
-                        opacity: "100%",
-                        minHeight: "30vh",
-                        background: "linear-gradient(180deg, rgba(46,80,153,1) 0%, rgba(47,146,209,1) 23%, rgba(0,212,255,1) 60%, rgba(0,211,255,1) 98%, rgba(156,238,255,1) 100%, rgba(20,93,149,1) 1232%)"
-                      }}>
-                        <IonCardContent style={{ minHeight: "30vh" }}>
-                          <IonFab horizontal="start" vertical="top">
-                            <IonNote style={{ color: "white" }}>
-                              {/* {weatherData.location} */}
-                            </IonNote>
-                            <IonCardTitle style={{ color: "white" }}>
-                              {/* {weatherData.temp}{'\u00b0'} */}
-                            </IonCardTitle>
-                          </IonFab>
-                          <IonFab horizontal="start" vertical="bottom">
-                            <IonNote style={{ color: "white", fontSize: "0.90em" }}>
-                              {/* {weatherData.text} */}
-                            </IonNote>
-                            <p></p>
-                            <IonNote style={{ color: "white", fontSize: "0.90em" }}>
-                              {/* Humidity: {weatherData.humidity}% */}
-                            </IonNote>
-                          </IonFab>
-                        </IonCardContent>
-                      </IonCard>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                      <IonCard mode="ios" style={{ minHeight: "30vh" }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
-                        <IonCardContent style={{ minHeight: "30vh" }}>
-                          <IonFab horizontal="start" vertical="top">
-                            <IonCardTitle>
-                              <IonText color='medium'>
-                                {/* Feedback */}
-                              </IonText>
-                            </IonCardTitle>
-                          </IonFab>
-                          <div><br /></div>
-                          <div>
-                            <IonGrid >
-                              <IonRow class="ion-align-items-center">
-                                <IonCol></IonCol>
-                              </IonRow>
-                              <IonRow class="ion-align-items-center">
-                                <IonCol>
-                                  {/* <IonImg src={feedback} /> */}
-                                </IonCol>
-                              </IonRow >
-                              <IonRow class="ion-align-items-center">
-                                <IonCol></IonCol>
-                              </IonRow>
-                            </IonGrid>
-                          </div>
-                          <IonFab horizontal="start" vertical="bottom">
-                            {/* <p>Let us know what you think of the app</p> */}
-                          </IonFab>
-                        </IonCardContent>
-                      </IonCard>
-                    </SwiperSlide>
-                  </Swiper>
-                </FadeIn>
               )}
               <FadeIn>
                 <hr style={{ width: "95%" }} />

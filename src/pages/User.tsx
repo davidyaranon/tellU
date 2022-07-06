@@ -101,6 +101,7 @@ import { getColor, timeout } from '../components/functions';
 import UIContext from "../my-context";
 import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import ProfilePhoto from "./ProfilePhoto";
 
 function User() {
   const timeAgo = new TimeAgo("en-US");
@@ -286,7 +287,8 @@ function User() {
         allowEditing: false,
         source: CameraSource.Prompt,
         resultType: CameraResultType.Uri,
-      });
+      }).catch((err) => {Toast.error("Picture not supported / something went wrong"); return; });
+      if(!image) return;
       setBusy(true);
       const res = await fetch(image.webPath!);
       const blobRes = await res.blob();
@@ -334,6 +336,7 @@ function User() {
     } catch (err: any) {
       // Toast.error(err.message.toString());
       setBusy(false);
+      console.log("SOMETHING WENT WRONG 2");
     }
   }
 
@@ -1927,10 +1930,10 @@ function User() {
                                           class="posts-avatar"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            history.push("about/" + post.uid);
+                                            history.push("home/about/" + post.uid);
                                           }}
                                         >
-                                          <IonImg src={post?.photoURL!}></IonImg>
+                                          <ProfilePhoto uid={post.uid}></ProfilePhoto>
                                         </IonAvatar>
                                         {post.userName}
                                       </p>

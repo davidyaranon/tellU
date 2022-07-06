@@ -5,6 +5,15 @@
   transform: translate(-50%, -50%);
 }
 
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  width : 40%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
 .ion-spinner-image {
   position: fixed;
   top: 50%;

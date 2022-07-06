@@ -312,23 +312,31 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               <IonCardContent>
                 {busy ? (
                   <div>
-                    <IonAvatar className="user-avatar">
-                      <IonLabel>
-                        <IonSkeletonText animated={true} />
-                      </IonLabel>
-                    </IonAvatar>
-                    <IonFab vertical="center">
+                    <IonRow>
+                      <IonAvatar className="user-avatar">
+                        <IonLabel>
+                          <IonSkeletonText animated={true} />
+                        </IonLabel>
+                      </IonAvatar>
+                      {/* <IonFab vertical="center" style={{ marginLeft: "5vw"}}> */}
                       <IonLabel>
                         <IonSkeletonText
                           animated={true}
-                          style={{ width: "50vw", height: "1.75em" }}
+                          style={{ width: "50vw", height: "1.75em", marginLeft : "5vw", bottom : "-1.9vh" }}
                         />
                         <IonSkeletonText
                           animated={true}
-                          style={{ width: "50vw" }}
+                          style={{ width: "50vw",  marginLeft : "5vw", bottom : "-1.9vh" }}
                         />
                       </IonLabel>
-                    </IonFab>
+                      {/* </IonFab> */}
+                    </IonRow>
+                    <div style={{ height: "5vh" }}></div>
+                      <IonFab vertical="bottom" horizontal="start">
+                        <IonSkeletonText style={{ width: "75vw", marginLeft : "5vw" }} animated />
+                        <IonSkeletonText style={{ width: "75vw", marginLeft : "5vw" }} animated />
+                        <IonSkeletonText style={{ width: "75vw", marginLeft : "5vw" }} animated />
+                      </IonFab>
                   </div>
                 ) : (
                   <FadeIn>
@@ -497,10 +505,14 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               <h3
                                 className="h2-message"
                                 style={{
-                                  marginLeft: "2.5%",
+                                  marginLeft: "1.5%",
                                   marginTop: "5%",
                                 }}
                               >
+                                {" "}
+                                <IonSkeletonText animated />{" "}
+                                {" "}
+                                <IonSkeletonText animated />{" "}
                                 {" "}
                                 <IonSkeletonText animated />{" "}
                               </h3>

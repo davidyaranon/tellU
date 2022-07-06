@@ -140,6 +140,7 @@ export async function registerWithEmailAndPassword(
 ) {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
+    const batch = writeBatch(db);
     if (res) {
       const user = res.user;
       await updateProfile(user, {
@@ -148,6 +149,18 @@ export async function registerWithEmailAndPassword(
           "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd",
       });
       try {
+        // batch.set(doc(db, "userData", user.uid.toString()), {
+        //   bio: "",
+        //   snapchat: "",
+        //   instagram: "",
+        //   tiktok: "",
+        //   spotify: "",
+        //   userName: name,
+        //   userEmail: email,
+        //   uid: user.uid,
+        //   school: school,
+        //   timestamp: serverTimestamp(),
+        // });
         await setDoc(doc(db, "userData", user.uid.toString()), {
           bio: "",
           snapchat: "",
@@ -160,6 +173,13 @@ export async function registerWithEmailAndPassword(
           school: school,
           timestamp: serverTimestamp(),
         });
+        // batch.set(doc(db, "userPhotoUrls", user.uid.toString()), {
+        //   url: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
+        // });
+        await setDoc(doc(db, "userPhotoUrls", user.uid.toString()), {
+          url: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
+        });
+        // await batch.commit().catch((err) => {console.log(err);});
       } catch (docErr) {
         console.log(docErr);
       }
@@ -254,7 +274,7 @@ export const addMessage = async (
             message: mess,
             url: url,
             uid: auth.currentUser.uid,
-            photoURL: auth.currentUser.photoURL,
+            // photoURL: auth.currentUser.photoURL,
             location: [lat, long],
             postType: postType,
             imgSrc: imgSrc,
@@ -666,7 +686,7 @@ export const submitShowcase = async (schoolName, blob, uniqueId, showcaseText) =
             commentAmount: 0,
             upVotes: 0,
             downVotes: 0,
-            photoURL: auth.currentUser.photoURL,
+            // photoURL: auth.currentUser.photoURL,
             imgSrc: imgSrc,
           }
         );
@@ -934,7 +954,7 @@ export const upVote = async (postKey, post) => {
         await setDoc(userLikesDocRef, {
           imgSrc: post.imgSrc,
           message: post.message,
-          photoURL: post.photoURL,
+          // photoURL: post.photoURL,
           timestamp: post.timestamp,
           likeTimestamp: serverTimestamp(),
           uid: post.uid,
@@ -1009,7 +1029,7 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
       }
       const addedDoc = await addDoc(commentsRef, {
         comment: commentString,
-        photoURL: photoURL,
+        // photoURL: photoURL,
         userName: userName,
         uid: uid,
         timestamp: serverTimestamp(),
@@ -1030,7 +1050,7 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
       });
       return {
         comment: commentString,
-        photoURL: photoURL,
+        // photoURL: photoURL,
         userName: userName,
         uid: uid,
         likes: {},
@@ -1071,7 +1091,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
         await updateDoc(postDocRef, {
           commentsArr: arrayUnion({
             comment: commentString,
-            photoURL: photoURL,
+            // photoURL: photoURL,
             userName: userName,
             upVotes: 0,
             downVotes: 0,
