@@ -61,7 +61,6 @@ interface MatchParams {
 
 export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const uid = match.params.uid;
-  const router = useIonRouter();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
   const [busy, setBusy] = useState<boolean>(false);
@@ -85,7 +84,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [spotifyUri, setSpotifyUri] = useState<string>("");
   const [iFrameLoader, setIframeLoader] = useState<boolean>(false);
   const Toast = useToast();
-
+  const router = useIonRouter();
+  
   const dynamicNavigate = (path : string, direction : RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);

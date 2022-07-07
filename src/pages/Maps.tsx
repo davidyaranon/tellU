@@ -11,6 +11,8 @@ import {
   IonSelectOption,
   IonPage,
   useIonViewDidEnter,
+  RouterDirection,
+  useIonRouter,
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
@@ -70,6 +72,19 @@ function Maps() {
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
   const history = useHistory();
+  const router = useIonRouter();
+  
+  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
+  const navigateBack = () => {
+    if (router.canGoBack()) {
+      router.goBack();
+    } else {
+      Toast.error("something went wrong");
+    }
+  }
 
   useIonViewDidEnter(() => {
     if (!user) {
@@ -288,7 +303,8 @@ function Maps() {
             >
               <IonCard
                 onClick={() => {
-                  history.push("post/" + markers[overlayIndex].key);
+                  dynamicNavigate("post/" + markers[overlayIndex].key, "forward")
+                  // history.push("post/" + markers[overlayIndex].key);
                 }}
                 style={{ width: "55vw", opacity: "90%" }}
                 mode="ios"

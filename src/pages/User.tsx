@@ -30,6 +30,8 @@ import {
   IonCol,
   IonGrid,
   IonSearchbar,
+  useIonRouter,
+  RouterDirection,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -164,6 +166,20 @@ function User() {
   // const handleLogin = () => {
   //   window.location.href = `${REACT_APP_AUTHORIZE_URL}?client_id=${REACT_APP_CLIENT_ID}&redirect_uri=${REACT_APP_REDIRECT_URL}&response_type=token&show_dialog=true`;
   // };
+
+  const router = useIonRouter();
+  
+  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
+  const navigateBack = () => {
+    if (router.canGoBack()) {
+      router.goBack();
+    } else {
+      Toast.error("something went wrong");
+    }
+  }
 
   const titleStyle = {
     fontSize: "1.4em",
@@ -973,7 +989,8 @@ function User() {
           <IonButtons slot="end">
             <IonButton
               onClick={() => {
-                history.push("/privacy-policy");
+                dynamicNavigate("privacy-policy", "forward");
+                // history.push("/privacy-policy");
               }}
             >
               <IonIcon icon={informationCircleOutline}></IonIcon>
@@ -1683,7 +1700,7 @@ function User() {
                         return (
                           <FadeIn key={post.key}>
                             <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + post.key); }}>
+                              <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, "forward"); }}>
                                 <IonLabel>
                                   <IonFab horizontal="end">
                                     <IonNote style={{ fontSize: "0.75em" }}>
@@ -1808,7 +1825,7 @@ function User() {
                                     mode="ios"
                                     color="medium"
                                     onClick={() => {
-                                      history.push("/post/" + post.key);
+                                      dynamicNavigate("post/" + post.key, "forward");
                                     }}
                                   >
                                     <ForumIcon />
@@ -1920,7 +1937,7 @@ function User() {
                       {userLikedPosts.map((post, index) => {
                         return (
                           <IonList mode="ios" lines="none" inset>
-                            <IonItem onClick={() => { history.push("/post/" + post.key); }} key={post.key} mode="ios">
+                            <IonItem onClick={() => { dynamicNavigate("post/" + post.key, "forward"); }} key={post.key} mode="ios">
                               <IonLabel>
                                 <IonText color="medium">
                                   <IonRow>
@@ -1930,7 +1947,7 @@ function User() {
                                           class="posts-avatar"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            history.push("/about/" + post.uid);
+                                            dynamicNavigate("about/" + post.uid, "forward");
                                           }}
                                         >
                                           <ProfilePhoto uid={post.uid}></ProfilePhoto>

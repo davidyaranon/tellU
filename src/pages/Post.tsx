@@ -221,6 +221,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           setPost(res);
         } else {
           Toast.error("Post has been deleted");
+          setPost(null);
           setDeleted(true);
           setShowPictureAddButton(false);
         }
@@ -833,7 +834,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonCardContent>
                     <IonRow>
                       <IonCol size="2">
-                        <IonSkeletonText style={{ height: "5vh" }} animated></IonSkeletonText>
+                        <IonSkeletonText style={{ height: "5vh", marginLeft : "-1vw" }} animated></IonSkeletonText>
                       </IonCol>
                     </IonRow>
                     <IonRow>
