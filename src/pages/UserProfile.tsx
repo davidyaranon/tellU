@@ -37,6 +37,8 @@ import {
   IonSkeletonText,
   IonText,
   IonToolbar,
+  RouterDirection,
+  useIonRouter,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { ref, getDownloadURL } from "firebase/storage";
@@ -59,6 +61,7 @@ interface MatchParams {
 
 export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const uid = match.params.uid;
+  const router = useIonRouter();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
   const [busy, setBusy] = useState<boolean>(false);
@@ -83,11 +86,23 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [iFrameLoader, setIframeLoader] = useState<boolean>(false);
   const Toast = useToast();
 
+  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
+  const navigateBack = () => {
+    if (router.canGoBack()) {
+      router.goBack();
+    } else {
+      Toast.error("something went wrong");
+    }
+  }
+
   const sharePost = async () => {
     await Share.share({
       title: username + "'s tellU Profile",
       text: 'Check them out!',
-      url: "http://tellUapp.com/home/about/" + uid,
+      url: "http://tellUapp.com/about/" + uid,
     });
   }
 
@@ -189,6 +204,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   };
 
   useEffect(() => {
+    console.log('userprofile');
     setBusy(true);
     if (!user) {
       history.replace("/landing-page");
@@ -261,7 +277,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
           });
       }
     }
-  }, [user, uid, schoolName]);
+  }, [user, uid, schoolName, match.params.uid]);
 
   if (!noPostsYet) {
     return (
@@ -273,7 +289,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 <IonButton
                   mode="ios"
                   onClick={() => {
-                    history.go(-1);
+                    navigateBack();
                   }}
                 >
                   <IonIcon icon={chevronBackOutline}></IonIcon> Back
@@ -427,7 +443,6 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
                               className='Music'
                               onLoad={() => { setIframeLoader(false); }}
-                              allowTransparency={true}
                               src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
                               seamless={true}
                               loading="eager"
@@ -439,7 +454,6 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#f2f1f1", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { backgroundColor: "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
                               className='Music'
                               onLoad={() => { setIframeLoader(false); }}
-                              allowTransparency={true}
                               src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
                               seamless={true}
                               loading="eager"
@@ -536,7 +550,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                   return (
                     <FadeIn key={post.key}>
                       <IonList inset={true} mode="ios">
-                        <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
+                        <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("userPost/" + post.key, 'forward');}}>
                           <IonLabel>
                             <IonFab horizontal="end">
                               <IonNote style={{ fontSize: "0.75em" }}>
@@ -561,7 +575,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                         e.stopPropagation();
                                         localStorage.setItem("lat", (post.location[0].toString()));
                                         localStorage.setItem("long", (post.location[1].toString()));
-                                        history.push("maps");
+                                        dynamicNavigate("maps", 'forward');
                                       }}
                                     />
                                   ) : null}
@@ -663,7 +677,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               mode="ios"
                               color="medium"
                               onClick={() => {
-                                history.push("home/post/" + post.key);
+                                // history.push("/userPost/" + post.key);
+                                dynamicNavigate("userPost/" + post.key, 'forward');
                               }}
                             >
                               <ForumIcon />
@@ -729,7 +744,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 <IonButton
                   mode="ios"
                   onClick={() => {
-                    history.go(-1);
+                    navigateBack();
                   }}
                 >
                   <IonIcon icon={chevronBackOutline}></IonIcon> Back

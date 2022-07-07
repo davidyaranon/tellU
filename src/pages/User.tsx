@@ -1683,7 +1683,7 @@ function User() {
                         return (
                           <FadeIn key={post.key}>
                             <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
+                              <IonItem lines="none" mode="ios" onClick={() => { history.push("/userPost/" + post.key); }}>
                                 <IonLabel>
                                   <IonFab horizontal="end">
                                     <IonNote style={{ fontSize: "0.75em" }}>
@@ -1808,7 +1808,7 @@ function User() {
                                     mode="ios"
                                     color="medium"
                                     onClick={() => {
-                                      history.push("home/post/" + post.key);
+                                      history.push("/userPost/" + post.key);
                                     }}
                                   >
                                     <ForumIcon />
@@ -1920,7 +1920,7 @@ function User() {
                       {userLikedPosts.map((post, index) => {
                         return (
                           <IonList mode="ios" lines="none" inset>
-                            <IonItem onClick={() => { history.push("home/post/" + post.key); }} key={post.key} mode="ios">
+                            <IonItem onClick={() => { history.push("/userPost/" + post.key); }} key={post.key} mode="ios">
                               <IonLabel>
                                 <IonText color="medium">
                                   <IonRow>
@@ -1930,7 +1930,7 @@ function User() {
                                           class="posts-avatar"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            history.push("home/about/" + post.uid);
+                                            history.push("/about/" + post.uid);
                                           }}
                                         >
                                           <ProfilePhoto uid={post.uid}></ProfilePhoto>

@@ -39,6 +39,8 @@ import {
   IonTextarea,
   IonTitle,
   IonToolbar,
+  RouterDirection,
+  useIonRouter,
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { v4 as uuidv4 } from "uuid";
@@ -99,11 +101,24 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [kbHeight, setKbHeight] = useState<number>(0);
   const [previousCommentLoading, setPreviousCommentLoading] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
+  const router = useIonRouter();
   // const [showTags, setShowTags] = useState<boolean>(false);
   // const [listOfUsers, setListOfUsers] = useState<string[]>([]);
   // const [listOfUsersMap, setListOfUsersMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
   // const [attedUser, setAttedUser] = useState<string>("all");
   // const [taggedUsers, setTaggedUsers] = useState<string[]>();
+
+  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
+  const navigateBack = () => {
+    if (router.canGoBack()) {
+      router.goBack();
+    } else {
+      Toast.error("something went wrong");
+    }
+  }
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
@@ -125,7 +140,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       await Share.share({
         title: post.userName + "'s Post",
         text: 'Let me tellU about this post I saw. \n\n' + "\"" + post.message + '\"\n\n',
-        url: 'http://tellUapp.com/post/' + postKey,
+        url: 'http://tellUapp.com/userPost/' + postKey,
       });
     }
   }
@@ -380,7 +395,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const handleUserPageNavigation = (uid: string) => {
-    history.push("home/about/" + uid);
+    // history.push("/about/" + uid);
+    dynamicNavigate("about/" + uid, 'forward');
   };
 
   const handleUpVoteComment = async (commentKey: string, index: number) => {
@@ -519,8 +535,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
-
   useEffect(() => {
+    console.log('post');
     // setShowTabs(false);
     if (user && schoolName) {
       getPost();
@@ -538,7 +554,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         Keyboard.removeAllListeners();
       };
     }
-  }, [user, schoolName]);
+  }, [user, schoolName, match.params.key]);
 
   return (
     <IonPage>
@@ -551,7 +567,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
                 onClick={() => {
-                  history.go(-1);
+                  navigateBack();
                 }}
               >
                 <IonIcon icon={chevronBackOutline}></IonIcon> Back
@@ -672,7 +688,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   onClick={() => {
                                     localStorage.setItem("lat", (post.location[0].toString()));
                                     localStorage.setItem("long", (post.location[1].toString()));
-                                    history.push("maps");
+                                    dynamicNavigate("maps", 'forward');
                                   }}
                                 />
                               ) : null}
@@ -689,7 +705,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                 <RoomIcon onClick={() => {
                                   localStorage.setItem("lat", (post.location[0].toString()));
                                   localStorage.setItem("long", (post.location[1].toString()));
-                                  history.push("maps");
+                                  dynamicNavigate("maps", 'forward');
                                 }}
                                   style={{ fontSize: "1em" }} />) : null}
                             </p>

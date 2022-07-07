@@ -64,7 +64,7 @@ import { defineCustomElements } from "@ionic/pwa-elements/loader";
 import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
 import { chevronDownCircleOutline, caretUpOutline } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { RefresherEventDetail } from "@ionic/core";
+import { RefresherEventDetail, RouterDirection } from "@ionic/core";
 import Header, { ionHeaderStyle } from "./Header";
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "@agney/ir-toast";
@@ -86,6 +86,7 @@ import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestor
 import { db } from '../fbconfig';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProfilePhoto from "./ProfilePhoto";
+import { useIonRouter } from "@ionic/react";
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -99,6 +100,7 @@ defineCustomElements(window);
 
 function Home() {
   const inputRef = useRef<HTMLIonTextareaElement>(null);
+  const router = useIonRouter();
   const pageRef = useRef();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const timeAgo = new TimeAgo("en-US");
@@ -142,11 +144,23 @@ function Home() {
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
 
+  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
+  const navigateBack = () => {
+    if (router.canGoBack()) {
+      router.goBack();
+    } else {
+      Toast.error("something went wrong");
+    }
+  }
+
   const sharePost = async (post: any) => {
     await Share.share({
       title: post.userName + "'s Post",
       text: 'Let me tellU about this post I saw. \n\n \"' + post.message + '\"\n\n',
-      url: 'http://tellUapp.com/post/' + post.key,
+      url: 'http://tellUapp.com/userPost/' + post.key,
     });
   }
 
@@ -161,7 +175,8 @@ function Home() {
   };
 
   const handleUserPageNavigation = (uid: string) => {
-    history.push("home/about/" + uid);
+    dynamicNavigate('about/' + uid, 'forward');
+    // history.push("/about/" + uid);
   };
 
   const handleUpVote = async (postKey: string, index: number, post: any) => {
@@ -868,7 +883,7 @@ function Home() {
             posts?.map((post, index) => (
               <FadeIn key={post.key}>
                 <IonList inset={true} mode="ios">
-                  <IonItem lines="none" mode="ios" onClick={() => { history.push("home/post/" + post.key); }}>
+                  <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("userPost/" + post.key, 'forward');}}>
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
                         <p>
@@ -910,7 +925,7 @@ function Home() {
                                     e.stopPropagation();
                                     localStorage.setItem("lat", (post.location[0].toString()));
                                     localStorage.setItem("long", (post.location[1].toString()));
-                                    history.push("maps");
+                                    dynamicNavigate("maps", 'forward');
                                   }}
                                 />
                               ) : null}
@@ -927,7 +942,7 @@ function Home() {
                                 <RoomIcon onClick={() => {
                                   localStorage.setItem("lat", (post.location[0].toString()));
                                   localStorage.setItem("long", (post.location[1].toString()));
-                                  history.push("maps");
+                                  dynamicNavigate("maps", 'forward');
                                 }}
                                   style={{ fontSize: "1em" }} />) : null}
                             </p>
@@ -1007,7 +1022,8 @@ function Home() {
                       mode="ios"
                       color="medium"
                       onClick={() => {
-                        history.push("home/post/" + post.key);
+                        dynamicNavigate("userPost/" + post.key, 'forward');
+                        // history.push("/userPost/" + post.key);
                       }}
                     >
                       <ForumIcon />

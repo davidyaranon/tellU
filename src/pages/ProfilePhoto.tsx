@@ -1,8 +1,7 @@
-import { IonImg } from "@ionic/react";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { ref, getDownloadURL } from "firebase/storage";
-import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
+import  { storage } from "../fbconfig";
 
 interface UserInfo {
   uid : string;

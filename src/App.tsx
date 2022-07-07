@@ -78,7 +78,7 @@ interface Badge{
   notifCount : number;
 }
 
-const history = createBrowserHistory();
+const historyInstance = createBrowserHistory();
 
 const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
   const badgeCount = props.notifCount;
@@ -88,7 +88,7 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
   useEffect(() => { }, []);
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-      <IonReactRouter history={history}>
+      <IonReactRouter history={historyInstance}>
         <AppUrlListener></AppUrlListener>
         <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab) }}>
           <IonRouterOutlet>
@@ -96,8 +96,6 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
               {" "}
               <Home />{" "}
             </Route>
-            <Route path="/:tab(home)/post/:key" component={Post} />
-            <Route path="/:tab(home)/about/:uid" component={UserProfile} />
             <Route
               path="/:tab(community)"
               component={Community}
@@ -112,10 +110,11 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
               {" "}
               <LandingPage />{" "}
             </Route>
+            <Route path="/userPost/:key" component={Post}/>
+            <Route path="/about/:uid" component={UserProfile}/>
             <Route path="/register" component={Register} exact={true} />
             <Route path="/forgot-password" component={ForgotPassword} exact={true} />
             <Route path="/privacy-policy" component={PrivacyPolicy} />
-            <Route path="/post/:key" component={Post} />
             <Route path="/404" component={RedirectComponent} />
             <Route
               exact
