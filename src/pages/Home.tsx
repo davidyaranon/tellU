@@ -160,7 +160,7 @@ function Home() {
     await Share.share({
       title: post.userName + "'s Post",
       text: 'Let me tellU about this post I saw. \n\n \"' + post.message + '\"\n\n',
-      url: 'http://tellUapp.com/userPost/' + post.key,
+      url: 'http://tellUapp.com/post/' + post.key,
     });
   }
 
@@ -883,7 +883,7 @@ function Home() {
             posts?.map((post, index) => (
               <FadeIn key={post.key}>
                 <IonList inset={true} mode="ios">
-                  <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("userPost/" + post.key, 'forward');}}>
+                  <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward');}}>
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
                         <p>
@@ -1022,7 +1022,7 @@ function Home() {
                       mode="ios"
                       color="medium"
                       onClick={() => {
-                        dynamicNavigate("userPost/" + post.key, 'forward');
+                        dynamicNavigate("post/" + post.key, 'forward');
                         // history.push("/userPost/" + post.key);
                       }}
                     >

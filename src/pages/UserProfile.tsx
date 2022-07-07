@@ -550,7 +550,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                   return (
                     <FadeIn key={post.key}>
                       <IonList inset={true} mode="ios">
-                        <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("userPost/" + post.key, 'forward');}}>
+                        <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward');}}>
                           <IonLabel>
                             <IonFab horizontal="end">
                               <IonNote style={{ fontSize: "0.75em" }}>
@@ -678,7 +678,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               color="medium"
                               onClick={() => {
                                 // history.push("/userPost/" + post.key);
-                                dynamicNavigate("userPost/" + post.key, 'forward');
+                                dynamicNavigate("post/" + post.key, 'forward');
                               }}
                             >
                               <ForumIcon />

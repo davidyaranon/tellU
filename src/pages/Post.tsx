@@ -140,7 +140,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       await Share.share({
         title: post.userName + "'s Post",
         text: 'Let me tellU about this post I saw. \n\n' + "\"" + post.message + '\"\n\n',
-        url: 'http://tellUapp.com/userPost/' + postKey,
+        url: 'http://tellUapp.com/post/' + postKey,
       });
     }
   }

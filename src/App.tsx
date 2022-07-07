@@ -110,7 +110,7 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
               {" "}
               <LandingPage />{" "}
             </Route>
-            <Route path="/userPost/:key" component={Post}/>
+            <Route path="/post/:key" component={Post}/>
             <Route path="/about/:uid" component={UserProfile}/>
             <Route path="/register" component={Register} exact={true} />
             <Route path="/forgot-password" component={ForgotPassword} exact={true} />

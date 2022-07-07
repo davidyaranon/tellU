@@ -1683,7 +1683,7 @@ function User() {
                         return (
                           <FadeIn key={post.key}>
                             <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios" onClick={() => { history.push("/userPost/" + post.key); }}>
+                              <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + post.key); }}>
                                 <IonLabel>
                                   <IonFab horizontal="end">
                                     <IonNote style={{ fontSize: "0.75em" }}>
@@ -1808,7 +1808,7 @@ function User() {
                                     mode="ios"
                                     color="medium"
                                     onClick={() => {
-                                      history.push("/userPost/" + post.key);
+                                      history.push("/post/" + post.key);
                                     }}
                                   >
                                     <ForumIcon />
@@ -1920,7 +1920,7 @@ function User() {
                       {userLikedPosts.map((post, index) => {
                         return (
                           <IonList mode="ios" lines="none" inset>
-                            <IonItem onClick={() => { history.push("/userPost/" + post.key); }} key={post.key} mode="ios">
+                            <IonItem onClick={() => { history.push("/post/" + post.key); }} key={post.key} mode="ios">
                               <IonLabel>
                                 <IonText color="medium">
                                   <IonRow>
