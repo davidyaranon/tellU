@@ -537,8 +537,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   useEffect(() => {
-    console.log('post');
     // setShowTabs(false);
+    setPost(null);
+    setPreviousCommentLoading(false);
+    setDeleted(false);
     if (user && schoolName) {
       getPost();
       getPostComments();

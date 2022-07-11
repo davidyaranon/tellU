@@ -32,7 +32,6 @@ import {
   IonList,
   IonNote,
   IonPage,
-  IonPopover,
   IonRow,
   IonSkeletonText,
   IonText,
@@ -85,7 +84,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [iFrameLoader, setIframeLoader] = useState<boolean>(false);
   const Toast = useToast();
   const router = useIonRouter();
-  
+
   const dynamicNavigate = (path : string, direction : RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
@@ -204,7 +203,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   };
 
   useEffect(() => {
-    console.log('userprofile');
+    setUserPosts([]);
     setBusy(true);
     if (!user) {
       history.replace("/landing-page");
@@ -440,6 +439,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                           {darkModeToggled ?
                             <iframe
                               id="iframe1"
+                              title="darkmode_iframe_spotify"
                               style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
                               className='Music'
                               onLoad={() => { setIframeLoader(false); }}
@@ -451,6 +451,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                             :
                             <iframe
                               id="iframetwo"
+                              title="lightmode_iframe_spotify"
                               style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#f2f1f1", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { backgroundColor: "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
                               className='Music'
                               onLoad={() => { setIframeLoader(false); }}

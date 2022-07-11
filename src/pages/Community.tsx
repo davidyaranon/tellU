@@ -285,7 +285,7 @@ function Community() {
       setWeatherData(data);
     });
     return () => { unsub(); }
-  }, [schoolName, Toast]);
+  }, [schoolName]);
 
   return (
     <IonPage>
