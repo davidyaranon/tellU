@@ -46,7 +46,7 @@ import {
 import { ref as rtdbRef } from "firebase/database";
 
 import SpotifyWebApi from 'spotify-web-api-js';
-const spotifyApi = new SpotifyWebApi();
+export const spotifyApi = new SpotifyWebApi();
 
 const firebaseConfig = {
   apiKey: `${process.env.REACT_APP_FIREBASE_API_KEY}`,
@@ -81,7 +81,6 @@ export const deleteCommentsFromDeletedPost = httpsCallable(functions, 'deleteCom
 
 export const spotifySearch = async (query) => {
   try {
-    console.log('search function');
     const res = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       body: 'grant_type=client_credentials&client_id=' + `${process.env.REACT_APP_SPOTIFY_CLIENT_ID}` + '&client_secret=' + `${process.env.REACT_APP_SPOTIFY_SECRET_ID}`,
@@ -210,7 +209,7 @@ export const logout = async () => {
       document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
     await signOut(auth);
-    return "true";
+    return true;
   } catch (err) {
     const theError = err.message.toString();
     return theError;

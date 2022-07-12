@@ -108,7 +108,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   // const [attedUser, setAttedUser] = useState<string>("all");
   // const [taggedUsers, setTaggedUsers] = useState<string[]>();
 
-  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
@@ -140,7 +140,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       await Share.share({
         title: post.userName + "'s Post",
         text: 'Let me tellU about this post I saw. \n\n' + "\"" + post.message + '\"\n\n',
-        url: 'http://tellUapp.com/post/' + postKey,
+        url: 'http://tellUapp.com/post/' + postKey, // url is currently not active
       });
     }
   }
@@ -577,7 +577,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
-              <IonButton slot="end" onClick={() => { sharePost(); }}>
+              <IonButton disabled slot="end" onClick={() => { sharePost(); }}> {/* CHANGE DISABLED VALUE ONCE SHARE LINK IS ACTIVE */}
                 <IonIcon icon={shareOutline} />
               </IonButton>
             </IonButtons>
@@ -651,21 +651,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonItem lines="none">
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
+                        <FadeIn>
+                          <IonAvatar
+                            onClick={() => {
+                              // setComments([]);
+                              setComment("");
+                              handleUserPageNavigation(
+                                post.uid
+                              );
+                            }}
+                            class="posts-avatar"
+                          >
+                            <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                          </IonAvatar>
+                        </FadeIn>
                         <p>
-                          <FadeIn>
-                            <IonAvatar
-                              onClick={() => {
-                                // setComments([]);
-                                setComment("");
-                                handleUserPageNavigation(
-                                  post.uid
-                                );
-                              }}
-                              class="posts-avatar"
-                            >
-                              <ProfilePhoto uid={post.uid}></ProfilePhoto>
-                            </IonAvatar>
-                          </FadeIn>
                           {post.userName}
                         </p>
                       </IonText>
@@ -748,6 +748,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                 options: {
                                   title: true
                                 }
+                              }).catch((err) => {
+                                Toast.error('Unable to open image on web version');
                               });
                               // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
@@ -836,7 +838,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonCardContent>
                     <IonRow>
                       <IonCol size="2">
-                        <IonSkeletonText style={{ height: "5vh", marginLeft : "-1vw" }} animated></IonSkeletonText>
+                        <IonSkeletonText style={{ height: "5vh", marginLeft: "-1vw" }} animated></IonSkeletonText>
                       </IonCol>
                     </IonRow>
                     <IonRow>
@@ -908,6 +910,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                     },
                                     images: [img],
                                     mode: 'one',
+                                  }).catch((err) => {
+                                    Toast.error('Unable to open image on web version');
                                   });
                                   // PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
                                 }}

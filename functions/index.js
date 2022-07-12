@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
-const firebase_tools = require('firebase-tools');
+// const firebase_tools = require('firebase-tools');
 
 const app = admin.initializeApp();
 

@@ -328,6 +328,8 @@ function Community() {
                       onClick={() => {
                         Keyboard.hide().then(() => {
                           setTimeout(() => setPollModalOpen(false), 100);
+                        }).catch((err) => {
+                          setTimeout(() => setPollModalOpen(false), 100);
                         });
                         setPollText("");
                       }}

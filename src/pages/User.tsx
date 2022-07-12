@@ -55,6 +55,7 @@ import {
   removePoll,
   getLikes,
   spotifySearch,
+  spotifyApi,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -168,8 +169,8 @@ function User() {
   // };
 
   const router = useIonRouter();
-  
-  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
@@ -303,8 +304,8 @@ function User() {
         allowEditing: false,
         source: CameraSource.Prompt,
         resultType: CameraResultType.Uri,
-      }).catch((err) => {Toast.error("Picture not supported / something went wrong"); return; });
-      if(!image) return;
+      }).catch((err) => { Toast.error("Picture not supported / something went wrong"); return; });
+      if (!image) return;
       setBusy(true);
       const res = await fetch(image.webPath!);
       const blobRes = await res.blob();
@@ -378,6 +379,8 @@ function User() {
         setUserMajor(editableUserMajor);
         setSpotifyUri(editableSpotifyUri);
         Keyboard.hide().then(() => {
+          setTimeout(() => setShowAboutModal(false), 100);
+        }).catch((err) => {
           setTimeout(() => setShowAboutModal(false), 100);
         })
         Toast.success("Updated!");
@@ -485,6 +488,8 @@ function User() {
     // update all messages to include updated username + include duplicate username check
     Keyboard.hide().then(() => {
       setTimeout(() => setCredentialsUserModal(false), 100);
+    }).catch((err) => {
+      setTimeout(() => setCredentialsUserModal(false), 100);
     });
     setBusy(true);
     const isUnique = await checkUsernameUniqueness(editableUsername.trim());
@@ -520,6 +525,8 @@ function User() {
                   Toast.success("Updated username");
                   setUsername(editableUsername);
                   Keyboard.hide().then(() => {
+                    setTimeout(() => setCredentialsUserModal(false), 100);
+                  }).catch((err) => {
                     setTimeout(() => setCredentialsUserModal(false), 100);
                   });
                   setBusy(false);
@@ -586,6 +593,8 @@ function User() {
         setBusy(false);
         Keyboard.hide().then(() => {
           setTimeout(() => setCredentialsModal(false), 100);
+        }).catch((err) => {
+          setTimeout(() => setCredentialsModal(false), 100);
         });
       } else {
         const credentials = EmailAuthProvider.credential(
@@ -605,6 +614,8 @@ function User() {
                       Toast.success("Updated email");
                       setEmail(editableEmail);
                       Keyboard.hide().then(() => {
+                        setTimeout(() => setCredentialsModal(false), 100);
+                      }).catch((err) => {
                         setTimeout(() => setCredentialsModal(false), 100);
                       });
                       setBusy(false);
@@ -801,9 +812,15 @@ function User() {
   // };
 
   async function loadLogout() {
+    const { value } = await Dialog.confirm({
+      title: 'Logout',
+      message: `Are you sure you want to logout?`,
+      okButtonTitle: 'Logout'
+    });
+    if (!value) { return; }
     let promise = promiseTimeout(10000, logout());
-    promise.then((loggedOut: any) => {
-      if (loggedOut == "true") {
+    promise.then((loggedOut: boolean) => {
+      if (loggedOut) {
         window.localStorage.clear();
         localStorage.clear();
         Toast.success("Logging out...");
@@ -902,7 +919,6 @@ function User() {
     setSpotifyLoading(true);
     // setSpotifyModal(true);
     spotifySearch(spotifyTextSearch).then((res: any) => {
-      console.log(res);
       setSpotifyResults(res);
       setSpotifyLoading(false);
     }).catch((err) => {
@@ -1034,6 +1050,7 @@ function User() {
         <IonModal
           isOpen={spotifyModal}
           onDidDismiss={() => {
+            Keyboard.hide();
           }}
         >
           <IonContent>
@@ -1043,6 +1060,10 @@ function User() {
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
+                      setSpotifyModal(false);
+                      setSpotifyTextSearch("");
+                      setSpotifyResults([]);
+                    }).catch((err) => {
                       setSpotifyModal(false);
                       setSpotifyTextSearch("");
                       setSpotifyResults([]);
@@ -1066,14 +1087,14 @@ function User() {
                 <IonList mode="ios">
                   {spotifyResults.map((track, index) => {
                     return (
-                      <>
-                        <IonItem key={track.id} mode="ios" lines="none">
-                          <iframe style={{ width: "75vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
-                            src={"https://embed.spotify.com/?uri=" + track.uri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                      <FadeIn delay={1000} transitionDuration={750}>
+                        <IonItem key={track.id + index.toString()} mode="ios" lines="none">
+                          <iframe id={"iframe_" + index.toString()} style={{ width: "75vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
+                            src={"https://embed.spotify.com/?uri=" + track.uri + "?autoplay=1"} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
                           <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}>Select</IonButton>
                         </IonItem>
                         <br></br>
-                      </>
+                      </FadeIn>
                     )
                   })}
                 </IonList>
@@ -1091,6 +1112,16 @@ function User() {
                     mode="ios"
                     onClick={() => {
                       Keyboard.hide().then(() => {
+                        setTimeout(() => {
+                          setShowAboutModal(false);
+                          setEditableUserBio(userBio);
+                          setEditableUserInstagram(userInstagram);
+                          setEditableUserMajor(userMajor);
+                          setEditableUserTiktok(userTiktok);
+                          setEditableUserSnapchat(userSnapchat);
+                          setEditableSpotifyUri(spotifyUri);
+                        }, 100);
+                      }).catch((err) => {
                         setTimeout(() => {
                           setShowAboutModal(false);
                           setEditableUserBio(userBio);
@@ -1277,6 +1308,8 @@ function User() {
                   onClick={() => {
                     Keyboard.hide().then(() => {
                       setTimeout(() => setShowEditEmailModal(false), 100);
+                    }).catch((err) => {
+                      setTimeout(() => setShowEditEmailModal(false), 100);
                     });
                     if (user && user.email) { setEditableEmail(user.email); }
                   }}
@@ -1312,6 +1345,8 @@ function User() {
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
+                      setTimeout(() => setShowEditUsernameModal(false), 100);
+                    }).catch((err) => {
                       setTimeout(() => setShowEditUsernameModal(false), 100);
                     });
                     if (user && user.displayName) { setEditableUsername(user.displayName); }
@@ -1352,7 +1387,7 @@ function User() {
               <br></br>
             </div>
             <IonList inset={true} mode="ios" className="sign-in-sign-up-list">
-              <IonItem mode="ios" class="ion-item-style">
+              <IonItem key="singleton_item" mode="ios" class="ion-item-style">
                 <IonInput
                   color="transparent"
                   mode="ios"
@@ -1370,6 +1405,8 @@ function User() {
                 mode="ios"
                 onClick={() => {
                   Keyboard.hide().then(() => {
+                    setTimeout(() => setCredentialsModal(false), 100);
+                  }).catch((err) => {
                     setTimeout(() => setCredentialsModal(false), 100);
                   });
                   setEditableEmail(email);
@@ -1408,7 +1445,7 @@ function User() {
               <br></br>
             </div>
             <IonList inset={true} mode="ios" className="sign-in-sign-up-list">
-              <IonItem mode="ios" class="ion-item-style">
+              <IonItem key="singleton_item_2" mode="ios" class="ion-item-style">
                 <IonInput
                   color="transparent"
                   mode="ios"
@@ -1426,6 +1463,8 @@ function User() {
                 mode="ios"
                 onClick={() => {
                   Keyboard.hide().then(() => {
+                    setTimeout(() => setCredentialsUserModal(false), 100);
+                  }).catch((err) => {
                     setTimeout(() => setCredentialsUserModal(false), 100);
                   });
                   setEditableUsername(username);
@@ -1492,7 +1531,7 @@ function User() {
             </IonHeader>
             <IonCard className="user-card">
               <IonList mode="ios" inset={true}>
-                <IonItem mode="ios">
+                <IonItem key="singleton_item_3" mode="ios">
                   <IonGrid>
                     <IonRow>
                       <IonLabel mode="ios">
@@ -1616,7 +1655,7 @@ function User() {
             </IonHeader>
             <IonCard className="user-card">
               <div>
-                <IonList mode="ios"></IonList>
+                {/* <IonList mode="ios"></IonList> */}
               </div>
             </IonCard>
           </SwiperSlide>
@@ -1936,22 +1975,22 @@ function User() {
                     <FadeIn>
                       {userLikedPosts.map((post, index) => {
                         return (
-                          <IonList mode="ios" lines="none" inset>
-                            <IonItem onClick={() => { dynamicNavigate("post/" + post.key, "forward"); }} key={post.key} mode="ios">
+                          <IonList key={post.key} mode="ios" lines="none" inset>
+                            <IonItem onClick={() => { dynamicNavigate("post/" + post.key, "forward"); }} mode="ios">
                               <IonLabel>
                                 <IonText color="medium">
                                   <IonRow>
                                     <IonCol size="6">
+                                      <IonAvatar
+                                        class="posts-avatar"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          dynamicNavigate("about/" + post.uid, "forward");
+                                        }}
+                                      >
+                                        <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                                      </IonAvatar>
                                       <p>
-                                        <IonAvatar
-                                          class="posts-avatar"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            dynamicNavigate("about/" + post.uid, "forward");
-                                          }}
-                                        >
-                                          <ProfilePhoto uid={post.uid}></ProfilePhoto>
-                                        </IonAvatar>
                                         {post.userName}
                                       </p>
                                     </IonCol>
@@ -1983,8 +2022,7 @@ function User() {
                                     marginTop: "5%",
                                   }}
                                 >
-                                  {" "}
-                                  {post.message}{" "}
+                                  {post.message}
                                 </h3>
                                 {post.imgSrc.length > 0 ? (
                                   <>
@@ -2074,7 +2112,7 @@ function User() {
                                 <IonList lines="full" mode="ios">
                                   {poll.options.map((option: any, index: number) => {
                                     return (
-                                      <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                      <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={option.text + index.toString()} mode="ios" lines="full">
                                         {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
                                       </IonItem>
                                     )

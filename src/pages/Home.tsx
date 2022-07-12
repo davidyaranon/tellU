@@ -54,7 +54,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   add,
   cameraOutline,
-  shareOutline,
+  // shareOutline,
 } from "ionicons/icons";
 import RoomIcon from '@mui/icons-material/Room';
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -144,7 +144,7 @@ function Home() {
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
 
-  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
@@ -769,7 +769,9 @@ function Home() {
                         setBlob(null);
                         Keyboard.hide().then(() => {
                           setTimeout(() => setShowModal(false), 100)
-                        });
+                        }).catch((err) => {
+                          setTimeout(() => setShowModal(false), 100)
+                        });;
                       }}
                     >
                       Close
@@ -883,22 +885,21 @@ function Home() {
             posts?.map((post, index) => (
               <FadeIn key={post.key}>
                 <IonList inset={true} mode="ios">
-                  <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward');}}>
+                  <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward'); }}>
                     <IonLabel class="ion-text-wrap">
                       <IonText color="medium">
+                        <FadeIn>
+                          <IonAvatar
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUserPageNavigation(post.uid);
+                            }}
+                            class="posts-avatar"
+                          >
+                            <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                          </IonAvatar>
+                        </FadeIn>
                         <p>
-                          <FadeIn>
-                            <IonAvatar
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleUserPageNavigation(post.uid);
-                              }}
-                              class="posts-avatar"
-                            >
-                              {/* <IonImg src={post?.photoURL!}></IonImg> */}
-                              <ProfilePhoto uid={post.uid}></ProfilePhoto>
-                            </IonAvatar>
-                          </FadeIn>
                           {post.userName}
                         </p>
                       </IonText>
@@ -982,6 +983,8 @@ function Home() {
                                 options: {
                                   title: true
                                 }
+                              }).catch((err) => {
+                                Toast.error('Unable to open image on web version');
                               });
                               // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                             }}
@@ -1058,9 +1061,9 @@ function Home() {
                       <KeyboardArrowDownIcon />
                       <p>{Object.keys(post.dislikes).length - 1} </p>
                     </IonButton>
-                    <IonButton color="medium" slot="end" onClick={() => { sharePost(post); }}>
+                    {/* <IonButton color="medium" slot="end" onClick={() => { sharePost(post); }}>
                       <IonIcon icon={shareOutline} />
-                    </IonButton>
+                    </IonButton> */}
                   </IonItem>
                 </IonList>
               </FadeIn>

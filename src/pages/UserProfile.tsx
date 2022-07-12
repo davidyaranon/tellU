@@ -85,7 +85,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const Toast = useToast();
   const router = useIonRouter();
 
-  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
@@ -308,6 +308,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
                 {/* </div> */}
                 <IonButton
+                  disabled
                   slot="end"
                   mode="ios"
                   onClick={() => {
@@ -337,21 +338,21 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       <IonLabel>
                         <IonSkeletonText
                           animated={true}
-                          style={{ width: "50vw", height: "1.75em", marginLeft : "5vw", bottom : "-1.9vh" }}
+                          style={{ width: "50vw", height: "1.75em", marginLeft: "5vw", bottom: "-1.9vh" }}
                         />
                         <IonSkeletonText
                           animated={true}
-                          style={{ width: "50vw",  marginLeft : "5vw", bottom : "-1.9vh" }}
+                          style={{ width: "50vw", marginLeft: "5vw", bottom: "-1.9vh" }}
                         />
                       </IonLabel>
                       {/* </IonFab> */}
                     </IonRow>
                     <div style={{ height: "5vh" }}></div>
-                      <IonFab vertical="bottom" horizontal="start">
-                        <IonSkeletonText style={{ width: "75vw", marginLeft : "5vw" }} animated />
-                        <IonSkeletonText style={{ width: "75vw", marginLeft : "5vw" }} animated />
-                        <IonSkeletonText style={{ width: "75vw", marginLeft : "5vw" }} animated />
-                      </IonFab>
+                    <IonFab vertical="bottom" horizontal="start">
+                      <IonSkeletonText style={{ width: "75vw", marginLeft: "5vw" }} animated />
+                      <IonSkeletonText style={{ width: "75vw", marginLeft: "5vw" }} animated />
+                      <IonSkeletonText style={{ width: "75vw", marginLeft: "5vw" }} animated />
+                    </IonFab>
                   </div>
                 ) : (
                   <FadeIn>
@@ -370,6 +371,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                 },
                                 images: [img],
                                 mode: 'one',
+                              }).catch((err) => {
+                                Toast.error('Unable to open image on web version');
                               });
                               // PhotoViewer.show(profilePhoto, username);
                             }}
@@ -551,7 +554,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                   return (
                     <FadeIn key={post.key}>
                       <IonList inset={true} mode="ios">
-                        <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward');}}>
+                        <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward'); }}>
                           <IonLabel>
                             <IonFab horizontal="end">
                               <IonNote style={{ fontSize: "0.75em" }}>
@@ -606,6 +609,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                       },
                                       images: [img],
                                       mode: 'one',
+                                    }).catch((err) => {
+                                      Toast.error('Unable to open image on web version');
                                     });
                                     // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                   }}
@@ -632,6 +637,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                           },
                                           images: [img],
                                           mode: 'one',
+                                        }).catch((err) => {
+                                          Toast.error('Unable to open image on web version');
                                         });
                                         // PhotoViewer.show(post.imgSrc, `${post.userName}'s post`);
                                       }}
@@ -765,6 +772,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
                 {/* </div> */}
                 <IonButton
+                  disabled
                   slot="end"
                   mode="ios"
                   onClick={() => {
@@ -816,6 +824,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               },
                               images: [img],
                               mode: 'one',
+                            }).catch((err) => {
+                              Toast.error('Unable to open image on web version');
                             });
                             // PhotoViewer.show(profilePhoto, username);
                           }}
