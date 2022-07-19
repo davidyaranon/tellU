@@ -177,7 +177,7 @@ const Register: React.FC = () => {
     <IonPage>
       <IonContent>
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header darkMode={darkModeToggled} />
+          <Header darkMode={darkModeToggled} zoom={1.2}/>
         </IonHeader>
 
         <IonLoading

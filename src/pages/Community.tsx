@@ -32,11 +32,10 @@ import React, { useEffect, useState } from "react";
 import {
   addCircleOutline,
   chevronBackOutline,
-  phoneLandscapeOutline,
   phonePortraitOutline
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { db, getPolls, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
+import auth, { db, getCommunityWidgets, getPolls, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
 import {
   promiseTimeout,
 } from "../fbconfig";
@@ -52,7 +51,7 @@ import tellU_Community from '../images/tellU_Community.png';
 import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
 import { Keyboard } from "@capacitor/keyboard";
 import feedback from '../images/feedback.png';
-import { Navigation } from "swiper";
+import { Navigation, Pagination } from "swiper";
 import clouds_96 from '../images/icons8-clouds-96.png';
 import sun_96 from '../images/icons8-sun-96.png';
 import partly_cloudy from '../images/icons8-partly-cloudy-day-96.png';
@@ -63,7 +62,7 @@ import nighttime from '../images/icons8-moon-phase-96.png';
 import "swiper/css";
 import "swiper/css/pagination";
 import { Device } from '@capacitor/device';
-import { CircularProgressbar, buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
+import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
 interface PollAnswer {
@@ -93,6 +92,7 @@ function Community() {
   ]); // start with three options, include more programatically
   const [polls, setPolls] = useState<any[]>([]);
   const { setShowTabs } = React.useContext(UIContext);
+  const [communityWidgets, setCommunityWidgets] = useState<any[]>([]);
 
   const doRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     setBusy(true);
@@ -101,7 +101,7 @@ function Community() {
     } else {
       Device.getBatteryInfo().then((res) => {
         if (res && res.batteryLevel) {
-          setBatteryPercentage(res.batteryLevel * 100);
+          setBatteryPercentage(Math.round(res.batteryLevel * 100));
         }
       })
       if (schoolName) {
@@ -265,6 +265,18 @@ function Community() {
   }
 
   useEffect(() => {
+    if (schoolName) {
+      getCommunityWidgets(schoolName).then((res: any[]) => {
+        if (res) {
+          setCommunityWidgets(res);
+        }
+      });
+    } else {
+      console.log('error')
+    }
+  }, [schoolName]);
+
+  useEffect(() => {
     Device.getInfo().then((res) => {
       setDeviceName(res.name);
     });
@@ -383,7 +395,7 @@ function Community() {
         <FadeIn>
           <IonHeader mode='ios'>
             <div>
-              <img draggable={false} src={darkModeToggled ? tellU_Community_Dark : tellU_Community} />
+              <img draggable={false} src={darkModeToggled ? tellU_Community_Dark : tellU_Community} alt="tellU Community Logo" />
             </div>
           </IonHeader>
         </FadeIn>
@@ -405,7 +417,8 @@ function Community() {
                       <Swiper slidesPerView={2}
                         spaceBetween={-10}
                         loopFillGroupWithBlank={true}
-                        modules={[Navigation]}
+                        modules={[Navigation, Pagination]}
+                        pagination={{ type: 'bullets' }}
                         navigation={true}
                         loop={true}
                       >
@@ -435,23 +448,23 @@ function Community() {
                               </IonFab>
                               <IonFab horizontal="end" style={{ marginLeft: "20vw" }}>
                                 {weatherData && weatherData.icon === '/day/113.png' &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sun_96} />
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sun_96} alt="Sunny Weather icon"/>
                                 }
                                 {weatherData && weatherData.icon === '/day/116.png' &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={partly_cloudy} />
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={partly_cloudy} alt="Partly Cloudy Weather icon"/>
                                 }
                                 {weatherData && (weatherData.icon === '/day/119.png'
                                   || weatherData.icon === '/day/122.png'
                                   || weatherData.icon === '/day/143.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={clouds_96} />
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={clouds_96} alt="Cloudy Weather icon"/>
                                 }
                                 {weatherData && (weatherData.icon === '/day/386.png'
                                   || weatherData.icon === '/day/389.png'
                                   || weatherData.icon === '/day/395.png'
                                   || weatherData.icon === '/day/392.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={stormy} />
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={stormy} alt="Stormy Weather icon"/>
                                 }
                                 {weatherData && (weatherData.icon === '/day/176.png'
                                   || weatherData.icon === '/day/293.png'
@@ -466,7 +479,7 @@ function Community() {
                                   || weatherData.icon === '/day/362png'
                                   || weatherData.icon === '/day/182.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sunny_rainy} />
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sunny_rainy} alt="Sunny but Rainy Weather icon"/>
                                 }
                                 {weatherData && (weatherData.icon === '/day/185.png'
                                   || weatherData.icon === '/day/263.png'
@@ -481,7 +494,7 @@ function Community() {
                                   || weatherData.icon === '/day/284.png'
                                   || weatherData.icon === '/day/266.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} alt="Rainy Weather icon"/>
                                 }
                                 {weatherData && weatherData.icon.toString().includes('night') && (
                                   <>
@@ -490,9 +503,9 @@ function Community() {
                                       || weatherData.icon === '/night/119.png'
                                       || weatherData.icon === '/night/122.png'
                                       || weatherData.icon === '/night/143.png' ? (
-                                      <img style={{ width: "50%", marginTop: "1vh" }} src={nighttime} />
+                                      <img style={{ width: "50%", marginTop: "1vh" }} src={nighttime} alt="Nighttime icon"/>
                                     ) : (
-                                      <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} />
+                                      <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} alt="Rainy Weather icon"/>
 
                                     )}
                                   </>
@@ -509,7 +522,7 @@ function Community() {
                           }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
                             <IonCardContent style={{ height: "22.5vh" }}>
                               <IonFab horizontal="start" vertical="top">
-                                <IonCardTitle style={{ fontSize: "1.25em" }}>
+                                <IonCardTitle style={{ fontSize: "1.25em", }}>
                                   Feedback
                                 </IonCardTitle>
                               </IonFab>
@@ -521,7 +534,7 @@ function Community() {
                                   </IonRow>
                                   <IonRow class="ion-align-items-center">
                                     {/* <IonCol> */}
-                                    <img className="ion-spinner-image" src={feedback} />
+                                    <img className="ion-spinner-image" src={feedback} alt="Megaphone PNG icon"/>
                                     {/* </IonCol> */}
                                   </IonRow >
                                   <IonRow class="ion-align-items-center">
@@ -535,34 +548,50 @@ function Community() {
                             </IonCardContent>
                           </IonCard>
                         </SwiperSlide>
-                        {/* <SwiperSlide>
-                        <IonCard mode="ios" style={{
-                          minHeight: "30vh",
-                          background: "linear-gradient(135deg, #7158fe, #9d4de6"
-                          // background: !darkModeToggled ? 'linear-gradient(180deg, rgba(184,182,182,1) 0%, rgba(207,207,207,1) 20%, rgba(236,236,236,1) 100%)' : 'linear-gradient(180deg, rgba(47,47,47,1) 0%, rgba(59,59,59,1) 20%, rgba(92,92,92,1) 100%)'
-                        }}>
-                          <IonCardContent style={{ minHeight: "30vh" }}>
-                            <IonFab vertical="top" horizontal="start">
-                              {/* <IonCardTitle style={{ color: "white" }}>Coupon</IonCardTitle>
-                            </IonFab>
-                            <img style={{ marginTop: "32.5%" }} src={taco_bell} />
-                            <IonFab vertical="bottom" style={{ width: "70vw", fontSize: "0.85em", color: "white", alignText: "center" }}>
 
-                            </IonFab>
-                          </IonCardContent>
-                        </IonCard>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        <IonCard mode="ios" style={{
-                          minHeight: "30vh",
-                          background: "#2f3844"
-                        }}
-                        >
-                          <IonCardContent style={{ minHeight: "30vh", alignItems: "center", }}>
-                            <img style={{ marginTop: "65%" }} src={amazon} />
-                          </IonCardContent>
-                        </IonCard>
-                      </SwiperSlide> */}
+                        {communityWidgets && communityWidgets.length > 0 &&
+                          <>
+                            {communityWidgets.map((widget, index) => {
+                              return (
+                                <SwiperSlide key={widget.title + index.toString()}>
+                                  <IonCard
+                                    mode="ios"
+                                    style={{
+                                      height: "22.5vh",
+                                      borderRadius: "20px",
+                                      background: widget.background
+                                    }}
+                                    onClick={() => {
+                                      history.push(widget.url);
+                                    }}
+                                  >
+                                    <IonGrid>
+                                      <IonRow >
+                                        <IonFab horizontal="start" vertical="top">
+                                          <IonCardTitle style={{ color: "white", fontSize: "1.25em", }}>{widget.title}</IonCardTitle>
+                                        </IonFab>
+                                      </IonRow>
+                                      <IonRow><p>{" "}</p></IonRow>
+                                      <IonRow>
+                                        <IonCol></IonCol>
+                                        <IonCol>
+                                          <div className='img-container-community'>
+                                            <img src={widget.img} />
+                                          </div>
+                                        </IonCol>
+                                        <IonCol></IonCol>
+                                      </IonRow>
+                                      <IonRow><p>{" "}</p></IonRow>
+                                      <IonRow>
+                                        <p style={{ color: widget.color, marginLeft: "2.5%" }}>{widget.subtitle}</p>
+                                      </IonRow>
+                                    </IonGrid>
+                                  </IonCard>
+                                </SwiperSlide>
+                              )
+                            })}
+                          </>
+                        }
                       </Swiper>
                     </div>
                   </FadeIn>
@@ -577,20 +606,21 @@ function Community() {
                         <IonCardContent style={{ height: "22.5vh" }}>
                           <IonFab horizontal="start" vertical="top">
                             <IonCardTitle>
-                              {deviceName}
+                              {deviceName && deviceName.length > 22 ? deviceName?.slice(0, 20) + '...' : deviceName}
                             </IonCardTitle>
                           </IonFab>
                           {batteryPercentage &&
                             <IonFab horizontal="start" vertical="bottom">
-                              <div style={{ width: "40%" }}>
+                              <div style={{ width: "15vh" }}>
                                 {batteryPercentage > 25 ?
                                   <CircularProgressbarWithChildren
                                     value={batteryPercentage}
                                     styles={buildStyles({
                                       pathColor: `rgba(45, 211, 111, 1)`,
                                     })}
+                                    
                                   >
-                                    <IonIcon size="large" style={{ zoom: 1.5 }} icon={phonePortraitOutline} />
+                                    <IonIcon style={{ zoom: 2.5 }} icon={phonePortraitOutline} />
                                   </CircularProgressbarWithChildren>
                                   :
                                   <CircularProgressbarWithChildren
@@ -599,7 +629,7 @@ function Community() {
                                       pathColor: `rgba(235, 68, 90, 1)`,
                                     })}
                                   >
-                                    <IonIcon size="large" style={{ zoom: 1.5 }} icon={phonePortraitOutline} />
+                                    <IonIcon style={{ zoom: 2.5 }} icon={phonePortraitOutline} />
                                   </CircularProgressbarWithChildren>
                                 }
                               </div>

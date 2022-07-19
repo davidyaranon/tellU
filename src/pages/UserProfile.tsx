@@ -41,7 +41,6 @@ import {
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { ref, getDownloadURL } from "firebase/storage";
-// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import "../App.css";
 import TimeAgo from "javascript-time-ago";

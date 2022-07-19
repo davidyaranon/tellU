@@ -620,8 +620,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             spellcheck={true}
             maxlength={300}
             value={comment}
-            disabled={deleted || previousCommentLoading}
-            placeholder={previousCommentLoading || deleted ? "Please wait..." : "Leave a comment..."}
+            disabled={deleted || previousCommentLoading || !post}
+            placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Leave a comment..."}
             id="commentModal"
             onKeyDown={e => isEnterPressed(e.key)}
             // onKeyPress={e => isEnterPressed(e.key)}
@@ -873,7 +873,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         <IonLabel class="ion-text-wrap">
                           <IonText color="medium">
                             <p>
-                              <FadeIn >
+                              <FadeIn>
                                 <IonAvatar
                                   onClick={() => {
                                     // setComments([]);
@@ -883,7 +883,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   class="posts-avatar"
                                 >
                                   <ProfilePhoto uid={comment.uid}></ProfilePhoto>
-
                                 </IonAvatar>
                               </FadeIn>
                               {comment.userName}

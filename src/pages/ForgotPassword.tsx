@@ -46,7 +46,7 @@ const ForgotPassword = () => {
       <IonContent>
 
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header darkMode={darkModeToggled} />
+          <Header darkMode={darkModeToggled} zoom={1.2}/>
           <p style={{ textAlign: "center", fontSize: "1.25em" }}>Forgot Password</p>
         </IonHeader>
 

@@ -90,10 +90,10 @@ export const spotifySearch = async (query) => {
     }).catch((err) => {
       console.log(err);
     });
-    const data = await res.json().catch((err) => {console.log(err); });
+    const data = await res.json().catch((err) => { console.log(err); });
     const token = data.access_token;
     spotifyApi.setAccessToken(token);
-    const searchResults = await spotifyApi.search(query, ["track"], {limit: 25});
+    const searchResults = await spotifyApi.search(query, ["track"], { limit: 25 });
     return searchResults.tracks.items;
   } catch (err) {
     console.log(err);
@@ -473,14 +473,14 @@ export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, sp
       if (!major) { major = ""; }
       if (!snapchat) { snapchat = ""; }
       if (!tiktok) { tiktok = ""; }
-      if(!spotifyUri) {spotifyUri = ""}
+      if (!spotifyUri) { spotifyUri = "" }
       batch.update(userDocRef, {
         bio: bio,
         instagram: instagram,
         major: major,
         snapchat: snapchat,
         tiktok: tiktok,
-        spotify : spotifyUri,
+        spotify: spotifyUri,
       });
       await batch.commit().catch((err) => console.log(err));
       return true;
@@ -1311,6 +1311,20 @@ export const loadComments = async (postKey, schoolName) => {
       const snap = await getDoc(postDocRef);
       if (snap.exists) {
         if (snap.data()) return snap.data().commentsArr;
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const getCommunityWidgets = async (schoolName) => {
+  try {
+    if (auth && auth.currentUser) {
+      const widgetsRef = doc(db, "schoolWidgets", schoolName.replace(/\s+/g, ""));
+      const snap = await getDoc(widgetsRef);
+      if (snap.exists) {
+        return snap.data().widgets;
       }
     }
   } catch (err) {

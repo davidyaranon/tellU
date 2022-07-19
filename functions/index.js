@@ -351,3 +351,21 @@ exports.deleteCommentsFromDeletedPost = functions.https.onCall((data, context) =
     });
   });
 });
+
+// exports.sendCommentsNotification = functions.https.onCall((data, context) => {
+//   if(!context.auth){
+//     throw new functions.https.HttpsError(
+//       'unauthenticated',
+//       'Something went wrong, try logging in again'
+//     );
+//   }
+//   if(!data.key){ // key is userUid that notif will be sent to
+//     throw new functions.https.HttpsError(
+//       'resource-exhausted',
+//       'Invalid data, try again'
+//     );
+//   }
+
+//   const key = data.key.toString();
+//   // send notification
+// });

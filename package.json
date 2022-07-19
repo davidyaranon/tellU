@@ -1,6 +1,6 @@
 {
-  "name": "quantum-ionic",
-  "version": "0.0.1",
+  "name": "tellu",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@agney/ir-toast": "^0.2.0",

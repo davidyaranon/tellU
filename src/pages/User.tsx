@@ -55,7 +55,6 @@ import {
   removePoll,
   getLikes,
   spotifySearch,
-  spotifyApi,
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -88,7 +87,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
-// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -106,6 +104,11 @@ import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProfilePhoto from "./ProfilePhoto";
 
+const titleStyle = {
+  fontSize: "1.4em",
+  textAlign: "center"
+};
+
 function User() {
   const timeAgo = new TimeAgo("en-US");
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
@@ -114,7 +117,6 @@ function User() {
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const { setShowTabs } = React.useContext(UIContext);
   const Toast = useToast();
-  const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
   const dispatch = useDispatch();
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
@@ -134,8 +136,7 @@ function User() {
   const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(false);
   const [noMoreLikes, setNoMoreLikes] = useState<boolean>(false);
   const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
-  const [credentialsUserModal, setCredentialsUserModal] =
-    useState<boolean>(false);
+  const [credentialsUserModal, setCredentialsUserModal] = useState<boolean>(false);
   const [loadingUserPosts, setLoadingUserPosts] = useState<boolean>(false);
   const [yourPolls, setYourPolls] = useState<any[] | null>(null);
   const [profilePhoto, setProfilePhoto] = useState("");
@@ -161,31 +162,14 @@ function User() {
   const [spotifyResults, setSpotifyResults] = useState<any[]>([]);
   const [spotifyUri, setSpotifyUri] = useState<string>("");
   const [editableSpotifyUri, setEditableSpotifyUri] = useState<string>("");
-  // const [showDeletePostAlert, setShowDeletePostAlert] = useState<boolean>(false);
+  const [aboutEdit, setAboutEdit] = useState<boolean>(true);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
-
-  // const handleLogin = () => {
-  //   window.location.href = `${REACT_APP_AUTHORIZE_URL}?client_id=${REACT_APP_CLIENT_ID}&redirect_uri=${REACT_APP_REDIRECT_URL}&response_type=token&show_dialog=true`;
-  // };
-
   const router = useIonRouter();
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      Toast.error("something went wrong");
-    }
-  }
-
-  const titleStyle = {
-    fontSize: "1.4em",
-    textAlign: "center"
-  };
 
   const scrollToTop = () => {
     contentRef.current && contentRef.current.scrollToTop(500);
@@ -232,6 +216,7 @@ function User() {
             setEditableSpotifyUri(res.spotify);
           } else {
             Toast.error("Trouble loading data");
+            setAboutEdit(false);
           }
           setUserDataHasLoaded(true);
         });
@@ -1140,6 +1125,7 @@ function User() {
                 </IonButtons>
                 <IonButtons slot="end">
                   <IonButton
+                    disabled={!aboutEdit}
                     slot="end"
                     mode="ios"
                     onClick={() => { handleUpdateAboutUser(); }}
@@ -1318,7 +1304,7 @@ function User() {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color="primary" fill="clear" onClick={handleCheckmark}>Save</IonButton>
+                <IonButton mode="ios" color="primary" fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1356,7 +1342,7 @@ function User() {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color="primary" fill="clear" onClick={handleUserCheckmark}>Save</IonButton>
+                <IonButton mode="ios" color="primary" fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -2112,7 +2098,7 @@ function User() {
                                 <IonList lines="full" mode="ios">
                                   {poll.options.map((option: any, index: number) => {
                                     return (
-                                      <IonItem style={{ fontWeight: "bold" }} disabled={true} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={option.text + index.toString()} mode="ios" lines="full">
+                                      <IonItem style={{ fontWeight: "bold" }} disabled={true}  key={option.text + index.toString()} mode="ios" lines="full">
                                         {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
                                       </IonItem>
                                     )

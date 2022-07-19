@@ -98,6 +98,12 @@ export interface UserPhoto {
 
 defineCustomElements(window);
 
+const ionInputStyle = {
+  height: "12.5vh",
+  width: "95vw",
+  marginLeft: "2.5vw",
+};
+
 function Home() {
   const inputRef = useRef<HTMLIonTextareaElement>(null);
   const router = useIonRouter();
@@ -106,7 +112,6 @@ function Home() {
   const timeAgo = new TimeAgo("en-US");
   const { setShowTabs } = React.useContext(UIContext);
   const schoolName = useSelector((state: any) => state.user.school);
-  // const [busy, setBusy] = useState<boolean>(false);
   const [gettingLocation, setGettingLocation] = useState<boolean>(false);
   const [photo, setPhoto] = useState<Photo | null>();
   const Toast = useToast();
@@ -140,7 +145,7 @@ function Home() {
   const originalLastKeyRef = useRef<any>();
   originalLastKeyRef.current = originalLastKey;
   const [showProgressBar, setShowProgressBar] = useState<boolean>(false);
-  const [progressPercentage, setProgressPercentage] = useState<string>("5");
+  // const [progressPercentage, setProgressPercentage] = useState<string>("5");
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
 
@@ -148,30 +153,17 @@ function Home() {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      Toast.error("something went wrong");
-    }
-  }
 
-  const sharePost = async (post: any) => {
-    await Share.share({
-      title: post.userName + "'s Post",
-      text: 'Let me tellU about this post I saw. \n\n \"' + post.message + '\"\n\n',
-      url: 'http://tellUapp.com/post/' + post.key,
-    });
-  }
+  // const sharePost = async (post: any) => {
+  //   await Share.share({
+  //     title: post.userName + "'s Post",
+  //     text: 'Let me tellU about this post I saw. \n\n \"' + post.message + '\"\n\n',
+  //     url: 'http://tellUapp.com/post/' + post.key,
+  //   });
+  // }
 
   const scrollToTop = () => {
     contentRef.current && contentRef.current.scrollToTop(1000);
-  };
-
-  const ionInputStyle = {
-    height: "12.5vh",
-    width: "95vw",
-    marginLeft: "2.5vw",
   };
 
   const handleUserPageNavigation = (uid: string) => {
@@ -457,7 +449,7 @@ function Home() {
               const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
               // console.log('Upload is ' + p + '% done');
               setShowProgressBar(true);
-              setProgressPercentage((p + 5).toString());
+              // setProgressPercentage((p + 5).toString());
               // switch (snapshot.state) {
               //   case 'paused':
               //     // console.log('Upload is paused');
@@ -475,7 +467,7 @@ function Home() {
             async () => {
               // success
               setBlob(null);
-              setProgressPercentage('150');
+              // setProgressPercentage('150');
               const res = await addMessage(
                 message,
                 blob,
@@ -491,7 +483,7 @@ function Home() {
                 Toast.success("Uploaded!");
                 setMessage("");
                 //handleLoadPosts();
-                setProgressPercentage('200');
+                // setProgressPercentage('200');
                 setPrevPostUploading(false);
                 setShowProgressBar(false);
                 scrollToTop();
@@ -501,7 +493,7 @@ function Home() {
           );
         }
       } else {
-        setProgressPercentage('50');
+        // setProgressPercentage('50');
         const res = await addMessage(
           message,
           blob,
@@ -515,7 +507,7 @@ function Home() {
           setShowProgressBar(false);
           setPrevPostUploading(false);
         } else {
-          setProgressPercentage('100');
+          // setProgressPercentage('100');
           Toast.success("Uploaded!");
           setMessage("");
           // handleLoadPosts();
@@ -623,7 +615,7 @@ function Home() {
 
           <FadeIn transitionDuration={1500}>
             <IonHeader class="ion-no-border" style={ionHeaderStyle} >
-              <Header darkMode={darkModeToggled} schoolName={schoolName} />
+              <Header darkMode={darkModeToggled} schoolName={schoolName} zoom={1}/>
             </IonHeader>
           </FadeIn>
 

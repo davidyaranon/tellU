@@ -74,18 +74,14 @@ setupIonicReact({
   swipeBackEnabled: false,
 });
 
-interface Badge{
-  notifCount : number;
-}
 
 const historyInstance = createBrowserHistory();
 
-const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
-  const badgeCount = props.notifCount;
+const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
   const [selectedTab, setSelectedTab] = useState<string>("home");
   let tabBarStyle = showTabs ? undefined : { display: "none" };
-  useEffect(() => { }, []);
+  useEffect(() => { }, []); // add notif count in useEffect dependency array, utilize redux to save state
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <IonReactRouter history={historyInstance}>
@@ -110,8 +106,8 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
               {" "}
               <LandingPage />{" "}
             </Route>
-            <Route path="/post/:key" component={Post}/>
-            <Route path="/about/:uid" component={UserProfile}/>
+            <Route path="/post/:key" component={Post} />
+            <Route path="/about/:uid" component={UserProfile} />
             <Route path="/register" component={Register} exact={true} />
             <Route path="/forgot-password" component={ForgotPassword} exact={true} />
             <Route path="/privacy-policy" component={PrivacyPolicy} />
@@ -138,16 +134,16 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
             <IonTabButton tab="maps" href="/maps">
               <MapIcon
                 fontSize="medium"
-                style={ selectedTab === 'maps' ? { fontSize: "4.25vh"} : {fontSize: "4.00vh"} }
+                style={selectedTab === 'maps' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="user" href="/user">
               <AccountCircleTwoToneIcon
                 fontSize="medium"
-                style={ selectedTab === 'user' ? { fontSize: "4.25vh"} : {fontSize: "4.00vh"} }
+                style={selectedTab === 'user' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
               {/* {true &&  */}
-              <IonBadge color="danger">{badgeCount}</IonBadge>
+              <IonBadge color="danger">{5}</IonBadge>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
@@ -157,7 +153,7 @@ const RoutingSystem: React.FunctionComponent<Badge> = (props : Badge) => {
 };
 
 const App: React.FunctionComponent = () => {
-  const [busy, setBusy] = useState(true);
+  const [busy, setBusy] = useState<boolean>(true);
   const Toast = useToast();
   const dispatch = useDispatch();
   const darkMode = localStorage.getItem("darkMode") || "false";
@@ -189,10 +185,9 @@ const App: React.FunctionComponent = () => {
 
     if (permStatus.receive === 'prompt') {
       permStatus = await PushNotifications.requestPermissions();
-    }
-
-    if (permStatus.receive !== 'granted') {
-      throw new Error('User denied permissions!');
+      if (permStatus.receive !== 'granted') {
+        throw new Error('User denied permissions!');
+      }
     }
   }
   useEffect(() => {
@@ -259,7 +254,7 @@ const App: React.FunctionComponent = () => {
       {busy ? (
         <IonSpinner class="ion-spinner" name="dots" color="primary" />
       ) : (
-        <RoutingSystem notifCount={18}/>
+        <RoutingSystem />
       )}
     </IonApp>
   );

@@ -4,26 +4,14 @@ const defaultState = {
   hasLoaded: {},
   toggled: {},
   school: {},
-  allPosts: {},
-  userPostsLoaded: {},
-  scrollY: {},
+  notificationCount: 0,
 }
 
 
-export default function reducer(state = defaultState, {
-  type, payload_username, payload_email, hasLoaded, toggled, school, allPosts, userPostsLoaded, scrollY
-}: {
-  type: string,
-  payload_username: any,
-  payload_email: any,
-  hasLoaded: boolean,
-  toggled: boolean,
-  school: string,
-  allPosts: any,
-  userPostsLoaded: boolean,
-  scrollY: number
-}
-): any {
+export default function reducer(state = defaultState, { type, payload_username, payload_email, hasLoaded, toggled, school, notificationCount }
+  : { type: string, payload_username: any, payload_email: any, hasLoaded: boolean, toggled: boolean, school: string, notificationCount: number, })
+  : any {
+
   switch (type) {
     case 'SET_USER_STATE':
       return {
@@ -42,6 +30,14 @@ export default function reducer(state = defaultState, {
           toggled: toggled,
         }
       }
+    case 'SET_NOTIIFICATION_COUNT':
+      return {
+        ...state,
+        count: {
+          notificationCount: notificationCount,
+        }
+      }
+
   }
 
   return state;

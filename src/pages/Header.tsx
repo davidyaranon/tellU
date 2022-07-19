@@ -10,7 +10,8 @@ export const ionHeaderStyle = {
 
 class Header extends Component<any, any>{
   render() {
-    const dark: boolean = this.props.darkMode;
+    const dark : boolean = this.props.darkMode;
+    const zoom : number = this.props.zoom;
     if (dark) {
       return (
         <div style={{ width: "100%" }}>
@@ -21,7 +22,7 @@ class Header extends Component<any, any>{
                 className='quantum_logo'
                 src={tellU_white}
                 alt="QUANTUM"
-                style={{ zoom: 1.2 }}
+                style={{ zoom: zoom }}
               />
             {/* </IconButton> */}
             <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
@@ -38,7 +39,7 @@ class Header extends Component<any, any>{
                 className='quantum_logo'
                 src={tellU}
                 alt="QUANTUM"
-                style={{ zoom: 1.2 }}
+                style={{ zoom: zoom }}
               />
             {/* </IconButton> */}
             <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
