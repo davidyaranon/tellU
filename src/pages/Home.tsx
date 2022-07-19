@@ -78,7 +78,7 @@ import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
 import UIContext from "../my-context";
 import { getColor, timeout } from '../components/functions';
-import { Share } from '@capacitor/share';
+// import { Share } from '@capacitor/share';
 import Map from "@mui/icons-material/Map";
 import Linkify from 'linkify-react';
 // import ProgressBar from "./ProgressBar";
@@ -932,7 +932,8 @@ function Home() {
                               }}
                             >
                               {post.marker ? (
-                                <RoomIcon onClick={() => {
+                                <RoomIcon onClick={(e) => {
+                                  e.stopPropagation();
                                   localStorage.setItem("lat", (post.location[0].toString()));
                                   localStorage.setItem("long", (post.location[1].toString()));
                                   dynamicNavigate("maps", 'forward');

@@ -73,7 +73,7 @@ const defaultResizeOptions: KeyboardResizeOptions = {
   mode: KeyboardResize.Native,
 }
 
-// const pattern = /\B@[a-z0-9_-]+/gi; // used for tagged users
+// const pattern = /\B@[a-z0-9_-]+/gi; // used for tagged users using @
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;

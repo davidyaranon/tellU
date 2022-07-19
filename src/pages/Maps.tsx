@@ -14,13 +14,6 @@ import {
   RouterDirection,
   useIonRouter,
 } from "@ionic/react";
-import { schoolOutline } from "ionicons/icons";
-import React, { useEffect, useState } from "react";
-import auth from "../fbconfig";
-import {
-  db,
-} from "../fbconfig";
-import { useAuthState } from "react-firebase-hooks/auth";
 import {
   collection,
   query,
@@ -29,12 +22,40 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-import "../App.css";
+import { schoolOutline } from "ionicons/icons";
+import React, { useEffect, useState } from "react";
+import auth from "../fbconfig";
+import { db } from "../fbconfig";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
 import { useSelector } from "react-redux";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import { useToast } from "@agney/ir-toast";
 import { getColor } from "../components/functions";
+import "../App.css";
+
+const customAlertOptions = {
+  header: 'Pin Filter',
+  subHeader: 'Select which type of pin to display on the map',
+};
+
+const zoomControlButtonsStyle = {
+  width: "50px",
+  height: '50px',
+  borderRadius: '1px',
+  boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
+  background: 'white',
+  lineHeight: '26px',
+  fontSize: '25PX',
+  fontWeight: '700',
+  color: 'BLACK',
+  marginBottom: '1px',
+  cursor: 'pointer',
+  border: 'none',
+  display: 'block',
+  outline: 'none',
+  textIndent: '-7.5px',
+}
 
 const schoolInfo = {
   "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 15.75],
@@ -51,18 +72,11 @@ const schoolInfo = {
   "": [37.250458, -120.350249, 6],
 };
 
-const customAlertOptions = {
-  header: 'Pin Filter',
-  subHeader: 'Select which type of pin to display on the map',
-};
-
 function Maps() {
   const Toast = useToast();
   const schoolName = useSelector((state: any) => state.user.school);
   const [user, loading, error] = useAuthState(auth);
-  const [center, setCenter] = useState<[number, number]>([
-    37.250458, -120.350249,
-  ]);
+  const [center, setCenter] = useState<[number, number]>([37.250458, -120.350249]);
   const [zoom, setZoom] = useState(6);
   const [defaultLat, setDefaultLat] = useState(0);
   const [defaultLong, setDefaultLong] = useState(0);
@@ -73,42 +87,16 @@ function Maps() {
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
   const history = useHistory();
   const router = useIonRouter();
-  
-  const dynamicNavigate = (path : string, direction : RouterDirection) => {
+
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      Toast.error("something went wrong");
-    }
-  }
 
-  useIonViewDidEnter(() => {
-    if (!user) {
-      history.replace("/landing-page");
-    } else {
-      let lat: string = localStorage.getItem("lat") || "";
-      let long: string = localStorage.getItem("long") || "";
-      if (lat !== "" && long !== "") {
-        setCenter([parseFloat(lat), parseFloat(long)]);
-        localStorage.removeItem("long");
-        localStorage.removeItem("lat");
-        setZoom(18.5);
-      }
-      getMapMarkers();
-    }
-  }, [user, schoolName]);
-
-  useEffect(() => {
-    if (!user) {
-      history.replace("/landing-page");
-    } else {
-      getSchoolLocation();
-    }
-  }, [user, schoolName])
+  const setDefaultCenter = () => {
+    setCenter([defaultLat, defaultLong]);
+    setZoom(defaultZoom);
+  };
 
   const getSchoolLocation = () => {
     if (schoolInfo[schoolName as keyof typeof schoolInfo] !== undefined) {
@@ -170,12 +158,11 @@ function Maps() {
           Toast.error("Unable to filter :(");
         }
       }
-
     }
   };
+
   const getMapMarkers = async () => {
     if (schoolName) {
-      // setBusy(true);
       const markersRef = collection(
         db,
         "schoolPosts",
@@ -209,15 +196,35 @@ function Maps() {
       setMarkersCopy(tempMarkers);
     }
   };
-  const setDefaultCenter = () => {
-    setCenter([defaultLat, defaultLong]);
-    setZoom(defaultZoom);
-  };
+
+  useIonViewDidEnter(() => {
+    if (!user) {
+      history.replace("/landing-page");
+    } else {
+      let lat: string = localStorage.getItem("lat") || "";
+      let long: string = localStorage.getItem("long") || "";
+      if (lat !== "" && long !== "") {
+        setCenter([parseFloat(lat), parseFloat(long)]);
+        localStorage.removeItem("long");
+        localStorage.removeItem("lat");
+        setZoom(18.5);
+      }
+      getMapMarkers();
+    }
+  }, [user, schoolName]);
+
+  useEffect(() => {
+    if (!user) {
+      history.replace("/landing-page");
+    } else {
+      getSchoolLocation();
+    }
+  }, [user, schoolName])
+
 
   return (
     <IonPage>
       <IonContent fullscreen={true} className="no-scroll-content">
-
         <div className="overlaySearch">
           <IonLabel> FILTER: </IonLabel>
           <IonSelect
@@ -241,11 +248,7 @@ function Maps() {
           </IonSelect>
         </div>
 
-        <Map
-          center={center}
-          zoom={zoom}
-          animate={true}
-          attributionPrefix={false}
+        <Map center={center} zoom={zoom} animate={true} attributionPrefix={false}
           onBoundsChanged={({ center, zoom }) => {
             setCenter(center);
             setZoom(zoom);
@@ -254,44 +257,26 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={{
-            width: "50px",
-            height: '50px',
-            borderRadius: '1px',
-            boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
-            background: 'white',
-            lineHeight: '26px',
-            fontSize: '25PX',
-            fontWeight: '700',
-            color: 'BLACK',
-            marginBottom: '1px',
-            cursor: 'pointer',
-            border: 'none',
-            display: 'block',
-            outline: 'none',
-            textIndent: '-7.5px',
-          }} />
-
-          {markers
-            ? markers.map((marker, index) => {
-              return (
-                <Marker
-                  style={{ opacity: "85%" }}
-                  onClick={(e) => {
-                    setCenter([
-                      marker.location[0] - 0.0005,
-                      marker.location[1],
-                    ]);
-                    setOverlayIndex(-1);
-                    setOverlayIndex(index);
-                  }}
-                  color={getColor(marker.postType)}
-                  key={marker.key}
-                  anchor={[marker.location[0], marker.location[1]]}
-                  width={50}
-                />
-              );
-            })
+          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={zoomControlButtonsStyle} />
+          {markers ? markers.map((marker, index) => {
+            return (
+              <Marker
+                style={{ opacity: "85%" }}
+                color={getColor(marker.postType)}
+                key={marker.key}
+                anchor={[marker.location[0], marker.location[1]]}
+                width={50}
+                onClick={() => {
+                  setCenter([
+                    marker.location[0] - 0.0005,
+                    marker.location[1],
+                  ]);
+                  setOverlayIndex(-1);
+                  setOverlayIndex(index);
+                }}
+              />
+            );
+          })
             : null}
           {markers && overlayIndex != -1 && markers[overlayIndex] && "location" in markers[overlayIndex] ? (
             <Overlay
@@ -302,10 +287,7 @@ function Maps() {
               offset={[110, 25]}
             >
               <IonCard
-                onClick={() => {
-                  dynamicNavigate("post/" + markers[overlayIndex].key, "forward")
-                  // history.push("post/" + markers[overlayIndex].key);
-                }}
+                onClick={() => { dynamicNavigate("post/" + markers[overlayIndex].key, "forward") }}
                 style={{ width: "55vw", opacity: "90%" }}
                 mode="ios"
               >
@@ -314,13 +296,7 @@ function Maps() {
                     {markers[overlayIndex].userName}
                   </IonCardTitle>
                   <IonFab horizontal="end" vertical="top">
-                    <p
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "2.5vw",
-                        color: getColor(markers[overlayIndex].postType),
-                      }}
-                    >
+                    <p style={{ fontWeight: "bold", fontSize: "2.5vw", color: getColor(markers[overlayIndex].postType) }}>
                       {markers[overlayIndex].postType.toUpperCase()}
                     </p>
                   </IonFab>
