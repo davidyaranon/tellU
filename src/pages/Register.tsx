@@ -1,74 +1,62 @@
-import {
-  IonContent,
-  IonHeader,
-  IonButton,
-  IonLoading,
-  IonInput,
-  IonButtons,
-  IonCard,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonSelect,
-  IonSelectOption,
-  IonModal,
-  IonToolbar,
-  IonTitle,
-  IonPage,
-  useIonViewDidEnter,
-} from "@ionic/react";
+// React imports
 import React, { useEffect, useState } from "react";
-import auth from '../fbconfig';
-import {
-  registerWithEmailAndPassword,
-  checkUsernameUniqueness,
-  db,
-} from "../fbconfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link } from "react-router-dom";
-import Header from "./Header";
-import "../App.css";
-import { doc, getDoc } from "firebase/firestore";
 import { useHistory } from "react-router";
-import UIContext from "../my-context";
-import { useToast } from "@agney/ir-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserState } from "../redux/actions";
-import { FCM } from "@capacitor-community/fcm";
+
+// Ionic/Capacitor
+import {
+  IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons,
+  IonCard, IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal,
+  IonToolbar, IonTitle, IonPage, useIonViewDidEnter
+} from "@ionic/react";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
+import { FCM } from "@capacitor-community/fcm";
 
-const defaultResizeOptions: KeyboardResizeOptions = {
-  mode: KeyboardResize.Native,
-}
+// Firebase
+import auth from '../fbconfig';
+import { registerWithEmailAndPassword, checkUsernameUniqueness, db } from "../fbconfig";
+import { doc, getDoc } from "firebase/firestore";
+
+// CSS + Other components
+import "../App.css";
+import Header from "./Header";
+import UIContext from "../my-context";
+import { useToast } from "@agney/ir-toast";
+
+// Global variables
+const capitalLetters = /[ABCDEFGHIJKLMNOPQRSTUVWXYZ]/;
+const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
+const numbers = /[0123456789]/;
+const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Native }
 
 const Register: React.FC = () => {
-  const Toast = useToast();
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const [passwordModal, setPasswordModal] = useState<boolean>(false);
-  const dispatch = useDispatch();
-  const [busy, setBusy] = useState<boolean>(false);
-  const { setShowTabs } = React.useContext(UIContext);
+
+  // state variables
   const [emailSignUp, setEmailSignUp] = useState("");
   const [userNameSignUp, setUserNameSignUp] = useState("");
   const [passwordSignUp, setPasswordSignUp] = useState("");
   const [passwordSignUpCopy, setPasswordSignUpCopy] = useState("");
   const [schoolName, setSchoolName] = useState("");
   const [user, loading, error] = useAuthState(auth);
+  const [busy, setBusy] = useState<boolean>(false);
+  const [passwordModal, setPasswordModal] = useState<boolean>(false);
+
+  const Toast = useToast();
+  const dispatch = useDispatch();
   const history = useHistory();
-  // const specialChars = /[#!@?$%]/;
-  const capitalLetters = /[ABCDEFGHIJKLMNOPQRSTUVWXYZ]/;
-  const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
-  const numbers = /[0123456789]/;
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+  const { setShowTabs } = React.useContext(UIContext);
 
-  const openPasswordRequirements = () => {
-    setPasswordModal(true);
-  };
-
-  const closeModal = () => {
-    setPasswordModal(false);
-  };
-
+  /**
+   * Uses Firebase Auth to register using 
+   * email (emailSignUp) and password (passwordSignUp)
+   * 
+   * User input must meet certain requirements
+   */
   async function register() {
     setBusy(true);
     if (
@@ -133,9 +121,9 @@ const Register: React.FC = () => {
     setBusy(false);
   }
 
-  const handleUsernameInput = (e: any) => {
-    setUserNameSignUp(e.detail.value);
-  }
+  /**
+   * Run when page is loaded into view
+   */
   useIonViewDidEnter(() => {
     setBusy(true);
     if (user) {
@@ -173,11 +161,24 @@ const Register: React.FC = () => {
     };
   }, []);
 
+
+  const openPasswordRequirements = () => {
+    setPasswordModal(true);
+  };
+
+  const closeModal = () => {
+    setPasswordModal(false);
+  };
+
+  const handleUsernameInput = (e: any) => {
+    setUserNameSignUp(e.detail.value);
+  }
+
   return (
     <IonPage>
       <IonContent>
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header darkMode={darkModeToggled} zoom={1.2}/>
+          <Header darkMode={darkModeToggled} zoom={1.2} />
         </IonHeader>
 
         <IonLoading

@@ -165,9 +165,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
         timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
       );
       return timeAgo.format(time);
-    } else {
-      return '';
     }
+    return '';
   };
 
   const fetchMorePosts = (event: any) => {

@@ -1,44 +1,29 @@
-import {
-  IonContent,
-  IonCardTitle,
-  IonCard,
-  IonLabel,
-  IonButton,
-  IonIcon,
-  IonFab,
-  IonCardContent,
-  IonSelect,
-  IonSelectOption,
-  IonPage,
-  useIonViewDidEnter,
-  RouterDirection,
-  useIonRouter,
-} from "@ionic/react";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
-  limit,
-} from "firebase/firestore";
-import { schoolOutline } from "ionicons/icons";
+// React imports
 import React, { useEffect, useState } from "react";
-import auth from "../fbconfig";
-import { db } from "../fbconfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
 import { useSelector } from "react-redux";
-import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
+
+// Ionic/Capacitor
+import {
+  IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
+  IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
+  RouterDirection, useIonRouter,
+} from "@ionic/react";
+import { schoolOutline } from "ionicons/icons";
+
+// Firebase
+import auth, { db } from "../fbconfig";
+import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
+
+// CSS + Other components
+import "../App.css";
 import { useToast } from "@agney/ir-toast";
 import { getColor } from "../components/functions";
-import "../App.css";
+import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 
-const customAlertOptions = {
-  header: 'Pin Filter',
-  subHeader: 'Select which type of pin to display on the map',
-};
-
+// Global variables
+const customAlertOptions = { header: 'Pin Filter', subHeader: 'Select which type of pin to display on the map' };
 const zoomControlButtonsStyle = {
   width: "50px",
   height: '50px',
@@ -55,8 +40,7 @@ const zoomControlButtonsStyle = {
   display: 'block',
   outline: 'none',
   textIndent: '-7.5px',
-}
-
+}; // +/- buttons that appear on map can be styled here
 const schoolInfo = {
   "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 15.75],
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
@@ -70,11 +54,16 @@ const schoolInfo = {
   "UC Santa Barbara": [34.41302723872466, -119.84749752183016, 15],
   "UC Santa Cruz": [36.994178678923895, -122.05892788857311, 15],
   "": [37.250458, -120.350249, 6],
-};
+}; // school latitude, longitude, and zoom level
+
 
 function Maps() {
   const Toast = useToast();
+  const history = useHistory();
+  const router = useIonRouter();
   const schoolName = useSelector((state: any) => state.user.school);
+
+  // state variables
   const [user, loading, error] = useAuthState(auth);
   const [center, setCenter] = useState<[number, number]>([37.250458, -120.350249]);
   const [zoom, setZoom] = useState(6);
@@ -85,19 +74,32 @@ function Maps() {
   const [markersCopy, setMarkersCopy] = useState<any[] | null>(null);
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
-  const history = useHistory();
-  const router = useIonRouter();
 
+
+  /**
+   * routes to a given url and pushed it to the history stack
+   * 
+   * @param path {string} the url path being routed to 
+   * @param direction {string} the type of animation being played during url navigation
+   */
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
 
+  /**
+   * Sets the map to a default view based on school location
+   */
   const setDefaultCenter = () => {
     setCenter([defaultLat, defaultLong]);
     setZoom(defaultZoom);
   };
 
+  /**
+   * gets school latitude and longitude based
+   * on school name and sets map center/zoom
+   * accordingly
+   */
   const getSchoolLocation = () => {
     if (schoolInfo[schoolName as keyof typeof schoolInfo] !== undefined) {
       const latitude = schoolInfo[schoolName as keyof typeof schoolInfo][0];
@@ -120,6 +122,13 @@ function Maps() {
     }
   };
 
+  /**
+   * sets map view to only show
+   * certain markers based on a filter
+   * chosen by the user
+   * 
+   * @param filter {string} the type of marker being displated (GENERAL, BUY/SELL, ALERTS, SIGHTINGS, etc.)
+   */
   const updateMarkers = (filter: string) => {
     setMarkerFilter(filter);
     if (filter === "ALL") {
@@ -161,6 +170,11 @@ function Maps() {
     }
   };
 
+  /**
+   * Pulls info about a school's markers
+   * from Firestore database, shows the most recent
+   * 100 markers within the past 2 days
+   */
   const getMapMarkers = async () => {
     if (schoolName) {
       const markersRef = collection(

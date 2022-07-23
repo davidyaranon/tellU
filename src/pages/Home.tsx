@@ -903,11 +903,6 @@ function Home() {
                                 fontWeight: "bold",
                                 color: getColor(post.postType),
                               }}
-                            // onClick={() => {
-                            //   localStorage.setItem("lat", (post.location[0].toString()));
-                            //   localStorage.setItem("long", (post.location[1].toString()));
-                            //   history.push("maps");
-                            // }}
                             >
                               {post.postType.toUpperCase()}
                               &nbsp;

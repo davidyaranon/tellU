@@ -60,12 +60,10 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
-const auth = Capacitor.isNativePlatform
-  ?
+const auth = Capacitor.isNativePlatform ?
   initializeAuth(app, {
     persistence: indexedDBLocalPersistence
-  })
-  :
+  }) :
   getAuth();
 export default auth;
 export const functions = getFunctions(app);
