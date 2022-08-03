@@ -6,15 +6,15 @@ import { useDispatch, useSelector } from "react-redux"
 import { setUserState } from '../redux/actions';
 
 // Ionic/Capacitor
-import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading } from '@ionic/react';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { FCM } from '@capacitor-community/fcm';
+import { PushNotifications } from '@capacitor/push-notifications';
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
+import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading } from '@ionic/react';
 
 // Firebase 
-import auth, { promiseTimeout, logInWithEmailAndPassword, db } from '../fbconfig';
-import { useAuthState } from "react-firebase-hooks/auth";
 import { doc, getDoc } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
+import auth, { promiseTimeout, logInWithEmailAndPassword, db } from '../fbconfig';
 
 // CSS + Other components
 import '../App.css';

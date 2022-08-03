@@ -74,8 +74,14 @@ setupIonicReact({
   swipeBackEnabled: false,
 });
 
-
+// Global variables
 const historyInstance = createBrowserHistory();
+const keyStyleOptionsDark: KeyboardStyleOptions = {
+  style: KeyboardStyle.Dark
+}
+const keyStyleOptionsLight: KeyboardStyleOptions = {
+  style: KeyboardStyle.Light
+}
 
 const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
@@ -153,16 +159,11 @@ const RoutingSystem: React.FunctionComponent = () => {
 };
 
 const App: React.FunctionComponent = () => {
-  const [busy, setBusy] = useState<boolean>(true);
   const Toast = useToast();
   const dispatch = useDispatch();
+  const [busy, setBusy] = useState<boolean>(true);
   const darkMode = localStorage.getItem("darkMode") || "false";
-  const keyStyleOptionsDark: KeyboardStyleOptions = {
-    style: KeyboardStyle.Dark
-  }
-  const keyStyleOptionsLight: KeyboardStyleOptions = {
-    style: KeyboardStyle.Light
-  }
+  
   const addListeners = async () => {
     await PushNotifications.addListener('registration', token => {
       console.info('Registration token: ', token.value);
@@ -179,7 +180,8 @@ const App: React.FunctionComponent = () => {
     await PushNotifications.addListener('pushNotificationActionPerformed', notification => {
       console.log('Push notification action performed', notification.actionId, notification.inputValue);
     });
-  }
+  };
+
   const registerNotifications = async () => {
     let permStatus = await PushNotifications.checkPermissions();
 
@@ -189,7 +191,8 @@ const App: React.FunctionComponent = () => {
         throw new Error('User denied permissions!');
       }
     }
-  }
+  };
+
   useEffect(() => {
     if (darkMode == "false") {
       dispatch(setDarkMode(false));
@@ -249,6 +252,7 @@ const App: React.FunctionComponent = () => {
       window.history.replaceState({}, "", "/landing-page");
     });
   }, []);
+
   return (
     <IonApp>
       {busy ? (

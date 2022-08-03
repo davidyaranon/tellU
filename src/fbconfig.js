@@ -1,51 +1,53 @@
-import { initializeApp } from "firebase/app";
 import "firebase/compat/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 import {
-  deleteDoc,
-  serverTimestamp,
-  increment,
+  addDoc,
+  arrayRemove,
+  arrayUnion,
   collection,
-  getDocs,
-  startAfter,
-  query,
-  orderBy,
-  limit,
+  deleteDoc,
   doc,
   getDoc,
+  getDocs,
   getFirestore,
-  setDoc,
-  where,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-  addDoc,
-  writeBatch,
+  increment,
+  limit,
+  orderBy,
+  query,
   runTransaction,
+  serverTimestamp,
+  setDoc,
+  startAfter,
+  updateDoc,
+  where,
+  writeBatch,
 } from "firebase/firestore";
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import {
-  getAuth,
-  updateProfile,
-  sendPasswordResetEmail,
-  signOut,
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  initializeAuth,
+  getAuth,
   indexedDBLocalPersistence,
+  initializeAuth,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
 } from "firebase/auth";
-import { Capacitor } from '@capacitor/core';
 import {
-  getDatabase,
-  set,
   get,
+  getDatabase,
+  increment as rtdbIncrement,
   runTransaction as rtdbRunTransaction,
-  update,
-  increment as rtdbIncrement
+  set,
+  update
 } from "firebase/database";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
+import { Capacitor } from '@capacitor/core';
+import SpotifyWebApi from 'spotify-web-api-js';
+import { initializeApp } from "firebase/app";
 import { ref as rtdbRef } from "firebase/database";
 
-import SpotifyWebApi from 'spotify-web-api-js';
 export const spotifyApi = new SpotifyWebApi();
 
 const firebaseConfig = {
@@ -76,6 +78,7 @@ export const deletePoll = httpsCallable(functions, 'deletePoll');
 export const deleteImage = httpsCallable(functions, 'deleteImage');
 export const deleteLikesDocFromRtdb = httpsCallable(functions, 'deleteLikesDocFromRtdb');
 export const deleteCommentsFromDeletedPost = httpsCallable(functions, 'deleteCommentsFromDeletedPost');
+export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 
 export const spotifySearch = async (query) => {
   try {
@@ -193,7 +196,6 @@ export const sendPasswordReset = async (email) => {
     return true;
   } catch (err) {
     console.error(err);
-
   }
 };
 
@@ -1330,3 +1332,23 @@ export const getCommunityWidgets = async (schoolName) => {
   }
 }
 
+export const sendReportStatus = async (message, schoolName, postKey) => {
+  try {
+    if(auth && auth.currentUser){
+      const userUid = auth.currentUser.uid;
+      const userEmail = auth.currentUser.email;
+      sendEmailOnReport({ // cloud function to send email to me when someone reports a post
+        key: postKey, 
+        reporterUid : userUid,
+        reporterEmail : userEmail,
+        schoolName: schoolName,
+        message : message
+      }).catch((err) => {
+        console.log(err);
+      });
+      return true;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}

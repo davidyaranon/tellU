@@ -1637,7 +1637,7 @@ function User() {
                 color: "#898989"
               }}
             >
-              Notifictions
+              Notifications
             </IonHeader>
             <IonCard className="user-card">
               <div>

@@ -40,7 +40,6 @@ import {
   promiseTimeout,
 } from "../fbconfig";
 import { doc, onSnapshot } from "firebase/firestore";
-import "../App.css";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -59,6 +58,7 @@ import sunny_rainy from '../images/icons8-rain-cloud-96.png';
 import rainy from '../images/icons8-rain-96.png';
 import stormy from '../images/icons8-storm-96.png';
 import nighttime from '../images/icons8-moon-phase-96.png';
+import "../App.css";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Device } from '@capacitor/device';
@@ -70,13 +70,14 @@ interface PollAnswer {
 };
 
 function Community() {
+  const Toast = useToast();
+  const history = useHistory();
+  const [user] = useAuthState(auth);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
-  const Toast = useToast();
-  const [user, loading, error] = useAuthState(auth);
+  const { setShowTabs } = React.useContext(UIContext);
+
   const [busy, setBusy] = useState<boolean>(false);
-  const [commentsBusy, setCommentsBusy] = useState<boolean>(false);
-  const history = useHistory();
   const [pollSubmitting, setPollSubmitting] = useState<boolean>(false);
   const [pollModalOpen, setPollModalOpen] = useState<boolean>(false);
   const [pollText, setPollText] = useState<string>("");
@@ -85,13 +86,13 @@ function Community() {
   const [batteryPercentage, setBatteryPercentage] = useState<number>();
   const [deviceName, setDeviceName] = useState<string | undefined>("");
   const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
-  const [pollOptions, setPollOptions] = useState<PollAnswer[]>([
-    { text: "", },
-    { text: "", },
-    { text: "", },
-  ]); // start with three options, include more programatically
+  const [pollOptions, setPollOptions] =
+    useState<PollAnswer[]>([
+      { text: "", },
+      { text: "", },
+      { text: "", },
+    ]); // start with three options, include more programatically
   const [polls, setPolls] = useState<any[]>([]);
-  const { setShowTabs } = React.useContext(UIContext);
   const [communityWidgets, setCommunityWidgets] = useState<any[]>([]);
 
   const doRefresh = (event: CustomEvent<RefresherEventDetail>) => {
@@ -323,13 +324,6 @@ function Community() {
           isOpen={pollSubmitting}
         />
 
-        <IonLoading
-          spinner="dots"
-          message="Adding comment"
-          duration={0}
-          isOpen={commentsBusy}
-        ></IonLoading>
-
         <IonModal backdropDismiss={false} isOpen={pollModalOpen}>
           <IonContent>
             <div>
@@ -448,23 +442,23 @@ function Community() {
                               </IonFab>
                               <IonFab horizontal="end" style={{ marginLeft: "20vw" }}>
                                 {weatherData && weatherData.icon === '/day/113.png' &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sun_96} alt="Sunny Weather icon"/>
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sun_96} alt="Sunny Weather icon" />
                                 }
                                 {weatherData && weatherData.icon === '/day/116.png' &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={partly_cloudy} alt="Partly Cloudy Weather icon"/>
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={partly_cloudy} alt="Partly Cloudy Weather icon" />
                                 }
                                 {weatherData && (weatherData.icon === '/day/119.png'
                                   || weatherData.icon === '/day/122.png'
                                   || weatherData.icon === '/day/143.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={clouds_96} alt="Cloudy Weather icon"/>
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={clouds_96} alt="Cloudy Weather icon" />
                                 }
                                 {weatherData && (weatherData.icon === '/day/386.png'
                                   || weatherData.icon === '/day/389.png'
                                   || weatherData.icon === '/day/395.png'
                                   || weatherData.icon === '/day/392.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={stormy} alt="Stormy Weather icon"/>
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={stormy} alt="Stormy Weather icon" />
                                 }
                                 {weatherData && (weatherData.icon === '/day/176.png'
                                   || weatherData.icon === '/day/293.png'
@@ -479,7 +473,7 @@ function Community() {
                                   || weatherData.icon === '/day/362png'
                                   || weatherData.icon === '/day/182.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sunny_rainy} alt="Sunny but Rainy Weather icon"/>
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={sunny_rainy} alt="Sunny but Rainy Weather icon" />
                                 }
                                 {weatherData && (weatherData.icon === '/day/185.png'
                                   || weatherData.icon === '/day/263.png'
@@ -494,7 +488,7 @@ function Community() {
                                   || weatherData.icon === '/day/284.png'
                                   || weatherData.icon === '/day/266.png')
                                   &&
-                                  <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} alt="Rainy Weather icon"/>
+                                  <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} alt="Rainy Weather icon" />
                                 }
                                 {weatherData && weatherData.icon.toString().includes('night') && (
                                   <>
@@ -503,9 +497,9 @@ function Community() {
                                       || weatherData.icon === '/night/119.png'
                                       || weatherData.icon === '/night/122.png'
                                       || weatherData.icon === '/night/143.png' ? (
-                                      <img style={{ width: "50%", marginTop: "1vh" }} src={nighttime} alt="Nighttime icon"/>
+                                      <img style={{ width: "50%", marginTop: "1vh" }} src={nighttime} alt="Nighttime icon" />
                                     ) : (
-                                      <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} alt="Rainy Weather icon"/>
+                                      <img style={{ width: "70%", marginTop: "1vh" }} src={rainy} alt="Rainy Weather icon" />
 
                                     )}
                                   </>
@@ -515,11 +509,14 @@ function Community() {
                           </IonCard>
                         </SwiperSlide>
                         <SwiperSlide>
-                          <IonCard mode="ios" style={{
-                            height: "22.5vh",
-                            borderRadius: "20px",
-                            background: 'linear-gradient(180deg, rgba(238,133,150,1) 0%, rgba(237,181,190,1) 98%)'
-                          }} onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
+                          <IonCard
+                            mode="ios"
+                            style={{
+                              height: "22.5vh",
+                              borderRadius: "20px",
+                              background: 'linear-gradient(180deg, rgba(238,133,150,1) 0%, rgba(237,181,190,1) 98%)'
+                            }}
+                            onClick={() => { history.push("https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link") }}>
                             <IonCardContent style={{ height: "22.5vh" }}>
                               <IonFab horizontal="start" vertical="top">
                                 <IonCardTitle style={{ fontSize: "1.25em", }}>
@@ -534,7 +531,7 @@ function Community() {
                                   </IonRow>
                                   <IonRow class="ion-align-items-center">
                                     {/* <IonCol> */}
-                                    <img className="ion-spinner-image" src={feedback} alt="Megaphone PNG icon"/>
+                                    <img className="ion-spinner-image" src={feedback} alt="Megaphone PNG icon" />
                                     {/* </IonCol> */}
                                   </IonRow >
                                   <IonRow class="ion-align-items-center">
@@ -618,7 +615,7 @@ function Community() {
                                     styles={buildStyles({
                                       pathColor: `rgba(45, 211, 111, 1)`,
                                     })}
-                                    
+
                                   >
                                     <IonIcon style={{ zoom: 2.5 }} icon={phonePortraitOutline} />
                                   </CircularProgressbarWithChildren>

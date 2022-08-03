@@ -1,20 +1,23 @@
-import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonList, IonPage } from "@ionic/react";
-import { useEffect, useState } from "react";
-import { sendPasswordReset } from "../fbconfig";
-import { useSelector } from "react-redux"
-import Header from "./Header";
-import { Link } from "react-router-dom";
 import React from "react";
+import { useEffect, useState } from "react";
+import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonList, IonPage } from "@ionic/react";
+
+import { useSelector } from "react-redux"
+import { Link } from "react-router-dom";
 import { useToast } from "@agney/ir-toast";
+
+import Header from "./Header";
 import UIContext from '../my-context';
 import { timeout } from "../components/functions";
+import { sendPasswordReset } from "../fbconfig";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState<string>("");
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
   const Toast = useToast();
   const { setShowTabs } = React.useContext(UIContext);
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+
+  const [email, setEmail] = useState<string>("");
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
 
   useEffect(() => {
     setShowTabs(false);

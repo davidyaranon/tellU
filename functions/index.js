@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 // const firebase_tools = require('firebase-tools');
 
 const app = admin.initializeApp();
@@ -18,6 +19,17 @@ const sanDiego = ['32.8791284369769', '-117.2368054903461'];
 const sf = ['37.76894651194302', '-122.42952641954717'];
 const sb = ['34.41302723872466', '-119.84749752183016'];
 const sc = ['36.994178678923895', '-122.05892788857311'];
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  service: 'gmail',
+  auth: {
+    user: "app.tellu@gmail.com",
+    pass: "ryphaisxcgpcsvau"
+  }
+});
 
 exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((context) => {
   const fetchFromURLhumboldt = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + humboldt[0] + ',' + humboldt[1] + '&aqi=yes')).json();
@@ -43,12 +55,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('CalPolyHumboldt').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: weatherData.location,
     });
   }).catch((err) => {
@@ -66,12 +78,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('UCBerkeley').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: 'Berkeley',
     });
   }).catch((err) => {
@@ -89,12 +101,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('UCMerced').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: 'Merced',
     });
   }).catch((err) => {
@@ -112,12 +124,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('UCDavis').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: 'Davis'
     });
   }).catch((err) => {
@@ -135,12 +147,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('UCIrvine').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: 'Irvine',
     });
   }).catch((err) => {
@@ -158,12 +170,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: 'Westwood Village'
     };
     admin.firestore().collection('schoolWeather').doc('UCLA').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: weatherData.location,
     });
   }).catch((err) => {
@@ -181,12 +193,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('UCRiverside').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: 'Riverside',
     });
   }).catch((err) => {
@@ -204,12 +216,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('UCSanDiego').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: 'San Diego'
     });
   }).catch((err) => {
@@ -227,12 +239,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: data.location.name,
     };
     admin.firestore().collection('schoolWeather').doc('UCSF').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: weatherData.location,
     });
   }).catch((err) => {
@@ -250,12 +262,12 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: 'Santa Barbara',
     };
     admin.firestore().collection('schoolWeather').doc('UCSantaBarbara').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: weatherData.location,
     });
   }).catch((err) => {
@@ -273,28 +285,28 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
       location: 'Santa Cruz'
     };
     admin.firestore().collection('schoolWeather').doc('UCSantaCruz').update({
-      feelsLike : weatherData.feelsLike,
-      humidity : weatherData.humidity,
-      icon : weatherData.icon,
-      index : weatherData.epaIndex,
-      temp : weatherData.temp,
-      text : weatherData.text,
+      feelsLike: weatherData.feelsLike,
+      humidity: weatherData.humidity,
+      icon: weatherData.icon,
+      index: weatherData.epaIndex,
+      temp: weatherData.temp,
+      text: weatherData.text,
       location: weatherData.location,
     });
   }).catch((err) => {
     console.log(err);
   });
-  
+
 });
 
 exports.deleteImage = functions.https.onCall(async (data, context) => {
-  if(!context.auth){
+  if (!context.auth) {
     throw new functions.https.HttpsError(
       'unauthenticated',
       'Something went wrong, try logging in again'
     );
   }
-  if(!data.path){
+  if (!data.path) {
     throw new functions.https.HttpsError(
       'resource-exhausted',
       'Invalid data, try again'
@@ -310,13 +322,13 @@ exports.deleteImage = functions.https.onCall(async (data, context) => {
 });
 
 exports.deleteLikesDocFromRtdb = functions.https.onCall((data, context) => {
-  if(!context.auth){
+  if (!context.auth) {
     throw new functions.https.HttpsError(
       'unauthenticated',
       'Something went wrong, try logging in again'
     );
   }
-  if(!data.key){
+  if (!data.key) {
     throw new functions.https.HttpsError(
       'resource-exhausted',
       'Invalid data, try again'
@@ -331,13 +343,13 @@ exports.deleteLikesDocFromRtdb = functions.https.onCall((data, context) => {
 });
 
 exports.deleteCommentsFromDeletedPost = functions.https.onCall((data, context) => {
-  if(!context.auth){
+  if (!context.auth) {
     throw new functions.https.HttpsError(
       'unauthenticated',
       'Something went wrong, try logging in again'
     );
   }
-  if(!data.key || !data.schoolName){
+  if (!data.key || !data.schoolName) {
     throw new functions.https.HttpsError(
       'resource-exhausted',
       'Invalid data, try again'
@@ -349,6 +361,38 @@ exports.deleteCommentsFromDeletedPost = functions.https.onCall((data, context) =
     querySnapshot.docs.forEach(snpashot => {
       snpashot.ref.delete();
     });
+  });
+});
+
+exports.sendEmailOnReport = functions.https.onCall((data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Something went wrong, try logging in again'
+    );
+  }
+  if (!data.key || !data.schoolName || !data.message || !data.reporterUid || !data.reporterEmail) {
+    throw new functions.https.HttpsError(
+      'resource-exhausted',
+      'Invalid data, try again'
+    );
+  }
+  const mailOptions = {
+    from: `app.tellU@gmail.com`,
+    to: `app.tellU@gmail.com, ${data.reporterEmail}`,
+    subject: 'You reported a tellU Post',
+    html: `<h1>Report Info</h1>
+     <p> <b>School: </b>${data.schoolName} </p>
+     <p> <b>Reason: </b>${data.message} </p>
+     <p> <b>Post Key: </b>${data.key} </p>
+     <p> <b>Reporter UID: </b>${data.reporterUid} </p>`
+  };
+  return transporter.sendMail(mailOptions, (error, data) => {
+    if (error) {
+      console.log(error)
+      return
+    }
+    console.log("Sent!")
   });
 });
 

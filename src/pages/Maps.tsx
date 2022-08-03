@@ -211,6 +211,11 @@ function Maps() {
     }
   };
 
+  /**
+   * Runs on page enter
+   * 
+   * Sets center based on if pin was clicked on different page
+   */
   useIonViewDidEnter(() => {
     if (!user) {
       history.replace("/landing-page");
@@ -227,13 +232,18 @@ function Maps() {
     }
   }, [user, schoolName]);
 
+  /**
+   * Runs on initial load
+   * 
+   * Grabs school location based on redux storage
+   */
   useEffect(() => {
     if (!user) {
       history.replace("/landing-page");
     } else {
       getSchoolLocation();
     }
-  }, [user, schoolName])
+  }, [user, schoolName]);
 
 
   return (

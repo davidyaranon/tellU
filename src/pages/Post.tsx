@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import auth, { addCommentNew, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeCommentNew, uploadImage, upVoteComment } from '../fbconfig';
+import auth, { addCommentNew, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeCommentNew, sendReportStatus, uploadImage, upVoteComment } from '../fbconfig';
 import {
   upVote,
   downVote,
@@ -23,6 +23,7 @@ import {
   IonFab,
   IonFabButton,
   IonGrid,
+  IonHeader,
   IonIcon,
   IonImg,
   IonInfiniteScroll,
@@ -30,6 +31,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonModal,
   IonNote,
   IonPage,
   IonRow,
@@ -51,7 +53,7 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, shareOutline, chevronBackOutline } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, school } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
@@ -77,21 +79,23 @@ const defaultResizeOptions: KeyboardResizeOptions = {
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
+  const [user] = useAuthState(auth);
+  const Toast = useToast();
+  const history = useHistory();
+  const router = useIonRouter();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
+
   const [post, setPost] = useState<any | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
-  const Toast = useToast();
-  const history = useHistory();
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [disabledLikeButtonsComments, setDisabledLikeButtonsComments] = useState<number>(-1);
   const [likeAnimationComments, setLikeAnimationComments] = useState<number>(-1);
   const [dislikeAnimationComments, setDislikeAnimationComments] = useState<number>(-1);
-  const [user] = useAuthState(auth);
   const [commentsLoading, setCommentsLoading] = useState<boolean>(false);
   const [lastKey, setLastKey] = useState<string>("");
   const contentRef = useRef<HTMLIonContentElement | null>(null);
@@ -101,7 +105,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [kbHeight, setKbHeight] = useState<number>(0);
   const [previousCommentLoading, setPreviousCommentLoading] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
-  const router = useIonRouter();
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
+  const [reportMessage, setReportMessage] = useState<string>("");
   // const [showTags, setShowTags] = useState<boolean>(false);
   // const [listOfUsers, setListOfUsers] = useState<string[]>([]);
   // const [listOfUsersMap, setListOfUsersMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
@@ -117,6 +122,17 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       router.goBack();
     } else {
       Toast.error("something went wrong");
+    }
+  }
+
+  const reportPost = async () => {
+    const { value } = await Dialog.confirm({
+      title: 'Report Post',
+      message: `Are you sure you want to report this post?`,
+      okButtonTitle: 'Report'
+    });
+    if (value) {
+      setShowReportModal(true);
     }
   }
 
@@ -562,6 +578,70 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   return (
     <IonPage>
       <IonContent ref={contentRef} scrollEvents>
+
+        <IonModal isOpen={showReportModal} mode="ios">
+          <IonHeader translucent>
+            <IonToolbar mode="ios">
+              {/* <IonTitle>Report</IonTitle> */}
+              <IonButtons slot="start">
+                <IonButton
+                  mode="ios"
+                  onClick={() => {
+                    setShowReportModal(false);
+                  }}
+                >
+                  Cancel
+                </IonButton>
+              </IonButtons>
+              <IonButtons slot="end">
+                <IonButton
+                  mode="ios"
+                  slot="end"
+                  onClick={() => {
+                    if (reportMessage.length <= 0) {
+                      Toast.error("Provide a reason why!");
+                    } else {
+                      setReportMessage("");
+                      sendReportStatus(reportMessage, schoolName, postKey).then((reportStatus) => {
+                        if (reportStatus) {
+                          setShowReportModal(false);
+                          Toast.success("Post reported");
+                        } else {
+                          Toast.error("Something went wrong");
+                        }
+                      });
+                    }
+                  }}
+                >
+                  Report
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonCard mode="ios">
+              <IonTextarea
+                style={{ marginLeft: "2.5%" }}
+                rows={4}
+                mode="ios"
+                value={reportMessage}
+                maxlength={500}
+                placeholder="Reason for reporting..."
+                id="message"
+                required={true}
+                onIonChange={(e: any) => {
+                  let currMessage = e.detail.value;
+                  setReportMessage(currMessage);
+                }}
+              ></IonTextarea>
+            </IonCard>
+            <IonNote style={{
+              textAlign: "center", alignItems: "center",
+              alignSelf: "center", display: "flex", fontSize: "1em"
+            }}>Post will be manually reviewed and might be deleted if deemed inappropriate</IonNote>
+          </IonContent>
+        </IonModal>
+
         <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
             {post && post.userName &&
@@ -577,6 +657,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
+              <IonButton slot="end" onClick={() => { reportPost(); }}>
+                <IonIcon icon={alertCircleOutline} />
+              </IonButton>
               <IonButton disabled slot="end" onClick={() => { sharePost(); }}> {/* CHANGE DISABLED VALUE ONCE SHARE LINK IS ACTIVE */}
                 <IonIcon icon={shareOutline} />
               </IonButton>

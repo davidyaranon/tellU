@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { IonHeader } from '@ionic/react';
+
+import '../App.css';
 import tellU from '../images/tellU.png';
 import tellU_white from '../images/tellU_white.png';
-import '../App.css';
+
 export const ionHeaderStyle = {
   textAlign: 'center',
   padding: "2.5vh",

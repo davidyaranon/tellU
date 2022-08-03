@@ -33,6 +33,7 @@ const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][
 const numbers = /[0123456789]/;
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Native }
 
+
 const Register: React.FC = () => {
 
   // state variables
@@ -41,7 +42,7 @@ const Register: React.FC = () => {
   const [passwordSignUp, setPasswordSignUp] = useState("");
   const [passwordSignUpCopy, setPasswordSignUpCopy] = useState("");
   const [schoolName, setSchoolName] = useState("");
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [busy, setBusy] = useState<boolean>(false);
   const [passwordModal, setPasswordModal] = useState<boolean>(false);
 
@@ -151,6 +152,7 @@ const Register: React.FC = () => {
       setShowTabs(true);
     };
   }, [user, loading]);
+  
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {

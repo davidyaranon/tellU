@@ -1,92 +1,51 @@
 import "../App.css";
+import "../theme/variables.css";
+
 import {
-  IonContent,
-  IonHeader,
-  IonRefresher,
-  IonRefresherContent,
-  IonCard,
-  IonModal,
-  IonImg,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonTextarea,
-  IonLoading,
-  IonText,
-  IonAvatar,
-  IonCheckbox,
-  IonButton,
-  IonIcon,
-  IonFab,
-  IonFabButton,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonRow,
-  IonCol,
-  IonSpinner,
-  IonNote,
-  IonPage,
-  IonInfiniteScroll,
-  IonInfiniteScrollContent,
-  IonFooter,
-  IonProgressBar,
+  IonAvatar, IonButton, IonButtons, IonCard, IonCheckbox, IonCol,
+  IonContent, IonFab, IonFabButton, IonFooter, IonHeader, IonIcon,
+  IonImg, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList,
+  IonLoading, IonModal, IonNote, IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
+  IonRow, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar,
 } from "@ionic/react";
-import { uploadBytesResumable } from "firebase/storage";
-import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
-import {
-  addMessage,
-  getAllPosts,
-  promiseTimeout,
-  upVote,
-  downVote,
-} from "../fbconfig";
-import {
-  Camera,
-  CameraResultType,
-  CameraSource,
-  Photo,
-} from "@capacitor/camera";
-import { ref, getDownloadURL } from "firebase/storage";
+import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
+import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
 import { Geolocation, Geoposition } from "@awesome-cordova-plugins/geolocation";
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import Header, { ionHeaderStyle } from "./Header";
+import { RefresherEventDetail, RouterDirection } from "@ionic/core";
+import { add, cameraOutline } from "ionicons/icons";
+import { addMessage, downVote, getAllPosts, promiseTimeout, upVote } from "../fbconfig";
+import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
+import { caretUpOutline, chevronDownCircleOutline } from "ionicons/icons";
+import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
+import { getColor, timeout } from '../components/functions';
+import { getDownloadURL, ref } from "firebase/storage";
+import { useEffect, useRef, useState } from "react";
+
+import FadeIn from "react-fade-in";
+import ForumIcon from "@mui/icons-material/Forum";
 import { Keyboard } from "@capacitor/keyboard";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {
-  add,
-  cameraOutline,
-  // shareOutline,
-} from "ionicons/icons";
-import RoomIcon from '@mui/icons-material/Room';
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import ForumIcon from "@mui/icons-material/Forum";
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
-import { defineCustomElements } from "@ionic/pwa-elements/loader";
-import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
-import { chevronDownCircleOutline, caretUpOutline } from "ionicons/icons";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { RefresherEventDetail, RouterDirection } from "@ionic/core";
-import Header, { ionHeaderStyle } from "./Header";
-import { useEffect, useRef, useState } from "react";
-import { useToast } from "@agney/ir-toast";
-import { useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { v4 as uuidv4 } from "uuid";
-import "../theme/variables.css";
-import React from "react";
-import FadeIn from "react-fade-in";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en.json";
-import UIContext from "../my-context";
-import { getColor, timeout } from '../components/functions';
-// import { Share } from '@capacitor/share';
-import Map from "@mui/icons-material/Map";
 import Linkify from 'linkify-react';
-// import ProgressBar from "./ProgressBar";
-import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestore";
-import { db } from '../fbconfig';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import Map from "@mui/icons-material/Map";
 import ProfilePhoto from "./ProfilePhoto";
+import React from "react";
+import RoomIcon from '@mui/icons-material/Room';
+import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
+import TimeAgo from "javascript-time-ago";
+import UIContext from "../my-context";
+import { db } from '../fbconfig';
+import { defineCustomElements } from "@ionic/pwa-elements/loader";
+import en from "javascript-time-ago/locale/en.json";
+import { uploadBytesResumable } from "firebase/storage";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useHistory } from "react-router";
 import { useIonRouter } from "@ionic/react";
+import { useSelector } from "react-redux";
+import { useToast } from "@agney/ir-toast";
+import { v4 as uuidv4 } from "uuid";
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -104,6 +63,11 @@ const ionInputStyle = {
   marginLeft: "2.5vw",
 };
 
+const locationOptions = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+};
+
 function Home() {
   const inputRef = useRef<HTMLIonTextareaElement>(null);
   const router = useIonRouter();
@@ -112,6 +76,7 @@ function Home() {
   const timeAgo = new TimeAgo("en-US");
   const { setShowTabs } = React.useContext(UIContext);
   const schoolName = useSelector((state: any) => state.user.school);
+
   const [gettingLocation, setGettingLocation] = useState<boolean>(false);
   const [photo, setPhoto] = useState<Photo | null>();
   const Toast = useToast();
@@ -145,7 +110,6 @@ function Home() {
   const originalLastKeyRef = useRef<any>();
   originalLastKeyRef.current = originalLastKey;
   const [showProgressBar, setShowProgressBar] = useState<boolean>(false);
-  // const [progressPercentage, setProgressPercentage] = useState<string>("5");
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
   const [scrollPosition, setScrollPosition] = useState<number>(0);
 
@@ -294,11 +258,6 @@ function Home() {
       default:
         break;
     }
-  };
-
-  const locationOptions = {
-    enableHighAccuracy: true,
-    timeout: 5000,
   };
 
   const getLocation = async () => {
@@ -615,7 +574,7 @@ function Home() {
 
           <FadeIn transitionDuration={1500}>
             <IonHeader class="ion-no-border" style={ionHeaderStyle} >
-              <Header darkMode={darkModeToggled} schoolName={schoolName} zoom={1}/>
+              <Header darkMode={darkModeToggled} schoolName={schoolName} zoom={1} />
             </IonHeader>
           </FadeIn>
 
