@@ -3,57 +3,32 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
-import auth, { addCommentNew, downVoteComment, getLikes, getOnePost, loadCommentsNew, loadCommentsNewNextBatch, removeCommentNew, sendReportStatus, uploadImage, upVoteComment } from '../fbconfig';
-import {
-  upVote,
-  downVote,
-  promiseTimeout,
-} from "../fbconfig";
-import { useHistory } from "react-router";
+import auth,
+{
+  addCommentNew, downVoteComment, getLikes,
+  getOnePost, loadCommentsNew, loadCommentsNewNextBatch,
+  removeCommentNew, sendReportStatus, uploadImage, upVoteComment
+} from '../fbconfig';
+import { upVote, downVote, promiseTimeout } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCol,
-  IonContent,
-  IonFab,
-  IonFabButton,
-  IonGrid,
-  IonHeader,
-  IonIcon,
-  IonImg,
-  IonInfiniteScroll,
-  IonInfiniteScrollContent,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonModal,
-  IonNote,
-  IonPage,
-  IonRow,
-  IonSkeletonText,
-  IonSpinner,
-  IonText,
-  IonTextarea,
-  IonTitle,
-  IonToolbar,
-  RouterDirection,
-  useIonRouter,
+IonAvatar, IonButton, IonButtons, IonCard,
+IonCardContent, IonCol, IonContent, IonFab,
+IonFabButton, IonGrid, IonHeader, IonIcon,
+IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
+IonItem, IonLabel, IonList, IonModal,
+IonNote, IonPage, IonRow, IonSkeletonText,
+IonSpinner, IonText, IonTextarea,
+IonTitle, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { v4 as uuidv4 } from "uuid";
-// import { PhotoViewer } from "@awesome-cordova-plugins/photo-viewer";
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
-// import { PhotoViewer, Image } from '@capacitor-community/photoviewer'; USE THIS WHEN IMPLEMENTING VIDEOS
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, school } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
@@ -61,6 +36,7 @@ import Linkify from 'linkify-react';
 import { Share } from "@capacitor/share";
 import { Dialog } from '@capacitor/dialog';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import ProfilePhoto from "./ProfilePhoto";
 
 interface MatchUserPostParams {
@@ -81,7 +57,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
   const [user] = useAuthState(auth);
   const Toast = useToast();
-  const history = useHistory();
   const router = useIonRouter();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
@@ -107,11 +82,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [deleted, setDeleted] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [reportMessage, setReportMessage] = useState<string>("");
-  // const [showTags, setShowTags] = useState<boolean>(false);
-  // const [listOfUsers, setListOfUsers] = useState<string[]>([]);
-  // const [listOfUsersMap, setListOfUsersMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
-  // const [attedUser, setAttedUser] = useState<string>("all");
-  // const [taggedUsers, setTaggedUsers] = useState<string[]>();
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -139,7 +109,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
     setComment(currComment);
-    // setTaggedUsers(currComment.match(pattern));
   };
 
   async function sendImage(blob: any, uniqueId: string) {
@@ -188,23 +157,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             commentSent.likes = { "null": true };
             commentSent.dislikes = { "null": true };
             const newCommentsArr: any[] = [commentSent, ...comments];
-            // const tempUsernameList: string[] = [];
-            // const tempMap: Map<string, string[]> = new Map<string, string[]>();
-            // for (let i = 0; i < newCommentsArr.length; ++i) {
-            //   tempUsernameList.push(newCommentsArr[i].userName);
-            //   if (tempMap.get(newCommentsArr[i].userName[0]) !== undefined) {
-            //     const tempArr: string[] | undefined = tempMap.get(newCommentsArr[i].userName[0]);
-            //     if (tempArr !== undefined) {
-            //       tempArr.push(newCommentsArr[i].userName);
-            //       tempMap.set(newCommentsArr[i].userName[0], tempArr);
-            //     }
-            //   } else {
-            //     tempMap.set(newCommentsArr[i].userName[0], newCommentsArr[i].userName);
-            //   }
-            // }
-            // tempMap.set("all", tempUsernameList);
-            // setListOfUsersMap(tempMap);
-            // setListOfUsers(tempUsernameList);
             setComments(newCommentsArr);
           }
         } else {
@@ -267,24 +219,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               res.comments[i].commentAmount = 0;
             }
           }
-          // const tempUsernameList: string[] = [];
-          const tempCommentsArr: any[] = comments?.concat(res.comments);
-          // const tempMap: Map<string, string[]> = new Map<string, string[]>();
-          // for (let i = 0; i < tempCommentsArr.length; ++i) {
-          //   tempUsernameList.push(tempCommentsArr[i].userName);
-          //   if (tempMap.get(tempCommentsArr[i].userName[0]) !== undefined) {
-          //     const tempArr: string[] | undefined = tempMap.get(tempCommentsArr[i].userName[0]);
-          //     if (tempArr !== undefined) {
-          //       tempArr.push(tempCommentsArr[i].userName);
-          //       tempMap.set(tempCommentsArr[i].userName[0], tempArr);
-          //     }
-          //   } else {
-          //     tempMap.set(tempCommentsArr[i].userName[0], tempCommentsArr[i].userName);
-          //   }
-          // }
-          // tempMap.set("all", tempUsernameList);
-          // setListOfUsersMap(tempMap);
-          // setListOfUsers(tempUsernameList);
+          const tempCommentsArr: any[] = comments?.concat(res.comments);        
           setComments(tempCommentsArr);
           setLastKey(res.lastKey);
           event.target.complete();
@@ -294,7 +229,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         Toast.error(err);
       })
     } else {
-      console.log("HUH")
+      Toast.error("");
+      console.error("postKey / lastKey / schoolName unavaiable or undefined");
     }
   }
 
@@ -329,28 +265,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               res.comments[i].commentAmount = 0;
             }
           }
-          // const tempUsernameList: string[] = [];
-          // const tempMap: Map<string, string[]> = new Map<string, string[]>();
-          // for (let i = 0; i < res.comments.length; ++i) {
-          // tempUsernameList.push(res.comments[i].userName);
-          // if (tempMap.get(res.comments[i].userName[0]) !== undefined) {
-          // const tempArr: string[] | undefined = tempMap.get(res.comments[i].userName[0]);
-          // if (tempArr !== undefined) {
-          // tempArr.push(res.comments[i].userName);
-          // tempMap.set(res.comments[i].userName[0], tempArr);
-          // }
-          // } else {
-          // tempMap.set(res.comments[i].userName[0], res.comments[i].userName);
-          // }
-          // }
-          // tempMap.set("all", tempUsernameList);
-          // console.log(tempUsernameList);
-          // console.log(tempMap);
-          // tempMap.get("all")?.map((username: string, index: number) => {
-          //   console.log(username);
-          // });
-          // setListOfUsersMap(tempMap);
-          // setListOfUsers(tempUsernameList);
           setComments(res.comments);
           setLastKey(res.lastKey);
         }
@@ -956,18 +870,18 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         <IonLabel class="ion-text-wrap">
                           <IonText color="medium">
                             <p>
-                              <FadeIn>
-                                <IonAvatar
-                                  onClick={() => {
-                                    // setComments([]);
-                                    setComment("");
-                                    handleUserPageNavigation(comment.uid);
-                                  }}
-                                  class="posts-avatar"
-                                >
-                                  <ProfilePhoto uid={comment.uid}></ProfilePhoto>
-                                </IonAvatar>
-                              </FadeIn>
+                              {/* <FadeIn> */}
+                              <IonAvatar
+                                onClick={() => {
+                                  // setComments([]);
+                                  setComment("");
+                                  handleUserPageNavigation(comment.uid);
+                                }}
+                                class="posts-avatar"
+                              >
+                                <ProfilePhoto uid={comment.uid}></ProfilePhoto>
+                              </IonAvatar>
+                              {/* </FadeIn> */}
                               {comment.userName}
                             </p>
                           </IonText>

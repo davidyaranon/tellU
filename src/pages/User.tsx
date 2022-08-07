@@ -1,60 +1,22 @@
 import {
-  IonHeader,
-  IonContent,
-  IonLoading,
-  IonButton,
-  IonInput,
-  IonFab,
-  IonTextarea,
-  IonImg,
-  IonAvatar,
-  IonTitle,
-  IonToolbar,
-  IonList,
-  IonItem,
-  IonIcon,
-  IonLabel,
-  IonModal,
-  IonToggle,
-  IonText,
-  IonCardContent,
-  IonCard,
-  IonSkeletonText,
-  IonNote,
-  IonSpinner,
-  IonButtons,
-  IonCardTitle,
-  IonPage,
-  useIonViewDidEnter,
-  IonRow,
-  IonCol,
-  IonGrid,
-  IonSearchbar,
-  useIonRouter,
-  RouterDirection,
+  IonHeader, IonContent, IonLoading, IonButton,
+  IonInput, IonFab, IonTextarea, IonImg, IonAvatar,
+  IonTitle, IonToolbar, IonList, IonItem,
+  IonIcon, IonLabel, IonModal, IonToggle,
+  IonText, IonCardContent, IonCard, IonSkeletonText,
+  IonNote, IonSpinner, IonButtons, IonCardTitle,
+  IonPage, useIonViewDidEnter, IonRow, IonCol,
+  IonGrid, IonSearchbar, useIonRouter, RouterDirection
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {
-  storage,
-  logout,
-  db,
-  promiseTimeout,
-  checkUsernameUniqueness,
-  uploadImage,
-  getUserPosts,
-  upVote,
-  downVote,
-  getNextBatchUserPosts,
-  removePost,
-  getUserLikedPostsNextBatch,
-  getUserLikedPosts,
-  getYourPolls,
-  updateUserInfo,
-  getCurrentUserData,
-  removePoll,
-  getLikes,
-  spotifySearch,
+  storage, logout, db, promiseTimeout,
+  checkUsernameUniqueness, uploadImage,
+  getUserPosts, upVote, downVote, getNextBatchUserPosts,
+  removePost, getUserLikedPostsNextBatch, getUserLikedPosts,
+  getYourPolls, updateUserInfo, getCurrentUserData,
+  removePoll, getLikes, spotifySearch
 } from "../fbconfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
@@ -78,7 +40,10 @@ import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
-import { cameraReverseOutline, chevronBackOutline, logoInstagram, logoSnapchat, logoTiktok, moon } from "ionicons/icons";
+import {
+cameraReverseOutline, chevronBackOutline, logoInstagram,
+logoSnapchat, logoTiktok, moon
+} from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setDarkMode } from "../redux/actions";
@@ -470,7 +435,6 @@ function User() {
   };
 
   async function handleUsernameChange() {
-    // update all messages to include updated username + include duplicate username check
     Keyboard.hide().then(() => {
       setTimeout(() => setCredentialsUserModal(false), 100);
     }).catch((err) => {
@@ -543,32 +507,6 @@ function User() {
       }
     }
   }
-
-  // const handleCommentModal = async (post: any, postIndex: number) => {
-  //   setCommentsLoading(true);
-  //   setCommentModalPostIndex(postIndex);
-  //   setCommentModalPostDownvotes(Object.keys(post.dislikes).length);
-  //   setCommentModalPostUpvotes(Object.keys(post.likes).length);
-  //   setCommentModalPost(post);
-  //   setShowCommentModal(true);
-  //   try {
-  //     // load comments from /schoolPosts/{schoolName}/comments/{post.key}
-  //     const resComments = await loadComments(post.key, schoolName);
-  //     if (resComments != null && resComments != undefined) {
-  //       //console.log(resComments);
-  //       setComments(resComments);
-  //       setCommentsLoading(false);
-  //     } else {
-  //       //console.log(resComments);
-  //       Toast.error(
-  //         "Unable to load comments"
-  //       );
-  //     }
-  //   } catch (err: any) {
-  //     console.log(err);
-  //     Toast.error(err.message.toString());
-  //   }
-  // };
 
   async function handleEmailChange() {
     setBusy(true);
@@ -760,41 +698,7 @@ function User() {
         Toast.error(err + "\n Check your internet connection");
       });
     }
-  }
-
-
-  // const handlePollVote = async (index: number, pollKey: string) => {
-  //   if (user && schoolName) {
-  //     setVoteBeingCasted(true);
-  //     const castedVote = promiseTimeout(5000, pollVote(schoolName, index, pollKey, user.uid));
-  //     castedVote.then((res) => {
-  //       if (res) {
-  //         Toast.success("Vote casted!");
-  //         const pollsLoaded = promiseTimeout(10000, getYourPolls(schoolName, user.uid));
-  //         pollsLoaded.then((res) => {
-  //           setYourPolls(res);
-  //           setVoteBeingCasted(false);
-  //         });
-  //         pollsLoaded.catch((err) => {
-  //           Toast.error(err + "\n Check your internet connection");
-  //         });
-  //       } else {
-  //         Toast.error("Something went wrong when casting vote");
-  //       }
-  //     });
-  //     castedVote.catch((err) => {
-  //       Toast.error(err + '\n Check your internet connection');
-  //     });
-  //   } else {
-  //     Toast.error("Something went wrong when casting a vote");
-  //   }
-  // }
-
-  // const isEnterPressed = (key: any) => {
-  //   if (key === "Enter") {
-  //     Keyboard.hide().then(() => { handleCommentSubmit(commentModalPost.key) });
-  //   }
-  // };
+  };
 
   async function loadLogout() {
     const { value } = await Dialog.confirm({
@@ -826,10 +730,6 @@ function User() {
     let currMajor = e.detail.value;
     setEditableUserMajor(currMajor);
   };
-  const handleSpotifyChange = (e: any) => {
-    let curr = e.detail.value;
-    setSpotifyTextSearch(curr);
-  }
   const handleUserTiktokChange = (e: any) => {
     let curr = e.detail.value;
     setEditableUserTiktok(curr);
@@ -902,7 +802,6 @@ function User() {
     }
     setSpotifyTextSearch("");
     setSpotifyLoading(true);
-    // setSpotifyModal(true);
     spotifySearch(spotifyTextSearch).then((res: any) => {
       setSpotifyResults(res);
       setSpotifyLoading(false);
@@ -911,11 +810,7 @@ function User() {
       Toast.error("Something went wrong");
       setSpotifyLoading(false);
     });
-  }
-
-  // const handleSpotifySelection = () => {
-
-  // };
+  };
 
   const isEnterPressed = (key: string) => {
     if (key === "Enter") {
@@ -2098,7 +1993,7 @@ function User() {
                                 <IonList lines="full" mode="ios">
                                   {poll.options.map((option: any, index: number) => {
                                     return (
-                                      <IonItem style={{ fontWeight: "bold" }} disabled={true}  key={option.text + index.toString()} mode="ios" lines="full">
+                                      <IonItem style={{ fontWeight: "bold" }} disabled={true} key={option.text + index.toString()} mode="ios" lines="full">
                                         {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
                                       </IonItem>
                                     )

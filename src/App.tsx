@@ -1,3 +1,4 @@
+/* React */
 import { Route, Redirect } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import {
@@ -41,6 +42,7 @@ import Register from "./pages/Register";
 import RedirectComponent from "./pages/RedirectComponent";
 import { UserProfile } from "./pages/UserProfile";
 import UIContext from "./my-context";
+
 import { ToastProvider, useToast } from "@agney/ir-toast";
 import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import AccountCircleTwoToneIcon from "@mui/icons-material/AccountCircleTwoTone";

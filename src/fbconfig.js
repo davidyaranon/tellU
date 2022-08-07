@@ -1,44 +1,21 @@
 import "firebase/compat/firestore";
 
 import {
-  addDoc,
-  arrayRemove,
-  arrayUnion,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  getFirestore,
-  increment,
-  limit,
-  orderBy,
-  query,
-  runTransaction,
-  serverTimestamp,
-  setDoc,
-  startAfter,
-  updateDoc,
-  where,
-  writeBatch,
+  addDoc, arrayRemove, arrayUnion, collection, deleteDoc,
+  doc, getDoc, getDocs, getFirestore, increment, limit, orderBy,
+  query, runTransaction, serverTimestamp, setDoc, startAfter,
+  updateDoc, where, writeBatch,
 } from "firebase/firestore";
 import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  indexedDBLocalPersistence,
-  initializeAuth,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile,
+  createUserWithEmailAndPassword, getAuth, indexedDBLocalPersistence,
+  initializeAuth, sendPasswordResetEmail, signInWithEmailAndPassword,
+  signOut, updateProfile,
 } from "firebase/auth";
 import {
-  get,
-  getDatabase,
+  get, getDatabase,
   increment as rtdbIncrement,
   runTransaction as rtdbRunTransaction,
-  set,
-  update
+  set, update
 } from "firebase/database";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -312,13 +289,11 @@ export async function checkUsernameUniqueness(userName) {
       const snap = await getDocs(q);
       if (snap.empty) {
         return true;
-      } else {
-        return false;
       }
     } else {
       console.log("auth not defined");
-      return false;
     }
+    return false;
   } catch (err) {
     console.log(err);
     return false;
@@ -1334,15 +1309,15 @@ export const getCommunityWidgets = async (schoolName) => {
 
 export const sendReportStatus = async (message, schoolName, postKey) => {
   try {
-    if(auth && auth.currentUser){
+    if (auth && auth.currentUser) {
       const userUid = auth.currentUser.uid;
       const userEmail = auth.currentUser.email;
       sendEmailOnReport({ // cloud function to send email to me when someone reports a post
-        key: postKey, 
-        reporterUid : userUid,
-        reporterEmail : userEmail,
+        key: postKey,
+        reporterUid: userUid,
+        reporterEmail: userEmail,
         schoolName: schoolName,
-        message : message
+        message: message
       }).catch((err) => {
         console.log(err);
       });

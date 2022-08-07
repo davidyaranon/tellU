@@ -1,10 +1,10 @@
-// React imports
+/* React imports */
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
 import { useSelector } from "react-redux";
 
-// Ionic/Capacitor
+/* Ionic/Capacitor */
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
@@ -12,18 +12,19 @@ import {
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 
-// Firebase
+/* Firebase */
 import auth, { db } from "../fbconfig";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 
-// CSS + Other components
+/* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
 import { getColor } from "../components/functions";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 
-// Global variables
+/* Global variables */
 const customAlertOptions = { header: 'Pin Filter', subHeader: 'Select which type of pin to display on the map' };
+
 const zoomControlButtonsStyle = {
   width: "50px",
   height: '50px',
@@ -41,6 +42,7 @@ const zoomControlButtonsStyle = {
   outline: 'none',
   textIndent: '-7.5px',
 }; // +/- buttons that appear on map can be styled here
+
 const schoolInfo = {
   "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 15.75],
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],

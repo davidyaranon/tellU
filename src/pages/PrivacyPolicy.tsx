@@ -1,21 +1,35 @@
-import { IonButton, IonButtons, IonCard, IonCardContent, IonCardTitle, IonContent, IonIcon, IonPage, IonToolbar } from "@ionic/react";
-import { chevronBackOutline } from "ionicons/icons";
 import React from "react";
-import { useHistory } from "react-router";
-
+import {
+  IonButton, IonButtons, IonCard, IonCardContent,
+  IonCardTitle, IonContent, IonIcon, IonPage, IonToolbar,
+  RouterDirection, useIonRouter
+} from "@ionic/react";
+import { chevronBackOutline } from "ionicons/icons";
 
 export const PrivacyPolicy = () => {
-  const history = useHistory();
+  const router = useIonRouter();
+
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
+  const navigateBack = () => {
+    if (router.canGoBack()) {
+      router.goBack();
+    } else {
+      dynamicNavigate("user", "forward");
+    }
+  }
 
   return (
     <IonPage>
       <IonContent>
         <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
-            <IonButtons style={{marginLeft: "-2.5%"}}>
+            <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
                 onClick={() => {
-                  history.replace("/user");
+                  navigateBack();
                 }}
               >
                 <IonIcon icon={chevronBackOutline} ></IonIcon> Back

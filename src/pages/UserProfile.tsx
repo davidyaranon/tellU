@@ -1,57 +1,47 @@
+/* Ionic + React */
+import FadeIn from "react-fade-in";
+import Linkify from 'linkify-react';
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getLikes } from '../fbconfig';
-import RoomIcon from '@mui/icons-material/Room';
-import {
-  getUserPosts,
-  getNextBatchUserPosts,
-  getUserData,
-  storage,
-  upVote,
-  downVote,
-} from "../fbconfig";
 import { useHistory } from "react-router";
-import { useToast } from "@agney/ir-toast";
 import {
-  IonAvatar,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCol,
-  IonContent,
-  IonFab,
-  IonIcon,
-  IonImg,
-  IonInfiniteScroll,
-  IonInfiniteScrollContent,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonNote,
-  IonPage,
-  IonRow,
-  IonSkeletonText,
-  IonText,
-  IonToolbar,
-  RouterDirection,
-  useIonRouter,
+  IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonCol,
+  IonContent, IonFab, IonIcon, IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
+  IonItem, IonLabel, IonList, IonNote, IonPage, IonRow, IonSkeletonText,
+  IonText, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
-import FadeIn from "react-fade-in";
+import {
+  chatbubblesOutline, chevronBackOutline, logoInstagram,
+  logoSnapchat, logoTiktok, shareOutline
+} from "ionicons/icons";
+
+/* Firebase */
+import auth,
+{
+  getLikes, getUserPosts, getNextBatchUserPosts,
+  getUserData, storage, upVote, downVote
+}
+  from '../fbconfig';
 import { ref, getDownloadURL } from "firebase/storage";
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
-import "../App.css";
-import TimeAgo from "javascript-time-ago";
+
+/* mui Icons */
+import RoomIcon from '@mui/icons-material/Room';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { chatbubblesOutline, chevronBackOutline, logoInstagram, logoSnapchat, logoTiktok, shareOutline } from "ionicons/icons";
 import ForumIcon from '@mui/icons-material/Forum';
-import { getColor, timeout } from '../components/functions';
-import Linkify from 'linkify-react';
+
+/* Capacitor */
 import { Share } from "@capacitor/share";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
+
+/* CSS + Other Components */
+import "../App.css";
+import TimeAgo from "javascript-time-ago";
+import { useToast } from "@agney/ir-toast";
+import { getColor, timeout } from '../components/functions';
 
 interface MatchParams {
   uid: string;

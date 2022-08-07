@@ -1,28 +1,28 @@
-// React imports
+/* React imports */
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useHistory } from 'react-router';
 import { useDispatch, useSelector } from "react-redux"
 import { setUserState } from '../redux/actions';
 
-// Ionic/Capacitor
+/* Ionic/Capacitor */
 import { FCM } from '@capacitor-community/fcm';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading } from '@ionic/react';
 
-// Firebase 
+/* Firebase */
 import { doc, getDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import auth, { promiseTimeout, logInWithEmailAndPassword, db } from '../fbconfig';
 
-// CSS + Other components
+/* CSS + Other components */
 import '../App.css';
 import Header from "./Header";
 import UIContext from '../my-context';
 import { useToast } from "@agney/ir-toast";
 
-// global variables
+/* global variables */
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Native }
 
 const LandingPage: React.FC = () => {

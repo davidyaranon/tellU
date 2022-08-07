@@ -347,8 +347,6 @@ ion-toolbar {
   height: 22.5vh;
 }
 
-
-
 ion-app {
   margin-top: constant(safe-area-inset-top);
   margin-top: env(safe-area-inset-top);

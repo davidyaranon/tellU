@@ -50,7 +50,7 @@ import tellU_Community from '../images/tellU_Community.png';
 import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
 import { Keyboard } from "@capacitor/keyboard";
 import feedback from '../images/feedback.png';
-import { Navigation, Pagination } from "swiper";
+import { Navigation } from "swiper";
 import clouds_96 from '../images/icons8-clouds-96.png';
 import sun_96 from '../images/icons8-sun-96.png';
 import partly_cloudy from '../images/icons8-partly-cloudy-day-96.png';
@@ -60,7 +60,6 @@ import stormy from '../images/icons8-storm-96.png';
 import nighttime from '../images/icons8-moon-phase-96.png';
 import "../App.css";
 import "swiper/css";
-import "swiper/css/pagination";
 import { Device } from '@capacitor/device';
 import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -184,7 +183,7 @@ function Community() {
     tempPollArr.pop();
     setPollOptions(tempPollArr);
   }
-
+  
   const submitPoll = async () => {
     if (!user) {
       Toast.error("Something went wrong, try signing out");
@@ -411,8 +410,7 @@ function Community() {
                       <Swiper slidesPerView={2}
                         spaceBetween={-10}
                         loopFillGroupWithBlank={true}
-                        modules={[Navigation, Pagination]}
-                        pagination={{ type: 'bullets' }}
+                        modules={[Navigation]}
                         navigation={true}
                         loop={true}
                       >
