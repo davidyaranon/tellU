@@ -13,14 +13,14 @@ import { upVote, downVote, promiseTimeout } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-IonAvatar, IonButton, IonButtons, IonCard,
-IonCardContent, IonCol, IonContent, IonFab,
-IonFabButton, IonGrid, IonHeader, IonIcon,
-IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
-IonItem, IonLabel, IonList, IonModal,
-IonNote, IonPage, IonRow, IonSkeletonText,
-IonSpinner, IonText, IonTextarea,
-IonTitle, IonToolbar, RouterDirection, useIonRouter
+  IonAvatar, IonButton, IonButtons, IonCard,
+  IonCardContent, IonCol, IonContent, IonFab,
+  IonFabButton, IonGrid, IonHeader, IonIcon,
+  IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
+  IonItem, IonLabel, IonList, IonModal,
+  IonNote, IonPage, IonRow, IonSkeletonText,
+  IonSpinner, IonText, IonTextarea,
+  IonTitle, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { v4 as uuidv4 } from "uuid";
@@ -50,8 +50,6 @@ const resizeOptions: KeyboardResizeOptions = {
 const defaultResizeOptions: KeyboardResizeOptions = {
   mode: KeyboardResize.Native,
 }
-
-// const pattern = /\B@[a-z0-9_-]+/gi; // used for tagged users using @
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
@@ -219,7 +217,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               res.comments[i].commentAmount = 0;
             }
           }
-          const tempCommentsArr: any[] = comments?.concat(res.comments);        
+          const tempCommentsArr: any[] = comments?.concat(res.comments);
           setComments(tempCommentsArr);
           setLastKey(res.lastKey);
           event.target.complete();
@@ -496,7 +494,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         <IonModal isOpen={showReportModal} mode="ios">
           <IonHeader translucent>
             <IonToolbar mode="ios">
-              {/* <IonTitle>Report</IonTitle> */}
               <IonButtons slot="start">
                 <IonButton
                   mode="ios"
@@ -532,6 +529,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButtons>
             </IonToolbar>
           </IonHeader>
+
           <IonContent>
             <IonCard mode="ios">
               <IonTextarea

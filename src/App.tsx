@@ -9,7 +9,7 @@ import {
   setupIonicReact,
   IonTabBar,
   IonTabButton,
-  IonBadge,
+  // IonBadge,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -94,7 +94,7 @@ const RoutingSystem: React.FunctionComponent = () => {
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <IonReactRouter history={historyInstance}>
         <AppUrlListener></AppUrlListener>
-        <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab) }}>
+        <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab); }}>
           <IonRouterOutlet>
             <Route path="/:tab(home)" exact={true}>
               {" "}
@@ -133,12 +133,12 @@ const RoutingSystem: React.FunctionComponent = () => {
                 style={selectedTab === 'home' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
-            <IonTabButton tab="community" href="/community">
+            {/* <IonTabButton tab="community" href="/community">
               <GroupsIcon
                 fontSize="medium"
                 style={selectedTab === 'community' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
-            </IonTabButton>
+            </IonTabButton> */}
             <IonTabButton tab="maps" href="/maps">
               <MapIcon
                 fontSize="medium"
@@ -151,7 +151,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                 style={selectedTab === 'user' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
               {/* {true &&  */}
-              <IonBadge color="danger">{5}</IonBadge>
+              {/* <IonBadge color="danger">{5}</IonBadge> */}
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
@@ -165,7 +165,8 @@ const App: React.FunctionComponent = () => {
   const dispatch = useDispatch();
   const [busy, setBusy] = useState<boolean>(true);
   const darkMode = localStorage.getItem("darkMode") || "false";
-  
+  const condition = navigator.onLine;
+
   const addListeners = async () => {
     await PushNotifications.addListener('registration', token => {
       console.info('Registration token: ', token.value);
@@ -196,63 +197,76 @@ const App: React.FunctionComponent = () => {
   };
 
   useEffect(() => {
-    if (darkMode == "false") {
-      dispatch(setDarkMode(false));
-      Keyboard.setStyle(keyStyleOptionsLight);
-      StatusBar.setStyle({ style: Style.Light });
-    } else {
-      document.body.classList.toggle("dark");
-      dispatch(setDarkMode(true));
-      Keyboard.setStyle(keyStyleOptionsDark);
-      StatusBar.setStyle({ style: Style.Dark });
-    }
-    const hasLoadedUser = promiseTimeout(30000, getCurrentUser());
-    hasLoadedUser.then((user: any) => {
-      if (user) {
-        let school = "";
-        const userRef = doc(db, "userData", user.uid);
-        const docLoaded = promiseTimeout(30000, getDoc(userRef));
-        docLoaded.then((userSnap) => {
-          if (userSnap.exists()) {
-            school = userSnap.data().school;
+    if (condition) {
+      fetch('https://www.google.com/', {
+        mode: 'no-cors',
+      }).then(() => {
+        console.log('online');
+        if (darkMode == "false") {
+          dispatch(setDarkMode(false));
+          Keyboard.setStyle(keyStyleOptionsLight);
+          StatusBar.setStyle({ style: Style.Light });
+        } else {
+          document.body.classList.toggle("dark");
+          dispatch(setDarkMode(true));
+          Keyboard.setStyle(keyStyleOptionsDark);
+          StatusBar.setStyle({ style: Style.Dark });
+        }
+        const hasLoadedUser = promiseTimeout(30000, getCurrentUser());
+        hasLoadedUser.then((user: any) => {
+          if (user) {
+            let school = "";
+            const userRef = doc(db, "userData", user.uid);
+            const docLoaded = promiseTimeout(30000, getDoc(userRef));
+            docLoaded.then((userSnap) => {
+              if (userSnap.exists()) {
+                school = userSnap.data().school;
+              }
+              // const userData : any = {
+              //   displayName : user.displayName,
+              //   email : user.email,
+              //   school : school,
+              // }
+              // localStorage.setItem("userData", JSON.stringify(userData));
+              dispatch(setUserState(user.displayName, user.email, false, school));
+              setBusy(false);
+              window.history.replaceState({}, "", "/home");
+            });
+            docLoaded.catch((err) => {
+              console.log(err);
+              // const userData : any = {
+              //   displayName : user.displayName,
+              //   email : user.email,
+              //   school : school,
+              // }
+              // localStorage.setItem("userData", JSON.stringify(userData));
+              dispatch(setUserState(user.displayName, user.email, false, ""));
+              setBusy(false);
+              window.history.replaceState({}, "", "/home");
+            });
+          } else {
+            setBusy(false);
+            window.history.replaceState({}, "", "/landing-page");
+            registerNotifications().then(() => {
+              addListeners();
+            });
           }
-          // const userData : any = {
-          //   displayName : user.displayName,
-          //   email : user.email,
-          //   school : school,
-          // }
-          // localStorage.setItem("userData", JSON.stringify(userData));
-          dispatch(setUserState(user.displayName, user.email, false, school));
-          setBusy(false);
-          window.history.replaceState({}, "", "/home");
+          // return () => PushNotifications.removeAllListeners().then(() => console.log("listeners removed"));
         });
-        docLoaded.catch((err) => {
+        hasLoadedUser.catch((err: any) => {
           console.log(err);
-          // const userData : any = {
-          //   displayName : user.displayName,
-          //   email : user.email,
-          //   school : school,
-          // }
-          // localStorage.setItem("userData", JSON.stringify(userData));
-          dispatch(setUserState(user.displayName, user.email, false, ""));
+          Toast.error(err);
           setBusy(false);
-          window.history.replaceState({}, "", "/home");
+          window.history.replaceState({}, "", "/landing-page");
         });
-      } else {
-        setBusy(false);
-        window.history.replaceState({}, "", "/landing-page");
-        registerNotifications().then(() => {
-          addListeners();
-        });
-      }
-      // return () => PushNotifications.removeAllListeners().then(() => console.log("listeners removed"));
-    });
-    hasLoadedUser.catch((err: any) => {
-      console.log(err);
-      Toast.error(err);
-      setBusy(false);
-      window.history.replaceState({}, "", "/landing-page");
-    });
+      }).catch(() => {
+        console.log('offline');
+        setBusy(true);
+      });
+    } else {
+      console.log('offline');
+      setBusy(true);
+    }
   }, []);
 
   return (

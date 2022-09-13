@@ -274,7 +274,11 @@ function Maps() {
           </IonSelect>
         </div>
 
-        <Map center={center} zoom={zoom} animate={true} attributionPrefix={false}
+        <Map 
+          center={center} 
+          zoom={zoom} 
+          animate={true} 
+          attributionPrefix={false}
           onBoundsChanged={({ center, zoom }) => {
             setCenter(center);
             setZoom(zoom);
@@ -347,7 +351,8 @@ function Maps() {
             </Overlay>
           ) : null}
           <IonFab horizontal="start" vertical="bottom" >
-            <p style={{ fontSize: "1em", color: "black", fontWeight: "bold" }}>{schoolName}</p>
+            <p style={schoolName === 'Cal Poly Humboldt' ? { fontSize: "1em", color: "#006F4D", fontWeight: "bold" } : 
+              { fontSize: "1em", color: "black", fontWeight: "bold" }}>{schoolName}</p>
           </IonFab>
           <IonFab horizontal="end" vertical="bottom">
             <IonButton color="light" onClick={setDefaultCenter} mode="ios">

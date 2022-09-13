@@ -41,6 +41,7 @@ const Register: React.FC = () => {
   const [passwordSignUp, setPasswordSignUp] = useState("");
   const [passwordSignUpCopy, setPasswordSignUpCopy] = useState("");
   const [schoolName, setSchoolName] = useState("");
+  const [schoolEmailEnding, setSchoolEmailEnding] = useState("");
   const [user, loading] = useAuthState(auth);
   const [busy, setBusy] = useState<boolean>(false);
   const [passwordModal, setPasswordModal] = useState<boolean>(false);
@@ -59,6 +60,16 @@ const Register: React.FC = () => {
    */
   async function register() {
     setBusy(true);
+    if (schoolName) {
+      var idx = emailSignUp.lastIndexOf('@');
+      if (idx > -1 && (emailSignUp.slice(idx + 1)).toLowerCase() === schoolEmailEnding) {
+        // console.log('school matches email');
+      } else {
+        Toast.error('Use your university\'s email address!');
+        setBusy(false);
+        return;
+      }
+    }
     if (
       userNameSignUp.trim() === "" ||
       passwordSignUp.trim() === "" ||
@@ -86,6 +97,7 @@ const Register: React.FC = () => {
     } else if (!numbers.test(passwordSignUp)) {
       Toast.error("Password must contain at least 1 number");
     } else {
+      
       const isUnique = await checkUsernameUniqueness(userNameSignUp.trim());
       if (!isUnique) {
         Toast.error("Username has been taken!");
@@ -151,7 +163,7 @@ const Register: React.FC = () => {
       setShowTabs(true);
     };
   }, [user, loading]);
-  
+
 
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {
@@ -257,8 +269,34 @@ const Register: React.FC = () => {
             <IonSelect
               value={schoolName}
               placeholder="University of California"
-              onIonChange={(e: any) => { setSchoolName(e.detail.value) }}
+              onIonChange={(e: any) => { 
+                setSchoolName(e.detail.value); 
+                if(e.detail.value == 'Cal Poly Humboldt') {
+                  setSchoolEmailEnding('humboldt.edu');
+                } else if(e.detail.value == 'UC Berkeley') {
+                  setSchoolEmailEnding('berkeley.edu');
+                } else if (e.detail.value == 'UC Davis') {
+                  setSchoolEmailEnding('ucdavis.edu');
+                } else if (e.detail.value == 'UC Irvine') {
+                  setSchoolEmailEnding('uci.edu');
+                } else if (e.detail.value == 'UCLA') {
+                  setSchoolEmailEnding('ucla.edu');
+                } else if (e.detail.value == 'UC Merced') {
+                  setSchoolEmailEnding('ucmerced.edu');
+                } else if (e.detail.value == 'UC Riverside') {
+                  setSchoolEmailEnding('ucr.edu');
+                } else if (e.detail.value == 'UC San Diego') {
+                  setSchoolEmailEnding('ucsd.edu');
+                } else if (e.detail.value == 'UCSF') {
+                  setSchoolEmailEnding('ucsf.edu');
+                } else if (e.detail.value == 'UC Santa Barbara') {
+                  setSchoolEmailEnding('ucsb.edu');
+                } else if (e.detail.value == 'UC Santa Cruz') {
+                  setSchoolEmailEnding('ucsc.edu');
+                }
+              }}
             >
+              <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
               <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
               <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
               <IonSelectOption value="UC Irvine">UC Irvine</IonSelectOption>
@@ -269,7 +307,6 @@ const Register: React.FC = () => {
               <IonSelectOption value="UCSF">UCSF</IonSelectOption>
               <IonSelectOption value="UC Santa Barbara">UC Santa Barbara</IonSelectOption>
               <IonSelectOption value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
-              <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
               <IonSelectOption disabled={true} value="More schools to come!...">More schools to come!...</IonSelectOption>
             </IonSelect>
           </IonItem>

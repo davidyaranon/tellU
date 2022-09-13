@@ -20,6 +20,8 @@ const sf = ['37.76894651194302', '-122.42952641954717'];
 const sb = ['34.41302723872466', '-119.84749752183016'];
 const sc = ['36.994178678923895', '-122.05892788857311'];
 
+const newsApiKey = 'b947f1af178b4d7d97f82c5d20eeaf69';
+
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
@@ -298,6 +300,10 @@ exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((con
   });
 
 });
+
+exports.getNews = functions.pubsub.schedule('every hour').onRun((context) => {
+
+})
 
 exports.deleteImage = functions.https.onCall(async (data, context) => {
   if (!context.auth) {

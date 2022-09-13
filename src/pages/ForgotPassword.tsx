@@ -32,7 +32,7 @@ const ForgotPassword = () => {
     }
     sendPasswordReset(email).then((res) => {
       if(res) {
-        Toast.success("Email sent!");
+        Toast.success("Email sent! (Check your spam folder)");
         setEmail("");
         timeout(1500).then(() => {
           setButtonDisabled(false);

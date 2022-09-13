@@ -14,6 +14,17 @@ class Header extends Component<any, any>{
   render() {
     const dark : boolean = this.props.darkMode;
     const zoom : number = this.props.zoom;
+    let schoolStyle = {};
+    if(this.props.schoolName === 'Cal Poly Humboldt') {
+      schoolStyle = {
+        fontWeight : "bold", 
+        // color: "#006F4D"
+      }
+    } else {
+      schoolStyle = {
+        fontWeight : "bold"
+      }
+    }
     if (dark) {
       return (
         <div style={{ width: "100%" }}>
@@ -27,7 +38,7 @@ class Header extends Component<any, any>{
                 style={{ zoom: zoom }}
               />
             {/* </IconButton> */}
-            <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
+            <p style={schoolStyle}>{this.props.schoolName}</p>
           </IonHeader>
         </div>
       )
@@ -44,7 +55,7 @@ class Header extends Component<any, any>{
                 style={{ zoom: zoom }}
               />
             {/* </IconButton> */}
-            <p style={{ fontWeight: "bold" }}>{this.props.schoolName}</p>
+            <p style={schoolStyle}>{this.props.schoolName}</p>
           </IonHeader>
         </div>
       )

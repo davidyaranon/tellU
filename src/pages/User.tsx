@@ -1435,7 +1435,6 @@ function User() {
                     </IonRow>
                   </IonGrid>
                   <IonButton
-                    disabled={false}
                     onClick={handleEdit}
                     color="medium"
                     slot="end"
@@ -1467,7 +1466,6 @@ function User() {
                     </IonRow>
                   </IonGrid>
                   <IonButton
-                    disabled={false}
                     onClick={handleUserEdit}
                     color="medium"
                     slot="end"
@@ -1476,17 +1474,6 @@ function User() {
                     Edit{" "}
                   </IonButton>
                 </IonItem>
-                {/* <IonItem mode="ios">
-                  <p>Profile Picture</p>
-                  <IonButton
-                    onClick={handleProfilePictureEdit}
-                    color="medium"
-                    slot="end"
-                  >
-                    {" "}
-                    Edit{" "}
-                  </IonButton>
-                </IonItem> */}
                 <IonItem mode="ios">
                   <IonGrid>
                     <IonRow>

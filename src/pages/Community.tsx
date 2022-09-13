@@ -1,8 +1,5 @@
 import {
-  IonContent,
-  IonHeader,
-  IonCardTitle,
-  IonCard,
+  IonContent, IonHeader, IonCardTitle, IonCard,
   IonModal,
   IonList,
   IonItem,
@@ -183,7 +180,7 @@ function Community() {
     tempPollArr.pop();
     setPollOptions(tempPollArr);
   }
-  
+
   const submitPoll = async () => {
     if (!user) {
       Toast.error("Something went wrong, try signing out");
@@ -385,13 +382,13 @@ function Community() {
           </IonContent>
         </IonModal>
 
-        <FadeIn>
+        {/* <FadeIn>
           <IonHeader mode='ios'>
             <div>
               <img draggable={false} src={darkModeToggled ? tellU_Community_Dark : tellU_Community} alt="tellU Community Logo" />
             </div>
           </IonHeader>
-        </FadeIn>
+        </FadeIn> */}
 
         {
           !polls ? (
@@ -405,7 +402,7 @@ function Community() {
               </FadeIn>
               {weatherData ? (
                 <>
-                  <FadeIn>
+                  {/* <FadeIn>
                     <div>
                       <Swiper slidesPerView={2}
                         spaceBetween={-10}
@@ -528,9 +525,9 @@ function Community() {
                                     <IonCol></IonCol>
                                   </IonRow>
                                   <IonRow class="ion-align-items-center">
-                                    {/* <IonCol> */}
+                                    {/* <IonCol> 
                                     <img className="ion-spinner-image" src={feedback} alt="Megaphone PNG icon" />
-                                    {/* </IonCol> */}
+                                    {/* </IonCol>
                                   </IonRow >
                                   <IonRow class="ion-align-items-center">
                                     <IonCol></IonCol>
@@ -589,8 +586,8 @@ function Community() {
                         }
                       </Swiper>
                     </div>
-                  </FadeIn>
-                  <div style={{ marginTop: "-5%" }}>
+                  </FadeIn> */}
+                  {/* <div style={{ marginTop: "-5%" }}>
                     <FadeIn>
                       <IonCard mode="ios" style={{
                         opacity: "100%",
@@ -638,11 +635,11 @@ function Community() {
                         </IonCardContent>
                       </IonCard>
                     </FadeIn>
-                  </div>
+                  </div> */}
                 </>
               ) : (
                 <>
-                  <FadeIn transitionDuration={500}>
+                  {/* <FadeIn transitionDuration={500}>
                     <Swiper slidesPerView={2} spaceBetween={-15} loopFillGroupWithBlank={true} modules={[Navigation]} navigation={true} loop={true}>
                       <SwiperSlide>
                         <IonCard mode="ios" style={{
@@ -654,19 +651,19 @@ function Community() {
                           <IonCardContent style={{ minHeight: "22.5vh" }}>
                             <IonFab horizontal="start" vertical="top">
                               <IonNote style={{ color: "white" }}>
-                                {/* {weatherData.location} */}
+                                {weatherData.location}
                               </IonNote>
                               <IonCardTitle style={{ color: "white" }}>
-                                {/* {weatherData.temp}{'\u00b0'} */}
+                                {weatherData.temp}{'\u00b0'}
                               </IonCardTitle>
                             </IonFab>
                             <IonFab horizontal="start" vertical="bottom">
                               <IonNote style={{ color: "white", fontSize: "0.90em" }}>
-                                {/* {weatherData.text} */}
+                                {weatherData.text} 
                               </IonNote>
                               <p></p>
                               <IonNote style={{ color: "white", fontSize: "0.90em" }}>
-                                {/* Humidity: {weatherData.humidity}% */}
+                                 Humidity: {weatherData.humidity}%
                               </IonNote>
                             </IonFab>
                           </IonCardContent>
@@ -678,7 +675,7 @@ function Community() {
                             <IonFab horizontal="start" vertical="top">
                               <IonCardTitle>
                                 <IonText color='medium'>
-                                  {/* Feedback */}
+                                  {/* Feedback
                                 </IonText>
                               </IonCardTitle>
                             </IonFab>
@@ -690,7 +687,7 @@ function Community() {
                                 </IonRow>
                                 <IonRow class="ion-align-items-center">
                                   <IonCol>
-                                    {/* <IonImg src={feedback} /> */}
+                                    <IonImg src={feedback} /> 
                                   </IonCol>
                                 </IonRow >
                                 <IonRow class="ion-align-items-center">
@@ -699,14 +696,14 @@ function Community() {
                               </IonGrid>
                             </div>
                             <IonFab horizontal="start" vertical="bottom">
-                              {/* <p>Let us know what you think of the app</p> */}
+                              {/* <p>Let us know what you think of the app</p> 
                             </IonFab>
                           </IonCardContent>
                         </IonCard>
                       </SwiperSlide>
                     </Swiper>
-                  </FadeIn>
-                  <div style={{ marginTop: "-5%" }}>
+                  </FadeIn> */}
+                  {/* <div style={{ marginTop: "-5%" }}>
                     <FadeIn>
                       <IonCard mode="ios" style={{
                         opacity: "100%",
@@ -731,12 +728,12 @@ function Community() {
                         </IonCardContent>
                       </IonCard>
                     </FadeIn>
-                  </div>
+                  </div> */}
                 </>
               )}
-              <FadeIn>
+              {/* <FadeIn>
                 <hr style={{ width: "95%" }} />
-              </FadeIn>
+              </FadeIn> */}
               <FadeIn transitionDuration={500}>
                 {/* <IonHeader class="ion-no-border"> */}
                 <IonToolbar mode="ios">
