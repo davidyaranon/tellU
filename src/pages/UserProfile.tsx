@@ -207,11 +207,13 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             setUserTiktok(res.tiktok);
             if ("spotify" in res) {
               setSpotifyUri(res.spotify);
+              // console.log(res.spotify);
             }
             getUserPosts(schoolName, uid)
               .then(async (res: any) => {
                 // first batch
                 if (res.userPosts.length > 0) {
+                  console.log(res.userPosts);
                   for (let i = 0; i < res.userPosts.length; ++i) {
                     const data = await getLikes(res.userPosts[i].key);
                     if (data) {
@@ -226,6 +228,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                   }
                   setUserPosts(res.userPosts);
                   setLastKey(res.lastKey);
+                  setNoPostsYet(false);
                 } else {
                   setNoPostsYet(true);
                 }
@@ -392,7 +395,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       {userInstagram && userInstagram.length > 0 ? (
                         <>
                           <IonCol size="12">
-                            <IonText style={{ fontSize: "0.75em" }}>
+                            <IonText onClick={() => {window.open("https://instagram.com/" + userInstagram);}} style={{ fontSize: "0.75em" }}>
                               <IonIcon style={{}} icon={logoInstagram} />
                               {'\u00A0'}
                               {userInstagram}
@@ -403,7 +406,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       {userTiktok && userTiktok.length > 0 ? (
                         <>
                           <IonCol size="12">
-                            <IonText style={{ fontSize: "0.75em" }}>
+                            <IonText onClick={() => {window.open('https://www.tiktok.com/@' + userTiktok + '?lang=en');}} style={{ fontSize: "0.75em" }}>
                               <IonIcon style={{}} icon={logoTiktok} />
                               {'\u00A0'}
                               {userTiktok}
@@ -424,7 +427,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                           </IonRow>
                         </>
                       ) : null}
-                      {spotifyUri && spotifyUri.length > 0 &&
+                      {spotifyUri &&
                         <FadeIn delay={250} transitionDuration={750}>
                           <br />
                           {darkModeToggled ?
@@ -877,12 +880,44 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                         </IonRow>
                       </>
                     ) : null}
+
+                    {spotifyUri &&
+                      <FadeIn delay={250} transitionDuration={750}>
+                        <br />
+                        {darkModeToggled ?
+                          <iframe
+                            id="iframe1"
+                            title="darkmode_iframe_spotify"
+                            style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
+                            className='Music'
+                            onLoad={() => { setIframeLoader(false); }}
+                            src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
+                            seamless={true}
+                            loading="eager"
+                          >
+                          </iframe>
+                          :
+                          <iframe
+                            id="iframetwo"
+                            title="lightmode_iframe_spotify"
+                            style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#f2f1f1", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { backgroundColor: "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
+                            className='Music'
+                            onLoad={() => { setIframeLoader(false); }}
+                            src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
+                            seamless={true}
+                            loading="eager"
+                          >
+                          </iframe>
+                        }
+
+                      </FadeIn>
+                    }
                   </div>
                 )}
               </IonCardContent>
             </IonCard>
             <div style={{ textAlign: "center", alignItems: "center" }}>
-              <IonLabel>Posts</IonLabel>
+              <IonLabel>No Posts Yet!</IonLabel>
             </div>
           </FadeIn>
 

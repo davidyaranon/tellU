@@ -277,7 +277,7 @@ function Home() {
     if (lastKey && user) {
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
       tempPosts.then(async (res: any) => {
-        if (res.allPosts && res.allPosts != []) {
+        if (res.allPosts) {
           for (let i = 0; i < res.allPosts.length; ++i) {
             const data = await getLikes(res.allPosts[i].key);
             if (data) {
@@ -313,7 +313,7 @@ function Home() {
     // setBusy(true);
     let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
     tempPosts.then(async (res: any) => {
-      if (res.allPosts && res.allPosts != []) {
+      if (res.allPosts) {
         for (let i = 0; i < res.allPosts.length; ++i) {
           const data = await getLikes(res.allPosts[i].key);
           if (data) {

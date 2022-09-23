@@ -148,7 +148,7 @@ const LandingPage: React.FC = () => {
           ></IonLoading>
         ) : (null)}
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header darkMode={darkModeToggled} zoom={1.2} />
+          <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
         </IonHeader>
 
         <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>

@@ -24,15 +24,18 @@ import {
   IonRefresherContent,
   IonRefresher,
   RefresherEventDetail,
+  IonImg,
+  IonAvatar,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
+import Header, { ionHeaderStyle } from "./Header";
 import {
   addCircleOutline,
   chevronBackOutline,
   phonePortraitOutline
 } from "ionicons/icons";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { db, getCommunityWidgets, getPolls, getWeatherData, pollVote, submitPollFb } from "../fbconfig";
+import auth, { db, getCommunityWidgets, getNewsArticles, getPolls, getWeatherData, pollVote, submitPollFb, testNewsUpdates } from "../fbconfig";
 import {
   promiseTimeout,
 } from "../fbconfig";
@@ -55,11 +58,14 @@ import sunny_rainy from '../images/icons8-rain-cloud-96.png';
 import rainy from '../images/icons8-rain-96.png';
 import stormy from '../images/icons8-storm-96.png';
 import nighttime from '../images/icons8-moon-phase-96.png';
+import placeholder from '../images/placeholder.jpeg';
+import humboldt_trees from '../images/humboldt_trees.png';
 import "../App.css";
 import "swiper/css";
 import { Device } from '@capacitor/device';
 import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import TimeAgo from "javascript-time-ago";
 
 interface PollAnswer {
   text: string,
@@ -72,6 +78,7 @@ function Community() {
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const { setShowTabs } = React.useContext(UIContext);
+  const timeAgo = new TimeAgo("en-US");
 
   const [busy, setBusy] = useState<boolean>(false);
   const [pollSubmitting, setPollSubmitting] = useState<boolean>(false);
@@ -90,29 +97,42 @@ function Community() {
     ]); // start with three options, include more programatically
   const [polls, setPolls] = useState<any[]>([]);
   const [communityWidgets, setCommunityWidgets] = useState<any[]>([]);
+  const [articles, setArticles] = useState<any>();
+
+  const getDate = (timestamp: any) => {
+    if (!timestamp) {
+      return '';
+    }
+    const time = new Date(timestamp);
+    // console.log(timeAgo.format(time));
+    return timeAgo.format(time);
+  };
 
   const doRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     setBusy(true);
     if (!user) {
       history.replace("/landing-page");
     } else {
-      Device.getBatteryInfo().then((res) => {
-        if (res && res.batteryLevel) {
-          setBatteryPercentage(Math.round(res.batteryLevel * 100));
-        }
-      })
+      // Device.getBatteryInfo().then((res) => {
+      //   if (res && res.batteryLevel) {
+      //     setBatteryPercentage(Math.round(res.batteryLevel * 100));
+      //   }
+      // })
       if (schoolName) {
-        getWeatherData(schoolName).then((data: any) => {
-          if (data && data.icon.toString().includes('day')) {
-            setIsDay(true);
-          } else {
-            setIsDay(false);
-          }
-          setWeatherData(data);
-        }).catch((err) => {
-          console.log(err);
-          Toast.error('Unable to load weather data');
-        });
+        getNewsArticles(schoolName).then((res) => {
+          setArticles(res);
+        })
+        // getWeatherData(schoolName).then((data: any) => {
+        //   if (data && data.icon.toString().includes('day')) {
+        //     setIsDay(true);
+        //   } else {
+        //     setIsDay(false);
+        //   }
+        //   setWeatherData(data);
+        // }).catch((err) => {
+        //   console.log(err);
+        //   Toast.error('Unable to load weather data');
+        // });
         const pollsLoaded = promiseTimeout(10000, getPolls(schoolName));
         pollsLoaded.then((res) => {
           setPolls(res);
@@ -208,6 +228,7 @@ function Community() {
         pollsLoaded.then((res) => {
           setPolls(res);
           Toast.success("Poll submitted");
+          setPollModalOpen(false);
         });
         pollsLoaded.catch((err) => {
           Toast.error(err + "\n Check your internet connection");
@@ -280,6 +301,12 @@ function Community() {
   }, []);
 
   useEffect(() => {
+    getNewsArticles(schoolName).then((res) => {
+      if (res) {
+        setArticles(res);
+        // console.log(res);
+      }
+    });
     const unsub = onSnapshot(doc(db, "schoolWeather", schoolName.replace(/\s+/g, "")), (doc) => {
       const data = doc.data();
       if (data) {
@@ -299,6 +326,12 @@ function Community() {
   return (
     <IonPage>
       <IonContent>
+
+        <FadeIn transitionDuration={1500}>
+          <IonHeader class="ion-no-border" style={ionHeaderStyle} >
+            <Header darkMode={darkModeToggled} schoolName={schoolName} zoom={1} />
+          </IonHeader>
+        </FadeIn>
 
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
           <IonRefresherContent
@@ -397,9 +430,7 @@ function Community() {
             </>
           ) : (
             <>
-              <FadeIn>
-                <hr style={{ width: "95%" }} />
-              </FadeIn>
+
               {weatherData ? (
                 <>
                   {/* <FadeIn>
@@ -735,6 +766,122 @@ function Community() {
                 <hr style={{ width: "95%" }} />
               </FadeIn> */}
               <FadeIn transitionDuration={500}>
+
+                {/* </IonHeader> */}
+                {/* <IonButton onClick={() => {testNewsUpdates();}}>TEST</IonButton> */}
+
+                <hr style={{ width: "95%" }} />
+
+                {/* <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.25em" }}> */}
+                <IonRow>
+                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>
+                    Local News
+                  </IonCardTitle>
+                  <IonImg style={{ width: "1.5em" }} src={humboldt_trees} />
+                </IonRow>
+                {/* </IonCardTitle> */}
+
+
+                {articles && "schoolArticles" in articles && articles.schoolArticles && Object.keys(articles).length > 0 ? (
+                  <>
+                    {articles.schoolArticles.map((article: any, index: number) => {
+                      return (
+                        // <>
+                        <IonCard key={`article_` + index} mode="ios" style={{ height: "10vh" }}
+                          onClick={() => {
+                            if ("url" in article && article.url.length > 0) {
+                              window.open(article.url);
+                            }
+                          }}>
+                          <IonCardContent style={{ width: "100vw", height: "10%" }}>
+                            <IonGrid>
+                              <IonRow style={{ height: "10%" }}>
+                                <IonFab vertical="center" horizontal="start">
+                                  <IonCol style={{ right: "15%" }}>
+                                    {article && "image" in article && article.image.length > 0 ?
+                                      <img style={{ borderRadius: "15px" }} src={article.image} />
+                                      :
+                                      <img style={{ borderRadius: "15px", width: "100px", height: "100px" }} src={placeholder} />
+                                    }
+                                  </IonCol>
+                                </IonFab>
+                                <IonCol size="3"></IonCol>
+                                <IonCol style={{ top: "-3vh" }} size="9">
+                                  <IonRow>
+                                    {article.title.length > 90 ?
+                                      <p>{article.title.substring(0, 90) + '...'}</p>
+                                      : <p>{article.title}</p>
+                                    }
+                                  </IonRow>
+                                  <IonRow>
+                                    <IonNote style={{ fontSize: "0.75em" }}>{getDate(article.date)}</IonNote>
+                                  </IonRow>
+                                </IonCol>
+                              </IonRow>
+                            </IonGrid>
+                          </IonCardContent>
+                        </IonCard>
+                        // </>
+                      )
+                    })}
+                  </>
+                ) : (
+                  <>
+                    <p style={{ textAlign: "center" }}>Unable to load news</p>
+                  </>
+                )}
+
+                {articles && "localArticles" in articles && articles.localArticles && Object.keys(articles).length > 0 ? (
+                  <>
+                    {articles.localArticles.map((article: any, index: number) => {
+                      return (
+                        // <>
+                        <IonCard key={`article_` + index} mode="ios" style={{ height: "10vh" }}
+                          onClick={() => {
+                            if ("url" in article && article.url.length > 0) {
+                              window.open(article.url);
+                            }
+                          }}>
+                          <IonCardContent style={{ width: "100vw", height: "10%" }}>
+                            <IonGrid>
+                              <IonRow style={{ height: "10%" }}>
+                                <IonFab vertical="center" horizontal="start">
+                                  <IonCol style={{ right: "15%" }}>
+                                    {article && "image" in article && article.image.length > 0 ?
+                                      <img style={{ borderRadius: "15px" }} src={article.image} />
+                                      :
+                                      <img style={{ borderRadius: "15px", width: "100px", height: "100px" }} src={placeholder} />
+                                    }
+                                  </IonCol>
+                                </IonFab>
+                                <IonCol size="3"></IonCol>
+                                <IonCol style={{ top: "-3vh" }} size="9">
+                                  <IonRow>
+                                    {article.title.length > 90 ?
+                                      <p>{article.title.substring(0, 90) + '...'}</p>
+                                      : <p>{article.title}</p>
+                                    }
+                                  </IonRow>
+                                  <IonRow>
+                                    <IonNote style={{ fontSize: "0.75em" }}>{getDate(article.date)}</IonNote>
+                                  </IonRow>
+                                </IonCol>
+                              </IonRow>
+                            </IonGrid>
+                          </IonCardContent>
+                        </IonCard>
+                        // </>
+                      )
+                    })}
+                  </>
+                ) : (
+                  <>
+                  </>
+                )}
+
+                <FadeIn>
+                  <hr style={{ width: "95%" }} />
+                </FadeIn>
                 {/* <IonHeader class="ion-no-border"> */}
                 <IonToolbar mode="ios">
                   {/* <p style={{fontWeight:"bold" ,fontSize: "1em", marginLeft: "5vw"}}>Polls</p>
@@ -744,8 +891,6 @@ function Community() {
                     <IonIcon icon={addCircleOutline} /> {'\u00A0'}New Poll
                   </IonButton>
                 </IonToolbar>
-                {/* </IonHeader> */}
-
                 {user && polls && polls.length > 0 ? (
                   <>
                     <Swiper slidesPerView={1.1} spaceBetween={-15}>
@@ -811,3 +956,283 @@ export default React.memo(Community);
 //   'Health effects will be immediately felt by sensitive groups and should avoid outdoor activity. Healthy individuals are likely to experience difficulty breathing and throat irritation; consider staying indoors and rescheduling outdoor activities.',
 //   'Any exposure to the air, even for a few minutes, can lead to serious health effects on everybody. Avoid outdoor activities.',
 // ]
+
+
+// const humboldt = ['40.875130691835615', '-124.07857275064532'];
+// const berkeley = ['37.87196553251828', '-122.25832234237413'];
+// const davis = ['38.53906813693881', '-121.7519863294826'];
+// const irvine = ['33.642798513829284', '-117.83657521816043'];
+// const ucla = ['34.068060230062784', '-118.4450963024167'];
+// const merced = ['37.362385', '-120.427911'];
+// const riverside = ['33.972975051337265', '-117.32790083366463'];
+// const sanDiego = ['32.8791284369769', '-117.2368054903461'];
+// const sf = ['37.76894651194302', '-122.42952641954717'];
+// const sb = ['34.41302723872466', '-119.84749752183016'];
+// const sc = ['36.994178678923895', '-122.05892788857311'];
+// exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((context) => {
+//   const fetchFromURLhumboldt = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + humboldt[0] + ',' + humboldt[1] + '&aqi=yes')).json();
+//   const fetchFromURLberkeley = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + berkeley[0] + ',' + berkeley[1] + '&aqi=yes')).json();
+//   const fetchFromURLmerced = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + merced[0] + ',' + merced[1] + '&aqi=yes')).json();
+//   const fetchFromURLdavis = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + davis[0] + ',' + davis[1] + '&aqi=yes')).json();
+//   const fetchFromURLirvine = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + irvine[0] + ',' + irvine[1] + '&aqi=yes')).json();
+//   const fetchFromURLucla = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + ucla[0] + ',' + ucla[1] + '&aqi=yes')).json();
+//   const fetchFromURLriverside = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + riverside[0] + ',' + riverside[1] + '&aqi=yes')).json();
+//   const fetchFromURLsanDiego = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sanDiego[0] + ',' + sanDiego[1] + '&aqi=yes')).json();
+//   const fetchFromURLsf = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sf[0] + ',' + sf[1] + '&aqi=yes')).json();
+//   const fetchFromURLsb = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sb[0] + ',' + sb[1] + '&aqi=yes')).json();
+//   const fetchFromURLsc = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sc[0] + ',' + sc[1] + '&aqi=yes')).json();
+
+//   fetchFromURLhumboldt().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('CalPolyHumboldt').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: weatherData.location,
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLberkeley().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCBerkeley').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: 'Berkeley',
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLmerced().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCMerced').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: 'Merced',
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLdavis().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCDavis').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: 'Davis'
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLirvine().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCIrvine').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: 'Irvine',
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLucla().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: 'Westwood Village'
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCLA').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: weatherData.location,
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLriverside().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCRiverside').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: 'Riverside',
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLsanDiego().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCSanDiego').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: 'San Diego'
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLsf().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: data.location.name,
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCSF').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: weatherData.location,
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLsb().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: 'Santa Barbara',
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCSantaBarbara').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: weatherData.location,
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+//   fetchFromURLsc().then((data) => {
+//     const weatherData = {
+//       epaIndex: data.current.air_quality["us-epa-index"],
+//       icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
+//       text: data.current.condition.text,
+//       feelsLike: data.current.feelslike_f,
+//       temp: data.current.temp_f,
+//       humidity: data.current.humidity,
+//       location: 'Santa Cruz'
+//     };
+//     admin.firestore().collection('schoolWeather').doc('UCSantaCruz').update({
+//       feelsLike: weatherData.feelsLike,
+//       humidity: weatherData.humidity,
+//       icon: weatherData.icon,
+//       index: weatherData.epaIndex,
+//       temp: weatherData.temp,
+//       text: weatherData.text,
+//       location: weatherData.location,
+//     });
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+
+// });

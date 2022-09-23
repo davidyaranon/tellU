@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonRouter,
+  RouterDirection, useIonRouter, IonLoading, IonSpinner, useIonViewDidLeave,
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 
@@ -44,7 +44,7 @@ const zoomControlButtonsStyle = {
 }; // +/- buttons that appear on map can be styled here
 
 const schoolInfo = {
-  "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 15.75],
+  "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 15.74],
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
   "UC Davis": [38.53906813693881, -121.7519863294826, 15],
   "UC Irvine": [33.642798513829284, -117.83657521816043, 14.5],
@@ -76,6 +76,7 @@ function Maps() {
   const [markersCopy, setMarkersCopy] = useState<any[] | null>(null);
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
+  const [pinsLoading, setPinsLoading] = useState<boolean>(false);
 
 
   /**
@@ -129,7 +130,7 @@ function Maps() {
    * certain markers based on a filter
    * chosen by the user
    * 
-   * @param filter {string} the type of marker being displated (GENERAL, BUY/SELL, ALERTS, SIGHTINGS, etc.)
+   * @param filter {string} the type of marker being displayed (GENERAL, BUY/SELL, ALERTS, SIGHTINGS, etc.)
    */
   const updateMarkers = (filter: string) => {
     setMarkerFilter(filter);
@@ -210,8 +211,16 @@ function Maps() {
       }
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
+      setPinsLoading(false);
     }
   };
+
+  /**
+   * Runs on page exit
+   */
+  useIonViewDidLeave(() => {
+    setMarkerFilter("ALL");
+  });
 
   /**
    * Runs on page enter
@@ -243,14 +252,21 @@ function Maps() {
     if (!user) {
       history.replace("/landing-page");
     } else {
+      setPinsLoading(true);
       getSchoolLocation();
     }
   }, [user, schoolName]);
 
 
+
   return (
     <IonPage>
       <IonContent fullscreen={true} className="no-scroll-content">
+        {pinsLoading &&
+          <IonFab horizontal="start" vertical="top">
+            <IonSpinner name="lines"></IonSpinner>
+          </IonFab>
+        }
         <div className="overlaySearch">
           <IonLabel> FILTER: </IonLabel>
           <IonSelect
@@ -274,10 +290,10 @@ function Maps() {
           </IonSelect>
         </div>
 
-        <Map 
-          center={center} 
-          zoom={zoom} 
-          animate={true} 
+        <Map
+          center={center}
+          zoom={zoom}
+          animate={true}
           attributionPrefix={false}
           onBoundsChanged={({ center, zoom }) => {
             setCenter(center);
@@ -291,7 +307,7 @@ function Maps() {
           {markers ? markers.map((marker, index) => {
             return (
               <Marker
-                style={{ opacity: "85%" }}
+                style={{ opacity: "80%" }}
                 color={getColor(marker.postType)}
                 key={marker.key}
                 anchor={[marker.location[0], marker.location[1]]}
@@ -351,7 +367,10 @@ function Maps() {
             </Overlay>
           ) : null}
           <IonFab horizontal="start" vertical="bottom" >
-            <p style={schoolName === 'Cal Poly Humboldt' ? { fontSize: "1em", color: "#006F4D", fontWeight: "bold" } : 
+            <p style={schoolName === 'Cal Poly Humboldt' ? {
+              fontSize: "1em", color: "#006F4D", fontWeight: "bold",
+              textShadow: "#000 0px 0px 0.5px"
+            } :
               { fontSize: "1em", color: "black", fontWeight: "bold" }}>{schoolName}</p>
           </IonFab>
           <IonFab horizontal="end" vertical="bottom">

@@ -193,10 +193,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         }
       });
       onePost.catch((err) => {
-        Toast.error(err);
+        Toast.error("Something went wrong");
       });
     } else {
-      Toast.error("Unable to load message rn");
+      Toast.error("Unable to load post");
     }
   };
 
@@ -269,7 +269,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         setCommentsLoading(false);
       });
       commentsLoaded.catch((err) => {
-        Toast.error(err);
+        Toast.error("Something went wrong");
         setCommentsLoading(false);
       })
     }

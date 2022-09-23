@@ -57,6 +57,91 @@ export const deleteLikesDocFromRtdb = httpsCallable(functions, 'deleteLikesDocFr
 export const deleteCommentsFromDeletedPost = httpsCallable(functions, 'deleteCommentsFromDeletedPost');
 export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 
+export const getNewsArticles = async (schoolName) => {
+  try {
+    if (db) {
+      const newsDocRef = doc(db, "schoolNews", schoolName.replace(/\s+/g, ""));
+      const snap = await getDoc(newsDocRef);
+      if (snap.exists()) {
+        return {
+          schoolArticles : snap.data().schoolArticles,
+          localArticles : snap.data().localArticles
+        }
+      }
+    }
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+export const testNewsUpdates = async () => {
+  const apiKey = '8b14944f22e147c8a9f16104c71461e9';
+  const option = {
+    mode: "cors",
+    headers: {
+      "Ocp-Apim-Subscription-Key": apiKey
+    }
+  };
+  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20County&mkt=en-US', option);
+  const humboldtCountyNews = await res1.json();
+  const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Cal%20Poly%20Humboldt&mkt=en-US', option);
+  const humboldtStateNews = await res2.json();
+
+  console.log(humboldtCountyNews);
+  console.log(humboldtStateNews);
+
+  let articles = [];
+  if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
+    let arrSize = humboldtCountyNews.value.length;
+    if(arrSize > 5) {
+      arrSize = 5;
+    }
+    for (let i = 0; i < arrSize; ++i) {
+      let temp = {};
+      if ("image" in humboldtCountyNews.value[i] && "thumbnail" in humboldtCountyNews.value[i].image && "contentUrl" in humboldtCountyNews.value[i].image.thumbnail) {
+        temp['image'] = humboldtCountyNews.value[i].image.thumbnail.contentUrl;
+      } else {
+        temp['image'] = '';
+      }
+      if("name" in humboldtCountyNews.value[i])
+        temp['title'] = humboldtCountyNews.value[i].name;
+      if("url" in humboldtCountyNews.value[i])
+        temp['url'] = humboldtCountyNews.value[i].url;
+      // temp['info'] = humboldtCountyNews.value[i].description;
+      if("datePublished" in humboldtCountyNews.value[i])
+        temp['date'] = humboldtCountyNews.value[i].datePublished;
+      articles.push(temp);
+    }
+  }
+
+  console.log(articles);
+
+  let schoolArticles = [];
+  if (humboldtStateNews && "value" in humboldtStateNews && Array.isArray(humboldtStateNews.value)) {
+    let arrSize = humboldtStateNews.value.length;
+    if(arrSize > 10){
+      arrSize = 10;
+    }
+    for (let i = 0; i < arrSize; ++i) {
+      let temp = {};
+      if ("image" in humboldtStateNews.value[i] && "thumbnail" in humboldtStateNews.value[i].image && "contentUrl" in humboldtStateNews.value[i].image.thumbnail) {
+        temp['image'] = humboldtStateNews.value[i].image.thumbnail.contentUrl;
+      } else {
+        temp['image'] = '';
+      }
+      if("name" in humboldtStateNews.value[i])
+        temp['title'] = humboldtStateNews.value[i].name;
+      if("url" in humboldtStateNews.value[i])
+        temp['url'] = humboldtStateNews.value[i].url;
+      // temp['info'] = humboldtCountyNews.value[i].description;
+      if("datePublished" in humboldtStateNews.value[i])
+        temp['date'] = humboldtStateNews.value[i].datePublished;
+      schoolArticles.push(temp);
+    }
+  }
+  console.log(schoolArticles);
+}
+
 export const spotifySearch = async (query) => {
   try {
     const res = await fetch('https://accounts.spotify.com/api/token', {

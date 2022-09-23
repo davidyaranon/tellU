@@ -191,7 +191,7 @@ const Register: React.FC = () => {
     <IonPage>
       <IonContent>
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header darkMode={darkModeToggled} zoom={1.2} />
+          <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
         </IonHeader>
 
         <IonLoading
@@ -254,7 +254,7 @@ const Register: React.FC = () => {
 
         <IonList mode="ios" inset={true} className="sign-in-sign-up-list">
           <IonItem class="ion-item-style">
-            <IonLabel position="stacked">Email</IonLabel>
+            <IonLabel position="stacked">School Email</IonLabel>
             <IonInput
               clearInput={true}
               value={emailSignUp}

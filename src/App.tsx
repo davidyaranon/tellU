@@ -46,7 +46,7 @@ import UIContext from "./my-context";
 import { ToastProvider, useToast } from "@agney/ir-toast";
 import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import AccountCircleTwoToneIcon from "@mui/icons-material/AccountCircleTwoTone";
-import GroupsIcon from "@mui/icons-material/Groups";
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
 import { db, getCurrentUser, promiseTimeout } from "./fbconfig";
 import { doc, getDoc } from "firebase/firestore";
@@ -133,12 +133,12 @@ const RoutingSystem: React.FunctionComponent = () => {
                 style={selectedTab === 'home' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
-            {/* <IonTabButton tab="community" href="/community">
-              <GroupsIcon
+            <IonTabButton tab="community" href="/community">
+              <LocalFireDepartmentIcon
                 fontSize="medium"
                 style={selectedTab === 'community' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
               />
-            </IonTabButton> */}
+            </IonTabButton>
             <IonTabButton tab="maps" href="/maps">
               <MapIcon
                 fontSize="medium"

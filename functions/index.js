@@ -8,19 +8,6 @@ const app = admin.initializeApp();
 
 process.env.DEBUG = true;
 
-const humboldt = ['40.875130691835615', '-124.07857275064532'];
-const berkeley = ['37.87196553251828', '-122.25832234237413'];
-const davis = ['38.53906813693881', '-121.7519863294826'];
-const irvine = ['33.642798513829284', '-117.83657521816043'];
-const ucla = ['34.068060230062784', '-118.4450963024167'];
-const merced = ['37.362385', '-120.427911'];
-const riverside = ['33.972975051337265', '-117.32790083366463'];
-const sanDiego = ['32.8791284369769', '-117.2368054903461'];
-const sf = ['37.76894651194302', '-122.42952641954717'];
-const sb = ['34.41302723872466', '-119.84749752183016'];
-const sc = ['36.994178678923895', '-122.05892788857311'];
-
-const newsApiKey = 'b947f1af178b4d7d97f82c5d20eeaf69';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -33,277 +20,129 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-exports.updateWeather = functions.pubsub.schedule('every 15 minutes').onRun((context) => {
-  const fetchFromURLhumboldt = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + humboldt[0] + ',' + humboldt[1] + '&aqi=yes')).json();
-  const fetchFromURLberkeley = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + berkeley[0] + ',' + berkeley[1] + '&aqi=yes')).json();
-  const fetchFromURLmerced = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + merced[0] + ',' + merced[1] + '&aqi=yes')).json();
-  const fetchFromURLdavis = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + davis[0] + ',' + davis[1] + '&aqi=yes')).json();
-  const fetchFromURLirvine = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + irvine[0] + ',' + irvine[1] + '&aqi=yes')).json();
-  const fetchFromURLucla = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + ucla[0] + ',' + ucla[1] + '&aqi=yes')).json();
-  const fetchFromURLriverside = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + riverside[0] + ',' + riverside[1] + '&aqi=yes')).json();
-  const fetchFromURLsanDiego = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sanDiego[0] + ',' + sanDiego[1] + '&aqi=yes')).json();
-  const fetchFromURLsf = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sf[0] + ',' + sf[1] + '&aqi=yes')).json();
-  const fetchFromURLsb = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sb[0] + ',' + sb[1] + '&aqi=yes')).json();
-  const fetchFromURLsc = async () => await (await fetch('http://api.weatherapi.com/v1/current.json?key=4069e69e172d41149ac65458221905&q=' + sc[0] + ',' + sc[1] + '&aqi=yes')).json();
+const apiKey = '8b14944f22e147c8a9f16104c71461e9';
+const option = {
+  mode: "cors",
+  headers: {
+    "Ocp-Apim-Subscription-Key": apiKey
+  }
+};
 
-  fetchFromURLhumboldt().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('CalPolyHumboldt').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: weatherData.location,
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
+exports.updateNews = functions.pubsub.schedule('every 60 minutes').onRun(async (context) => {
+  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20County&mkt=en-US', option);
+  const humboldtCountyNews = await res1.json();
+  const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Cal%20Poly%20Humboldt&mkt=en-US', option);
+  const humboldtStateNews = await res2.json();
+  const res3 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UCLA&mkt=en-US', option);
+  const uclaNews = await res3.json();
+  const res4 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=LA%20County&mkt=en-US', option);
+  const laCountyNews = await res4.json();
 
-  fetchFromURLberkeley().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('UCBerkeley').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: 'Berkeley',
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
+  let uclaArticles = [];
+  if (uclaNews && "value" in uclaNews && Array.isArray(uclaNews.value)) {
+    let arrSize = uclaNews.value.length;
+    if(arrSize > 5){
+      arrSize = 5;
+    }
+    for (let i = 0; i < arrSize; ++i) {
+      let temp = {};
+      if ("image" in uclaNews.value[i] && "thumbnail" in uclaNews.value[i].image && "contentUrl" in uclaNews.value[i].image.thumbnail) {
+        temp['image'] = uclaNews.value[i].image.thumbnail.contentUrl;
+      } else {
+        temp['image'] = '';
+      }
+      if("name" in uclaNews.value[i])
+        temp['title'] = uclaNews.value[i].name;
+      if("url" in uclaNews.value[i])
+        temp['url'] = uclaNews.value[i].url;
+      if("datePublished" in uclaNews.value[i])
+        temp['date'] = uclaNews.value[i].datePublished;
+      uclaArticles.push(temp);
+    }
+  }
 
-  fetchFromURLmerced().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('UCMerced').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: 'Merced',
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
+  let laCountyArticles = [];
+  if (laCountyNews && "value" in laCountyNews && Array.isArray(laCountyNews.value)) {
+    let arrSize = laCountyNews.value.length;
+    if(arrSize > 5){
+      arrSize = 5;
+    }
+    for (let i = 0; i < arrSize; ++i) {
+      let temp = {};
+      if ("image" in laCountyNews.value[i] && "thumbnail" in laCountyNews.value[i].image && "contentUrl" in laCountyNews.value[i].image.thumbnail) {
+        temp['image'] = laCountyNews.value[i].image.thumbnail.contentUrl;
+      } else {
+        temp['image'] = '';
+      }
+      if("name" in laCountyNews.value[i])
+        temp['title'] = laCountyNews.value[i].name;
+      if("url" in laCountyNews.value[i])
+        temp['url'] = laCountyNews.value[i].url;
+      if("datePublished" in laCountyNews.value[i])
+        temp['date'] = laCountyNews.value[i].datePublished;
+      laCountyArticles.push(temp);
+    }
+  }
 
-  fetchFromURLdavis().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('UCDavis').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: 'Davis'
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
+  admin.firestore().collection('schoolNews').doc('UCLA').update({
+    schoolArticles: uclaArticles,
+    localArticles: laCountyArticles
+  }).catch((err) => console.error(err));
 
-  fetchFromURLirvine().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('UCIrvine').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: 'Irvine',
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
+  let articles = [];
+  if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
+    let arrSize = humboldtCountyNews.value.length;
+    if(arrSize > 5){
+      arrSize = 5;
+    }
+    for (let i = 0; i < arrSize; ++i) {
+      let temp = {};
+      if ("image" in humboldtCountyNews.value[i] && "thumbnail" in humboldtCountyNews.value[i].image && "contentUrl" in humboldtCountyNews.value[i].image.thumbnail) {
+        temp['image'] = humboldtCountyNews.value[i].image.thumbnail.contentUrl;
+      } else {
+        temp['image'] = '';
+      }
+      if("name" in humboldtCountyNews.value[i])
+        temp['title'] = humboldtCountyNews.value[i].name;
+      if("url" in humboldtCountyNews.value[i])
+        temp['url'] = humboldtCountyNews.value[i].url;
+      // temp['info'] = humboldtCountyNews.value[i].description;
+      if("datePublished" in humboldtCountyNews.value[i])
+        temp['date'] = humboldtCountyNews.value[i].datePublished;
+      articles.push(temp);
+    }
+  }
 
-  fetchFromURLucla().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: 'Westwood Village'
-    };
-    admin.firestore().collection('schoolWeather').doc('UCLA').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: weatherData.location,
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
+  let schoolArticles = [];
+  if (humboldtStateNews && "value" in humboldtStateNews && Array.isArray(humboldtStateNews.value)) {
+    let arrSize = humboldtStateNews.value.length;
+    if(arrSize > 10){
+      arrSize = 10;
+    }
+    for (let i = 0; i < arrSize; ++i) {
+      let temp = {};
+      if ("image" in humboldtStateNews.value[i] && "thumbnail" in humboldtStateNews.value[i].image && "contentUrl" in humboldtStateNews.value[i].image.thumbnail) {
+        temp['image'] = humboldtStateNews.value[i].image.thumbnail.contentUrl;
+      } else {
+        temp['image'] = '';
+      }
+      if("name" in humboldtStateNews.value[i])
+        temp['title'] = humboldtStateNews.value[i].name;
+      if("url" in humboldtStateNews.value[i])
+        temp['url'] = humboldtStateNews.value[i].url;
+      // temp['info'] = humboldtCountyNews.value[i].description;
+      if("datePublished" in humboldtStateNews.value[i])
+        temp['date'] = humboldtStateNews.value[i].datePublished;
+      schoolArticles.push(temp);
+    }
+  }
 
-  fetchFromURLriverside().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('UCRiverside').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: 'Riverside',
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
-
-  fetchFromURLsanDiego().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('UCSanDiego').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: 'San Diego'
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
-
-  fetchFromURLsf().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: data.location.name,
-    };
-    admin.firestore().collection('schoolWeather').doc('UCSF').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: weatherData.location,
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
-
-  fetchFromURLsb().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: 'Santa Barbara',
-    };
-    admin.firestore().collection('schoolWeather').doc('UCSantaBarbara').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: weatherData.location,
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
-
-  fetchFromURLsc().then((data) => {
-    const weatherData = {
-      epaIndex: data.current.air_quality["us-epa-index"],
-      icon: data.current.condition.icon.replace('//cdn.weatherapi.com/weather/64x64', ''),
-      text: data.current.condition.text,
-      feelsLike: data.current.feelslike_f,
-      temp: data.current.temp_f,
-      humidity: data.current.humidity,
-      location: 'Santa Cruz'
-    };
-    admin.firestore().collection('schoolWeather').doc('UCSantaCruz').update({
-      feelsLike: weatherData.feelsLike,
-      humidity: weatherData.humidity,
-      icon: weatherData.icon,
-      index: weatherData.epaIndex,
-      temp: weatherData.temp,
-      text: weatherData.text,
-      location: weatherData.location,
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
+  admin.firestore().collection('schoolNews').doc('CalPolyHumboldt').update({
+    schoolArticles: schoolArticles,
+    localArticles: articles
+  }).catch((err) => console.error(err));
 
 });
-
-exports.getNews = functions.pubsub.schedule('every hour').onRun((context) => {
-
-})
 
 exports.deleteImage = functions.https.onCall(async (data, context) => {
   if (!context.auth) {

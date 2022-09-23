@@ -108,6 +108,7 @@ function User() {
   const [busy, setBusy] = useState<boolean>(false);
   const contentRef = useRef<HTMLIonContentElement | null>(null);
   const history = useHistory();
+  const [userUid, setUserUid] = useState<string>("");
   const [userBio, setUserBio] = useState<string>("");
   const [userMajor, setUserMajor] = useState<string>("");
   const [userTiktok, setUserTiktok] = useState<string>("");
@@ -804,10 +805,14 @@ function User() {
     setSpotifyLoading(true);
     spotifySearch(spotifyTextSearch).then((res: any) => {
       setSpotifyResults(res);
+      console.log.apply(res);
+      if(res && res.length == 0){
+        Toast.error("No results");
+      }
       setSpotifyLoading(false);
     }).catch((err) => {
       console.log(err);
-      Toast.error("Something went wrong");
+      Toast.error("Unable to get results");
       setSpotifyLoading(false);
     });
   };
@@ -839,6 +844,7 @@ function User() {
       history.replace("/landing-page");
     } else {
       if (!loading && user) {
+        console.log(user);
         // let url = localStorage.getItem("profilePhoto") || "false";
         // if (url == "false") {
         setProfilePhoto(user.photoURL!);
@@ -849,6 +855,7 @@ function User() {
         setEditableEmail(user.email!);
         setUsername(user.displayName!);
         setEditableUsername(user.displayName!);
+        setUserUid(user.uid!);
         setBusy(false);
       }
       return () => { };
@@ -868,7 +875,7 @@ function User() {
     <IonPage>
       <IonContent ref={contentRef} className="no-scroll-content" scrollY={false}>
         {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
-        <IonToolbar mode="ios" style={{ height: "4vh" }}>
+        <IonToolbar mode="ios" style={{ height: "5vh" }}>
           <IonButtons slot="start">
             <IonButton
               // style={{opacity: "40%"}}
@@ -916,7 +923,7 @@ function User() {
           {/* <IonToolbar mode="ios"> */}
           <IonTitle size="small" style={titleStyle}>
             Hello
-            <IonText color="primary">&nbsp;{editableUsername}</IonText>
+            <IonText onClick={() => {dynamicNavigate('about/' + userUid, 'forward');}} color="primary">&nbsp;{editableUsername}</IonText>
           </IonTitle>
           {/* </IonToolbar> */}
         </FadeIn>
