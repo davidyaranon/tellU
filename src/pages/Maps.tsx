@@ -21,9 +21,25 @@ import "../App.css";
 import { useToast } from "@agney/ir-toast";
 import { getColor } from "../components/functions";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
+import schoolOutlineWhite from '../images/school-outline-white.png';
 
-/* Global variables */
-const customAlertOptions = { header: 'Pin Filter', subHeader: 'Select which type of pin to display on the map' };
+const zoomControlButtonsStyleDark = {
+  width: "50px",
+  height: '50px',
+  borderRadius: '1px',
+  boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
+  background: '#2f2f2f',
+  lineHeight: '26px',
+  fontSize: '25PX',
+  fontWeight: '700',
+  color: 'WHITE',
+  marginBottom: '1px',
+  cursor: 'pointer',
+  border: 'none',
+  display: 'block',
+  outline: 'none',
+  textIndent: '-7.5px',
+}
 
 const zoomControlButtonsStyle = {
   width: "50px",
@@ -64,6 +80,7 @@ function Maps() {
   const history = useHistory();
   const router = useIonRouter();
   const schoolName = useSelector((state: any) => state.user.school);
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
 
   // state variables
   const [user, loading, error] = useAuthState(auth);
@@ -77,6 +94,7 @@ function Maps() {
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
   const [pinsLoading, setPinsLoading] = useState<boolean>(false);
+  const [selectOptions, setSelectOptions] = useState<any>({});
 
 
   /**
@@ -254,6 +272,13 @@ function Maps() {
     } else {
       setPinsLoading(true);
       getSchoolLocation();
+      if (schoolName === "Cal Poly Humboldt") {
+        setSelectOptions({
+          cssClass: 'my-custom-interface',
+          header: 'Pin Filters',
+          subHeader: 'Select which type of pin to display on the map'
+        })
+      }
     }
   }, [user, schoolName]);
 
@@ -267,11 +292,13 @@ function Maps() {
             <IonSpinner name="lines"></IonSpinner>
           </IonFab>
         }
-        <div className="overlaySearch">
-          <IonLabel> FILTER: </IonLabel>
+        <div className={darkModeToggled ? "overlaySearchDark" : "overlaySearch"}>
+          <IonLabel color="tertiary"> FILTER: </IonLabel>
           <IonSelect
-            interfaceOptions={customAlertOptions}
+            interface="action-sheet"
+            interfaceOptions={selectOptions}
             okText="Filter"
+            cancelText="Cancel"
             mode="ios"
             value={markerFilter}
             placeholder="Filter: ALL"
@@ -280,9 +307,9 @@ function Maps() {
               updateMarkers(e.detail.value);
             }}
           >
-            <IonSelectOption value="ALL">All</IonSelectOption>
-            <IonSelectOption value="YOURS">Yours</IonSelectOption>
-            <IonSelectOption value="GENERAL">General</IonSelectOption>
+            <IonSelectOption value="ALL" class="all-option">All</IonSelectOption>
+            <IonSelectOption value="YOURS" class="your-option">Yours</IonSelectOption>
+            <IonSelectOption value="GENERAL" className="general-option">General</IonSelectOption>
             <IonSelectOption value="ALERTS">Alerts</IonSelectOption>
             <IonSelectOption value="BUY/SELL">Buy/Sell</IonSelectOption>
             <IonSelectOption value="SIGHTINGS">Sightings</IonSelectOption>
@@ -303,7 +330,7 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={zoomControlButtonsStyle} />
+          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={darkModeToggled ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
           {markers ? markers.map((marker, index) => {
             return (
               <Marker
@@ -374,8 +401,12 @@ function Maps() {
               { fontSize: "1em", color: "black", fontWeight: "bold" }}>{schoolName}</p>
           </IonFab>
           <IonFab horizontal="end" vertical="bottom">
-            <IonButton color="light" onClick={setDefaultCenter} mode="ios">
-              <IonIcon icon={schoolOutline} />
+            <IonButton color={darkModeToggled ? "dark" : "light"} onClick={setDefaultCenter} mode="ios">
+              {darkModeToggled ?
+                <img style={{width : "20px"}} src={schoolOutlineWhite} />
+                :
+                <IonIcon icon={schoolOutline} />
+              }
             </IonButton>
           </IonFab>
         </Map>

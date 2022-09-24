@@ -5,9 +5,11 @@ import {
   RouterDirection, useIonRouter
 } from "@ionic/react";
 import { chevronBackOutline } from "ionicons/icons";
+import { useSelector } from "react-redux";
 
 export const PrivacyPolicy = () => {
   const router = useIonRouter();
+  const schoolName = useSelector((state: any) => state.user.school);
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -28,6 +30,7 @@ export const PrivacyPolicy = () => {
           <IonToolbar mode="ios">
             <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
+                color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                 onClick={() => {
                   navigateBack();
                 }}

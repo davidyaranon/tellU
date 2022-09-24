@@ -274,6 +274,7 @@ export const logout = async () => {
     return true;
   } catch (err) {
     const theError = err.message.toString();
+    window.location.reload();
     return theError;
   }
 };
@@ -351,6 +352,8 @@ export const addMessage = async (
             'null': true
           },
           commentAmount: 0,
+        }).catch((err) => {
+          console.log(err);
         });
 
         return "true";
@@ -447,7 +450,7 @@ export async function getAllPosts(schoolName) {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(300));
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(50));
       const querySnapshot = await getDocs(q);
       const allPosts = [];
       const docs = querySnapshot.docs;

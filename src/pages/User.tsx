@@ -41,8 +41,8 @@ import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
-cameraReverseOutline, chevronBackOutline, logoInstagram,
-logoSnapchat, logoTiktok, moon
+  cameraReverseOutline, chevronBackOutline, logoInstagram,
+  logoSnapchat, logoTiktok, moon
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
@@ -68,6 +68,7 @@ import UIContext from "../my-context";
 import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProfilePhoto from "./ProfilePhoto";
+import Linkify from "linkify-react";
 
 const titleStyle = {
   fontSize: "1.4em",
@@ -806,7 +807,7 @@ function User() {
     spotifySearch(spotifyTextSearch).then((res: any) => {
       setSpotifyResults(res);
       console.log.apply(res);
-      if(res && res.length == 0){
+      if (res && res.length == 0) {
         Toast.error("No results");
       }
       setSpotifyLoading(false);
@@ -844,7 +845,7 @@ function User() {
       history.replace("/landing-page");
     } else {
       if (!loading && user) {
-        console.log(user);
+        // console.log(user);
         // let url = localStorage.getItem("profilePhoto") || "false";
         // if (url == "false") {
         setProfilePhoto(user.photoURL!);
@@ -891,6 +892,7 @@ function User() {
           </IonButtons>
           <IonButtons slot="end">
             <IonButton
+              color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
               onClick={() => {
                 dynamicNavigate("privacy-policy", "forward");
                 // history.push("/privacy-policy");
@@ -923,7 +925,7 @@ function User() {
           {/* <IonToolbar mode="ios"> */}
           <IonTitle size="small" style={titleStyle}>
             Hello
-            <IonText onClick={() => {dynamicNavigate('about/' + userUid, 'forward');}} color="primary">&nbsp;{editableUsername}</IonText>
+            <IonText color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} onClick={() => { dynamicNavigate('about/' + userUid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
           </IonTitle>
           {/* </IonToolbar> */}
         </FadeIn>
@@ -944,6 +946,7 @@ function User() {
             <IonToolbar mode="ios">
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -967,7 +970,7 @@ function User() {
             </IonToolbar>
             <hr style={{ opacity: "50%", width: "85vw" }}></hr>
             {spotifyLoading &&
-              <IonSpinner color="primary" className='ion-spinner' />
+              <IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  className='ion-spinner' />
             }
             {spotifyResults && spotifyResults.length > 0 &&
               <>
@@ -996,6 +999,7 @@ function User() {
               <IonToolbar mode="ios" >
                 <IonButtons style={{ marginLeft: "-2.5%" }}>
                   <IonButton
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                     mode="ios"
                     onClick={() => {
                       Keyboard.hide().then(() => {
@@ -1027,6 +1031,7 @@ function User() {
                 </IonButtons>
                 <IonButtons slot="end">
                   <IonButton
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                     disabled={!aboutEdit}
                     slot="end"
                     mode="ios"
@@ -1045,7 +1050,7 @@ function User() {
                   rows={4}
                   mode="ios"
                   id="bio"
-                  color="primary"
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                   maxlength={150}
                   value={editableUserBio}
                   onIonChange={(e: any) => {
@@ -1061,7 +1066,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="major"
-                  color="primary"
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserMajor}
                   onIonChange={(e: any) => {
@@ -1077,7 +1082,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
-                  color="primary"
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserSnapchat}
                   onIonChange={(e: any) => {
@@ -1093,7 +1098,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
-                  color="primary"
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserInstagram}
                   onIonChange={(e: any) => {
@@ -1109,7 +1114,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
-                  color="primary"
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserTiktok}
                   onIonChange={(e: any) => {
@@ -1154,7 +1159,7 @@ function User() {
                     </IonCol>
                     <IonCol>
                       <IonButton
-                        color="transparent"
+                        color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                         mode="ios"
                         shape="round"
                         fill="clear"
@@ -1192,6 +1197,7 @@ function User() {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -1206,7 +1212,7 @@ function User() {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color="primary" fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
+                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1230,6 +1236,7 @@ function User() {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -1244,7 +1251,7 @@ function User() {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color="primary" fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
+                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1506,7 +1513,7 @@ function User() {
                   <p> Dark mode </p>
                   <IonIcon color="medium" icon={moon} slot="end" />
                   <IonToggle
-                    color="primary"
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                     slot="end"
                     name="darkMode"
                     checked={darkModeToggled}
@@ -1634,17 +1641,10 @@ function User() {
                                       </p>
                                     ) : null}
                                   </IonFab>
-                                  <br></br>
-                                  <h3
-                                    className="h2-message"
-                                    style={{
-                                      marginLeft: "2%",
-                                      marginTop: "5%",
-                                    }}
-                                  >
-                                    {" "}
-                                    {post.message}{" "}
-                                  </h3>
+                                  <br></br><br/>
+                                  <Linkify tagName="h3" className="h2-message">
+                                    {post.message}
+                                  </Linkify>
 
                                   {post.imgSrc && post.imgSrc.length > 0 ? (
                                     <>
@@ -1721,8 +1721,17 @@ function User() {
                                         index >= 0 &&
                                         index < userPosts.length &&
                                         "likes" in userPosts[index] &&
-                                        userPosts[index].likes[user.uid] !== undefined
+                                        userPosts[index].likes[user.uid] !== undefined &&
+                                        schoolName !== "Cal Poly Humboldt"
                                         ? "primary"
+                                        : userPosts &&
+                                        user &&
+                                        index >= 0 &&
+                                        index < userPosts.length &&
+                                        "likes" in userPosts[index] &&
+                                        userPosts[index].likes[user.uid] !== undefined &&
+                                        schoolName === "Cal Poly Humboldt"
+                                        ? "tertiary"
                                         : "medium"
                                     }
                                     onClick={() => {
@@ -1803,7 +1812,7 @@ function User() {
                   </>
                   {loadingUserPosts ? (
                     <div style={{ textAlign: "center" }}>
-                      <IonSpinner color="primary" />
+                      <IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  />
                     </div>
                   ) : (
                     null
@@ -1931,7 +1940,7 @@ function User() {
                       })}
                     </FadeIn>
                   ) :
-                    <IonSpinner color='primary' className='ion-spinner'></IonSpinner>
+                    <IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  className='ion-spinner'></IonSpinner>
                   }
                   {userLikedPosts && userLikedPosts.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
@@ -2014,7 +2023,7 @@ function User() {
                             </IonCard>
                           )
                         })}
-                      </FadeIn>) : (<IonSpinner color="primary" className="ion-spinner" />)}
+                      </FadeIn>) : (<IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  className="ion-spinner" />)}
                   </div>
                   {yourPolls && yourPolls.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>

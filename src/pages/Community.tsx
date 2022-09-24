@@ -360,6 +360,7 @@ function Community() {
                 <IonToolbar mode="ios">
                   <IonButtons style={{ marginLeft: "-2.5%" }}>
                     <IonButton
+                      color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                       onClick={() => {
                         Keyboard.hide().then(() => {
                           setTimeout(() => setPollModalOpen(false), 100);
@@ -405,7 +406,7 @@ function Community() {
               <div style={{ textAlign: "center", }}>
                 <IonButton color="medium" fill="clear" disabled={pollOptions.length >= 6} onClick={addPollAnswer} mode="ios">Add Option</IonButton>
                 <IonButton fill="clear" color="danger" disabled={pollOptions.length <= 2} onClick={removePollAnswer} mode="ios">Remove Option</IonButton>
-                <IonButton onClick={submitPoll} fill="clear" mode="ios">Submit</IonButton>
+                <IonButton color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} onClick={submitPoll} fill="clear" mode="ios">Submit</IonButton>
               </div>
               <br />
               <div style={{ textAlign: "center", }}>
@@ -426,7 +427,7 @@ function Community() {
         {
           !polls ? (
             <>
-              <IonSpinner className='ion-spinner' color="primary" />
+              <IonSpinner className='ion-spinner' color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} />
             </>
           ) : (
             <>
@@ -906,7 +907,7 @@ function Community() {
                                 <IonList lines="full" mode="ios">
                                   {poll.options.map((option: any, index: number) => {
                                     return (
-                                      <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index ? "primary" : ""} key={index} mode="ios" lines="full">
+                                      <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index && schoolName !== "Cal Poly Humboldt" ? "primary" : poll.voteMap[user!.uid] === index && schoolName === "Cal Poly Humboldt" ? "tertiary" : ""} key={index} mode="ios" lines="full">
                                         <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
                                       </IonItem>
                                     )

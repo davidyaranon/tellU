@@ -461,7 +461,7 @@ function Home() {
           schoolName,
           checkboxSelection
         );
-        if (res == "false") {
+        if (res == "false" || !res) {
           Toast.error("Unable to process message :(");
           setShowProgressBar(false);
           setPrevPostUploading(false);
@@ -499,7 +499,7 @@ function Home() {
     if (schoolName) {
       school = schoolName.toString().replace(/\s+/g, "");
     }
-    const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"), limit(250));
+    const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"), limit(50));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const data: any = [];
       snapshot.docChanges().forEach((change) => {
@@ -553,7 +553,7 @@ function Home() {
         }}>
           {newPostsLoaded && scrollPosition >= 100 ? (
             <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
-              <IonFabButton className="load-new-posts" mode="ios" onClick={() => { setNewPostsLoaded(false); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
+              <IonFabButton color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} className="load-new-posts" mode="ios" onClick={() => { setNewPostsLoaded(false); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
             </IonFab>
           ) : (null)}
 
@@ -594,6 +594,7 @@ function Home() {
                 <IonTitle>Post</IonTitle>
                 <IonButtons slot="start">
                   <IonButton
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                     mode="ios"
                     onClick={() => {
                       setLocationPinModal(false);
@@ -694,7 +695,7 @@ function Home() {
                   handleSendMessage();
                 }}
                 expand="block"
-                color="transparent"
+                color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                 mode="ios"
                 shape="round"
                 fill="outline"
@@ -714,6 +715,7 @@ function Home() {
                 <IonToolbar mode="ios">
                   <IonButtons slot="start">
                     <IonButton
+                      color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                       mode="ios"
                       onClick={() => {
                         setPhoto(null);
@@ -787,14 +789,14 @@ function Home() {
                       textAlign: "center", alignItems: "center",
                       alignSelf: "center", display: "flex", paddingTop: ""
                     }}>
-                      <IonButton onClick={takePicture} mode="ios" color="" fill='clear' disabled={prevPostUploading}>
+                      <IonButton onClick={takePicture} mode="ios" color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} fill='clear' disabled={prevPostUploading}>
                         <IonIcon icon={cameraOutline} />
                       </IonButton>
                       <IonButton
+                        color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
                         onClick={() => {
                           handlePostOptions();
                         }}
-                        color="transparent"
                         mode="ios"
                         shape="round"
                         fill="clear"
@@ -824,6 +826,7 @@ function Home() {
 
           <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{}}>
             <IonFabButton
+              color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
               onClick={() => {
                 setShowModal(true);
               }}
@@ -954,9 +957,11 @@ function Home() {
                       fill="outline"
                       color={
                         user &&
-                          post.likes[user.uid] !== undefined
+                          post.likes[user.uid] !== undefined && schoolName !== "Cal Poly Humboldt"
                           ? "primary"
-                          : "medium"
+                          : user && post.likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt"
+                            ? "tertiary"
+                            : "medium"
                       }
                       onClick={() => {
                         setLikeAnimation(post.key);
@@ -1100,7 +1105,13 @@ function Home() {
   } else {
     return (
       <div className="ion-spinner">
-        <IonSpinner color="primary" />
+        <IonSpinner
+          color={
+            schoolName === "Cal Poly Humboldt"
+              ? "tertiary"
+              : "primary"
+          }
+        />
       </div>
     )
   }

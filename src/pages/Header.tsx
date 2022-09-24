@@ -4,8 +4,10 @@ import { IonHeader } from '@ionic/react';
 import '../App.css';
 import tellU from '../images/tellU.png';
 import tellU_white from '../images/tellU_white.png';
+import tellU_humboldt from '../images/tellU_humboldt.png';
+import tellU_humboldt_black from '../images/tellU_humboldt_black.png';
 
-import schoolImage from '../images/humboldt_school.png'
+import humboldtImage from '../images/humboldt_school.png'
 
 export const ionHeaderStyle = {
   textAlign: 'center',
@@ -39,7 +41,7 @@ class Header extends Component<any, any>{
             width: "100%",
             borderRadius: "10px",
             display: "inline-block",
-            backgroundImage: `url(${schoolImage})`,
+            backgroundImage: `url(${humboldtImage})`,
             backgroundSize: '95vw',
             backgroundPosition: '10% -110%'
           }}>
@@ -48,7 +50,7 @@ class Header extends Component<any, any>{
               <img
                 draggable={false}
                 className='quantum_logo'
-                src={tellU_white}
+                src={tellU_humboldt}
                 alt="QUANTUM"
                 style={{ zoom: zoom }}
               />
@@ -69,7 +71,7 @@ class Header extends Component<any, any>{
             bottom: "10vh",
             borderRadius: "10px",
             display: "inline-block",
-            backgroundImage: `url(${schoolImage})`,
+            backgroundImage: `url(${humboldtImage})`,
             backgroundSize: '95vw',
             backgroundPosition: '10% -110%'
           }}>
@@ -78,7 +80,7 @@ class Header extends Component<any, any>{
               <img
                 draggable={false}
                 className='quantum_logo'
-                src={tellU}
+                src={tellU_humboldt_black}
                 alt="QUANTUM"
                 style={{ zoom: zoom }}
               />
@@ -102,7 +104,7 @@ class Header extends Component<any, any>{
               <img
                 draggable={false}
                 className='quantum_logo'
-                src={tellU}
+                src={tellU_humboldt}
                 alt="QUANTUM"
                 style={{ zoom: zoom }}
               />

@@ -38,6 +38,7 @@ import { Dialog } from '@capacitor/dialog';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import ProfilePhoto from "./ProfilePhoto";
+import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
 
 interface MatchUserPostParams {
   key: string;
@@ -59,6 +60,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
+  const db = getDatabase();
+  const connectedRef = ref(db, ".info/connected");
 
   const [post, setPost] = useState<any | null>(null);
   const [comments, setComments] = useState<any[]>([]);
@@ -89,7 +92,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     if (router.canGoBack()) {
       router.goBack();
     } else {
-      Toast.error("something went wrong");
+      dynamicNavigate('home', 'back');
     }
   }
 
@@ -176,6 +179,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       const onePost = promiseTimeout(7500, getOnePost(postKey, schoolName));
       onePost.then(async (res) => {
         if (res) {
+          onValue(connectedRef, (snap) => {
+            if (snap.val() !== true) {
+              goOffline(db);
+              goOnline(db);
+              setDisabledLikeButtons(-1);
+            }
+          });
           const data = await getLikes(postKey);
           if (data) {
             res.likes = data.likes;
@@ -465,7 +475,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   useEffect(() => {
-    // setShowTabs(false);
+    goOffline(db);
+    goOnline(db);
     setPost(null);
     setPreviousCommentLoading(false);
     setDeleted(false);
@@ -484,6 +495,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       return () => {
         Keyboard.removeAllListeners();
       };
+    } else {
+      if (!user) {
+        console.log("user not a thing");
+      }
+      if (!schoolName) {
+        console.log("no school name");
+      }
     }
   }, [user, schoolName, match.params.key]);
 
@@ -561,6 +579,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             }
             <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
+                color={
+                  schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"
+                }
                 onClick={() => {
                   navigateBack();
                 }}
@@ -569,10 +590,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
-              <IonButton slot="end" onClick={() => { reportPost(); }}>
+              <IonButton color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} slot="end" onClick={() => { reportPost(); }}>
                 <IonIcon icon={alertCircleOutline} />
               </IonButton>
-              <IonButton disabled slot="end" onClick={() => { sharePost(); }}> {/* CHANGE DISABLED VALUE ONCE SHARE LINK IS ACTIVE */}
+              <IonButton color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} disabled slot="end" onClick={() => { sharePost(); }}> {/* CHANGE DISABLED VALUE ONCE SHARE LINK IS ACTIVE */}
                 <IonIcon icon={shareOutline} />
               </IonButton>
             </IonButtons>
@@ -772,10 +793,17 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         post &&
                           user &&
                           "likes" in post &&
-                          post.likes[user.uid] !==
-                          undefined
+                          post.likes[user.uid] !== undefined
+                          && schoolName !== "Cal Poly Humboldt"
                           ? "primary"
-                          : "medium"
+                          :
+                          post &&
+                            user &&
+                            "likes" in post &&
+                            post.likes[user.uid] !== undefined
+                            && schoolName === "Cal Poly Humboldt"
+                            ? "tertiary"
+                            : "medium"
                       }
                       onClick={() => {
                         setLikeAnimation(0);
@@ -1034,7 +1062,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           <br></br><br></br>
         </div>
       </IonContent>
-    </IonPage>
+    </IonPage >
   )
 }
 

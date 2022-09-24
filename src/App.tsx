@@ -1,6 +1,7 @@
 /* React */
 import { Route, Redirect } from "react-router-dom";
 import React, { useState, useEffect } from "react";
+import { App as CapacitorApp } from '@capacitor/app';
 import {
   IonApp,
   IonTabs,
@@ -44,14 +45,14 @@ import { UserProfile } from "./pages/UserProfile";
 import UIContext from "./my-context";
 
 import { ToastProvider, useToast } from "@agney/ir-toast";
-import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
-import AccountCircleTwoToneIcon from "@mui/icons-material/AccountCircleTwoTone";
+import HomeIcon from '@mui/icons-material/Home';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
 import { db, getCurrentUser, promiseTimeout } from "./fbconfig";
 import { doc, getDoc } from "firebase/firestore";
 import { setUserState } from "./redux/actions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setDarkMode } from "./redux/actions";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -62,6 +63,9 @@ import { FCM } from "@capacitor-community/fcm";
 import AppUrlListener from "./pages/AppUrlListener";
 import ForgotPassword from "./pages/ForgotPassword";
 import { createBrowserHistory } from "history";
+import { ConnectionStatus, Network } from '@capacitor/network';
+import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
+import { timeout } from "./components/functions";
 
 // // set up base push notifications with Capacitor
 // await PushNotifications.requestPermissions();
@@ -85,10 +89,13 @@ const keyStyleOptionsLight: KeyboardStyleOptions = {
   style: KeyboardStyle.Light
 }
 
+
 const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
   const [selectedTab, setSelectedTab] = useState<string>("home");
   let tabBarStyle = showTabs ? undefined : { display: "none" };
+  const schoolName = useSelector((state: any) => state.user.school);
+
   useEffect(() => { }, []); // add notif count in useEffect dependency array, utilize redux to save state
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
@@ -128,27 +135,27 @@ const RoutingSystem: React.FunctionComponent = () => {
           </IonRouterOutlet>
           <IonTabBar slot="bottom" style={tabBarStyle}>
             <IonTabButton tab="home" href="/home">
-              <HomeTwoToneIcon
+              <HomeIcon
                 fontSize="medium"
-                style={selectedTab === 'home' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="community" href="/community">
               <LocalFireDepartmentIcon
                 fontSize="medium"
-                style={selectedTab === 'community' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="maps" href="/maps">
               <MapIcon
                 fontSize="medium"
-                style={selectedTab === 'maps' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="user" href="/user">
-              <AccountCircleTwoToneIcon
+              <AccountCircleIcon
                 fontSize="medium"
-                style={selectedTab === 'user' ? { fontSize: "4.25vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
               />
               {/* {true &&  */}
               {/* <IonBadge color="danger">{5}</IonBadge> */}
@@ -166,6 +173,36 @@ const App: React.FunctionComponent = () => {
   const [busy, setBusy] = useState<boolean>(true);
   const darkMode = localStorage.getItem("darkMode") || "false";
   const condition = navigator.onLine;
+  const [appActive, setAppActive] = useState<boolean>(true);
+  const datab = getDatabase();
+  const schoolName = useSelector((state: any) => state.user.school);
+
+  // Network.addListener('networkStatusChange', status => {
+  //   Network.getStatus().then((status: ConnectionStatus) => {
+  //     if (status.connected) {
+  //       Toast.success('Online');
+  //       setAppActive(true);
+  //     } else {
+  //       Toast.warning('Offline');
+  //       setAppActive(false);
+  //     }
+  //   })
+  // });
+
+  CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+    // console.log('App state changed. Is active?', isActive);
+    if (!isActive) {
+      setAppActive(false);
+      timeout(5000).then(() => {
+        if(!appActive){
+          goOffline(datab);
+          goOnline(datab);
+        }
+      })
+    } else {
+      setAppActive(true);
+    }
+  });
 
   const addListeners = async () => {
     await PushNotifications.addListener('registration', token => {
@@ -195,6 +232,22 @@ const App: React.FunctionComponent = () => {
       }
     }
   };
+
+  // useEffect(() => {
+  //   const db = getDatabase();
+  //   const connectedRef = ref(db, ".info/connected");
+  //   onValue(connectedRef, (snap) => {
+  //     timeout(10000).then(() => {
+  //       if (snap.val() === true) {
+  //         console.log('successfully connected');
+  //       }
+  //       else {
+  //         goOffline(db);
+  //         goOnline(db);
+  //       }
+  //     })
+  //   });
+  // }, [])
 
   useEffect(() => {
     if (condition) {
@@ -251,7 +304,7 @@ const App: React.FunctionComponent = () => {
               addListeners();
             });
           }
-          // return () => PushNotifications.removeAllListeners().then(() => console.log("listeners removed"));
+          return () => { Network.removeAllListeners(); PushNotifications.removeAllListeners().then(() => console.log("listeners removed")) }
         });
         hasLoadedUser.catch((err: any) => {
           console.log(err);
@@ -272,7 +325,7 @@ const App: React.FunctionComponent = () => {
   return (
     <IonApp>
       {busy ? (
-        <IonSpinner class="ion-spinner" name="dots" color="primary" />
+        <IonSpinner class="ion-spinner" name="dots" color={schoolName == "Cal Poly Humboldt" ? "tertiary" : "primary"} />
       ) : (
         <RoutingSystem />
       )}

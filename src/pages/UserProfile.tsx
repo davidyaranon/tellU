@@ -25,6 +25,7 @@ import auth,
 }
   from '../fbconfig';
 import { ref, getDownloadURL } from "firebase/storage";
+import { getDatabase, onValue, goOffline, goOnline } from "firebase/database";
 
 /* mui Icons */
 import RoomIcon from '@mui/icons-material/Room';
@@ -73,6 +74,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [iFrameLoader, setIframeLoader] = useState<boolean>(false);
   const Toast = useToast();
   const router = useIonRouter();
+  const db = getDatabase();
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -82,7 +84,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     if (router.canGoBack()) {
       router.goBack();
     } else {
-      Toast.error("something went wrong");
+      dynamicNavigate('home', 'back');
     }
   }
 
@@ -191,6 +193,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   };
 
   useEffect(() => {
+    goOffline(db);
+    goOnline(db);
     setUserPosts([]);
     setBusy(true);
     if (!user) {
@@ -277,6 +281,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     navigateBack();
@@ -289,6 +294,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 {/* <div> */}
                 <span id='trigger-popover'>
                   <IonButton
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                     slot="end"
                     mode="ios"
                     disabled={true}
@@ -299,6 +305,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
                 {/* </div> */}
                 <IonButton
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                   disabled
                   slot="end"
                   mode="ios"
@@ -395,7 +402,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       {userInstagram && userInstagram.length > 0 ? (
                         <>
                           <IonCol size="12">
-                            <IonText onClick={() => {window.open("https://instagram.com/" + userInstagram);}} style={{ fontSize: "0.75em" }}>
+                            <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram); }} style={{ fontSize: "0.75em" }}>
                               <IonIcon style={{}} icon={logoInstagram} />
                               {'\u00A0'}
                               {userInstagram}
@@ -406,7 +413,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       {userTiktok && userTiktok.length > 0 ? (
                         <>
                           <IonCol size="12">
-                            <IonText onClick={() => {window.open('https://www.tiktok.com/@' + userTiktok + '?lang=en');}} style={{ fontSize: "0.75em" }}>
+                            <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
                               <IonIcon style={{}} icon={logoTiktok} />
                               {'\u00A0'}
                               {userTiktok}
@@ -658,9 +665,15 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                               color={
                                 userPosts &&
                                   user &&
-                                  userPosts[index].likes[user.uid] !== undefined
+                                  userPosts[index].likes[user.uid] !== undefined &&
+                                  schoolName !== "Cal Poly Humboldt"
                                   ? "primary"
-                                  : "medium"
+                                  : userPosts &&
+                                    user &&
+                                    userPosts[index].likes[user.uid] !== undefined &&
+                                    schoolName === "Cal Poly Humboldt"
+                                    ? "tertiary"
+                                    : "medium"
                               }
                               onClick={() => {
                                 setLikeAnimation(post.key);
@@ -741,6 +754,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             <IonToolbar mode="ios" >
               <IonButtons slot="start">
                 <IonButton
+                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     navigateBack();
@@ -848,7 +862,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     {userInstagram && userInstagram.length > 0 ? (
                       <>
                         <IonCol size="12">
-                          <IonText style={{ fontSize: "0.75em" }}>
+                          <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram); }} style={{ fontSize: "0.75em" }}>
                             <IonIcon style={{}} icon={logoInstagram} />
                             {'\u00A0'}
                             {userInstagram}
@@ -859,7 +873,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                     {userTiktok && userTiktok.length > 0 ? (
                       <>
                         <IonCol size="12">
-                          <IonText style={{ fontSize: "0.75em" }}>
+                          <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
                             <IonIcon style={{}} icon={logoTiktok} />
                             {'\u00A0'}
                             {userTiktok}
