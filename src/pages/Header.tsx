@@ -104,7 +104,7 @@ class Header extends Component<any, any>{
               <img
                 draggable={false}
                 className='quantum_logo'
-                src={tellU_humboldt}
+                src={tellU_white}
                 alt="QUANTUM"
                 style={{ zoom: zoom }}
               />

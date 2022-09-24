@@ -5,6 +5,24 @@
   transform: translate(-50%, -50%);
 }
 
+/* Action Sheet Interface: set color for the action sheet using its button CSS variables */
+.my-custom-interface .select-interface-option {
+  --button-color-selected: #58c2a2;
+  --cancel-button-color: #58c2a2;
+  --cancel-button-color-selected: #58c2a2;
+  --button-color: #58c2a2;
+  --button-color-hover: #58c2a2;
+}
+
+.my-custom-interface {
+  color: #58c2a2;
+  --button-color-selected: #58c2a2;
+  --cancel-button-color: #58c2a2;
+  --cancel-button-color-selected: #58c2a2;
+  --button-color: #58c2a2;
+  --button-color-hover: #58c2a2;
+}
+
 .vertical-center {
   margin: 0;
   position: absolute;

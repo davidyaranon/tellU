@@ -510,11 +510,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       <IonContent ref={contentRef} scrollEvents>
 
         <IonModal isOpen={showReportModal} mode="ios">
-          <IonHeader translucent>
+          {/* <IonHeader translucent> */}
             <div slot="fixed" style={{ width: "100%" }}>
               <IonToolbar mode="ios">
                 <IonButtons slot="start">
                   <IonButton
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                     mode="ios"
                     onClick={() => {
                       setShowReportModal(false);
@@ -525,6 +526,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 </IonButtons>
                 <IonButtons slot="end">
                   <IonButton
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                     mode="ios"
                     slot="end"
                     onClick={() => {
@@ -548,7 +550,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 </IonButtons>
               </IonToolbar>
             </div>
-          </IonHeader>
+          {/* </IonHeader> */}
 
           <IonContent>
             <IonCard mode="ios">
