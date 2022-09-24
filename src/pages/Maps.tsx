@@ -292,8 +292,13 @@ function Maps() {
             <IonSpinner name="lines"></IonSpinner>
           </IonFab>
         }
-        <div className={darkModeToggled ? "overlaySearchDark" : "overlaySearch"}>
-          <IonLabel color="tertiary"> FILTER: </IonLabel>
+        <div className={
+          darkModeToggled && schoolName === "Cal Poly Humboldt" ? "overlaySearchDark" 
+          : darkModeToggled && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
+          : !darkModeToggled && schoolName === "Cal Poly Humboldt" ? "overlaySearch"
+          : "overlaySearchNotHumboldt"
+          }>
+          <IonLabel color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}> FILTER: </IonLabel>
           <IonSelect
             interface="action-sheet"
             interfaceOptions={selectOptions}

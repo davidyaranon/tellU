@@ -511,41 +511,43 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
         <IonModal isOpen={showReportModal} mode="ios">
           <IonHeader translucent>
-            <IonToolbar mode="ios">
-              <IonButtons slot="start">
-                <IonButton
-                  mode="ios"
-                  onClick={() => {
-                    setShowReportModal(false);
-                  }}
-                >
-                  Cancel
-                </IonButton>
-              </IonButtons>
-              <IonButtons slot="end">
-                <IonButton
-                  mode="ios"
-                  slot="end"
-                  onClick={() => {
-                    if (reportMessage.length <= 0) {
-                      Toast.error("Provide a reason why!");
-                    } else {
-                      setReportMessage("");
-                      sendReportStatus(reportMessage, schoolName, postKey).then((reportStatus) => {
-                        if (reportStatus) {
-                          setShowReportModal(false);
-                          Toast.success("Post reported");
-                        } else {
-                          Toast.error("Something went wrong");
-                        }
-                      });
-                    }
-                  }}
-                >
-                  Report
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
+            <div slot="fixed" style={{ width: "100%" }}>
+              <IonToolbar mode="ios">
+                <IonButtons slot="start">
+                  <IonButton
+                    mode="ios"
+                    onClick={() => {
+                      setShowReportModal(false);
+                    }}
+                  >
+                    Cancel
+                  </IonButton>
+                </IonButtons>
+                <IonButtons slot="end">
+                  <IonButton
+                    mode="ios"
+                    slot="end"
+                    onClick={() => {
+                      if (reportMessage.length <= 0) {
+                        Toast.error("Provide a reason why!");
+                      } else {
+                        setReportMessage("");
+                        sendReportStatus(reportMessage, schoolName, postKey).then((reportStatus) => {
+                          if (reportStatus) {
+                            setShowReportModal(false);
+                            Toast.success("Post reported");
+                          } else {
+                            Toast.error("Something went wrong");
+                          }
+                        });
+                      }
+                    }}
+                  >
+                    Report
+                  </IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </div>
           </IonHeader>
 
           <IonContent>

@@ -14,23 +14,6 @@
   transform: translateY(-50%);
 }
 
-/* Action Sheet Interface: set color for the action sheet using its button CSS variables */
-.my-custom-interface .select-interface-option {
-  --button-color-selected: #58c2a2;
-  --cancel-button-color: #58c2a2;
-  --cancel-button-color-selected: #58c2a2;
-  --button-color: #58c2a2;
-  --button-color-hover: #58c2a2;
-}
-
-.my-custom-interface {
-  color: #58c2a2;
-  --button-color-selected: #58c2a2;
-  --cancel-button-color: #58c2a2;
-  --cancel-button-color-selected: #58c2a2;
-  --button-color: #58c2a2;
-  --button-color-hover: #58c2a2;
-}
 
 .ion-spinner-image {
   position: fixed;
@@ -183,6 +166,22 @@ ion-checkbox {
   margin: 1vw;
 }
 
+.overlaySearchNotHumboldt{
+  position: absolute;
+  z-index: 2;
+  width: 70%;
+  height: 3rem;
+  text-align: center;
+  margin-left: 14%;
+  margin-top: 10pt;
+  color: #61DBFB;
+  background-color: white;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  border-radius: 15px;
+}
+
 .overlaySearch {
   position: absolute;
   z-index: 2;
@@ -193,6 +192,22 @@ ion-checkbox {
   margin-top: 10pt;
   color: #58c2a2;
   background-color: white;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  border-radius: 15px;
+}
+
+.overlaySearchDarkNotHumboldt {
+  position: absolute;
+  z-index: 2;
+  width: 70%;
+  height: 3rem;
+  text-align: center;
+  margin-left: 14%;
+  margin-top: 10pt;
+  color: #61DBFB;
+  background-color: #2f2f2f;
   justify-content: center;
   align-content: center;
   align-items: center;
