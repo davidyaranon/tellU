@@ -573,7 +573,7 @@ function Home() {
             isOpen={gettingLocation}
           ></IonLoading>
 
-          <FadeIn transitionDuration={1500}>
+          <FadeIn transitionDuration={500}>
             <IonHeader class="ion-no-border" style={ionHeaderStyle} >
               <Header darkMode={darkModeToggled} colorPallete={schoolColorToggled} schoolName={schoolName} zoom={1} />
             </IonHeader>

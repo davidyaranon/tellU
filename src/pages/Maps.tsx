@@ -303,6 +303,7 @@ function Maps() {
         }
         <div className={
           darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearchDark" 
+          : darkModeToggled && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "overlaySearchDarkNotHumboldt" 
           : darkModeToggled && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
           : !darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearch"
           : "overlaySearchNotHumboldt"
