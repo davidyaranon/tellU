@@ -9,3 +9,7 @@ export const setNotificationCount = (count: number) => {
 export const setDarkMode = (toggled: boolean) => {
   return { type: 'SET_DARK_MODE', toggled };
 };
+
+export const setSchoolColorPallete = (colorToggled : boolean) => {
+  return { type: 'SET_SCHOOL_COLOR_PALLETE', colorToggled }
+}

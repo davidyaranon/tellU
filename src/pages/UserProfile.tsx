@@ -51,6 +51,7 @@ interface MatchParams {
 export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const uid = match.params.uid;
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const timeAgo = new TimeAgo("en-US");
   const [busy, setBusy] = useState<boolean>(false);
   const [noPostsYet, setNoPostsYet] = useState<boolean>(false);
@@ -281,7 +282,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     navigateBack();
@@ -294,7 +295,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 {/* <div> */}
                 <span id='trigger-popover'>
                   <IonButton
-                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                     slot="end"
                     mode="ios"
                     disabled={true}
@@ -305,7 +306,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
                 {/* </div> */}
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                   disabled
                   slot="end"
                   mode="ios"
@@ -671,8 +672,13 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                                   : userPosts &&
                                     user &&
                                     userPosts[index].likes[user.uid] !== undefined &&
-                                    schoolName === "Cal Poly Humboldt"
+                                    schoolName === "Cal Poly Humboldt" && schoolColorToggled
                                     ? "tertiary"
+                                    : userPosts &&
+                                    user &&
+                                    userPosts[index].likes[user.uid] !== undefined &&
+                                    schoolName === "Cal Poly Humboldt" && !schoolColorToggled
+                                    ? "primary"
                                     : "medium"
                               }
                               onClick={() => {
@@ -754,7 +760,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             <IonToolbar mode="ios" >
               <IonButtons slot="start">
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     navigateBack();

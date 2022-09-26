@@ -42,11 +42,11 @@ import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
   cameraReverseOutline, chevronBackOutline, logoInstagram,
-  logoSnapchat, logoTiktok, moon
+  logoSnapchat, logoTiktok, moon, schoolSharp
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
-import { setDarkMode } from "../redux/actions";
+import { setDarkMode, setSchoolColorPallete } from "../redux/actions";
 import FadeIn from "react-fade-in";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper";
@@ -86,6 +86,7 @@ function User() {
   const dispatch = useDispatch();
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const inputRef = useRef<HTMLIonInputElement>(null);
   const inputUserRef = useRef<HTMLIonInputElement>(null);
   const [username, setUsername] = useState("");
@@ -162,6 +163,11 @@ function User() {
       await StatusBar.setStyle({ style: Style.Light });
     }
   };
+
+  const toggleSchoolColorPallete = async (isChecked : boolean) => {
+    dispatch(setSchoolColorPallete(isChecked));
+    localStorage.setItem("schoolColorPallete", JSON.stringify(isChecked));
+  }
 
   const handleEditAbout = () => {
     if (user && user.uid) {
@@ -892,7 +898,7 @@ function User() {
           </IonButtons>
           <IonButtons slot="end">
             <IonButton
-              color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+              color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
               onClick={() => {
                 dynamicNavigate("privacy-policy", "forward");
                 // history.push("/privacy-policy");
@@ -925,7 +931,7 @@ function User() {
           {/* <IonToolbar mode="ios"> */}
           <IonTitle size="small" style={titleStyle}>
             Hello
-            <IonText color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} onClick={() => { dynamicNavigate('about/' + userUid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
+            <IonText color={schoolName === "Cal Poly Humboldt"  && schoolColorToggled ? "tertiary" : "primary"} onClick={() => { dynamicNavigate('about/' + userUid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
           </IonTitle>
           {/* </IonToolbar> */}
         </FadeIn>
@@ -946,7 +952,7 @@ function User() {
             <IonToolbar mode="ios">
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -970,7 +976,7 @@ function User() {
             </IonToolbar>
             <hr style={{ opacity: "50%", width: "85vw" }}></hr>
             {spotifyLoading &&
-              <IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  className='ion-spinner' />
+              <IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}  className='ion-spinner' />
             }
             {spotifyResults && spotifyResults.length > 0 &&
               <>
@@ -999,7 +1005,7 @@ function User() {
               <IonToolbar mode="ios" >
                 <IonButtons style={{ marginLeft: "-2.5%" }}>
                   <IonButton
-                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                     mode="ios"
                     onClick={() => {
                       Keyboard.hide().then(() => {
@@ -1031,7 +1037,7 @@ function User() {
                 </IonButtons>
                 <IonButtons slot="end">
                   <IonButton
-                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                     disabled={!aboutEdit}
                     slot="end"
                     mode="ios"
@@ -1050,7 +1056,7 @@ function User() {
                   rows={4}
                   mode="ios"
                   id="bio"
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} 
                   maxlength={150}
                   value={editableUserBio}
                   onIonChange={(e: any) => {
@@ -1066,7 +1072,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="major"
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserMajor}
                   onIonChange={(e: any) => {
@@ -1082,7 +1088,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserSnapchat}
                   onIonChange={(e: any) => {
@@ -1098,7 +1104,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserInstagram}
                   onIonChange={(e: any) => {
@@ -1114,7 +1120,7 @@ function User() {
                   style={{ fontWeight: "bold" }}
                   mode="ios"
                   id="bio"
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} 
                   maxlength={50}
                   value={editableUserTiktok}
                   onIonChange={(e: any) => {
@@ -1159,7 +1165,7 @@ function User() {
                     </IonCol>
                     <IonCol>
                       <IonButton
-                        color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                        color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                         mode="ios"
                         shape="round"
                         fill="clear"
@@ -1197,7 +1203,7 @@ function User() {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -1212,7 +1218,7 @@ function User() {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
+                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}  fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1236,7 +1242,7 @@ function User() {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -1251,7 +1257,7 @@ function User() {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
+                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}  fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1513,11 +1519,22 @@ function User() {
                   <p> Dark mode </p>
                   <IonIcon color="medium" icon={moon} slot="end" />
                   <IonToggle
-                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} 
                     slot="end"
                     name="darkMode"
                     checked={darkModeToggled}
                     onIonChange={(e) => toggleDarkModeHandler(e.detail.checked)}
+                  />
+                </IonItem>
+                <IonItem mode="ios">
+                  <p> School Color Pallete </p>
+                  <IonIcon color="medium" icon={schoolSharp} slot="end" />
+                  <IonToggle
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                    slot="end"
+                    name="schoolColorToggle"
+                    checked={schoolColorToggled}
+                    onIonChange={(e) => toggleSchoolColorPallete(e.detail.checked)}
                   />
                 </IonItem>
               </IonList>
@@ -1730,8 +1747,16 @@ function User() {
                                         index < userPosts.length &&
                                         "likes" in userPosts[index] &&
                                         userPosts[index].likes[user.uid] !== undefined &&
-                                        schoolName === "Cal Poly Humboldt"
+                                        schoolName === "Cal Poly Humboldt" && schoolColorToggled
                                         ? "tertiary"
+                                        : userPosts &&
+                                        user &&
+                                        index >= 0 &&
+                                        index < userPosts.length &&
+                                        "likes" in userPosts[index] &&
+                                        userPosts[index].likes[user.uid] !== undefined &&
+                                        schoolName === "Cal Poly Humboldt" && !schoolColorToggled
+                                        ? "primary"
                                         : "medium"
                                     }
                                     onClick={() => {
@@ -1812,7 +1837,7 @@ function User() {
                   </>
                   {loadingUserPosts ? (
                     <div style={{ textAlign: "center" }}>
-                      <IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  />
+                      <IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}  />
                     </div>
                   ) : (
                     null
@@ -1940,7 +1965,7 @@ function User() {
                       })}
                     </FadeIn>
                   ) :
-                    <IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  className='ion-spinner'></IonSpinner>
+                    <IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}  className='ion-spinner'></IonSpinner>
                   }
                   {userLikedPosts && userLikedPosts.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
@@ -2023,7 +2048,7 @@ function User() {
                             </IonCard>
                           )
                         })}
-                      </FadeIn>) : (<IonSpinner color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}  className="ion-spinner" />)}
+                      </FadeIn>) : (<IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}  className="ion-spinner" />)}
                   </div>
                   {yourPolls && yourPolls.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>

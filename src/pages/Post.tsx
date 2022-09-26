@@ -58,6 +58,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const Toast = useToast();
   const router = useIonRouter();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
   const db = getDatabase();
@@ -511,45 +512,45 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
         <IonModal isOpen={showReportModal} mode="ios">
           {/* <IonHeader translucent> */}
-            <div slot="fixed" style={{ width: "100%" }}>
-              <IonToolbar mode="ios">
-                <IonButtons slot="start">
-                  <IonButton
-                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
-                    mode="ios"
-                    onClick={() => {
-                      setShowReportModal(false);
-                    }}
-                  >
-                    Cancel
-                  </IonButton>
-                </IonButtons>
-                <IonButtons slot="end">
-                  <IonButton
-                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
-                    mode="ios"
-                    slot="end"
-                    onClick={() => {
-                      if (reportMessage.length <= 0) {
-                        Toast.error("Provide a reason why!");
-                      } else {
-                        setReportMessage("");
-                        sendReportStatus(reportMessage, schoolName, postKey).then((reportStatus) => {
-                          if (reportStatus) {
-                            setShowReportModal(false);
-                            Toast.success("Post reported");
-                          } else {
-                            Toast.error("Something went wrong");
-                          }
-                        });
-                      }
-                    }}
-                  >
-                    Report
-                  </IonButton>
-                </IonButtons>
-              </IonToolbar>
-            </div>
+          <div slot="fixed" style={{ width: "100%" }}>
+            <IonToolbar mode="ios">
+              <IonButtons slot="start">
+                <IonButton
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  mode="ios"
+                  onClick={() => {
+                    setShowReportModal(false);
+                  }}
+                >
+                  Cancel
+                </IonButton>
+              </IonButtons>
+              <IonButtons slot="end">
+                <IonButton
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  mode="ios"
+                  slot="end"
+                  onClick={() => {
+                    if (reportMessage.length <= 0) {
+                      Toast.error("Provide a reason why!");
+                    } else {
+                      setReportMessage("");
+                      sendReportStatus(reportMessage, schoolName, postKey).then((reportStatus) => {
+                        if (reportStatus) {
+                          setShowReportModal(false);
+                          Toast.success("Post reported");
+                        } else {
+                          Toast.error("Something went wrong");
+                        }
+                      });
+                    }
+                  }}
+                >
+                  Report
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </div>
           {/* </IonHeader> */}
 
           <IonContent>
@@ -584,7 +585,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
                 color={
-                  schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"
+                  schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
                 }
                 onClick={() => {
                   navigateBack();
@@ -594,10 +595,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
-              <IonButton color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} slot="end" onClick={() => { reportPost(); }}>
+              <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={() => { reportPost(); }}>
                 <IonIcon icon={alertCircleOutline} />
               </IonButton>
-              <IonButton color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} disabled slot="end" onClick={() => { sharePost(); }}> {/* CHANGE DISABLED VALUE ONCE SHARE LINK IS ACTIVE */}
+              <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} disabled slot="end" onClick={() => { sharePost(); }}> {/* CHANGE DISABLED VALUE ONCE SHARE LINK IS ACTIVE */}
                 <IonIcon icon={shareOutline} />
               </IonButton>
             </IonButtons>
@@ -805,9 +806,16 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             user &&
                             "likes" in post &&
                             post.likes[user.uid] !== undefined
-                            && schoolName === "Cal Poly Humboldt"
+                            && schoolName === "Cal Poly Humboldt" && schoolColorToggled
                             ? "tertiary"
-                            : "medium"
+                            :
+                            post &&
+                              user &&
+                              "likes" in post &&
+                              post.likes[user.uid] !== undefined
+                              && schoolName === "Cal Poly Humboldt" && !schoolColorToggled
+                              ? "primary"
+                              : "medium"
                       }
                       onClick={() => {
                         setLikeAnimation(0);
@@ -887,7 +895,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 display: "flex",
               }}
             >
-              <IonSpinner color="primary" />
+              <IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} />
             </div>
           ) : (
             <FadeIn>
@@ -971,9 +979,17 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               user &&
                               "likes" in comment &&
                               comment.likes[user.uid] !==
-                              undefined
-                              ? "primary"
-                              : "medium"
+                              undefined &&
+                              schoolName === "Cal Poly Humboldt" && schoolColorToggled ?
+                              "tertiary"
+                              : comment &&
+                                user &&
+                                "likes" in comment &&
+                                comment.likes[user.uid] !==
+                                undefined &&
+                                schoolName === "Cal Poly Humboldt" && !schoolColorToggled ?
+                                "primary"
+                                : "medium"
                           }
                           onClick={() => {
                             setLikeAnimationComments(comment.key);

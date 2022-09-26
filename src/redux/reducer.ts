@@ -4,12 +4,13 @@ const defaultState = {
   hasLoaded: {},
   toggled: {},
   school: {},
+  colorToggled: {},
   notificationCount: 0,
 }
 
 
-export default function reducer(state = defaultState, { type, payload_username, payload_email, hasLoaded, toggled, school, notificationCount }
-  : { type: string, payload_username: any, payload_email: any, hasLoaded: boolean, toggled: boolean, school: string, notificationCount: number, })
+export default function reducer(state = defaultState, { type, payload_username, payload_email, hasLoaded, toggled, colorToggled, school, notificationCount }
+  : { type: string, payload_username: any, payload_email: any, hasLoaded: boolean, toggled: boolean, colorToggled : boolean, school: string, notificationCount: number, })
   : any {
 
   switch (type) {
@@ -21,6 +22,13 @@ export default function reducer(state = defaultState, { type, payload_username, 
           email: payload_email,
           hasLoaded: hasLoaded,
           school: school
+        }
+      }
+    case 'SET_SCHOOL_COLOR_PALLETE':
+      return {
+        ...state, 
+        schoolColorPallete: {
+          colorToggled: colorToggled,
         }
       }
     case 'SET_DARK_MODE':

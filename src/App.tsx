@@ -51,7 +51,7 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
 import { db, getCurrentUser, promiseTimeout } from "./fbconfig";
 import { doc, getDoc } from "firebase/firestore";
-import { setUserState } from "./redux/actions";
+import { setSchoolColorPallete, setUserState } from "./redux/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { setDarkMode } from "./redux/actions";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
@@ -95,6 +95,7 @@ const RoutingSystem: React.FunctionComponent = () => {
   const [selectedTab, setSelectedTab] = useState<string>("home");
   let tabBarStyle = showTabs ? undefined : { display: "none" };
   const schoolName = useSelector((state: any) => state.user.school);
+  const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled);
 
   useEffect(() => { }, []); // add notif count in useEffect dependency array, utilize redux to save state
   return (
@@ -137,25 +138,37 @@ const RoutingSystem: React.FunctionComponent = () => {
             <IonTabButton tab="home" href="/home">
               <HomeIcon
                 fontSize="medium"
-                style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
+                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                : selectedTab === 'home' ? { fontSize: "4.3vh" } 
+                : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="community" href="/community">
               <LocalFireDepartmentIcon
                 fontSize="medium"
-                style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
+                : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } 
+                : selectedTab === 'community' ? { fontSize: "4.3vh" }
+                : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="maps" href="/maps">
               <MapIcon
                 fontSize="medium"
-                style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
+                : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } 
+                : selectedTab === 'maps' ? { fontSize: "4.3vh" }
+                : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="user" href="/user">
               <AccountCircleIcon
                 fontSize="medium"
-                style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" ? { fontSize: "4.3vh",  color:'#58c2a2' } : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } : { fontSize: "4.00vh" }}
+                style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
+                : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } 
+                : selectedTab === 'user' ? { fontSize: "4.3vh" }
+                : { fontSize: "4.00vh" }}
               />
               {/* {true &&  */}
               {/* <IonBadge color="danger">{5}</IonBadge> */}
@@ -172,6 +185,7 @@ const App: React.FunctionComponent = () => {
   const dispatch = useDispatch();
   const [busy, setBusy] = useState<boolean>(true);
   const darkMode = localStorage.getItem("darkMode") || "false";
+  const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
   const condition = navigator.onLine;
   const [appActive, setAppActive] = useState<boolean>(true);
   const datab = getDatabase();
@@ -255,6 +269,11 @@ const App: React.FunctionComponent = () => {
         mode: 'no-cors',
       }).then(() => {
         console.log('online');
+        if(schoolColorToggled == "false") {
+          dispatch(setSchoolColorPallete(false));
+        } else {
+          dispatch(setSchoolColorPallete(true));
+        }
         if (darkMode == "false") {
           dispatch(setDarkMode(false));
           Keyboard.setStyle(keyStyleOptionsLight);

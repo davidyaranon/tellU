@@ -81,6 +81,7 @@ function Maps() {
   const router = useIonRouter();
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
 
   // state variables
   const [user, loading, error] = useAuthState(auth);
@@ -261,6 +262,21 @@ function Maps() {
     }
   }, [user, schoolName]);
 
+  useEffect(() => {
+    if (schoolName === "Cal Poly Humboldt" && schoolColorToggled) {
+      setSelectOptions({
+        cssClass: 'my-custom-interface',
+        header: 'Pin Filters',
+        subHeader: 'Select which type of pin to display on the map'
+      })
+    } else {
+      setSelectOptions({
+        header: 'Pin Filters',
+        subHeader: 'Select which type of pin to display on the map'
+      })
+    }
+  }, [schoolColorToggled])
+
   /**
    * Runs on initial load
    * 
@@ -272,13 +288,6 @@ function Maps() {
     } else {
       setPinsLoading(true);
       getSchoolLocation();
-      if (schoolName === "Cal Poly Humboldt") {
-        setSelectOptions({
-          cssClass: 'my-custom-interface',
-          header: 'Pin Filters',
-          subHeader: 'Select which type of pin to display on the map'
-        })
-      }
     }
   }, [user, schoolName]);
 
@@ -293,12 +302,12 @@ function Maps() {
           </IonFab>
         }
         <div className={
-          darkModeToggled && schoolName === "Cal Poly Humboldt" ? "overlaySearchDark" 
+          darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearchDark" 
           : darkModeToggled && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
-          : !darkModeToggled && schoolName === "Cal Poly Humboldt" ? "overlaySearch"
+          : !darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearch"
           : "overlaySearchNotHumboldt"
           }>
-          <IonLabel color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}> FILTER: </IonLabel>
+          <IonLabel color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}> FILTER: </IonLabel>
           <IonSelect
             interface="action-sheet"
             interfaceOptions={selectOptions}

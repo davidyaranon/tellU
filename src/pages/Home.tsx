@@ -76,6 +76,7 @@ function Home() {
   const timeAgo = new TimeAgo("en-US");
   const { setShowTabs } = React.useContext(UIContext);
   const schoolName = useSelector((state: any) => state.user.school);
+  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
 
   const [gettingLocation, setGettingLocation] = useState<boolean>(false);
   const [photo, setPhoto] = useState<Photo | null>();
@@ -553,7 +554,7 @@ function Home() {
         }}>
           {newPostsLoaded && scrollPosition >= 100 ? (
             <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
-              <IonFabButton color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} className="load-new-posts" mode="ios" onClick={() => { setNewPostsLoaded(false); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
+              <IonFabButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} className="load-new-posts" mode="ios" onClick={() => { setNewPostsLoaded(false); scrollToTop(); }}>New Posts <IonIcon icon={caretUpOutline} /> </IonFabButton>
             </IonFab>
           ) : (null)}
 
@@ -574,7 +575,7 @@ function Home() {
 
           <FadeIn transitionDuration={1500}>
             <IonHeader class="ion-no-border" style={ionHeaderStyle} >
-              <Header darkMode={darkModeToggled} schoolName={schoolName} zoom={1} />
+              <Header darkMode={darkModeToggled} colorPallete={schoolColorToggled} schoolName={schoolName} zoom={1} />
             </IonHeader>
           </FadeIn>
 
@@ -594,7 +595,7 @@ function Home() {
                 <IonTitle>Post</IonTitle>
                 <IonButtons slot="start">
                   <IonButton
-                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                     mode="ios"
                     onClick={() => {
                       setLocationPinModal(false);
@@ -695,7 +696,7 @@ function Home() {
                   handleSendMessage();
                 }}
                 expand="block"
-                color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                 mode="ios"
                 shape="round"
                 fill="outline"
@@ -715,7 +716,7 @@ function Home() {
                 <IonToolbar mode="ios">
                   <IonButtons slot="start">
                     <IonButton
-                      color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                       mode="ios"
                       onClick={() => {
                         setPhoto(null);
@@ -789,11 +790,11 @@ function Home() {
                       textAlign: "center", alignItems: "center",
                       alignSelf: "center", display: "flex", paddingTop: ""
                     }}>
-                      <IonButton onClick={takePicture} mode="ios" color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} fill='clear' disabled={prevPostUploading}>
+                      <IonButton onClick={takePicture} mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} fill='clear' disabled={prevPostUploading}>
                         <IonIcon icon={cameraOutline} />
                       </IonButton>
                       <IonButton
-                        color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"} 
+                        color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                         onClick={() => {
                           handlePostOptions();
                         }}
@@ -826,7 +827,7 @@ function Home() {
 
           <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{}}>
             <IonFabButton
-              color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+              color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
               onClick={() => {
                 setShowModal(true);
               }}
@@ -959,9 +960,11 @@ function Home() {
                         user &&
                           post.likes[user.uid] !== undefined && schoolName !== "Cal Poly Humboldt"
                           ? "primary"
-                          : user && post.likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt"
+                          : user && post.likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt" && schoolColorToggled
                             ? "tertiary"
-                            : "medium"
+                            : user && post.likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt" && !schoolColorToggled
+                              ? "primary"
+                              : "medium"
                       }
                       onClick={() => {
                         setLikeAnimation(post.key);
@@ -1108,6 +1111,7 @@ function Home() {
         <IonSpinner
           color={
             schoolName === "Cal Poly Humboldt"
+              && schoolColorToggled
               ? "tertiary"
               : "primary"
           }
