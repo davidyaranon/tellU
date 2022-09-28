@@ -188,35 +188,22 @@ const App: React.FunctionComponent = () => {
   const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
   const condition = navigator.onLine;
   const [appActive, setAppActive] = useState<boolean>(true);
-  const datab = getDatabase();
+  // const datab = getDatabase();
   const schoolName = useSelector((state: any) => state.user.school);
 
-  // Network.addListener('networkStatusChange', status => {
-  //   Network.getStatus().then((status: ConnectionStatus) => {
-  //     if (status.connected) {
-  //       Toast.success('Online');
-  //       setAppActive(true);
-  //     } else {
-  //       Toast.warning('Offline');
-  //       setAppActive(false);
-  //     }
-  //   })
+  // CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+  //   if (!isActive) {
+  //     setAppActive(false);
+  //     timeout(5000).then(() => {
+  //       if(!appActive){
+  //         goOffline(datab);
+  //         goOnline(datab);
+  //       }
+  //     })
+  //   } else {
+  //     setAppActive(true);
+  //   }
   // });
-
-  CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-    // console.log('App state changed. Is active?', isActive);
-    if (!isActive) {
-      setAppActive(false);
-      timeout(5000).then(() => {
-        if(!appActive){
-          goOffline(datab);
-          goOnline(datab);
-        }
-      })
-    } else {
-      setAppActive(true);
-    }
-  });
 
   const addListeners = async () => {
     await PushNotifications.addListener('registration', token => {
@@ -246,22 +233,6 @@ const App: React.FunctionComponent = () => {
       }
     }
   };
-
-  // useEffect(() => {
-  //   const db = getDatabase();
-  //   const connectedRef = ref(db, ".info/connected");
-  //   onValue(connectedRef, (snap) => {
-  //     timeout(10000).then(() => {
-  //       if (snap.val() === true) {
-  //         console.log('successfully connected');
-  //       }
-  //       else {
-  //         goOffline(db);
-  //         goOnline(db);
-  //       }
-  //     })
-  //   });
-  // }, [])
 
   useEffect(() => {
     if (condition) {

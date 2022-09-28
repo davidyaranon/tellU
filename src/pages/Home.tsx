@@ -10,7 +10,7 @@ import {
 } from "@ionic/react";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
-import { Geolocation, Geoposition } from "@awesome-cordova-plugins/geolocation";
+import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-plugins/geolocation";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import Header, { ionHeaderStyle } from "./Header";
 import { RefresherEventDetail, RouterDirection } from "@ionic/core";
@@ -63,7 +63,7 @@ const ionInputStyle = {
   marginLeft: "2.5vw",
 };
 
-const locationOptions = {
+const locationOptions : GeolocationOptions = {
   enableHighAccuracy: true,
   timeout: 5000,
 };
@@ -441,6 +441,7 @@ function Home() {
                 setShowProgressBar(false);
               } else {
                 Toast.success("Uploaded!");
+                setLocationChecked(false);
                 setMessage("");
                 //handleLoadPosts();
                 // setProgressPercentage('200');
@@ -469,6 +470,7 @@ function Home() {
         } else {
           // setProgressPercentage('100');
           Toast.success("Uploaded!");
+          setLocationChecked(false);
           setMessage("");
           // handleLoadPosts();
           scrollToTop();
@@ -746,7 +748,6 @@ function Home() {
                         </IonCol>
                         <IonCol>
                           <IonTextarea
-                            debounce={250}
                             spellcheck={true}
                             ref={inputRef}
                             rows={4}
@@ -766,7 +767,6 @@ function Home() {
                       : (
                         <>
                           <IonTextarea
-                            debounce={250}
                             spellcheck={true}
                             ref={inputRef}
                             rows={4}

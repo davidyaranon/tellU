@@ -29,7 +29,7 @@ const option = {
 };
 
 exports.updateNews = functions.pubsub.schedule('every 60 minutes').onRun(async (context) => {
-  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20County&mkt=en-US', option);
+  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20County%20CA&mkt=en-US', option);
   const humboldtCountyNews = await res1.json();
   const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Cal%20Poly%20Humboldt&mkt=en-US', option);
   const humboldtStateNews = await res2.json();

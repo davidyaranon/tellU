@@ -302,6 +302,10 @@ export const getLikes = async (key) => {
   }
 };
 
+function randomInRange(min, max) {
+  return Math.random() < 0.5 ? ((1-Math.random()) * (max-min) + min) : (Math.random() * (max-min) + min);
+}
+
 export const addMessage = async (
   mess,
   blob,

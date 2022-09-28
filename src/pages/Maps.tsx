@@ -262,6 +262,10 @@ function Maps() {
     }
   }, [user, schoolName]);
 
+  function randomInRange(min : number, max : number) {
+    return Math.random() < 0.5 ? ((1-Math.random()) * (max-min) + min) : (Math.random() * (max-min) + min);
+  }
+
   useEffect(() => {
     if (schoolName === "Cal Poly Humboldt" && schoolColorToggled) {
       setSelectOptions({
@@ -349,7 +353,7 @@ function Maps() {
           {markers ? markers.map((marker, index) => {
             return (
               <Marker
-                style={{ opacity: "80%" }}
+                style={zoom > 17 ? { opacity: "80%" } : { opacity : "75%"}}
                 color={getColor(marker.postType)}
                 key={marker.key}
                 anchor={[marker.location[0], marker.location[1]]}

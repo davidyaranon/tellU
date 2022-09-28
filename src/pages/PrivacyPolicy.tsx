@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 export const PrivacyPolicy = () => {
   const router = useIonRouter();
   const schoolName = useSelector((state: any) => state.user.school);
+  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -30,7 +31,7 @@ export const PrivacyPolicy = () => {
           <IonToolbar mode="ios">
             <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
-                color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
+                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                 onClick={() => {
                   navigateBack();
                 }}
