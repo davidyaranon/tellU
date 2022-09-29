@@ -340,7 +340,6 @@ export const addMessage = async (
             message: mess,
             url: url,
             uid: auth.currentUser.uid,
-            // photoURL: auth.currentUser.photoURL,
             location: [lat, long],
             postType: postType,
             imgSrc: imgSrc,
