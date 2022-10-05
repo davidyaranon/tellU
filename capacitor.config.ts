@@ -4,7 +4,12 @@ const config: CapacitorConfig = {
   appId: 'com.example.v1.quantum',
   appName: 'tellU',
   webDir: 'build',
-  bundledWebRuntime: false
+  bundledWebRuntime: false,
+  plugins: {
+    "PushNotifications" : {
+      "presentationOptions" : ["alert", "sound", "badge"]
+    },
+  }
 };
 
 export default config;

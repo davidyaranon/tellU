@@ -1,7 +1,6 @@
 /* React */
 import { Route, Redirect } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { App as CapacitorApp } from '@capacitor/app';
 import {
   IonApp,
   IonTabs,
@@ -63,9 +62,12 @@ import { FCM } from "@capacitor-community/fcm";
 import AppUrlListener from "./pages/AppUrlListener";
 import ForgotPassword from "./pages/ForgotPassword";
 import { createBrowserHistory } from "history";
-import { ConnectionStatus, Network } from '@capacitor/network';
-import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
-import { timeout } from "./components/functions";
+import { Network } from '@capacitor/network';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { useHistory } from "react-router";
+import Class from "./pages/Class";
+import ChatRoom from "./pages/ChatRoom";
+
 
 // // set up base push notifications with Capacitor
 // await PushNotifications.requestPermissions();
@@ -78,6 +80,13 @@ import { timeout } from "./components/functions";
 
 setupIonicReact({
   swipeBackEnabled: false,
+});
+
+SplashScreen.show({
+  showDuration: 1000,
+  autoHide: true,
+  fadeInDuration: 300,
+  fadeOutDuration: 300
 });
 
 // Global variables
@@ -124,6 +133,8 @@ const RoutingSystem: React.FunctionComponent = () => {
             </Route>
             <Route path="/post/:key" component={Post} />
             <Route path="/about/:uid" component={UserProfile} />
+            <Route path="/class/:className" component={Class} />
+            <Route path="/chatroom/:collectionPath" component={ChatRoom} />
             <Route path="/register" component={Register} exact={true} />
             <Route path="/forgot-password" component={ForgotPassword} exact={true} />
             <Route path="/privacy-policy" component={PrivacyPolicy} />
@@ -138,37 +149,37 @@ const RoutingSystem: React.FunctionComponent = () => {
             <IonTabButton tab="home" href="/home">
               <HomeIcon
                 fontSize="medium"
-                style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
-                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
-                : selectedTab === 'home' ? { fontSize: "4.3vh" } 
-                : { fontSize: "4.00vh" }}
+                style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                  : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                    : selectedTab === 'home' ? { fontSize: "4.3vh" }
+                      : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="community" href="/community">
               <LocalFireDepartmentIcon
                 fontSize="medium"
-                style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
-                : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } 
-                : selectedTab === 'community' ? { fontSize: "4.3vh" }
-                : { fontSize: "4.00vh" }}
+                style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                  : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                    : selectedTab === 'community' ? { fontSize: "4.3vh" }
+                      : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="maps" href="/maps">
               <MapIcon
                 fontSize="medium"
-                style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
-                : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } 
-                : selectedTab === 'maps' ? { fontSize: "4.3vh" }
-                : { fontSize: "4.00vh" }}
+                style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                  : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                    : selectedTab === 'maps' ? { fontSize: "4.3vh" }
+                      : { fontSize: "4.00vh" }}
               />
             </IonTabButton>
             <IonTabButton tab="user" href="/user">
               <AccountCircleIcon
                 fontSize="medium"
-                style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh",  color:'#58c2a2' } 
-                : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" } 
-                : selectedTab === 'user' ? { fontSize: "4.3vh" }
-                : { fontSize: "4.00vh" }}
+                style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                  : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                    : selectedTab === 'user' ? { fontSize: "4.3vh" }
+                      : { fontSize: "4.00vh" }}
               />
               {/* {true &&  */}
               {/* <IonBadge color="danger">{5}</IonBadge> */}
@@ -188,8 +199,8 @@ const App: React.FunctionComponent = () => {
   const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
   const condition = navigator.onLine;
   const [appActive, setAppActive] = useState<boolean>(true);
-  // const datab = getDatabase();
   const schoolName = useSelector((state: any) => state.user.school);
+  const history = useHistory();
 
   // CapacitorApp.addListener('appStateChange', ({ isActive }) => {
   //   if (!isActive) {
@@ -215,12 +226,17 @@ const App: React.FunctionComponent = () => {
     });
 
     await PushNotifications.addListener('pushNotificationReceived', notification => {
-      console.log('Push notification received: ', notification);
+      console.log('received: ', notification);
+      console.log('hi');
     });
 
     await PushNotifications.addListener('pushNotificationActionPerformed', notification => {
-      console.log('Push notification action performed', notification.actionId, notification.inputValue);
+      console.log('Push notification action performed', notification.notification.data.url);
+      console.log(notification);
+      history.push("/" + notification.notification.data.url);
     });
+
+
   };
 
   const registerNotifications = async () => {
@@ -228,19 +244,55 @@ const App: React.FunctionComponent = () => {
 
     if (permStatus.receive === 'prompt') {
       permStatus = await PushNotifications.requestPermissions();
+      await PushNotifications.removeAllListeners();
       if (permStatus.receive !== 'granted') {
         throw new Error('User denied permissions!');
+      } else {
+        PushNotifications.register().then(() => {
+          FCM.getToken().then((token) => {
+            localStorage.setItem("notificationsToken", token.token);
+            console.log(token.token);
+          });
+          PushNotifications.addListener(
+            'registration',
+            (token) => {
+              console.log('My token: ' + JSON.stringify(token));
+            }
+          );
+
+          PushNotifications.addListener('registrationError', (error: any) => {
+            console.log('Error: ' + JSON.stringify(error));
+          });
+
+          PushNotifications.addListener(
+            'pushNotificationReceived',
+            async (notification) => {
+              console.log('Push received: ' + JSON.stringify(notification));
+            }
+          );
+
+          PushNotifications.addListener(
+            'pushNotificationActionPerformed',
+            async (notification) => {
+              const data = notification.notification.data;
+              console.log('Action performed: ' + JSON.stringify(notification.notification));
+              console.log(data);
+              history.push('/' + data.url);
+            }
+          );
+        });
       }
     }
   };
 
   useEffect(() => {
     if (condition) {
+      registerNotifications();
       fetch('https://www.google.com/', {
         mode: 'no-cors',
       }).then(() => {
         console.log('online');
-        if(schoolColorToggled == "false") {
+        if (schoolColorToggled == "false") {
           dispatch(setSchoolColorPallete(false));
         } else {
           dispatch(setSchoolColorPallete(true));
@@ -290,9 +342,6 @@ const App: React.FunctionComponent = () => {
           } else {
             setBusy(false);
             window.history.replaceState({}, "", "/landing-page");
-            registerNotifications().then(() => {
-              addListeners();
-            });
           }
           return () => { Network.removeAllListeners(); PushNotifications.removeAllListeners().then(() => console.log("listeners removed")) }
         });

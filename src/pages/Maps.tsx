@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonRouter, IonLoading, IonSpinner, useIonViewDidLeave,
+  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave,
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 
@@ -403,7 +403,7 @@ function Maps() {
                       <br></br>
                       <div
                         className="ion-img-container"
-                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc})`, borderRadius: '10px' }}
+                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc[0]})`, borderRadius: '10px' }}
                       >
                       </div>
                     </>

@@ -17,7 +17,7 @@ import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyb
 import { FCM } from "@capacitor-community/fcm";
 
 /* Firebase */
-import auth from '../fbconfig';
+import auth, { updateNotificationsToken } from '../fbconfig';
 import { registerWithEmailAndPassword, checkUsernameUniqueness, db } from "../fbconfig";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -111,13 +111,16 @@ const Register: React.FC = () => {
         if (typeof res === "string") {
           Toast.error(res);
         } else {
-          FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
-          PushNotifications.register().then(() => {
-            FCM.subscribeTo({ topic: "commentNotifications" }).then(() => {
-              console.log("subscribed to comment notifications");
-            }).catch((err) => { console.error(err); })
-            FCM.getToken().then((r) => { console.log(r.token); }).catch((err) => console.error(err));
-          });
+          let notificationsToken = localStorage.getItem("notificationsToken") || "";
+          if(notificationsToken.length <= 0) {
+            FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
+            FCM.getToken().then((token) => {
+              localStorage.setItem("notificationsToken", token.token);
+              updateNotificationsToken(token.token);
+            });
+          } else {
+            updateNotificationsToken(notificationsToken);
+          }
           dispatch(
             setUserState(
               res!.user.displayName,

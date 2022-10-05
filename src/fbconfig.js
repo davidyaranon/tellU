@@ -1,5 +1,8 @@
 import "firebase/compat/firestore";
 
+// import {fetch as nodeFetch} from 'node-fetch';
+// import axios from 'axios';
+
 import {
   addDoc, arrayRemove, arrayUnion, collection, deleteDoc,
   doc, getDoc, getDocs, getFirestore, increment, limit, orderBy,
@@ -56,6 +59,8 @@ export const deleteImage = httpsCallable(functions, 'deleteImage');
 export const deleteLikesDocFromRtdb = httpsCallable(functions, 'deleteLikesDocFromRtdb');
 export const deleteCommentsFromDeletedPost = httpsCallable(functions, 'deleteCommentsFromDeletedPost');
 export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
+export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNotification');
+export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
 
 export const getNewsArticles = async (schoolName) => {
   try {
@@ -64,12 +69,14 @@ export const getNewsArticles = async (schoolName) => {
       const snap = await getDoc(newsDocRef);
       if (snap.exists()) {
         return {
-          schoolArticles : snap.data().schoolArticles,
-          localArticles : snap.data().localArticles
+          schoolArticles: snap.data().schoolArticles,
+          localArticles: snap.data().localArticles
         }
+      } else {
+        console.log("News empty");
       }
     }
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
 }
@@ -82,18 +89,15 @@ export const testNewsUpdates = async () => {
       "Ocp-Apim-Subscription-Key": apiKey
     }
   };
-  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20County&mkt=en-US', option);
+  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Lost%20Coast%20Outpost%20Humboldt&mkt=en-US', option);
   const humboldtCountyNews = await res1.json();
-  const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Cal%20Poly%20Humboldt&mkt=en-US', option);
+  const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=El%20Lenador%2020Humboldt&mkt=en-US', option);
   const humboldtStateNews = await res2.json();
-
-  console.log(humboldtCountyNews);
-  console.log(humboldtStateNews);
 
   let articles = [];
   if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
     let arrSize = humboldtCountyNews.value.length;
-    if(arrSize > 5) {
+    if (arrSize > 5) {
       arrSize = 5;
     }
     for (let i = 0; i < arrSize; ++i) {
@@ -103,23 +107,23 @@ export const testNewsUpdates = async () => {
       } else {
         temp['image'] = '';
       }
-      if("name" in humboldtCountyNews.value[i])
+      if ("name" in humboldtCountyNews.value[i])
         temp['title'] = humboldtCountyNews.value[i].name;
-      if("url" in humboldtCountyNews.value[i])
+      if ("url" in humboldtCountyNews.value[i])
         temp['url'] = humboldtCountyNews.value[i].url;
-      // temp['info'] = humboldtCountyNews.value[i].description;
-      if("datePublished" in humboldtCountyNews.value[i])
+      if ("datePublished" in humboldtCountyNews.value[i])
         temp['date'] = humboldtCountyNews.value[i].datePublished;
       articles.push(temp);
     }
+    console.log(articles);
+  } else {
+    console.log("county articles if check failed");
   }
-
-  console.log(articles);
 
   let schoolArticles = [];
   if (humboldtStateNews && "value" in humboldtStateNews && Array.isArray(humboldtStateNews.value)) {
     let arrSize = humboldtStateNews.value.length;
-    if(arrSize > 10){
+    if (arrSize > 10) {
       arrSize = 10;
     }
     for (let i = 0; i < arrSize; ++i) {
@@ -129,17 +133,29 @@ export const testNewsUpdates = async () => {
       } else {
         temp['image'] = '';
       }
-      if("name" in humboldtStateNews.value[i])
+      if ("name" in humboldtStateNews.value[i])
         temp['title'] = humboldtStateNews.value[i].name;
-      if("url" in humboldtStateNews.value[i])
+      if ("url" in humboldtStateNews.value[i])
         temp['url'] = humboldtStateNews.value[i].url;
-      // temp['info'] = humboldtCountyNews.value[i].description;
-      if("datePublished" in humboldtStateNews.value[i])
+      if ("datePublished" in humboldtStateNews.value[i])
         temp['date'] = humboldtStateNews.value[i].datePublished;
       schoolArticles.push(temp);
     }
+    console.log(schoolArticles);
+  } else {
+    console.log("school articles if check failed");
   }
-  console.log(schoolArticles);
+  if (!schoolArticles || !articles || schoolArticles.length <= 0 || articles.length <= 0) {
+    console.log("articles empty");
+  } else {
+    // const batch = writeBatch(db);
+    // const newsRef = doc(db, "schoolNews", "CalPolyHumboldt");
+    // batch.update(newsRef, {
+    //   schoolArticles: schoolArticles,
+    //   localArticles: articles
+    // });
+    // await batch.commit().catch((err) => console.log(err));
+  }
 }
 
 export const spotifySearch = async (query) => {
@@ -194,6 +210,22 @@ export async function logInWithEmailAndPassword(email, password) {
   }
 }
 
+export const updateNotificationsToken = async (token) => {
+  try {
+    if (db && auth && auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      const batch = writeBatch(db);
+      const userDocRef = doc(db, "userData", uid);
+      batch.update(userDocRef, {
+        notificationsToken: token
+      });
+      await batch.commit().catch((err) => console.log(err));
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export async function registerWithEmailAndPassword(
   name,
   email,
@@ -233,7 +265,9 @@ export async function registerWithEmailAndPassword(
           userEmail: email,
           uid: user.uid,
           school: school,
+          notifs: [],
           timestamp: serverTimestamp(),
+          notificationsToken: "",
         });
         // batch.set(doc(db, "userPhotoUrls", user.uid.toString()), {
         //   url: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
@@ -303,7 +337,7 @@ export const getLikes = async (key) => {
 };
 
 function randomInRange(min, max) {
-  return Math.random() < 0.5 ? ((1-Math.random()) * (max-min) + min) : (Math.random() * (max-min) + min);
+  return Math.random() < 0.5 ? ((1 - Math.random()) * (max - min) + min) : (Math.random() * (max - min) + min);
 }
 
 export const addMessage = async (
@@ -312,20 +346,25 @@ export const addMessage = async (
   id,
   pos,
   school,
-  postType = "general"
+  notificationsToken,
+  postType = "general",
+  postClassName = "",
+  postClassNumber = ""
 ) => {
   try {
     if (auth.currentUser != null) {
       if (auth.currentUser.uid != null) {
         var name = auth.currentUser.displayName;
-        var url = "";
-        let imgSrc = "";
+        var url = [];
         let lat = 0;
         let long = 0;
         let marker = false;
+        let imgSources = [];
         if (blob) {
-          url = "images/" + auth.currentUser.uid.toString() + id;
-          imgSrc = await getDownloadURL(ref(storage, url));
+          for (let i = 0; i < blob.length; ++i) {
+            url.push("images/" + auth.currentUser.uid.toString() + id + i.toString());
+            imgSources.push(blob[i]);
+          }
         }
         if (pos) {
           lat = pos.coords.latitude;
@@ -342,8 +381,11 @@ export const addMessage = async (
             uid: auth.currentUser.uid,
             location: [lat, long],
             postType: postType,
-            imgSrc: imgSrc,
+            imgSrc: imgSources,
             marker: marker,
+            notificationsToken: notificationsToken,
+            className: postClassName,
+            classNumber: postClassNumber,
           }
         );
 
@@ -390,6 +432,27 @@ export async function checkUsernameUniqueness(userName) {
     return false;
   }
 }
+
+export const getClassPostsDb = async (className, schoolName) => {
+  try {
+    if(auth && db) {
+      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(50))));
+      const qSnapshot = await getDocs(q);
+      let classPosts = [];
+      const docs = qSnapshot.docs;
+      for(const doc of docs) {
+        classPosts.push({
+          ...doc.data(),
+          key: doc.id
+        });
+      }
+      return classPosts;
+    }
+  } catch(err) {
+    console.log(err);
+  }
+};
 
 export const getYourPolls = async (schoolName, userUid) => {
   try {
@@ -1076,16 +1139,41 @@ export const downVote = async (postKey) => {
     console.log(err);
   }
 };
-///schoolPosts/UCBerkeley/allPosts/IsfZKvyHB9pWIElkzzDt/comments
-export const addCommentNew = async (postKey, schoolName, commentString, blob, id) => {
+
+export const sendDm = async (chatroomString, notificationsToken, message, contactUid) => {
+  try {
+    if(auth && db) {
+      console.log('sending dm to ' , notificationsToken);
+      const userName = auth.currentUser.displayName;
+      const senderUid = auth.currentUser.uid;
+      if(message.length == 0) {
+        message = "[picture]"
+      }
+      sendDmNotification({
+        userName: userName,
+        notificationsToken: notificationsToken,
+        message: message,
+        posterUid: contactUid,
+        data: {
+          url: "/chatroom/" + chatroomString
+        },
+        icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
+      })
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken) => {
   try {
     if (auth && database && auth.currentUser && db) {
       const uid = auth.currentUser.uid;
       const userName = auth.currentUser.displayName;
-      const photoURL = auth.currentUser.photoURL;
       const commentsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
         "allPosts", postKey, "comments");
-      const postRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts", postKey);
+      // const notificationsTokensRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
+      //   "allPosts", postKey, "notificationsTokens");
       let url = "";
       let imgSrc = "";
       if (blob) {
@@ -1094,7 +1182,6 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
       }
       const addedDoc = await addDoc(commentsRef, {
         comment: commentString,
-        // photoURL: photoURL,
         userName: userName,
         uid: uid,
         timestamp: serverTimestamp(),
@@ -1113,6 +1200,40 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
       await update(likesRef, {
         commentAmount: rtdbIncrement(1)
       });
+
+      
+      if (posterUid != uid) {
+        console.log('sending notif to ' + notificationsToken);
+        sendCommentsNotification({
+          postKey: postKey,
+          posterUid: posterUid,
+          userName: userName,
+          notificationsToken: notificationsToken,
+          comment: commentString,
+          data: {
+            url: "/post/" + postKey
+          },
+          icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
+        });
+      }
+      // nodeFetch('https://fcm.googleapis.com/fcm/send', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': 'key=AAAAa1skHNM:APA91bFyQscFwRAN4en0Jkt5IYZ4iwUQC6DhOIPCKNeoQJ7rO5BAEUlH1iB0da18o1Jq0gqfx19e_UrBvSyCTRzY1jjKnPXvAAi5KDYKJFd-e2QsioP4E_uC5XY6flVUnfX0JYhTiEy6',
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: '{\n"notification": {\n"title": "tellU,\n"body": `${userName} commented: ${commentString}`,\n},\n"to": `${notificationsToken}`\n"data": {\n  "url" : `/post/${postKey}`\n}\n}'
+      // });
+      // const response = await axios.post(
+      //   'https://fcm.googleapis.com/fcm/send',
+      //   '{\n"notification": {\n"title": "First notif",\n"body": "Hello world",\n},\n"to": "eYWoLPNLOEj0t6JmOoUQ6g:APA91bG0oBTCU3jFyaPy_ddVK9WpkQniljsZaz_7CCYx2BTOHh7q35maM9IoWf5u-gMVZVCmsMqUw4mlGOsgVHIfl3LUk9W95EBmJhipumxT529VvuHmigNXma8omxjwpUl3wDuy3Q18"\n"data": {\n  "url" : ""\n}\n}',
+      //   {
+      //     headers: {
+      //       'Authorization': 'key=AAAAa1skHNM:APA91bFyQscFwRAN4en0Jkt5IYZ4iwUQC6DhOIPCKNeoQJ7rO5BAEUlH1iB0da18o1Jq0gqfx19e_UrBvSyCTRzY1jjKnPXvAAi5KDYKJFd-e2QsioP4E_uC5XY6flVUnfX0JYhTiEy6',
+      //       'Content-Type': 'application/json'
+      //     }
+      //   }
+      // );
       return {
         comment: commentString,
         // photoURL: photoURL,
@@ -1205,11 +1326,14 @@ export const removePoll = async (postKey, schoolName) => {
 export const removePost = async (postKey, schoolName, postUrl) => {
   try {
     if (postUrl.length > 0) {
-      deleteImage({ // cloud function to delete images attached to post
-        path: postUrl
-      }).catch((err) => {
-        console.log(err);
-      });
+      for (let i = 0; i < postUrl.length; ++i) {
+        deleteImage({ // cloud function to delete images attached to post
+          path: postUrl[i]
+        }).catch((err) => {
+          console.log(err);
+          console.log('uhh');
+        });
+      }
     }
     deleteLikesDocFromRtdb({ // cloud function to delete rtdb document containing likes information
       key: postKey
@@ -1418,3 +1542,16 @@ export const sendReportStatus = async (message, schoolName, postKey) => {
     console.error(err);
   }
 }
+
+// messages/CalPolyHumboldt/TUAt5BpThxYPFQ1CVnBz6iqpXs82_AjH4RHadaVWIvCt3hV0f5fvdlgp2/ {doc_id} SEqZgsBSX8PZPHrLcCtc
+
+// export const getDirectMessages = async (schoolName, contactUid) => {
+//   try {
+//     if(db && auth) {
+//       const userUid = auth.currentUser.uid;
+//       const messagesRef = collection(db, 'messages', schoolName.replace(/\s+/g, ""), userUid + '_' + contactUid);
+//       const q = query(messagesRef, orderBy("date", "asc"), limit(100));
+//       const querySnapshot = await getDocs(q);
+//     }
+//   }
+// };

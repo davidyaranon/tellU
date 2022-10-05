@@ -34,6 +34,8 @@ import {
   chevronBackOutline,
   phonePortraitOutline
 } from "ionicons/icons";
+import humboldtImage from '../images/humboldt_school.jpeg'
+
 import { useAuthState } from "react-firebase-hooks/auth";
 import auth, { db, getCommunityWidgets, getNewsArticles, getPolls, getWeatherData, pollVote, submitPollFb, testNewsUpdates } from "../fbconfig";
 import {
@@ -285,27 +287,38 @@ function Community() {
 
   useEffect(() => {
     if (schoolName) {
-      getCommunityWidgets(schoolName).then((res: any[]) => {
-        if (res) {
-          setCommunityWidgets(res);
-        }
-      });
+      // getCommunityWidgets(schoolName).then((res: any[]) => {
+      //   if (res) {
+      //     setCommunityWidgets(res);
+      //   }
+      // });
     } else {
       console.log('error')
     }
   }, [schoolName]);
 
   useEffect(() => {
-    Device.getInfo().then((res) => {
-      setDeviceName(res.name);
-    });
+    // Device.getInfo().then((res) => {
+    //   setDeviceName(res.name);
+    // });
   }, []);
 
   useEffect(() => {
     getNewsArticles(schoolName).then((res) => {
       if (res) {
+        res.schoolArticles.sort(function(a : any, b : any) {
+          var keyA = new Date(a.date),keyB = new Date(b.date);
+          if (keyA < keyB) return 1;
+          if (keyA > keyB) return -1;
+          return 0;
+        });
+        res.localArticles.sort(function(a : any, b : any) {
+          var keyA = new Date(a.date),keyB = new Date(b.date);
+          if (keyA < keyB) return 1;
+          if (keyA > keyB) return -1;
+          return 0;
+        });
         setArticles(res);
-        // console.log(res);
       }
     });
     const unsub = onSnapshot(doc(db, "schoolWeather", schoolName.replace(/\s+/g, "")), (doc) => {
@@ -803,7 +816,7 @@ function Community() {
                                     {article && "image" in article && article.image.length > 0 ?
                                       <img style={{ borderRadius: "15px" }} src={article.image} />
                                       :
-                                      <img style={{ borderRadius: "15px", width: "100px", height: "100px" }} src={placeholder} />
+                                      <img style={{ borderRadius: "15px", width: "100px", height: "100px" }} src={humboldtImage} />
                                     }
                                   </IonCol>
                                 </IonFab>
@@ -850,9 +863,9 @@ function Community() {
                                 <IonFab vertical="center" horizontal="start">
                                   <IonCol style={{ right: "15%" }}>
                                     {article && "image" in article && article.image.length > 0 ?
-                                      <img style={{ borderRadius: "15px" }} src={article.image} />
+                                      <img style={{ borderRadius: "15px", width: "100px", height: "100px" }} src={article.image} />
                                       :
-                                      <img style={{ borderRadius: "15px", width: "100px", height: "100px" }} src={placeholder} />
+                                      <img style={{ borderRadius: "15px", width: "100px", height: "100px" }} src={humboldtImage} />
                                     }
                                   </IonCol>
                                 </IonFab>
