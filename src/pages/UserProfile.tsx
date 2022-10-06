@@ -13,6 +13,7 @@ import {
   IonText, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
 import {
+  chatbubbleOutline,
   chatbubblesOutline, chevronBackOutline, logoInstagram,
   logoSnapchat, logoTiktok, shareOutline
 } from "ionicons/icons";
@@ -312,11 +313,10 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       } else {
                         Toast.error("Unable to open DMs");
                       }  
-                      console.log(elements);
                       dynamicNavigate("/chatroom/" + elements[0] + '_' + elements[1], 'forward')
                     }}
                   >
-                    <IonIcon icon={chatbubblesOutline} />
+                    <IonIcon icon={chatbubbleOutline} />
                   </IonButton>
                 }
               </span>

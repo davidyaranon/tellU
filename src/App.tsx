@@ -67,6 +67,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { useHistory } from "react-router";
 import Class from "./pages/Class";
 import ChatRoom from "./pages/ChatRoom";
+import DirectMessages from "./pages/DirectMessages";
 
 
 // // set up base push notifications with Capacitor
@@ -135,6 +136,7 @@ const RoutingSystem: React.FunctionComponent = () => {
             <Route path="/about/:uid" component={UserProfile} />
             <Route path="/class/:className" component={Class} />
             <Route path="/chatroom/:collectionPath" component={ChatRoom} />
+            <Route path="/direct/:directMessageId" component={DirectMessages} />
             <Route path="/register" component={Register} exact={true} />
             <Route path="/forgot-password" component={ForgotPassword} exact={true} />
             <Route path="/privacy-policy" component={PrivacyPolicy} />

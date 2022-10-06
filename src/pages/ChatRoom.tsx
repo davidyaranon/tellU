@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import auth,
 {
-  addCommentNew, downVoteComment, getClassPostsDb, getLikes, getUserData, sendDm, sendDmNotification, sendReportStatus, storage, uploadImage,
+  addCommentNew, downVoteComment, getClassPostsDb, getLikes, getUserData, sendDm, sendDmNotification, sendReportStatus, storage, updateDmList, uploadImage,
 } from '../fbconfig';
 import { db, promiseTimeout } from "../fbconfig";
 import {
@@ -34,7 +34,6 @@ import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline } f
 import { getColor, timeout } from '../components/functions';
 import Linkify from 'linkify-react';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage, PhotoViewer } from '@capacitor-community/photoviewer';
-import ProfilePhoto from "./ProfilePhoto";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
@@ -133,6 +132,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         imgSrc,
         photoURL
       });
+      updateDmList(tempComment, contactInfo.uid, contactInfo.userName);
       if (contactInfo && "notificationsToken" in contactInfo && schoolName) {
         sendDm(collectionPath, contactInfo.notificationsToken, tempComment, contactInfo.uid);
       }
@@ -367,9 +367,13 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               ?
               <>
                 {messages?.map((msg: any, index: number) => (
-                  <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} />
+                  <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} />
                 ))}
-                <br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br />
+                {kbHeight != 0 &&
+                  <>
+                    <br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br />
+                  </>
+                }
               </>
               : loading ?
                 <>
@@ -418,7 +422,12 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
 function ChatMessage(props: any) {
   const { message, uid, imgSrc, photoURL } = props.msg;
-  const messageClass = uid === auth?.currentUser?.uid ? 'sent' : 'received';
+  const schoolName = props.school;
+  const schoolColorToggled = props.toggled;
+  let messageClass = uid === auth?.currentUser?.uid ? 'sent' : 'received';
+  if (schoolName === "Cal Poly Humboldt" && messageClass === 'sent') {
+    //messageClass = 'sent-humboldt';
+  }
   const router = useIonRouter();
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
@@ -433,6 +442,9 @@ function ChatMessage(props: any) {
     }
   }
 
+  if (messageClass === 'sent' && schoolName === 'Cal Poly Humboldt' && schoolColorToggled) {
+    messageClass = 'sent-humboldt';
+  }
   return (
     <>
       <div className={`message ${messageClass}`}>

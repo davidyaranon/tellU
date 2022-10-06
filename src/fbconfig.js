@@ -435,13 +435,13 @@ export async function checkUsernameUniqueness(userName) {
 
 export const getClassPostsDb = async (className, schoolName) => {
   try {
-    if(auth && db) {
+    if (auth && db) {
       const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
       const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(50))));
       const qSnapshot = await getDocs(q);
       let classPosts = [];
       const docs = qSnapshot.docs;
-      for(const doc of docs) {
+      for (const doc of docs) {
         classPosts.push({
           ...doc.data(),
           key: doc.id
@@ -449,7 +449,7 @@ export const getClassPostsDb = async (className, schoolName) => {
       }
       return classPosts;
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 };
@@ -676,7 +676,7 @@ export const getOnePost = async (postKey, schoolName) => {
         postKey
       );
       const snap = await getDoc(postDocRef);
-      if (snap.exists) {
+      if (snap.exists()) {
         return snap.data();
       }
     }
@@ -691,7 +691,7 @@ export const getCurrentUserData = async () => {
       const uid = auth.currentUser.uid;
       const userDoc = doc(db, "userData", uid);
       const res = await getDoc(userDoc);
-      if (res.exists) {
+      if (res.exists()) {
         return res.data();
       }
     }
@@ -754,7 +754,7 @@ export const getOnePoll = async (schoolName, pollKey) => {
         pollKey
       );
       const snap = await getDoc(pollDocRef);
-      if (snap.exists) {
+      if (snap.exists()) {
         return snap.data();
       }
     }
@@ -959,7 +959,7 @@ export const pollVote = async (schoolName, index, postKey, userUid) => {
       const pollsDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls", postKey);
       await runTransaction(db, async (transaction) => {
         const snap = await transaction.get(pollsDocRef);
-        if (snap.exists) {
+        if (snap.exists()) {
           if ("voteMap" in snap.data() && snap.data().voteMap[userUid] === undefined) {
             let tempResults = [...snap.data().results];
             tempResults[index] += 1;
@@ -1142,11 +1142,11 @@ export const downVote = async (postKey) => {
 
 export const sendDm = async (chatroomString, notificationsToken, message, contactUid) => {
   try {
-    if(auth && db) {
-      console.log('sending dm to ' , notificationsToken);
+    if (auth && db) {
+      console.log('sending dm to ', notificationsToken);
       const userName = auth.currentUser.displayName;
       const senderUid = auth.currentUser.uid;
-      if(message.length == 0) {
+      if (message.length == 0) {
         message = "[picture]"
       }
       sendDmNotification({
@@ -1164,6 +1164,57 @@ export const sendDm = async (chatroomString, notificationsToken, message, contac
     console.log(err);
   }
 };
+
+export const updateDmList = async (message, contactUid, contactUserName) => {
+  if (auth && db) {
+    const uid = auth.currentUser.uid;
+    const userName = auth.currentUser.displayName;
+    const userPhoto = auth.currentUser.photoURL;
+    const contactMessageCollectionRef = doc(db, "userData", contactUid, "messages", uid)
+    const senderMessageCollectionRef = doc(db, "userData", uid, "messages", contactUid);
+    const contactPhotoUrl = await getDownloadURL(ref(storage, "profilePictures/" + contactUid + "photoURL"));
+    if (!contactPhotoUrl || contactPhotoUrl.length == 0){
+      contactPhotoUrl = "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
+    }
+      await getDoc(contactMessageCollectionRef).then(async (res) => {
+        if (res.exists()) {
+          await updateDoc(contactMessageCollectionRef, {
+            recent: message,
+            photoURL: userPhoto,
+            userName: userName,
+            date: serverTimestamp()
+          });
+        } else {
+          await setDoc(contactMessageCollectionRef, { 
+            recent: message,
+            photoURL: userPhoto,
+            contactUid: uid,
+            userName: userName,
+            date: serverTimestamp()
+          })
+        }
+      });
+    await getDoc(senderMessageCollectionRef).then(async (res) => { 
+      if (res.exists()) {
+        console.log('setting sendermessagecollection')
+        await updateDoc(senderMessageCollectionRef, {
+          recent: message,
+          date: serverTimestamp(),
+          userName: contactUserName,
+          photoURL: contactPhotoUrl,
+        });
+      } else {
+        await setDoc(senderMessageCollectionRef, {
+          recent: message,
+          date: serverTimestamp(),
+          contactUid: contactUid,
+          userName: contactUserName,
+          photoURL: contactPhotoUrl,
+        });
+      }
+    });
+  }
+}
 
 export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken) => {
   try {
@@ -1201,9 +1252,8 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
         commentAmount: rtdbIncrement(1)
       });
 
-      
+
       if (posterUid != uid) {
-        console.log('sending notif to ' + notificationsToken);
         sendCommentsNotification({
           postKey: postKey,
           posterUid: posterUid,
@@ -1273,7 +1323,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
         postKey
       );
       const commentSnap = await getDoc(postDocRef);
-      if (commentSnap.exists && commentSnap.data().commentsArr) {
+      if (commentSnap.exists() && commentSnap.data().commentsArr) {
         await updateDoc(postDocRef, {
           commentsArr: arrayUnion({
             comment: commentString,
@@ -1285,7 +1335,7 @@ export const addComment = async (postKey, schoolName, commentString) => {
           })
         });
         const postSnap = await getDoc(postRef);
-        if (postSnap.exists) {
+        if (postSnap.exists()) {
           await updateDoc(postRef, {
             commentAmount: increment(1),
           });
@@ -1499,7 +1549,7 @@ export const loadComments = async (postKey, schoolName) => {
         postKey
       );
       const snap = await getDoc(postDocRef);
-      if (snap.exists) {
+      if (snap.exists()) {
         if (snap.data()) return snap.data().commentsArr;
       }
     }

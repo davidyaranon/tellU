@@ -41,7 +41,7 @@ import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
-  cameraReverseOutline, chevronBackOutline, colorFill, iceCream, logoInstagram,
+  cameraReverseOutline, chatbubbleOutline, chatbubblesOutline, chevronBackOutline, colorFill, iceCream, logoInstagram,
   logoSnapchat, logoTiktok, moon, schoolSharp
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
@@ -941,6 +941,14 @@ function User() {
             <IonButton
               color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
               onClick={() => {
+                if(user) {dynamicNavigate('direct/' + user.uid, "forward")}
+              }}
+            >
+              <IonIcon icon={chatbubblesOutline}></IonIcon>
+            </IonButton>
+            <IonButton
+              color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+              onClick={() => {
                 dynamicNavigate("privacy-policy", "forward");
                 // history.push("/privacy-policy");
               }}
@@ -1592,7 +1600,7 @@ function User() {
                 color: "#898989"
               }}
             >
-              Replies
+              Notifications
             </IonHeader>
             <IonCard className="user-card">
               <IonContent>
