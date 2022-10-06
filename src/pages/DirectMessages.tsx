@@ -50,7 +50,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   const router = useIonRouter();
   const [user] = useAuthState(auth);
   const messagesRef = collection(db, 'userData', user?.uid || "", 'messages');
-  const q = query(messagesRef, orderBy("date", "asc"), limit(100));
+  const q = query(messagesRef, orderBy("date", "desc"), limit(100));
   const [messages, loading] = useCollectionData(q);
   const timeAgo = new TimeAgo("en-US");
   const Toast = useToast();
@@ -130,7 +130,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                       <IonCol size="2">
                         <img className="chat_avatar" src={msg.photoURL} />
                       </IonCol>
-                      <IonCol size="11">
+                      <IonCol size="6.5">
                         <div className="chat_info">
                           <div className="contact_name">{msg.userName}</div>
                           <div className="contactMsg">{msg.recent.length > 25 ?
@@ -140,6 +140,9 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                               : msg.recent}
                           </div>
                         </div>
+                      </IonCol>
+                      <IonCol size="3.5">
+                        <div className="chat_date">{getDate(msg.date)}</div>
                       </IonCol>
                     </div>
                   </>

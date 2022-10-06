@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { v4 as uuidv4 } from "uuid";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import ClearIcon from '@mui/icons-material/Clear';
 import auth,
 {
   addCommentNew, downVoteComment, getClassPostsDb, getLikes, getUserData, sendDm, sendDmNotification, sendReportStatus, storage, updateDmList, uploadImage,
@@ -30,7 +31,7 @@ import {
 import FadeIn from "react-fade-in";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, banOutline } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import Linkify from 'linkify-react';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage, PhotoViewer } from '@capacitor-community/photoviewer';
@@ -38,6 +39,7 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import { Dialog } from "@capacitor/dialog";
+import Clear from "@mui/icons-material/Clear";
 
 interface MatchUserPostParams {
   collectionPath: string;
@@ -219,6 +221,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(resizeOptions);
       setKbHeight(info.keyboardHeight);
+      contentRef && contentRef.current && contentRef.current.scrollToBottom();
     });
 
     Keyboard.addListener('keyboardWillHide', () => {
@@ -353,9 +356,15 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 {photo !== null && photo !== undefined ? (
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
-                <IonFabButton onClick={() => { takePicture(); }} color="medium" size="small" mode="ios">
-                  <IonIcon size="small" icon={cameraOutline} />
-                </IonFabButton>
+                {!photo ?
+                  <IonFabButton onClick={() => {  Keyboard.hide(); takePicture(); }} color="medium" size="small" mode="ios">
+                    <IonIcon size="small" icon={cameraOutline} />
+                  </IonFabButton>
+                  :
+                  <IonFabButton onClick={() => { setPhoto(null);}} color="medium" size="small" mode="ios">
+                    <IonIcon size="small" icon={banOutline} />
+                  </IonFabButton>
+                }
               </IonRow>
             </IonGrid>
           </IonFab>
@@ -369,9 +378,13 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 {messages?.map((msg: any, index: number) => (
                   <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} />
                 ))}
-                {kbHeight != 0 &&
+                {kbHeight != 0 ?
                   <>
                     <br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br /><br /> <br /> <br />
+                  </>
+                  :
+                  <>
+                    <br /> <br /> <br /> <br /> <br /><br />
                   </>
                 }
               </>
@@ -416,7 +429,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         </FadeIn>
 
       </IonContent>
-    </IonPage>
+    </IonPage >
   );
 };
 

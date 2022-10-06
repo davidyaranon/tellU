@@ -606,6 +606,26 @@ function Home() {
             </IonHeader>
           </FadeIn>
 
+          {/* <IonFab horizontal="end">
+            <IonItem mode="ios">
+              <IonSelect
+                interface="action-sheet"
+                interfaceOptions={selectOptions}
+                okText="Select"
+                cancelText="Cancel"
+                mode="ios"
+                value={postClassName}
+                placeholder="Class: "
+                onIonChange={(e: any) => {
+                  setPostClassNumber("");
+                  setPostClassName(e.detail.value);
+                }}
+              >
+                <IonSelectOption value="AIE" class="all-option">AIE</IonSelectOption>
+              </IonSelect>
+            </IonItem>
+          </IonFab> */}
+
           <IonModal
             isOpen={locationPinModal}
             onDidDismiss={() => {

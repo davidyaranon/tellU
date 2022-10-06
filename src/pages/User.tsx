@@ -41,6 +41,7 @@ import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
+  arrowForward,
   cameraReverseOutline, chatbubbleOutline, chatbubblesOutline, chevronBackOutline, colorFill, iceCream, logoInstagram,
   logoSnapchat, logoTiktok, moon, schoolSharp
 } from "ionicons/icons";
@@ -776,37 +777,40 @@ function User() {
 
   const loadNotifications = () => {
     if (user && user.uid) {
-      if (!userDataHasLoaded) {
-        const gotUserData = promiseTimeout(7500, getCurrentUserData());
-        gotUserData.then((res: any) => {
-          if (res) {
-            setUserBio(res.bio);
-            setUserMajor(res.major);
-            setUserInstagram(res.instagram);
-            setUserSnapchat(res.snapchat);
-            setUserTiktok(res.tiktok);
-            setSpotifyUri(res.spotify);
-            setEditableUserBio(res.bio);
-            setEditableUserMajor(res.major);
-            setEditableUserInstagram(res.instagram);
-            setEditableUserSnapchat(res.snapchat);
-            setEditableUserTiktok(res.tiktok);
-            setEditableSpotifyUri(res.spotify);
-            setNotifs(res.notifs);
-            console.log(res);
-          } else {
-            Toast.error("Trouble loading data");
-            setAboutEdit(false);
-          }
-          setUserDataHasLoaded(true);
-        });
-        gotUserData.catch((err) => {
-          Toast.error(err);
-        });
-      }
-    } else {
-      Toast.error("Trouble handling request");
+      // if (!userDataHasLoaded) {
+      const gotUserData = promiseTimeout(7500, getCurrentUserData());
+      gotUserData.then((res: any) => {
+        if (res) {
+          setUserBio(res.bio);
+          setUserMajor(res.major);
+          setUserInstagram(res.instagram);
+          setUserSnapchat(res.snapchat);
+          setUserTiktok(res.tiktok);
+          setSpotifyUri(res.spotify);
+          setEditableUserBio(res.bio);
+          setEditableUserMajor(res.major);
+          setEditableUserInstagram(res.instagram);
+          setEditableUserSnapchat(res.snapchat);
+          setEditableUserTiktok(res.tiktok);
+          setEditableSpotifyUri(res.spotify);
+          res.notifs.sort(function (a: any, b: any) {
+            var keyA = new Date(a.date), keyB = new Date(b.date);
+            if (keyA < keyB) return -1;
+            if (keyA > keyB) return 1;
+            return 0;
+          });
+          setNotifs(res.notifs);
+        } else {
+          Toast.error("Trouble loading data");
+          setAboutEdit(false);
+        }
+        setUserDataHasLoaded(true);
+      });
+      gotUserData.catch((err) => {
+        Toast.error(err);
+      });
     }
+
   };
 
   const loadUserPosts = () => {
@@ -941,7 +945,7 @@ function User() {
             <IonButton
               color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
               onClick={() => {
-                if(user) {dynamicNavigate('direct/' + user.uid, "forward")}
+                if (user) { dynamicNavigate('direct/' + user.uid, "forward") }
               }}
             >
               <IonIcon icon={chatbubblesOutline}></IonIcon>
@@ -1474,6 +1478,14 @@ function User() {
               }}
             >
               Settings
+              <FadeIn delay={500} transitionDuration={1500}>
+                <IonFab horizontal="end">
+                  <div>
+                    <IonNote>Swipe &nbsp;</IonNote>
+                    <IonIcon icon={arrowForward} />
+                  </div>
+                </IonFab>
+              </FadeIn>
             </IonHeader>
             <IonCard className="user-card">
               <IonContent>
@@ -1617,7 +1629,7 @@ function User() {
                               return (
                                 <FadeIn key={"notif_" + notif.postKey + index.toString()}>
                                   <IonList inset={true} mode="ios">
-                                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("chatroom/" + notif.chatroomString, "forward"); }}>
+                                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate(notif.chatroomString, "forward"); }}>
                                       <IonFab horizontal="end" vertical="top">
                                         <IonNote style={{ fontSize: "0.75em" }}>
                                           {" "}
@@ -1666,6 +1678,7 @@ function User() {
                     }
                   </>
                 </div>
+                <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
             </IonCard>
           </SwiperSlide>
