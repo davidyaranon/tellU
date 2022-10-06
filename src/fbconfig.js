@@ -1182,7 +1182,8 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
             recent: message,
             photoURL: userPhoto,
             userName: userName,
-            date: serverTimestamp()
+            date: serverTimestamp(),
+            read: false,
           });
         } else {
           await setDoc(contactMessageCollectionRef, { 
@@ -1190,7 +1191,8 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
             photoURL: userPhoto,
             contactUid: uid,
             userName: userName,
-            date: serverTimestamp()
+            date: serverTimestamp(),
+            read: false
           })
         }
       });
@@ -1202,6 +1204,7 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
           date: serverTimestamp(),
           userName: contactUserName,
           photoURL: contactPhotoUrl,
+          read: true,
         });
       } else {
         await setDoc(senderMessageCollectionRef, {
@@ -1210,6 +1213,7 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
           contactUid: contactUid,
           userName: contactUserName,
           photoURL: contactPhotoUrl,
+          read: true,
         });
       }
     });

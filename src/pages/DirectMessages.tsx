@@ -18,7 +18,7 @@ import {
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonButton, IonButtons, IonCard,
+  IonAvatar, IonBadge, IonButton, IonButtons, IonCard,
   IonCardContent, IonCol, IonContent, IonFab,
   IonFabButton, IonGrid, IonHeader, IonIcon,
   IonImg,
@@ -130,10 +130,10 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                       <IonCol size="2">
                         <img className="chat_avatar" src={msg.photoURL} />
                       </IonCol>
-                      <IonCol size="6.5">
+                      <IonCol size="7">
                         <div className="chat_info">
                           <div className="contact_name">{msg.userName}</div>
-                          <div className="contactMsg">{msg.recent.length > 25 ?
+                          <div className={"read" in msg && msg.read === false ? "contactMsgBold" : "contactMsg"}>{msg.recent.length > 25 ?
                             msg.recent.slice(0, 25) + "..."
                             : msg.recent.length == 0 ?
                               '[picture]'
@@ -143,6 +143,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                       </IonCol>
                       <IonCol size="3.5">
                         <div className="chat_date">{getDate(msg.date)}</div>
+                        {"read" in msg && msg.read == false && <div className="chat_new grad_pb">Reply</div> }
                       </IonCol>
                     </div>
                   </>

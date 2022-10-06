@@ -608,7 +608,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                             ) : null}
                           </IonFab>
                           <br></br>
-                          {"className" in post && "classNumber" in post ?
+                          {"className" in post && "classNumber" in post && post.className.length > 0 ?
                             <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.25%", marginTop: "5%" }}>
                               {post.message} <IonNote onClick={(e) => {
                                 e.stopPropagation();

@@ -430,6 +430,50 @@ function Community() {
           </IonContent>
         </IonModal>
 
+        <IonToolbar mode="ios">
+                  {/* <p style={{fontWeight:"bold" ,fontSize: "1em", marginLeft: "5vw"}}>Polls</p>
+                   */}
+                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Polls</IonCardTitle>
+                  <IonButton style={{ marginRight: "3%" }} color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
+                    <IonIcon icon={addCircleOutline} /> {'\u00A0'}New Poll
+                  </IonButton>
+                </IonToolbar>
+                {user && polls && polls.length > 0 ? (
+                  <>
+                    <Swiper slidesPerView={1.1} spaceBetween={-15}>
+                      {polls.map((poll) => {
+                        return (
+                          <SwiperSlide key={poll.key}>
+                            <IonCard mode='ios'>
+                              <IonCardContent style={{ minHeight: "50vh" }}>
+                                <p style={{ fontSize: "1em" }}>{poll.userName}</p>
+                                <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
+                                  poll.question}</IonCardTitle>
+                                <br />
+                                <IonList lines="full" mode="ios">
+                                  {poll.options.map((option: any, index: number) => {
+                                    return (
+                                      <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index && schoolName !== "Cal Poly Humboldt" ? "primary" : poll.voteMap[user!.uid] === index && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : poll.voteMap[user!.uid] === index && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "primary" : ""} key={index} mode="ios" lines="full">
+                                        <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
+                                      </IonItem>
+                                    )
+                                  })}
+                                </IonList>
+                                <br />
+                                <IonFab vertical="bottom" horizontal="start">
+                                  <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                                </IonFab>
+                              </IonCardContent>
+                            </IonCard>
+                          </SwiperSlide>
+                        )
+                      })}
+                    </Swiper>
+                  </>
+                ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                  <div style={{ textAlign: "center" }}><p>No polls within past week</p></div>
+                  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
+
         {/* <FadeIn>
           <IonHeader mode='ios'>
             <div>
@@ -898,49 +942,7 @@ function Community() {
                   <hr style={{ width: "95%" }} />
                 </FadeIn>
                 {/* <IonHeader class="ion-no-border"> */}
-                <IonToolbar mode="ios">
-                  {/* <p style={{fontWeight:"bold" ,fontSize: "1em", marginLeft: "5vw"}}>Polls</p>
-                   */}
-                  <IonCardTitle style={{ marginLeft: "5%", fontSize: "1.5em" }}>Polls</IonCardTitle>
-                  <IonButton style={{ marginRight: "3%" }} color="medium" fill="outline" size="small" onClick={() => { handleOpenPollModal(); }} slot="end">
-                    <IonIcon icon={addCircleOutline} /> {'\u00A0'}New Poll
-                  </IonButton>
-                </IonToolbar>
-                {user && polls && polls.length > 0 ? (
-                  <>
-                    <Swiper slidesPerView={1.1} spaceBetween={-15}>
-                      {polls.map((poll) => {
-                        return (
-                          <SwiperSlide key={poll.key}>
-                            <IonCard mode='ios'>
-                              <IonCardContent style={{ minHeight: "50vh" }}>
-                                <p style={{ fontSize: "1em" }}>{poll.userName}</p>
-                                <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
-                                  poll.question}</IonCardTitle>
-                                <br />
-                                <IonList lines="full" mode="ios">
-                                  {poll.options.map((option: any, index: number) => {
-                                    return (
-                                      <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => { handlePollVote(index, poll.key) }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === index && schoolName !== "Cal Poly Humboldt" ? "primary" : poll.voteMap[user!.uid] === index && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : poll.voteMap[user!.uid] === index && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "primary" : ""} key={index} mode="ios" lines="full">
-                                        <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10 + "%"}</p>
-                                      </IonItem>
-                                    )
-                                  })}
-                                </IonList>
-                                <br />
-                                <IonFab vertical="bottom" horizontal="start">
-                                  <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                                </IonFab>
-                              </IonCardContent>
-                            </IonCard>
-                          </SwiperSlide>
-                        )
-                      })}
-                    </Swiper>
-                  </>
-                ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-                  <div style={{ textAlign: "center" }}><p>No polls within past week</p></div>
-                  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
+                
               </FadeIn>
             </>
           )

@@ -749,7 +749,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           </IonFab>
                         )}
                       <div style={{ height: "0.75vh" }}>{" "}</div>
-                      {"className" in post && "classNumber" in post ?
+                      {"className" in post && "classNumber" in post  && post.className.length > 0 ?
                         <Linkify tagName="h3" className="h2-message">
                           {post.message} <IonNote onClick={(e) => {
                               e.stopPropagation();

@@ -9,6 +9,7 @@ import {
   setupIonicReact,
   IonTabBar,
   IonTabButton,
+  IonBadge,
   // IonBadge,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
@@ -183,13 +184,14 @@ const RoutingSystem: React.FunctionComponent = () => {
                     : selectedTab === 'user' ? { fontSize: "4.3vh" }
                       : { fontSize: "4.00vh" }}
               />
-              {/* {true &&  */}
-              {/* <IonBadge color="danger">{5}</IonBadge> */}
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
-    </ToastProvider>
+              {true && 
+                < IonBadge color="danger">{'!'}</IonBadge>
+              }
+          </IonTabButton>
+        </IonTabBar>
+      </IonTabs>
+    </IonReactRouter>
+    </ToastProvider >
   );
 };
 

@@ -134,7 +134,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         imgSrc,
         photoURL
       });
-      updateDmList(tempComment, contactInfo.uid, contactInfo.userName);
+      await updateDmList(tempComment, contactInfo.uid, contactInfo.userName);
       if (contactInfo && "notificationsToken" in contactInfo && schoolName) {
         sendDm(collectionPath, contactInfo.notificationsToken, tempComment, contactInfo.uid);
       }

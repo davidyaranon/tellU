@@ -6,7 +6,7 @@ import {
   IonText, IonCardContent, IonCard, IonSkeletonText,
   IonNote, IonSpinner, IonButtons, IonCardTitle,
   IonPage, useIonViewDidEnter, IonRow, IonCol,
-  IonGrid, IonSearchbar, useIonRouter, RouterDirection
+  IonGrid, IonSearchbar, useIonRouter, RouterDirection, IonBadge
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -948,7 +948,10 @@ function User() {
                 if (user) { dynamicNavigate('direct/' + user.uid, "forward") }
               }}
             >
-              <IonIcon icon={chatbubblesOutline}></IonIcon>
+              <IonIcon icon={chatbubblesOutline}>
+                
+              </IonIcon>
+              <IonBadge color='danger'>{'!'}</IonBadge>
             </IonButton>
             <IonButton
               color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
@@ -1783,7 +1786,7 @@ function User() {
                                     ) : null}
                                   </IonFab>
                                   <br></br><br />
-                                  {"className" in post && "classNumber" in post ?
+                                  {"className" in post && "classNumber" in post && post.className.length > 0 ?
                                     <Linkify tagName="h3" className="h2-message">
                                       {post.message} <IonNote onClick={(e) => {
                                         e.stopPropagation();
