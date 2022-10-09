@@ -159,7 +159,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           if (comments) {
             commentSent.likes = { "null": true };
             commentSent.dislikes = { "null": true };
-            const newCommentsArr: any[] = [commentSent, ...comments];
+            const newCommentsArr: any[] = [...comments, commentSent];
             setComments(newCommentsArr);
           }
         } else {

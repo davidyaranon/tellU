@@ -24,9 +24,9 @@ import {
   IonFabButton, IonGrid, IonHeader, IonIcon,
   IonImg,
   IonItem, IonLabel, IonList, IonModal,
-  IonNote, IonPage, IonRow, IonSelect, IonSelectOption, IonSkeletonText,
+  IonNote, IonPage, IonPopover, IonRow, IonSelect, IonSelectOption, IonSkeletonText,
   IonSpinner, IonText, IonTextarea,
-  IonTitle, IonToolbar, RouterDirection, useIonRouter
+  IonTitle, IonToolbar, RouterDirection, useIonPopover, useIonRouter
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import "../App.css";
@@ -109,8 +109,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const handleCommentSubmit = async () => {
     if (currMessage.trim().length == 0 && photo === null) {
-      Toast.error("Input a comment");
-      Keyboard.hide();
+
     } else {
       setPhoto(null);
       const tempComment = currMessage;
@@ -134,9 +133,12 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         imgSrc,
         photoURL
       });
-      await updateDmList(tempComment, contactInfo.uid, contactInfo.userName);
+      await updateDmList(tempComment, contactInfo.uid, contactInfo.userName).catch((err) => {
+        Toast.error("DM List not updated, messages will stil be stored");
+      });
       if (contactInfo && "notificationsToken" in contactInfo && schoolName) {
-        sendDm(collectionPath, contactInfo.notificationsToken, tempComment, contactInfo.uid);
+        console.log('sending dm to: ', contactInfo.notificationsToken);
+        await sendDm(collectionPath, contactInfo.notificationsToken, tempComment, contactInfo.uid);
       }
     }
   };
@@ -144,20 +146,6 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const isEnterPressed = (key: any) => {
     if (key === "Enter") {
       handleCommentSubmit();
-    }
-  };
-
-  const getDate = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(
-        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-      );
-      return timeAgo.format(time);
-    } else {
-      return '';
     }
   };
 
@@ -305,7 +293,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         </IonModal>
 
         <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios">
+          <IonToolbar mode="ios" onClick={() => { if ("uid" in contactInfo && contactInfo.uid) dynamicNavigate('about/' + contactInfo.uid, 'forward') }}>
             {contactInfo &&
               <IonTitle>{contactInfo.userName}</IonTitle>
             }
@@ -314,7 +302,8 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 color={
                   schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
                 }
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   navigateBack();
                 }}
               >
@@ -342,8 +331,9 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             spellcheck={true}
             maxlength={300}
             value={currMessage}
-            placeholder={"Send a message..."}
+            placeholder={loading ? "Loading..." : "Send a message..."}
             id="DM"
+            disabled={loading}
             onKeyDown={e => isEnterPressed(e.key)}
             onIonChange={(e: any) => {
               setCurrMessage(e.detail.value);
@@ -357,11 +347,11 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
                 {!photo ?
-                  <IonFabButton onClick={() => {  Keyboard.hide(); takePicture(); }} color="medium" size="small" mode="ios">
+                  <IonFabButton onClick={() => { Keyboard.hide(); takePicture(); }} color="medium" size="small" mode="ios">
                     <IonIcon size="small" icon={cameraOutline} />
                   </IonFabButton>
                   :
-                  <IonFabButton onClick={() => { setPhoto(null);}} color="medium" size="small" mode="ios">
+                  <IonFabButton onClick={() => { setPhoto(null); setBlob(null) }} color="medium" size="small" mode="ios">
                     <IonIcon size="small" icon={banOutline} />
                   </IonFabButton>
                 }
@@ -434,25 +424,35 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 };
 
 function ChatMessage(props: any) {
-  const { message, uid, imgSrc, photoURL } = props.msg;
+  const { message, uid, imgSrc, photoURL, date } = props.msg;
   const schoolName = props.school;
   const schoolColorToggled = props.toggled;
+  const timeAgo = new TimeAgo("en-US");
   let messageClass = uid === auth?.currentUser?.uid ? 'sent' : 'received';
-  if (schoolName === "Cal Poly Humboldt" && messageClass === 'sent') {
-    //messageClass = 'sent-humboldt';
-  }
+  const getDate = (timestamp: any) => {
+    if (!timestamp) {
+      return '';
+    }
+    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
+      const time = new Date(
+        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+      );
+      return timeAgo.format(time);
+    } else {
+      return '';
+    }
+  };
+  const Popover = () => <IonContent className="ion-padding">{getDate(date)}</IonContent>;
+
+  const [present, dismiss] = useIonPopover(Popover, {
+    onDismiss: (data: any, role: string) => {},
+  });
+  
   const router = useIonRouter();
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
-  }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      dynamicNavigate('home', 'back');
-    }
   }
 
   if (messageClass === 'sent' && schoolName === 'Cal Poly Humboldt' && schoolColorToggled) {
@@ -493,7 +493,13 @@ function ChatMessage(props: any) {
           <img onClick={() => { dynamicNavigate("about/" + uid, 'forward'); }} className='dm-img' src={photoURL} />
         }
         {message && message.length > 0 &&
-          <p>{message}</p>
+          <>
+            <p onClick={(e: any) =>
+              present({
+                event: e,
+              })
+            } >{message}</p>
+          </>
         }
       </div>
     </>

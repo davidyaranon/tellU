@@ -88,6 +88,7 @@ function User() {
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const notif = useSelector((state : any) => state.notifSet.set);
   const inputRef = useRef<HTMLIonInputElement>(null);
   const inputUserRef = useRef<HTMLIonInputElement>(null);
   const [username, setUsername] = useState("");
@@ -949,9 +950,8 @@ function User() {
               }}
             >
               <IonIcon icon={chatbubblesOutline}>
-                
               </IonIcon>
-              <IonBadge color='danger'>{'!'}</IonBadge>
+              {notif && <IonBadge color='danger'>{'!'}</IonBadge> }
             </IonButton>
             <IonButton
               color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}

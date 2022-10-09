@@ -10,6 +10,7 @@ import {
   IonTabBar,
   IonTabButton,
   IonBadge,
+  useIonToast,
   // IonBadge,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
@@ -51,14 +52,14 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
 import { db, getCurrentUser, promiseTimeout } from "./fbconfig";
 import { doc, getDoc } from "firebase/firestore";
-import { setSchoolColorPallete, setUserState } from "./redux/actions";
+import { setNotif, setSchoolColorPallete, setUserState } from "./redux/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { setDarkMode } from "./redux/actions";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
 import { StatusBar, Style } from '@capacitor/status-bar';
 import Post from "./pages/Post";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
-import { PushNotifications } from "@capacitor/push-notifications";
+import { ActionPerformed, PushNotifications, PushNotificationSchema, Token } from "@capacitor/push-notifications";
 import { FCM } from "@capacitor-community/fcm";
 import AppUrlListener from "./pages/AppUrlListener";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -85,10 +86,12 @@ setupIonicReact({
 });
 
 SplashScreen.show({
-  showDuration: 1000,
+  showDuration: 500,
   autoHide: true,
   fadeInDuration: 300,
   fadeOutDuration: 300
+}).then(() => {
+  console.log('splash screen show');
 });
 
 // Global variables
@@ -105,13 +108,69 @@ const RoutingSystem: React.FunctionComponent = () => {
   const { showTabs } = React.useContext(UIContext);
   const [selectedTab, setSelectedTab] = useState<string>("home");
   let tabBarStyle = showTabs ? undefined : { display: "none" };
+  const dispatch = useDispatch();
   const schoolName = useSelector((state: any) => state.user.school);
   const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const history = useHistory();
+  const notif = useSelector((state : any) => state.notifSet.set);
+  const [present] = useIonToast();
 
-  useEffect(() => { }, []); // add notif count in useEffect dependency array, utilize redux to save state
+  const presentToast = (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
+    dispatch(setNotif(true));
+    message = message.replace(' sent a DM', "");
+    present({
+      message: message,
+      duration: 3500,
+      position: position,
+      buttons: [
+        {
+          text: 'Open',
+          role: 'info',
+          handler: () => { history.push(url); dispatch(setNotif(false));}
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          handler: () => { }
+        }
+      ],
+      cssClass: 'toast-options',
+    });
+  }
+
+  useEffect(() => {
+    // totally works! Enable toast or something detailing notification.body as message!
+    PushNotifications.addListener(
+      'pushNotificationReceived',
+      (notification: PushNotificationSchema) => {
+        // alert('Push received: ' + JSON.stringify(notification));
+        let urlJSON = notification.data["gcm.notification.data"]
+        let noBackSlashes = urlJSON.toString().replaceAll('\\', '');
+        let removedUrl = noBackSlashes.substring(7, noBackSlashes.length);
+        let finalUrl = removedUrl.slice(1, removedUrl.length - 2);
+        // alert(finalUrl);
+        presentToast(notification.body || "", finalUrl || "", 'top');
+      },
+    ).then(() => {
+      console.log('adding listener for push notif received');
+    });
+    PushNotifications.addListener(
+      'pushNotificationActionPerformed',
+      (notification: ActionPerformed) => {
+        // alert('clicked on notif');
+        let urlJSON = notification.notification.data["gcm.notification.data"]
+        let noBackSlashes = urlJSON.toString().replaceAll('\\', '');
+        let removedUrl = noBackSlashes.substring(7, noBackSlashes.length);
+        let finalUrl = removedUrl.slice(1, removedUrl.length - 2);
+        dispatch(setNotif(false));
+        history.push(finalUrl);
+      },
+    ).then(() => {
+      console.log('adding listener for notif action performed');
+    });
+  }, []); // add notif count in useEffect dependency array, utilize redux to save state
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-      <IonReactRouter history={historyInstance}>
         <AppUrlListener></AppUrlListener>
         <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab); }}>
           <IonRouterOutlet>
@@ -184,13 +243,13 @@ const RoutingSystem: React.FunctionComponent = () => {
                     : selectedTab === 'user' ? { fontSize: "4.3vh" }
                       : { fontSize: "4.00vh" }}
               />
-              {true && 
+              {notif &&
                 < IonBadge color="danger">{'!'}</IonBadge>
               }
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      
     </ToastProvider >
   );
 };
@@ -202,92 +261,36 @@ const App: React.FunctionComponent = () => {
   const darkMode = localStorage.getItem("darkMode") || "false";
   const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
   const condition = navigator.onLine;
-  const [appActive, setAppActive] = useState<boolean>(true);
   const schoolName = useSelector((state: any) => state.user.school);
-  const history = useHistory();
-
-  // CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-  //   if (!isActive) {
-  //     setAppActive(false);
-  //     timeout(5000).then(() => {
-  //       if(!appActive){
-  //         goOffline(datab);
-  //         goOnline(datab);
-  //       }
-  //     })
-  //   } else {
-  //     setAppActive(true);
-  //   }
-  // });
-
-  const addListeners = async () => {
-    await PushNotifications.addListener('registration', token => {
-      console.info('Registration token: ', token.value);
-    });
-
-    await PushNotifications.addListener('registrationError', err => {
-      console.error('Registration error: ', err.error);
-    });
-
-    await PushNotifications.addListener('pushNotificationReceived', notification => {
-      console.log('received: ', notification);
-      console.log('hi');
-    });
-
-    await PushNotifications.addListener('pushNotificationActionPerformed', notification => {
-      console.log('Push notification action performed', notification.notification.data.url);
-      console.log(notification);
-      history.push("/" + notification.notification.data.url);
-    });
-
-
-  };
 
   const registerNotifications = async () => {
     let permStatus = await PushNotifications.checkPermissions();
-
+    console.log(permStatus.receive);
     if (permStatus.receive === 'prompt') {
       permStatus = await PushNotifications.requestPermissions();
-      await PushNotifications.removeAllListeners();
       if (permStatus.receive !== 'granted') {
         throw new Error('User denied permissions!');
       } else {
         PushNotifications.register().then(() => {
           FCM.getToken().then((token) => {
             localStorage.setItem("notificationsToken", token.token);
+            console.log('setting notif token item: ', token.token);
             console.log(token.token);
           });
-          PushNotifications.addListener(
-            'registration',
-            (token) => {
-              console.log('My token: ' + JSON.stringify(token));
-            }
-          );
-
-          PushNotifications.addListener('registrationError', (error: any) => {
-            console.log('Error: ' + JSON.stringify(error));
-          });
-
-          PushNotifications.addListener(
-            'pushNotificationReceived',
-            async (notification) => {
-              console.log('Push received: ' + JSON.stringify(notification));
-            }
-          );
-
-          PushNotifications.addListener(
-            'pushNotificationActionPerformed',
-            async (notification) => {
-              const data = notification.notification.data;
-              console.log('Action performed: ' + JSON.stringify(notification.notification));
-              console.log(data);
-              history.push('/' + data.url);
-            }
-          );
         });
       }
     }
   };
+
+  useEffect(() => {
+    PushNotifications.getDeliveredNotifications().then((notifs) => {
+      if(notifs.notifications.length > 0) {
+        dispatch(setNotif(true));
+      } else {
+        dispatch(setNotif(false));
+      }
+    });
+  }, [])
 
   useEffect(() => {
     if (condition) {
@@ -347,7 +350,7 @@ const App: React.FunctionComponent = () => {
             setBusy(false);
             window.history.replaceState({}, "", "/landing-page");
           }
-          return () => { Network.removeAllListeners(); PushNotifications.removeAllListeners().then(() => console.log("listeners removed")) }
+          return () => { Network.removeAllListeners() }
         });
         hasLoadedUser.catch((err: any) => {
           console.log(err);
@@ -370,7 +373,9 @@ const App: React.FunctionComponent = () => {
       {busy ? (
         <IonSpinner class="ion-spinner" name="dots" color={schoolName == "Cal Poly Humboldt" ? "tertiary" : "primary"} />
       ) : (
-        <RoutingSystem />
+        <IonReactRouter history={historyInstance}>
+          <RoutingSystem />
+        </IonReactRouter>
       )}
     </IonApp>
   );

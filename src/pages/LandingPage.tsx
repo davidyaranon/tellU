@@ -9,12 +9,12 @@ import { setUserState } from '../redux/actions';
 import { FCM } from '@capacitor-community/fcm';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
-import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading } from '@ionic/react';
+import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading, IonTitle, InputChangeEventDetail } from '@ionic/react';
 
 /* Firebase */
 import { doc, getDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { promiseTimeout, logInWithEmailAndPassword, db } from '../fbconfig';
+import auth, { promiseTimeout, logInWithEmailAndPassword, db, updateNotificationsToken } from '../fbconfig';
 
 /* CSS + Other components */
 import '../App.css';
@@ -40,17 +40,38 @@ const LandingPage: React.FC = () => {
   const { setShowTabs } = React.useContext(UIContext);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
 
+  const updateEmailSignIn = React.useCallback(
+    async (e: CustomEvent<InputChangeEventDetail>) => {
+      const ionInput = e.detail;
+      if (!ionInput) {
+        return;
+      }
+      const input = ionInput.value;
+      setEmailSignIn(input || "");
+      console.log(input);
+    },
+    [],
+  );
+
+  const updatePassword = React.useCallback(
+    async (e: CustomEvent<InputChangeEventDetail>) => {
+      const ionInput = e.detail;
+      if (!ionInput) {
+        return;
+      }
+      const input = ionInput.value;
+      setPasswordSignIn(input || "");
+      console.log(input);
+    },
+    [],
+  );
+
   /**
    * Uses Firebase Authentication to log user in based on
    * emailSignIn and passwordSignIn variables
    * 
    */
   async function logIn() {
-    if (emailSignIn.trim().length == 0 || passwordSignIn.length == 0) {
-      Toast.error("Enter both an email and a password");
-      setLoggingIn(false);
-      return;
-    }
     const didLogIn = promiseTimeout(10000, logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn));
     didLogIn.then((res) => {
       if (!res) {
@@ -69,10 +90,7 @@ const LandingPage: React.FC = () => {
         Toast.success("Logged In!");
         FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
         PushNotifications.register().then(() => {
-          FCM.subscribeTo({ topic: "commentNotifications" }).then(() => {
-            console.log("subscribed to comment notifications");
-          }).catch((err) => { console.error(err); })
-          FCM.getToken().then((r) => { console.log(r.token); }).catch((err) => console.error(err));
+          FCM.getToken().then((r) => { console.log(r.token); updateNotificationsToken(r); localStorage.setItem("notificationsToken", r.token)}).catch((err) => console.error(err));
           setBusy(false);
           setLoggingIn(false);
         });
@@ -149,14 +167,15 @@ const LandingPage: React.FC = () => {
         ) : (null)}
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
           <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
+          <p style={{ textAlign: "center", fontSize: "1.25em" }}>Sign In</p>
         </IonHeader>
 
         <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
           <IonItem mode='ios' >
-            <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="email" placeholder="Email" id="emailSignIn" debounce={250} onIonChange={(e: any) => { setEmailSignIn(e.detail.value); }} ></IonInput>
+            <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="email" placeholder="Email" id="emailSignIn" onIonChange={updateEmailSignIn} ></IonInput>
           </IonItem>
           <IonItem mode='ios' >
-            <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordSignIn} type="password" placeholder="Password" id="passwordSignIn" onIonChange={(e: any) => setPasswordSignIn(e.detail.value)} ></IonInput>
+            <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordSignIn} type="password" placeholder="Password" id="passwordSignIn" onIonChange={updatePassword} ></IonInput>
           </IonItem>
           <br />
           <IonButton color="transparent" mode='ios' onClick={() => { setLoggingIn(true); logIn(); }} shape="round" fill="outline" expand="block" id="signInButton" >Sign In</IonButton>

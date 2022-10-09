@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { v4 as uuidv4 } from "uuid";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
@@ -25,7 +25,7 @@ import {
   IonItem, IonLabel, IonList, IonModal,
   IonNote, IonPage, IonRow, IonSelect, IonSelectOption, IonSkeletonText,
   IonSpinner, IonText, IonTextarea,
-  IonTitle, IonToolbar, RouterDirection, useIonRouter
+  IonTitle, IonToolbar, RouterDirection, useIonRouter, useIonViewWillEnter
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import "../App.css";
@@ -38,6 +38,7 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import { Dialog } from "@capacitor/dialog";
+import { setNotif } from "../redux/actions";
 
 interface MatchUserPostParams {
   directMessageId: string;
@@ -54,6 +55,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   const [messages, loading] = useCollectionData(q);
   const timeAgo = new TimeAgo("en-US");
   const Toast = useToast();
+  const dispatch = useDispatch();
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -80,6 +82,10 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
       return '';
     }
   };
+
+  useIonViewWillEnter(() => {
+    dispatch(setNotif(false));
+  })
 
   return (
     <IonPage>
@@ -110,43 +116,44 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
               messages &&
               messages.map((msg: any, index: number) => {
                 return (
-                  <>
-                    <div className="chat" key={msg.contactUid + '-' + index.toString()} onClick={() => {
-                      let elements: any[] = [];
-                      if (userUid && msg.contactUid) {
-                        if (userUid < msg.contactUid) {
-                          elements.push(msg.contactUid);
-                          elements.push(userUid);
-                        } else {
-                          elements.push(userUid);
-                          elements.push(msg.contactUid);
-                        }
+
+                  <div className="chat" key={msg.contactUid + '-' + index.toString()} onClick={() => {
+                    let elements: any[] = [];
+                    if (userUid && msg.contactUid) {
+                      if (userUid < msg.contactUid) {
+                        elements.push(msg.contactUid);
+                        elements.push(userUid);
                       } else {
-                        Toast.error("Unable to open DMs");
+                        elements.push(userUid);
+                        elements.push(msg.contactUid);
                       }
-                      dynamicNavigate("/chatroom/" + elements[0] + '_' + elements[1], 'forward')
+                      console.log(elements[0] + '_' + elements[1]);
+                    } else {
+                      Toast.error("Unable to open DMs");
                     }
-                    }>
-                      <IonCol size="2">
-                        <img className="chat_avatar" src={msg.photoURL} />
-                      </IonCol>
-                      <IonCol size="7">
-                        <div className="chat_info">
-                          <div className="contact_name">{msg.userName}</div>
-                          <div className={"read" in msg && msg.read === false ? "contactMsgBold" : "contactMsg"}>{msg.recent.length > 25 ?
-                            msg.recent.slice(0, 25) + "..."
-                            : msg.recent.length == 0 ?
-                              '[picture]'
-                              : msg.recent}
-                          </div>
+                    dynamicNavigate("/chatroom/" + elements[0] + '_' + elements[1], 'forward')
+                  }
+                  }>
+                    <IonCol size="2">
+                      <img className="chat_avatar" src={msg.photoURL} />
+                    </IonCol>
+                    <IonCol size="7">
+                      <div className="chat_info">
+                        <div className="contact_name">{msg.userName}</div>
+                        <div className={"read" in msg && msg.read === false ? "contactMsgBold" : "contactMsg"}>{msg.recent.length > 25 ?
+                          msg.recent.slice(0, 25) + "..."
+                          : msg.recent.length == 0 ?
+                            '[picture]'
+                            : msg.recent}
                         </div>
-                      </IonCol>
-                      <IonCol size="3.5">
-                        <div className="chat_date">{getDate(msg.date)}</div>
-                        {"read" in msg && msg.read == false && <div className="chat_new grad_pb">Reply</div> }
-                      </IonCol>
-                    </div>
-                  </>
+                      </div>
+                    </IonCol>
+                    <IonCol size="3.5">
+                      <div className="chat_date">{getDate(msg.date)}</div>
+                      {"read" in msg && msg.read == false && <div className="chat_new grad_pb">Reply</div>}
+                    </IonCol>
+                  </div>
+
                 )
               })
             }

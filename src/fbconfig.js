@@ -210,8 +210,19 @@ export async function logInWithEmailAndPassword(email, password) {
   }
 }
 
+const updateNotificationsTokenAfterLogout = async (userUid) => {
+  if(!userUid || userUid.length <= 0) { return; }
+  const batch = writeBatch(db);
+  const userDocRef = doc(db, "userData", userUid);
+  batch.update(userDocRef, {
+    notificationsToken: ""
+  });
+  await batch.commit().catch((err) => console.log(err));
+}
+
 export const updateNotificationsToken = async (token) => {
   try {
+    if (!token || token.length <= 0) { return; }
     if (db && auth && auth.currentUser) {
       const uid = auth.currentUser.uid;
       const batch = writeBatch(db);
@@ -304,6 +315,8 @@ export const logout = async () => {
       var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
       document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
+    const userUid = auth.currentUser.uid || "";
+    updateNotificationsTokenAfterLogout(userUid);
     await signOut(auth);
     return true;
   } catch (err) {
@@ -1166,16 +1179,16 @@ export const sendDm = async (chatroomString, notificationsToken, message, contac
 };
 
 export const updateDmList = async (message, contactUid, contactUserName) => {
+
   if (auth && db) {
     const uid = auth.currentUser.uid;
     const userName = auth.currentUser.displayName;
     const userPhoto = auth.currentUser.photoURL;
     const contactMessageCollectionRef = doc(db, "userData", contactUid, "messages", uid)
     const senderMessageCollectionRef = doc(db, "userData", uid, "messages", contactUid);
-    const contactPhotoUrl = await getDownloadURL(ref(storage, "profilePictures/" + contactUid + "photoURL"));
-    if (!contactPhotoUrl || contactPhotoUrl.length == 0){
-      contactPhotoUrl = "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
-    }
+    let contactPhotoUrl = "";
+    getDownloadURL(ref(storage, "profilePictures/" + contactUid + "photoURL")).then(async (url) => {
+      contactPhotoUrl = url;
       await getDoc(contactMessageCollectionRef).then(async (res) => {
         if (res.exists()) {
           await updateDoc(contactMessageCollectionRef, {
@@ -1184,41 +1197,114 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
             userName: userName,
             date: serverTimestamp(),
             read: false,
+          }).catch((err) => {
+            console.log(err);
+            console.log("Error when updating contact message collection: ", contactUid);
           });
         } else {
-          await setDoc(contactMessageCollectionRef, { 
+          await setDoc(contactMessageCollectionRef, {
             recent: message,
             photoURL: userPhoto,
             contactUid: uid,
             userName: userName,
             date: serverTimestamp(),
             read: false
+          }).catch((err) => {
+            console.log(err);
+            console.log("error when setting contact message collection: ", contactUid);
           })
         }
       });
-    await getDoc(senderMessageCollectionRef).then(async (res) => { 
-      if (res.exists()) {
-        console.log('setting sendermessagecollection')
-        await updateDoc(senderMessageCollectionRef, {
-          recent: message,
-          date: serverTimestamp(),
-          userName: contactUserName,
-          photoURL: contactPhotoUrl,
-          read: true,
-        });
-      } else {
-        await setDoc(senderMessageCollectionRef, {
-          recent: message,
-          date: serverTimestamp(),
-          contactUid: contactUid,
-          userName: contactUserName,
-          photoURL: contactPhotoUrl,
-          read: true,
-        });
-      }
+      await getDoc(senderMessageCollectionRef).then(async (res) => {
+        if (res.exists()) {
+          console.log('setting sendermessagecollection')
+          await updateDoc(senderMessageCollectionRef, {
+            recent: message,
+            date: serverTimestamp(),
+            userName: contactUserName,
+            photoURL: contactPhotoUrl,
+            read: true,
+          }).catch((err) => {
+            console.log(err);
+            console.log("error when updating sender message collection: ", uid);
+          });
+        } else {
+          await setDoc(senderMessageCollectionRef, {
+            recent: message,
+            date: serverTimestamp(),
+            contactUid: contactUid,
+            userName: contactUserName,
+            photoURL: contactPhotoUrl,
+            read: true,
+          }).catch((err) => {
+            console.log(err);
+            console.log("error when setting sender message collection: ", uid);
+          });
+        }
+      });
+    }).catch(async (err) => {
+      console.log(err);
+      contactPhotoUrl = "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
+      await getDoc(contactMessageCollectionRef).then(async (res) => {
+        if (res.exists()) {
+          await updateDoc(contactMessageCollectionRef, {
+            recent: message,
+            photoURL: userPhoto,
+            userName: userName,
+            date: serverTimestamp(),
+            read: false,
+          }).catch((err) => {
+            console.log(err);
+            console.log("Error when updating contact message collection: ", contactUid);
+          });
+        } else {
+          await setDoc(contactMessageCollectionRef, {
+            recent: message,
+            photoURL: userPhoto,
+            contactUid: uid,
+            userName: userName,
+            date: serverTimestamp(),
+            read: false
+          }).catch((err) => {
+            console.log(err);
+            console.log("error when setting contact message collection: ", contactUid);
+          })
+        }
+      });
+      await getDoc(senderMessageCollectionRef).then(async (res) => {
+        if (res.exists()) {
+          console.log('setting sendermessagecollection')
+          await updateDoc(senderMessageCollectionRef, {
+            recent: message,
+            date: serverTimestamp(),
+            userName: contactUserName,
+            photoURL: contactPhotoUrl,
+            read: true,
+          }).catch((err) => {
+            console.log(err);
+            console.log("error when updating sender message collection: ", uid);
+          });
+        } else {
+          await setDoc(senderMessageCollectionRef, {
+            recent: message,
+            date: serverTimestamp(),
+            contactUid: contactUid,
+            userName: contactUserName,
+            photoURL: contactPhotoUrl,
+            read: true,
+          }).catch((err) => {
+            console.log(err);
+            console.log("error when setting sender message collection: ", uid);
+          });
+        }
+      });
     });
+    // if (!contactPhotoUrl || contactPhotoUrl.length == 0) {
+    //   contactPhotoUrl = "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
+    // }
+
   }
-}
+};
 
 export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken) => {
   try {

@@ -6,11 +6,12 @@ const defaultState = {
   school: {},
   colorToggled: {},
   notificationCount: 0,
+  notifSet : false,
 }
 
 
-export default function reducer(state = defaultState, { type, payload_username, payload_email, hasLoaded, toggled, colorToggled, school, notificationCount }
-  : { type: string, payload_username: any, payload_email: any, hasLoaded: boolean, toggled: boolean, colorToggled : boolean, school: string, notificationCount: number, })
+export default function reducer(state = defaultState, { type, payload_username, payload_email, hasLoaded, toggled, colorToggled, school, notificationCount, notifSet}
+  : { type: string, payload_username: any, payload_email: any, hasLoaded: boolean, toggled: boolean, colorToggled : boolean, school: string, notificationCount: number, notifSet : boolean})
   : any {
 
   switch (type) {
@@ -43,6 +44,13 @@ export default function reducer(state = defaultState, { type, payload_username, 
         ...state,
         count: {
           notificationCount: notificationCount,
+        }
+      }
+    case 'SET_NOTIF' :
+      return {
+        ...state,
+        notifSet: {
+          set: notifSet
         }
       }
 

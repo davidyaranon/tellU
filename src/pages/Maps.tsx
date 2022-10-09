@@ -171,6 +171,8 @@ function Maps() {
       } else {
         if (filter === "BUY/SELL") {
           filter = "buy/Sell";
+        } else if (filter === "RESEARCH") {
+          filter = "research";
         } else if (filter === "GENERAL") {
           filter = filter.toLowerCase();
         } else {
@@ -333,6 +335,7 @@ function Maps() {
             <IonSelectOption value="BUY/SELL">Buy/Sell</IonSelectOption>
             <IonSelectOption value="SIGHTINGS">Sightings</IonSelectOption>
             <IonSelectOption value="EVENTS">Events</IonSelectOption>
+            <IonSelectOption value="RESEARCH">Research</IonSelectOption>
           </IonSelect>
         </div>
 

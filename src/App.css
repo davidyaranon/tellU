@@ -141,6 +141,11 @@ ion-checkbox {
   --border-color-checked: #ffffff;
 }
 
+#researchCheckbox {
+  --background-checked: #743dff;
+  --border-color-checked: #ffffff;
+}
+
 #alert {
   width: 0.5%;
   height: 3.5vh;
@@ -730,4 +735,14 @@ img.chat_avatar {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.toast-options {
+  transform: translateY(-50px) !important;
+}
+.ios .toast-options {
+  transform: translateY(-50px) !important;
+}
+.md .toast-options {
+  transform: translateY(-50px) !important;
 }

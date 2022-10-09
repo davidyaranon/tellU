@@ -270,6 +270,7 @@ exports.sendDmNotification = functions.https.onCall(async (data, context) => {
       data: {
         url: data.data.url
       },
+      badge: 1,
       click_action: 'FCM_PLUGIN_ACTIVITY'
     },
     to: data.notificationsToken
@@ -283,7 +284,7 @@ exports.sendDmNotification = functions.https.onCall(async (data, context) => {
       for (let i = arr.length - 1; i >= 0; --i) {
         newNotifs.push(arr[i]);
         count++;
-        if (count >= 20) { break; }
+        if (count >= 30) { break; }
       }
     }
     const created_at = admin.firestore.Timestamp.now()
@@ -337,6 +338,7 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
       data: {
         url: data.data.url
       },
+      badge: 1,
       click_action: 'FCM_PLUGIN_ACTIVITY'
     },
     to: data.notificationsToken
@@ -350,7 +352,7 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
       for (let i = arr.length - 1; i >= 0; --i) {
         newNotifs.push(arr[i]);
         count++;
-        if (count >= 20) { break; }
+        if (count >= 30) { break; }
       }
     }
     const created_at = admin.firestore.Timestamp.now()

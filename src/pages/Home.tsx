@@ -94,6 +94,7 @@ function Home() {
   const [alertChecked, setAlertChecked] = useState<boolean>(false);
   const [sightingChecked, setSightingChecked] = useState<boolean>(false);
   const [eventsChecked, setEventsChecked] = useState<boolean>(false);
+  const [researchChecked, setResearchChecked] = useState<boolean>(false);
   const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
@@ -235,30 +236,42 @@ function Home() {
         setBuySellChecked(false);
         setEventsChecked(false);
         setSightingChecked(false);
+        setResearchChecked(false);
         break;
       case "alert":
         setGeneralChecked(false);
         setBuySellChecked(false);
         setEventsChecked(false);
         setSightingChecked(false);
+        setResearchChecked(false);
         break;
       case "buySell":
         setAlertChecked(false);
         setGeneralChecked(false);
         setEventsChecked(false);
         setSightingChecked(false);
+        setResearchChecked(false);
         break;
       case "event":
         setAlertChecked(false);
         setBuySellChecked(false);
         setGeneralChecked(false);
         setSightingChecked(false);
+        setResearchChecked(false);
         break;
       case "sighting":
         setAlertChecked(false);
         setBuySellChecked(false);
         setEventsChecked(false);
         setGeneralChecked(false);
+        setResearchChecked(false);
+        break;
+      case "research":
+        setAlertChecked(false);
+        setBuySellChecked(false);
+        setEventsChecked(false);
+        setGeneralChecked(false);
+        setSightingChecked(false);
         break;
       default:
         break;
@@ -403,7 +416,8 @@ function Home() {
       !buySellChecked &&
       !alertChecked &&
       !sightingChecked &&
-      !generalChecked
+      !generalChecked &&
+      !researchChecked
     ) {
       Toast.error("Select a post type");
     } else {
@@ -717,6 +731,19 @@ function Home() {
                     handleCheckboxChange("event");
                     setEventsChecked(e.detail.checked);
                     if (e.detail.checked) setCheckboxSelection("event");
+                  }}
+                ></IonCheckbox>
+              </IonItem>
+              <IonItem lines="none" mode="ios">
+                <IonLabel>Research</IonLabel>
+                <IonCheckbox
+                  id="researchCheckbox"
+                  checked={researchChecked}
+                  slot="start"
+                  onIonChange={(e) => {
+                    handleCheckboxChange("research");
+                    setResearchChecked(e.detail.checked);
+                    if (e.detail.checked) setCheckboxSelection("research");
                   }}
                 ></IonCheckbox>
               </IonItem>

@@ -13,3 +13,7 @@ export const setDarkMode = (toggled: boolean) => {
 export const setSchoolColorPallete = (colorToggled : boolean) => {
   return { type: 'SET_SCHOOL_COLOR_PALLETE', colorToggled }
 }
+
+export const setNotif = (notifSet : boolean) => {
+  return { type : 'SET_NOTIF', notifSet }
+}
