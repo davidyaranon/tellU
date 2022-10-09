@@ -979,7 +979,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       }}
                       className={likeAnimation === 0 ? "likeAnimation" : ""}
                       disabled={
-                        disabledLikeButtons === 0
+                        disabledLikeButtons === 0 || Object.keys(post.likes).length - 1 === -1
                       }
                       mode="ios"
                       fill="outline"
@@ -1026,7 +1026,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           : ""
                       }
                       disabled={
-                        disabledLikeButtons === 0
+                        disabledLikeButtons === 0 || Object.keys(post.dislikes).length - 1 === -1
                       }
                       mode="ios"
                       fill="outline"
@@ -1160,7 +1160,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           className={
                             likeAnimationComments === comment.key ? "likeAnimation" : ""
                           }
-                          disabled={disabledLikeButtonsComments === index || deleted}
+                          disabled={disabledLikeButtonsComments === index || deleted || (Object.keys(comment.likes).length - 1) === -1}
                           mode="ios"
                           fill="outline"
                           color={
@@ -1193,7 +1193,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           mode="ios"
                           fill="outline"
                           disabled={
-                            disabledLikeButtonsComments === index || deleted
+                            disabledLikeButtonsComments === index || deleted || Object.keys(comment.dislikes).length - 1 === -1
                           }
                           onAnimationEnd={() => {
                             setDislikeAnimationComments(-1);

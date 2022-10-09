@@ -424,6 +424,7 @@ function Home() {
       setPrevPostUploading(true);
       setShowProgressBar(true);
       let uniqueId = uuidv4();
+      let docId = uuidv4();
       if (blob && photo) {
         setPhoto([]);
         if (user) {
@@ -445,11 +446,12 @@ function Home() {
             notificationsToken,
             checkboxSelection,
             postClassName,
-            postClassNumber
+            postClassNumber,
+            docId,
           );
           setBlob([]);
-          if (res == "false") {
-            Toast.error("Unable to process message :(");
+          if (!res) {
+            Toast.error("Unable to process message, check internet connection :(");
             setShowProgressBar(false);
           } else {
             Toast.success("Uploaded!");
@@ -475,9 +477,10 @@ function Home() {
           checkboxSelection,
           postClassName,
           postClassNumber,
+          docId,
         );
-        if (res == "false" || !res) {
-          Toast.error("Unable to process message :(");
+        if (!res) {
+          Toast.error("Unable to process message, check internet connection :(");
           setShowProgressBar(false);
           setPrevPostUploading(false);
         } else {
@@ -2135,7 +2138,7 @@ function Home() {
                       className={
                         likeAnimation === post.key ? "likeAnimation" : ""
                       }
-                      disabled={disabledLikeButtons === index}
+                      disabled={disabledLikeButtons === index || Object.keys(post.likes).length - 1 === -1}
                       mode="ios"
                       fill="outline"
                       color={
@@ -2176,7 +2179,7 @@ function Home() {
                       className={
                         dislikeAnimation === post.key ? "likeAnimation" : ""
                       }
-                      disabled={disabledLikeButtons === index}
+                      disabled={disabledLikeButtons === index || Object.keys(post.dislikes).length - 1 === -1}
                       mode="ios"
                       fill="outline"
                       color={

@@ -362,7 +362,8 @@ export const addMessage = async (
   notificationsToken,
   postType = "general",
   postClassName = "",
-  postClassNumber = ""
+  postClassNumber = "",
+  docId
 ) => {
   try {
     if (auth.currentUser != null) {
@@ -384,8 +385,21 @@ export const addMessage = async (
           long = pos.coords.longitude;
           marker = true;
         }
-        const docId = await addDoc(
-          collection(db, "schoolPosts", school.replace(/\s+/g, ""), "allPosts"),
+
+        await set(rtdbRef(database, docId), {
+          likes: {
+            'null': true
+          },
+          dislikes: {
+            'null': true
+          },
+          commentAmount: 0,
+        }).catch((err) => {
+          console.log(err);
+        });
+
+        await setDoc(
+          doc(db, "schoolPosts", school.replace(/\s+/g, ""), "allPosts", docId),
           {
             userName: name,
             timestamp: serverTimestamp(),
@@ -400,30 +414,24 @@ export const addMessage = async (
             className: postClassName,
             classNumber: postClassNumber,
           }
-        );
-
-        await set(rtdbRef(database, docId.id), {
-          likes: {
-            'null': true
-          },
-          dislikes: {
-            'null': true
-          },
-          commentAmount: 0,
-        }).catch((err) => {
+        ).catch((err) => {
           console.log(err);
         });
 
-        return "true";
+
+        return true;
+
       } else {
         console.log("uid missing");
+        return false;
       }
     } else {
       console.log("currentUser missing");
+      return false;
     }
   } catch (err) {
     console.log(err.message);
-    return "false";
+    return false;
   }
 };
 
@@ -1157,6 +1165,7 @@ export const sendDm = async (chatroomString, notificationsToken, message, contac
   try {
     if (auth && db) {
       console.log('sending dm to ', notificationsToken);
+      console.log(notificationsToken);
       const userName = auth.currentUser.displayName;
       const senderUid = auth.currentUser.uid;
       if (message.length == 0) {
