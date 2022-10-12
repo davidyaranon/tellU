@@ -88,12 +88,12 @@ const LandingPage: React.FC = () => {
         }
         dispatch(setUserState(res.user.displayName, res.user.email, false, school));
         Toast.success("Logged In!");
-        FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
-        PushNotifications.register().then(() => {
-          FCM.getToken().then((r) => { console.log(r.token); updateNotificationsToken(r); localStorage.setItem("notificationsToken", r.token)}).catch((err) => console.error(err));
-          setBusy(false);
-          setLoggingIn(false);
-        });
+        // FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
+        // PushNotifications.register().then(() => {
+        //   FCM.getToken().then((r) => { console.log(r.token); updateNotificationsToken(r); localStorage.setItem("notificationsToken", r.token)}).catch((err) => console.error(err));
+        //   setBusy(false);
+        //   setLoggingIn(false);
+        // });
       }).catch((err) => {
         console.log(err);
         dispatch(setUserState(res.user.displayName, res.user.email, false, ""));

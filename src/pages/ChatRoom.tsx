@@ -163,8 +163,8 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const reportUser = async () => {
     const { value } = await Dialog.confirm({
-      title: 'Report Post',
-      message: `Are you sure you want to report this post?`,
+      title: 'Report User',
+      message: `Are you sure you want to report this user?`,
       okButtonTitle: 'Report'
     });
     if (value) {
@@ -311,7 +311,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
-              <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={() => { reportUser() }}>
+              <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={(e : any) => { e.stopPropagation(); reportUser() }}>
                 <IonIcon icon={alertCircleOutline} />
               </IonButton>
             </IonButtons>
