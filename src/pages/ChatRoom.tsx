@@ -109,12 +109,12 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const handleCommentSubmit = async () => {
     if (currMessage.trim().length == 0 && photo === null) {
-
+      Keyboard.hide();
     } else {
       setPhoto(null);
       const tempComment = currMessage;
       setCurrMessage("");
-      contentRef && contentRef.current && contentRef.current.scrollToBottom();
+      contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
       Keyboard.hide();
       let uniqueId = uuidv4();
       let url = "";
@@ -209,7 +209,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(resizeOptions);
       setKbHeight(info.keyboardHeight);
-      contentRef && contentRef.current && contentRef.current.scrollToBottom();
+      contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
     });
 
     Keyboard.addListener('keyboardWillHide', () => {
@@ -311,7 +311,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButton>
             </IonButtons>
             <IonButtons slot='end'>
-              <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={(e : any) => { e.stopPropagation(); reportUser() }}>
+              <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={(e: any) => { e.stopPropagation(); reportUser() }}>
                 <IonIcon icon={alertCircleOutline} />
               </IonButton>
             </IonButtons>
@@ -366,7 +366,9 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               ?
               <>
                 {messages?.map((msg: any, index: number) => (
-                  <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} />
+                  <FadeIn transitionDuration={500}>
+                    <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} />
+                  </FadeIn>
                 ))}
                 {kbHeight != 0 ?
                   <>
@@ -445,9 +447,9 @@ function ChatMessage(props: any) {
   const Popover = () => <IonContent className="ion-padding">{getDate(date)}</IonContent>;
 
   const [present, dismiss] = useIonPopover(Popover, {
-    onDismiss: (data: any, role: string) => {},
+    onDismiss: (data: any, role: string) => { },
   });
-  
+
   const router = useIonRouter();
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {

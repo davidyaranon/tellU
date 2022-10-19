@@ -8,6 +8,8 @@ import tellU_humboldt from '../images/tellU_humboldt.png';
 import tellU_humboldt_black from '../images/tellU_humboldt_black.png';
 
 import humboldtImage from '../images/humboldt_school.png'
+import berkeleyImage from '../images/berkeley_school.png'
+
 
 export const ionHeaderStyle = {
   textAlign: 'center',
@@ -21,16 +23,14 @@ class Header extends Component<any, any>{
     const colorPallete: boolean = this.props.colorPallete;
     let schoolStyle = {};
     let isHumboldt = false;
+    let isBerkeley = false;
+    schoolStyle = {
+      fontWeight: "bold",
+    }
     if (this.props.schoolName === 'Cal Poly Humboldt') {
-      schoolStyle = {
-        fontWeight: "bold",
-        // color: "#006F4D"
-      }
       isHumboldt = true;
-    } else {
-      schoolStyle = {
-        fontWeight: "bold"
-      }
+    } else if (this.props.schoolName === "UC Berkeley") {
+      isBerkeley = true;
     }
     if (dark && isHumboldt && colorPallete) {
       return (
@@ -135,6 +135,65 @@ class Header extends Component<any, any>{
             backgroundImage: `url(${humboldtImage})`,
             backgroundSize: '95vw',
             backgroundPosition: '10% -110%'
+          }}>
+            <IonHeader class="ion-no-border" style={{ textAlign: "center", top: "1vh" }}>
+              {/* <IconButton> */}
+              <img
+                draggable={false}
+                className='quantum_logo'
+                src={tellU}
+                alt="QUANTUM"
+                style={{ zoom: zoom }}
+              />
+              {/* </IconButton> */}
+              <p style={schoolStyle}>{this.props.schoolName}</p>
+            </IonHeader>
+          </div>
+        </div>
+      )
+    }
+    else if (dark && isBerkeley) {
+      return (
+        <div style={{
+          width: "100%",
+        }}
+        >
+          <div style={{
+            width: "100%",
+            borderRadius: "10px",
+            display: "inline-block",
+            backgroundImage: `url(${berkeleyImage})`,
+            backgroundSize: '95vw',
+            backgroundPosition: '10% -110%'
+          }}>
+            <IonHeader class="ion-no-border" style={{ textAlign: "center", top: "1vh" }}>
+              {/* <IconButton> */}
+              <img
+                draggable={false}
+                className='quantum_logo'
+                src={tellU_white}
+                alt="QUANTUM"
+                style={{ zoom: zoom }}
+              />
+              {/* </IconButton> */}
+              <p style={schoolStyle}>{this.props.schoolName}</p>
+            </IonHeader>
+          </div>
+        </div>
+      )
+    }
+    else if (!dark && isBerkeley) {
+      return (
+        <div style={{
+          width: "100%",
+        }}
+        >
+          <div style={{
+            width: "100%",
+            borderRadius: "10px",
+            display: "inline-block",
+            backgroundImage: `url(${berkeleyImage})`,
+            backgroundSize: '95vw',
           }}>
             <IonHeader class="ion-no-border" style={{ textAlign: "center", top: "1vh" }}>
               {/* <IconButton> */}

@@ -90,7 +90,6 @@ function Community() {
   const [weatherData, setWeatherData] = useState<any>();
   const [isDay, setIsDay] = useState<boolean>(false);
   const [batteryPercentage, setBatteryPercentage] = useState<number>();
-  const [deviceName, setDeviceName] = useState<string | undefined>("");
   const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
   const [pollOptions, setPollOptions] =
     useState<PollAnswer[]>([

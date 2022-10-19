@@ -111,12 +111,24 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
 
         <div className='ion-modal'>
           <br /><br />
+
+          {loading &&
+            <div className="ion-spinner">
+              <IonSpinner
+                color={
+                  schoolName === "Cal Poly Humboldt"
+                    && schoolColorToggled
+                    ? "tertiary"
+                    : "primary"
+                }
+              />
+            </div>
+          }
           <FadeIn>
             {
-              messages &&
+              messages && messages.length > 0 &&
               messages.map((msg: any, index: number) => {
                 return (
-
                   <div className="chat" key={msg.contactUid + '-' + index.toString()} onClick={() => {
                     let elements: any[] = [];
                     if (userUid && msg.contactUid) {
@@ -158,8 +170,12 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
               })
             }
           </FadeIn>
+          {messages && messages.length == 0 &&
+            <div className="ion-spinner">
+              <p>Send a DM!</p>
+            </div>
+          }
         </div>
-
       </IonContent>
     </IonPage>
   )

@@ -270,7 +270,6 @@ exports.sendDmNotification = functions.https.onCall(async (data, context) => {
       data: {
         url: data.data.url
       },
-      badge: 1,
       click_action: 'FCM_PLUGIN_ACTIVITY'
     },
     to: data.notificationsToken
@@ -280,7 +279,7 @@ exports.sendDmNotification = functions.https.onCall(async (data, context) => {
     let arr = document.data().notifs;
     let newNotifs = [];
     let count = 0;
-    if(arr.length > 0) {
+    if (arr.length > 0) {
       for (let i = arr.length - 1; i >= 0; --i) {
         newNotifs.push(arr[i]);
         count++;
@@ -311,7 +310,7 @@ exports.sendDmNotification = functions.https.onCall(async (data, context) => {
     console.log(err);
   });
 
-})
+});
 
 exports.sendCommentsNotification = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
@@ -338,7 +337,6 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
       data: {
         url: data.data.url
       },
-      badge: 1,
       click_action: 'FCM_PLUGIN_ACTIVITY'
     },
     to: data.notificationsToken
@@ -348,7 +346,7 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
     let arr = document.data().notifs;
     let newNotifs = [];
     let count = 0;
-    if(arr.length > 0) {
+    if (arr.length > 0) {
       for (let i = arr.length - 1; i >= 0; --i) {
         newNotifs.push(arr[i]);
         count++;
@@ -374,11 +372,11 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body)
+  }).then(() => {
+    functions.logger.log("sent notif to: ", data.notificationsToken);
   }).catch((err) => {
     console.log('something went wrong when sending notifs');
     console.log(err);
   });
-
-
 });
 

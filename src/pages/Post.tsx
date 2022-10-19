@@ -142,7 +142,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       const tempComment = comment;
       setComment("");
       Keyboard.hide();
-      setCommentsLoading(true);
+      // setCommentsLoading(true);
       setPreviousCommentLoading(true);
       let uniqueId = uuidv4();
       if (blob) {
@@ -167,6 +167,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         }
         setCommentsLoading(false);
         setPreviousCommentLoading(false);
+        contentRef && contentRef.current && contentRef.current.scrollToBottom(750);
       });
       hasTimedOut.catch((err) => {
         Toast.warning('Slow internet connection, comment will be uploaded soon...');
@@ -295,7 +296,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       okButtonTitle: 'Delete'
     });
     if (!value) { return; }
-    setCommentsLoading(true);
+    // setCommentsLoading(true);
     if (comments && schoolName) {
       const commentBeingDeleted = comments[index];
       const didDelete = promiseTimeout(5000, removeCommentNew(commentBeingDeleted, schoolName, postKey, commentUrl));
@@ -1088,7 +1089,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </div>
           ) : (
             <FadeIn>
-              <div>
+              {/* <div> */}
                 {comments && comments.length > 0
                   ? comments?.map((comment: any, index: number) => (
                     <IonList inset={true} key={index}>
@@ -1248,7 +1249,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </>
                   :
                   null}
-              </div>
+              {/* </div> */}
             </FadeIn>
           )}
           <IonInfiniteScroll

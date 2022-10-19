@@ -26,37 +26,33 @@ import schoolOutlineWhite from '../images/school-outline-white.png';
 const zoomControlButtonsStyleDark = {
   width: "50px",
   height: '50px',
-  borderRadius: '1px',
+  borderRadius: '7.5px',
   boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
   background: '#2f2f2f',
   lineHeight: '26px',
   fontSize: '25PX',
   fontWeight: '700',
   color: 'WHITE',
-  marginBottom: '1px',
   cursor: 'pointer',
   border: 'none',
   display: 'block',
   outline: 'none',
-  textIndent: '-7.5px',
 }
 
 const zoomControlButtonsStyle = {
   width: "50px",
   height: '50px',
-  borderRadius: '1px',
+  borderRadius: '7.5px',
   boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
   background: 'white',
   lineHeight: '26px',
   fontSize: '25PX',
   fontWeight: '700',
   color: 'BLACK',
-  marginBottom: '1px',
   cursor: 'pointer',
   border: 'none',
   display: 'block',
   outline: 'none',
-  textIndent: '-7.5px',
 }; // +/- buttons that appear on map can be styled here
 
 const schoolInfo = {

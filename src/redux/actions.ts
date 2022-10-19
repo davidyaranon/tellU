@@ -17,3 +17,7 @@ export const setSchoolColorPallete = (colorToggled : boolean) => {
 export const setNotif = (notifSet : boolean) => {
   return { type : 'SET_NOTIF', notifSet }
 }
+
+export const setMinimal = (minimal : boolean) => {
+  return { type : 'SET_MINIMAL', minimal }
+}
