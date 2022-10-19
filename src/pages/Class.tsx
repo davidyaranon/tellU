@@ -693,363 +693,378 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                                                           <IonSelectOption value="311" class="all-option">311</IonSelectOption>
                                                                           <IonSelectOption value="352" class="all-option">352</IonSelectOption>
                                                                         </>
-                                                                        : postClassName === 'GSP' ?
+                                                                        : postClassName === 'GEOL' ?
                                                                           <>
-                                                                            <IonSelectOption value="101" class="all-option">101</IonSelectOption>
-                                                                            <IonSelectOption value="216" class="all-option">216</IonSelectOption>
-                                                                            <IonSelectOption value="270" class="all-option">270</IonSelectOption>
-                                                                            <IonSelectOption value="316" class="all-option">316</IonSelectOption>
-                                                                            <IonSelectOption value="326" class="all-option">326</IonSelectOption>
-                                                                            <IonSelectOption value="370" class="all-option">370</IonSelectOption>
-                                                                            <IonSelectOption value="416" class="all-option">416</IonSelectOption>
+                                                                            <IonSelectOption value="103" class="all-option">105</IonSelectOption>
+                                                                            <IonSelectOption value="106" class="all-option">106</IonSelectOption>
+                                                                            <IonSelectOption value="109" class="all-option">300</IonSelectOption>
+                                                                            <IonSelectOption value="303" class="all-option">310</IonSelectOption>
+                                                                            <IonSelectOption value="306" class="all-option">311</IonSelectOption>
+                                                                            <IonSelectOption value="312" class="all-option">352</IonSelectOption>
+                                                                            <IonSelectOption value="332" class="all-option">352</IonSelectOption>
+                                                                            <IonSelectOption value="335" class="all-option">352</IonSelectOption>
+                                                                            <IonSelectOption value="399" class="all-option">352</IonSelectOption>
+                                                                            <IonSelectOption value="452" class="all-option">352</IonSelectOption>
+                                                                            <IonSelectOption value="455" class="all-option">352</IonSelectOption>
+                                                                            <IonSelectOption value="474" class="all-option">352</IonSelectOption>
                                                                           </>
-                                                                          : postClassName === 'GERM' ?
+                                                                          : postClassName === 'GSP' ?
                                                                             <>
-                                                                              <IonSelectOption value="105" class="all-option">105</IonSelectOption>
-                                                                              <IonSelectOption value="107" class="all-option">107</IonSelectOption>
-                                                                              <IonSelectOption value="306" class="all-option">306</IonSelectOption>
+                                                                              <IonSelectOption value="101" class="all-option">101</IonSelectOption>
+                                                                              <IonSelectOption value="216" class="all-option">216</IonSelectOption>
+                                                                              <IonSelectOption value="270" class="all-option">270</IonSelectOption>
+                                                                              <IonSelectOption value="316" class="all-option">316</IonSelectOption>
+                                                                              <IonSelectOption value="326" class="all-option">326</IonSelectOption>
+                                                                              <IonSelectOption value="370" class="all-option">370</IonSelectOption>
+                                                                              <IonSelectOption value="416" class="all-option">416</IonSelectOption>
                                                                             </>
-                                                                            : postClassName === 'HED' ?
+                                                                            : postClassName === 'GERM' ?
                                                                               <>
-                                                                                <IonSelectOption value="100" class="all-option">100</IonSelectOption>
-                                                                                <IonSelectOption value="120" class="all-option">120</IonSelectOption>
-                                                                                <IonSelectOption value="231" class="all-option">231</IonSelectOption>
-                                                                                <IonSelectOption value="342" class="all-option">342</IonSelectOption>
-                                                                                <IonSelectOption value="345" class="all-option">345</IonSelectOption>
-                                                                                <IonSelectOption value="392" class="all-option">392</IonSelectOption>
-                                                                                <IonSelectOption value="446" class="all-option">446</IonSelectOption>
-                                                                                <IonSelectOption value="451" class="all-option">451</IonSelectOption>
-                                                                                <IonSelectOption value="495" class="all-option">495</IonSelectOption>
+                                                                                <IonSelectOption value="105" class="all-option">105</IonSelectOption>
+                                                                                <IonSelectOption value="107" class="all-option">107</IonSelectOption>
+                                                                                <IonSelectOption value="306" class="all-option">306</IonSelectOption>
                                                                               </>
-                                                                              : postClassName === 'HIST' ?
+                                                                              : postClassName === 'HED' ?
                                                                                 <>
-                                                                                  <IonSelectOption value="104" class="all-option">104</IonSelectOption>
-                                                                                  <IonSelectOption value="106B" class="all-option">16B5</IonSelectOption>
-                                                                                  <IonSelectOption value="109" class="all-option">109</IonSelectOption>
-                                                                                  <IonSelectOption value="110" class="all-option">110</IonSelectOption>
-                                                                                  <IonSelectOption value="111" class="all-option">111</IonSelectOption>
-                                                                                  <IonSelectOption value="200" class="all-option">200</IonSelectOption>
-                                                                                  <IonSelectOption value="210" class="all-option">210</IonSelectOption>
-                                                                                  <IonSelectOption value="305" class="all-option">305</IonSelectOption>
-                                                                                  <IonSelectOption value="338" class="all-option">338</IonSelectOption>
+                                                                                  <IonSelectOption value="100" class="all-option">100</IonSelectOption>
+                                                                                  <IonSelectOption value="120" class="all-option">120</IonSelectOption>
+                                                                                  <IonSelectOption value="231" class="all-option">231</IonSelectOption>
                                                                                   <IonSelectOption value="342" class="all-option">342</IonSelectOption>
-                                                                                  <IonSelectOption value="372" class="all-option">372</IonSelectOption>
-                                                                                  <IonSelectOption value="397" class="all-option">397</IonSelectOption>
-                                                                                  <IonSelectOption value="398" class="all-option">398</IonSelectOption>
-                                                                                  <IonSelectOption value="420" class="all-option">420</IonSelectOption>
-                                                                                  <IonSelectOption value="482" class="all-option">482</IonSelectOption>
-                                                                                  <IonSelectOption value="491" class="all-option">491</IonSelectOption>
+                                                                                  <IonSelectOption value="345" class="all-option">345</IonSelectOption>
+                                                                                  <IonSelectOption value="392" class="all-option">392</IonSelectOption>
+                                                                                  <IonSelectOption value="446" class="all-option">446</IonSelectOption>
+                                                                                  <IonSelectOption value="451" class="all-option">451</IonSelectOption>
+                                                                                  <IonSelectOption value="495" class="all-option">495</IonSelectOption>
                                                                                 </>
-                                                                                : postClassName === 'JMC' ?
+                                                                                : postClassName === 'HIST' ?
                                                                                   <>
-                                                                                    <IonSelectOption value="105" class="all-option">105</IonSelectOption>
-                                                                                    <IonSelectOption value="120" class="all-option">120</IonSelectOption>
-                                                                                    <IonSelectOption value="134" class="all-option">134</IonSelectOption>
-                                                                                    <IonSelectOption value="154" class="all-option">154</IonSelectOption>
-                                                                                    <IonSelectOption value="155" class="all-option">155</IonSelectOption>
-                                                                                    <IonSelectOption value="156" class="all-option">156</IonSelectOption>
-                                                                                    <IonSelectOption value="160" class="all-option">160</IonSelectOption>
-                                                                                    <IonSelectOption value="302" class="all-option">302</IonSelectOption>
-                                                                                    <IonSelectOption value="306" class="all-option">306</IonSelectOption>
-                                                                                    <IonSelectOption value="309" class="all-option">309</IonSelectOption>
-                                                                                    <IonSelectOption value="318" class="all-option">318</IonSelectOption>
-                                                                                    <IonSelectOption value="323" class="all-option">323</IonSelectOption>
-                                                                                    <IonSelectOption value="325" class="all-option">325</IonSelectOption>
-                                                                                    <IonSelectOption value="327" class="all-option">327</IonSelectOption>
-                                                                                    <IonSelectOption value="355" class="all-option">355</IonSelectOption>
-                                                                                    <IonSelectOption value="360" class="all-option">360</IonSelectOption>
-                                                                                    <IonSelectOption value="427" class="all-option">427</IonSelectOption>
+                                                                                    <IonSelectOption value="104" class="all-option">104</IonSelectOption>
+                                                                                    <IonSelectOption value="106B" class="all-option">16B5</IonSelectOption>
+                                                                                    <IonSelectOption value="109" class="all-option">109</IonSelectOption>
+                                                                                    <IonSelectOption value="110" class="all-option">110</IonSelectOption>
+                                                                                    <IonSelectOption value="111" class="all-option">111</IonSelectOption>
+                                                                                    <IonSelectOption value="200" class="all-option">200</IonSelectOption>
+                                                                                    <IonSelectOption value="210" class="all-option">210</IonSelectOption>
+                                                                                    <IonSelectOption value="305" class="all-option">305</IonSelectOption>
+                                                                                    <IonSelectOption value="338" class="all-option">338</IonSelectOption>
+                                                                                    <IonSelectOption value="342" class="all-option">342</IonSelectOption>
+                                                                                    <IonSelectOption value="372" class="all-option">372</IonSelectOption>
+                                                                                    <IonSelectOption value="397" class="all-option">397</IonSelectOption>
+                                                                                    <IonSelectOption value="398" class="all-option">398</IonSelectOption>
+                                                                                    <IonSelectOption value="420" class="all-option">420</IonSelectOption>
                                                                                     <IonSelectOption value="482" class="all-option">482</IonSelectOption>
+                                                                                    <IonSelectOption value="491" class="all-option">491</IonSelectOption>
                                                                                   </>
-                                                                                  : postClassName === 'KINS' ?
+                                                                                  : postClassName === 'JMC' ?
                                                                                     <>
-                                                                                      <IonSelectOption value="165" class="all-option">165</IonSelectOption>
-                                                                                      <IonSelectOption value="244" class="all-option">244</IonSelectOption>
-                                                                                      <IonSelectOption value="288" class="all-option">288</IonSelectOption>
-                                                                                      <IonSelectOption value="315" class="all-option">315</IonSelectOption>
-                                                                                      <IonSelectOption value="339" class="all-option">339</IonSelectOption>
-                                                                                      <IonSelectOption value="379" class="all-option">379</IonSelectOption>
-                                                                                      <IonSelectOption value="384" class="all-option">384</IonSelectOption>
-                                                                                      <IonSelectOption value="385" class="all-option">385</IonSelectOption>
-                                                                                      <IonSelectOption value="386" class="all-option">386</IonSelectOption>
-                                                                                      <IonSelectOption value="425" class="all-option">425</IonSelectOption>
-                                                                                      <IonSelectOption value="456A" class="all-option">456A</IonSelectOption>
-                                                                                      <IonSelectOption value="460" class="all-option">460</IonSelectOption>
-                                                                                      <IonSelectOption value="474" class="all-option">474</IonSelectOption>
+                                                                                      <IonSelectOption value="105" class="all-option">105</IonSelectOption>
+                                                                                      <IonSelectOption value="120" class="all-option">120</IonSelectOption>
+                                                                                      <IonSelectOption value="134" class="all-option">134</IonSelectOption>
+                                                                                      <IonSelectOption value="154" class="all-option">154</IonSelectOption>
+                                                                                      <IonSelectOption value="155" class="all-option">155</IonSelectOption>
+                                                                                      <IonSelectOption value="156" class="all-option">156</IonSelectOption>
+                                                                                      <IonSelectOption value="160" class="all-option">160</IonSelectOption>
+                                                                                      <IonSelectOption value="302" class="all-option">302</IonSelectOption>
+                                                                                      <IonSelectOption value="306" class="all-option">306</IonSelectOption>
+                                                                                      <IonSelectOption value="309" class="all-option">309</IonSelectOption>
+                                                                                      <IonSelectOption value="318" class="all-option">318</IonSelectOption>
+                                                                                      <IonSelectOption value="323" class="all-option">323</IonSelectOption>
+                                                                                      <IonSelectOption value="325" class="all-option">325</IonSelectOption>
+                                                                                      <IonSelectOption value="327" class="all-option">327</IonSelectOption>
+                                                                                      <IonSelectOption value="355" class="all-option">355</IonSelectOption>
+                                                                                      <IonSelectOption value="360" class="all-option">360</IonSelectOption>
+                                                                                      <IonSelectOption value="427" class="all-option">427</IonSelectOption>
                                                                                       <IonSelectOption value="482" class="all-option">482</IonSelectOption>
                                                                                     </>
-                                                                                    : postClassName === 'MATH' ?
+                                                                                    : postClassName === 'KINS' ?
                                                                                       <>
-                                                                                        <IonSelectOption value="101" class="all-option">101</IonSelectOption>
-                                                                                        <IonSelectOption value="101I" class="all-option">101I</IonSelectOption>
-                                                                                        <IonSelectOption value="101T" class="all-option">101T</IonSelectOption>
-                                                                                        <IonSelectOption value="102" class="all-option">102</IonSelectOption>
-                                                                                        <IonSelectOption value="103" class="all-option">103</IonSelectOption>
-                                                                                        <IonSelectOption value="105" class="all-option">105</IonSelectOption>
-                                                                                        <IonSelectOption value="107" class="all-option">107</IonSelectOption>
-                                                                                        <IonSelectOption value="109" class="all-option">109</IonSelectOption>
-                                                                                        <IonSelectOption value="110" class="all-option">110</IonSelectOption>
-                                                                                        <IonSelectOption value="210" class="all-option">210</IonSelectOption>
-                                                                                        <IonSelectOption value="245" class="all-option">245</IonSelectOption>
-                                                                                        <IonSelectOption value="253" class="all-option">253</IonSelectOption>
-                                                                                        <IonSelectOption value="311" class="all-option">311</IonSelectOption>
+                                                                                        <IonSelectOption value="165" class="all-option">165</IonSelectOption>
+                                                                                        <IonSelectOption value="244" class="all-option">244</IonSelectOption>
+                                                                                        <IonSelectOption value="288" class="all-option">288</IonSelectOption>
                                                                                         <IonSelectOption value="315" class="all-option">315</IonSelectOption>
-                                                                                        <IonSelectOption value="381" class="all-option">381</IonSelectOption>
+                                                                                        <IonSelectOption value="339" class="all-option">339</IonSelectOption>
+                                                                                        <IonSelectOption value="379" class="all-option">379</IonSelectOption>
+                                                                                        <IonSelectOption value="384" class="all-option">384</IonSelectOption>
+                                                                                        <IonSelectOption value="385" class="all-option">385</IonSelectOption>
+                                                                                        <IonSelectOption value="386" class="all-option">386</IonSelectOption>
+                                                                                        <IonSelectOption value="425" class="all-option">425</IonSelectOption>
+                                                                                        <IonSelectOption value="456A" class="all-option">456A</IonSelectOption>
                                                                                         <IonSelectOption value="460" class="all-option">460</IonSelectOption>
+                                                                                        <IonSelectOption value="474" class="all-option">474</IonSelectOption>
+                                                                                        <IonSelectOption value="482" class="all-option">482</IonSelectOption>
                                                                                       </>
-                                                                                      : postClassName === 'MUS' ?
+                                                                                      : postClassName === 'MATH' ?
                                                                                         <>
-                                                                                          <IonSelectOption value="104" class="all-option">104</IonSelectOption>
-                                                                                          <IonSelectOption value="106B" class="all-option">106B</IonSelectOption>
-                                                                                          <IonSelectOption value="106E" class="all-option">106E</IonSelectOption>
-                                                                                          <IonSelectOption value="106F" class="all-option">106F</IonSelectOption>
-                                                                                          <IonSelectOption value="106H" class="all-option">106H</IonSelectOption>
-                                                                                          <IonSelectOption value="106J" class="all-option">106J</IonSelectOption>
-                                                                                          <IonSelectOption value="106K" class="all-option">106K</IonSelectOption>
-                                                                                          <IonSelectOption value="106N" class="all-option">106N</IonSelectOption>
-                                                                                          <IonSelectOption value="106O" class="all-option">106O</IonSelectOption>
-                                                                                          <IonSelectOption value="107C" class="all-option">107C</IonSelectOption>
-                                                                                          <IonSelectOption value="107F" class="all-option">107F</IonSelectOption>
-                                                                                          <IonSelectOption value="107G" class="all-option">107G</IonSelectOption>
-                                                                                          <IonSelectOption value="107I" class="all-option">107I</IonSelectOption>
-                                                                                          <IonSelectOption value="107J" class="all-option">107J</IonSelectOption>
-                                                                                          <IonSelectOption value="107P" class="all-option">107P</IonSelectOption>
-                                                                                          <IonSelectOption value="107Q" class="all-option">107Q</IonSelectOption>
-                                                                                          <IonSelectOption value="107T" class="all-option">107T</IonSelectOption>
-                                                                                          <IonSelectOption value="108G" class="all-option">108G</IonSelectOption>
-                                                                                          <IonSelectOption value="108K" class="all-option">108K</IonSelectOption>
-                                                                                          <IonSelectOption value="108P" class="all-option">108P</IonSelectOption>
-                                                                                          <IonSelectOption value="108T" class="all-option">108T</IonSelectOption>
-                                                                                          <IonSelectOption value="108V" class="all-option">108V</IonSelectOption>
-                                                                                          <IonSelectOption value="108G" class="all-option">108G</IonSelectOption>
-                                                                                          <IonSelectOption value="109G" class="all-option">109G</IonSelectOption>
+                                                                                          <IonSelectOption value="101" class="all-option">101</IonSelectOption>
+                                                                                          <IonSelectOption value="101I" class="all-option">101I</IonSelectOption>
+                                                                                          <IonSelectOption value="101T" class="all-option">101T</IonSelectOption>
+                                                                                          <IonSelectOption value="102" class="all-option">102</IonSelectOption>
+                                                                                          <IonSelectOption value="103" class="all-option">103</IonSelectOption>
+                                                                                          <IonSelectOption value="105" class="all-option">105</IonSelectOption>
+                                                                                          <IonSelectOption value="107" class="all-option">107</IonSelectOption>
+                                                                                          <IonSelectOption value="109" class="all-option">109</IonSelectOption>
                                                                                           <IonSelectOption value="110" class="all-option">110</IonSelectOption>
-                                                                                          <IonSelectOption value="112" class="all-option">112</IonSelectOption>
-                                                                                          <IonSelectOption value="130" class="all-option">130</IonSelectOption>
-                                                                                          <IonSelectOption value="180" class="all-option">180</IonSelectOption>
-                                                                                          <IonSelectOption value="215" class="all-option">215</IonSelectOption>
-                                                                                          <IonSelectOption value="217" class="all-option">217</IonSelectOption>
-                                                                                          <IonSelectOption value="220" class="all-option">220</IonSelectOption>
-                                                                                          <IonSelectOption value="221" class="all-option">221</IonSelectOption>
-                                                                                          <IonSelectOption value="222" class="all-option">222</IonSelectOption>
-                                                                                          <IonSelectOption value="223" class="all-option">223</IonSelectOption>
-                                                                                          <IonSelectOption value="224" class="all-option">224</IonSelectOption>
-                                                                                          <IonSelectOption value="225" class="all-option">225</IonSelectOption>
-                                                                                          <IonSelectOption value="226" class="all-option">226</IonSelectOption>
-                                                                                          <IonSelectOption value="227" class="all-option">227</IonSelectOption>
-                                                                                          <IonSelectOption value="228" class="all-option">228</IonSelectOption>
-                                                                                          <IonSelectOption value="229" class="all-option">229</IonSelectOption>
-                                                                                          <IonSelectOption value="230" class="all-option">230</IonSelectOption>
-                                                                                          <IonSelectOption value="231" class="all-option">231</IonSelectOption>
-                                                                                          <IonSelectOption value="232" class="all-option">232</IonSelectOption>
-                                                                                          <IonSelectOption value="233" class="all-option">233</IonSelectOption>
-                                                                                          <IonSelectOption value="234" class="all-option">234</IonSelectOption>
-                                                                                          <IonSelectOption value="235" class="all-option">235</IonSelectOption>
-                                                                                          <IonSelectOption value="236" class="all-option">236</IonSelectOption>
-                                                                                          <IonSelectOption value="237" class="all-option">237</IonSelectOption>
-                                                                                          <IonSelectOption value="238" class="all-option">238</IonSelectOption>
-                                                                                          <IonSelectOption value="301" class="all-option">301</IonSelectOption>
-                                                                                          <IonSelectOption value="302" class="all-option">302</IonSelectOption>
-                                                                                          <IonSelectOption value="305" class="all-option">305</IonSelectOption>
-                                                                                          <IonSelectOption value="314" class="all-option">314</IonSelectOption>
-                                                                                          <IonSelectOption value="316" class="all-option">316</IonSelectOption>
-                                                                                          <IonSelectOption value="319" class="all-option">319</IonSelectOption>
-                                                                                          <IonSelectOption value="324" class="all-option">324</IonSelectOption>
-                                                                                          <IonSelectOption value="330" class="all-option">330</IonSelectOption>
-                                                                                          <IonSelectOption value="334" class="all-option">334</IonSelectOption>
-                                                                                          <IonSelectOption value="338" class="all-option">338</IonSelectOption>
-                                                                                          <IonSelectOption value="340" class="all-option">340</IonSelectOption>
-                                                                                          <IonSelectOption value="348" class="all-option">348</IonSelectOption>
-                                                                                          <IonSelectOption value="353" class="all-option">353</IonSelectOption>
-                                                                                          <IonSelectOption value="361" class="all-option">361</IonSelectOption>
+                                                                                          <IonSelectOption value="210" class="all-option">210</IonSelectOption>
+                                                                                          <IonSelectOption value="245" class="all-option">245</IonSelectOption>
+                                                                                          <IonSelectOption value="253" class="all-option">253</IonSelectOption>
+                                                                                          <IonSelectOption value="311" class="all-option">311</IonSelectOption>
+                                                                                          <IonSelectOption value="315" class="all-option">315</IonSelectOption>
+                                                                                          <IonSelectOption value="381" class="all-option">381</IonSelectOption>
+                                                                                          <IonSelectOption value="460" class="all-option">460</IonSelectOption>
                                                                                         </>
-                                                                                        : postClassName === 'NAS' ?
+                                                                                        : postClassName === 'MUS' ?
                                                                                           <>
                                                                                             <IonSelectOption value="104" class="all-option">104</IonSelectOption>
-                                                                                            <IonSelectOption value="107" class="all-option">107</IonSelectOption>
-                                                                                            <IonSelectOption value="200" class="all-option">200</IonSelectOption>
+                                                                                            <IonSelectOption value="106B" class="all-option">106B</IonSelectOption>
+                                                                                            <IonSelectOption value="106E" class="all-option">106E</IonSelectOption>
+                                                                                            <IonSelectOption value="106F" class="all-option">106F</IonSelectOption>
+                                                                                            <IonSelectOption value="106H" class="all-option">106H</IonSelectOption>
+                                                                                            <IonSelectOption value="106J" class="all-option">106J</IonSelectOption>
+                                                                                            <IonSelectOption value="106K" class="all-option">106K</IonSelectOption>
+                                                                                            <IonSelectOption value="106N" class="all-option">106N</IonSelectOption>
+                                                                                            <IonSelectOption value="106O" class="all-option">106O</IonSelectOption>
+                                                                                            <IonSelectOption value="107C" class="all-option">107C</IonSelectOption>
+                                                                                            <IonSelectOption value="107F" class="all-option">107F</IonSelectOption>
+                                                                                            <IonSelectOption value="107G" class="all-option">107G</IonSelectOption>
+                                                                                            <IonSelectOption value="107I" class="all-option">107I</IonSelectOption>
+                                                                                            <IonSelectOption value="107J" class="all-option">107J</IonSelectOption>
+                                                                                            <IonSelectOption value="107P" class="all-option">107P</IonSelectOption>
+                                                                                            <IonSelectOption value="107Q" class="all-option">107Q</IonSelectOption>
+                                                                                            <IonSelectOption value="107T" class="all-option">107T</IonSelectOption>
+                                                                                            <IonSelectOption value="108G" class="all-option">108G</IonSelectOption>
+                                                                                            <IonSelectOption value="108K" class="all-option">108K</IonSelectOption>
+                                                                                            <IonSelectOption value="108P" class="all-option">108P</IonSelectOption>
+                                                                                            <IonSelectOption value="108T" class="all-option">108T</IonSelectOption>
+                                                                                            <IonSelectOption value="108V" class="all-option">108V</IonSelectOption>
+                                                                                            <IonSelectOption value="108G" class="all-option">108G</IonSelectOption>
+                                                                                            <IonSelectOption value="109G" class="all-option">109G</IonSelectOption>
+                                                                                            <IonSelectOption value="110" class="all-option">110</IonSelectOption>
+                                                                                            <IonSelectOption value="112" class="all-option">112</IonSelectOption>
+                                                                                            <IonSelectOption value="130" class="all-option">130</IonSelectOption>
+                                                                                            <IonSelectOption value="180" class="all-option">180</IonSelectOption>
+                                                                                            <IonSelectOption value="215" class="all-option">215</IonSelectOption>
+                                                                                            <IonSelectOption value="217" class="all-option">217</IonSelectOption>
+                                                                                            <IonSelectOption value="220" class="all-option">220</IonSelectOption>
+                                                                                            <IonSelectOption value="221" class="all-option">221</IonSelectOption>
+                                                                                            <IonSelectOption value="222" class="all-option">222</IonSelectOption>
+                                                                                            <IonSelectOption value="223" class="all-option">223</IonSelectOption>
+                                                                                            <IonSelectOption value="224" class="all-option">224</IonSelectOption>
+                                                                                            <IonSelectOption value="225" class="all-option">225</IonSelectOption>
+                                                                                            <IonSelectOption value="226" class="all-option">226</IonSelectOption>
+                                                                                            <IonSelectOption value="227" class="all-option">227</IonSelectOption>
+                                                                                            <IonSelectOption value="228" class="all-option">228</IonSelectOption>
+                                                                                            <IonSelectOption value="229" class="all-option">229</IonSelectOption>
+                                                                                            <IonSelectOption value="230" class="all-option">230</IonSelectOption>
+                                                                                            <IonSelectOption value="231" class="all-option">231</IonSelectOption>
+                                                                                            <IonSelectOption value="232" class="all-option">232</IonSelectOption>
+                                                                                            <IonSelectOption value="233" class="all-option">233</IonSelectOption>
+                                                                                            <IonSelectOption value="234" class="all-option">234</IonSelectOption>
+                                                                                            <IonSelectOption value="235" class="all-option">235</IonSelectOption>
+                                                                                            <IonSelectOption value="236" class="all-option">236</IonSelectOption>
+                                                                                            <IonSelectOption value="237" class="all-option">237</IonSelectOption>
+                                                                                            <IonSelectOption value="238" class="all-option">238</IonSelectOption>
+                                                                                            <IonSelectOption value="301" class="all-option">301</IonSelectOption>
                                                                                             <IonSelectOption value="302" class="all-option">302</IonSelectOption>
-                                                                                            <IonSelectOption value="306" class="all-option">306</IonSelectOption>
-                                                                                            <IonSelectOption value="307" class="all-option">307</IonSelectOption>
-                                                                                            <IonSelectOption value="331" class="all-option">331</IonSelectOption>
-                                                                                            <IonSelectOption value="332" class="all-option">332</IonSelectOption>
-                                                                                            <IonSelectOption value="333" class="all-option">333</IonSelectOption>
+                                                                                            <IonSelectOption value="305" class="all-option">305</IonSelectOption>
+                                                                                            <IonSelectOption value="314" class="all-option">314</IonSelectOption>
+                                                                                            <IonSelectOption value="316" class="all-option">316</IonSelectOption>
+                                                                                            <IonSelectOption value="319" class="all-option">319</IonSelectOption>
+                                                                                            <IonSelectOption value="324" class="all-option">324</IonSelectOption>
+                                                                                            <IonSelectOption value="330" class="all-option">330</IonSelectOption>
+                                                                                            <IonSelectOption value="334" class="all-option">334</IonSelectOption>
+                                                                                            <IonSelectOption value="338" class="all-option">338</IonSelectOption>
                                                                                             <IonSelectOption value="340" class="all-option">340</IonSelectOption>
-                                                                                            <IonSelectOption value="364" class="all-option">364</IonSelectOption>
+                                                                                            <IonSelectOption value="348" class="all-option">348</IonSelectOption>
+                                                                                            <IonSelectOption value="353" class="all-option">353</IonSelectOption>
+                                                                                            <IonSelectOption value="361" class="all-option">361</IonSelectOption>
                                                                                           </>
-                                                                                          : postClassName === 'OCN' ?
+                                                                                          : postClassName === 'NAS' ?
                                                                                             <>
-                                                                                              <IonSelectOption value="109" class="all-option">109</IonSelectOption>
-                                                                                              <IonSelectOption value="260" class="all-option">260</IonSelectOption>
-                                                                                              <IonSelectOption value="301" class="all-option">301</IonSelectOption>
-                                                                                              <IonSelectOption value="310" class="all-option">310</IonSelectOption>
+                                                                                              <IonSelectOption value="104" class="all-option">104</IonSelectOption>
+                                                                                              <IonSelectOption value="107" class="all-option">107</IonSelectOption>
+                                                                                              <IonSelectOption value="200" class="all-option">200</IonSelectOption>
+                                                                                              <IonSelectOption value="302" class="all-option">302</IonSelectOption>
+                                                                                              <IonSelectOption value="306" class="all-option">306</IonSelectOption>
+                                                                                              <IonSelectOption value="307" class="all-option">307</IonSelectOption>
+                                                                                              <IonSelectOption value="331" class="all-option">331</IonSelectOption>
+                                                                                              <IonSelectOption value="332" class="all-option">332</IonSelectOption>
+                                                                                              <IonSelectOption value="333" class="all-option">333</IonSelectOption>
                                                                                               <IonSelectOption value="340" class="all-option">340</IonSelectOption>
-                                                                                              <IonSelectOption value="370" class="all-option">370</IonSelectOption>
-                                                                                              <IonSelectOption value="496" class="all-option">496</IonSelectOption>
+                                                                                              <IonSelectOption value="364" class="all-option">364</IonSelectOption>
                                                                                             </>
-                                                                                            : postClassName === 'PHIL' ?
+                                                                                            : postClassName === 'OCN' ?
                                                                                               <>
-                                                                                                <IonSelectOption value="100" class="all-option">100</IonSelectOption>
-                                                                                                <IonSelectOption value="104" class="all-option">104</IonSelectOption>
-                                                                                                <IonSelectOption value="106" class="all-option">106</IonSelectOption>
-                                                                                                <IonSelectOption value="107" class="all-option">107</IonSelectOption>
-                                                                                                <IonSelectOption value="198" class="all-option">198</IonSelectOption>
-                                                                                                <IonSelectOption value="210" class="all-option">210</IonSelectOption>
-                                                                                                <IonSelectOption value="302" class="all-option">302</IonSelectOption>
-                                                                                                <IonSelectOption value="304" class="all-option">304</IonSelectOption>
-                                                                                                <IonSelectOption value="306" class="all-option">306</IonSelectOption>
-                                                                                                <IonSelectOption value="307" class="all-option">307</IonSelectOption>
-                                                                                                <IonSelectOption value="371" class="all-option">371</IonSelectOption>
-                                                                                                <IonSelectOption value="420" class="all-option">420</IonSelectOption>
-                                                                                                <IonSelectOption value="480" class="all-option">480</IonSelectOption>
+                                                                                                <IonSelectOption value="109" class="all-option">109</IonSelectOption>
+                                                                                                <IonSelectOption value="260" class="all-option">260</IonSelectOption>
+                                                                                                <IonSelectOption value="301" class="all-option">301</IonSelectOption>
+                                                                                                <IonSelectOption value="310" class="all-option">310</IonSelectOption>
+                                                                                                <IonSelectOption value="340" class="all-option">340</IonSelectOption>
+                                                                                                <IonSelectOption value="370" class="all-option">370</IonSelectOption>
+                                                                                                <IonSelectOption value="496" class="all-option">496</IonSelectOption>
                                                                                               </>
-                                                                                              : postClassName === 'PSCI' ?
+                                                                                              : postClassName === 'PHIL' ?
                                                                                                 <>
-                                                                                                  <IonSelectOption value="110" class="all-option">110</IonSelectOption>
-                                                                                                  <IonSelectOption value="159" class="all-option">159</IonSelectOption>
-                                                                                                  <IonSelectOption value="220" class="all-option">220</IonSelectOption>
-                                                                                                  <IonSelectOption value="235" class="all-option">235</IonSelectOption>
-                                                                                                  <IonSelectOption value="240" class="all-option">240</IonSelectOption>
-                                                                                                  <IonSelectOption value="280" class="all-option">280</IonSelectOption>
-                                                                                                  <IonSelectOption value="295" class="all-option">295</IonSelectOption>
-                                                                                                  <IonSelectOption value="303" class="all-option">303</IonSelectOption>
-                                                                                                  <IonSelectOption value="305" class="all-option">305</IonSelectOption>
+                                                                                                  <IonSelectOption value="100" class="all-option">100</IonSelectOption>
+                                                                                                  <IonSelectOption value="104" class="all-option">104</IonSelectOption>
+                                                                                                  <IonSelectOption value="106" class="all-option">106</IonSelectOption>
+                                                                                                  <IonSelectOption value="107" class="all-option">107</IonSelectOption>
+                                                                                                  <IonSelectOption value="198" class="all-option">198</IonSelectOption>
+                                                                                                  <IonSelectOption value="210" class="all-option">210</IonSelectOption>
+                                                                                                  <IonSelectOption value="302" class="all-option">302</IonSelectOption>
+                                                                                                  <IonSelectOption value="304" class="all-option">304</IonSelectOption>
                                                                                                   <IonSelectOption value="306" class="all-option">306</IonSelectOption>
-                                                                                                  <IonSelectOption value="317" class="all-option">317</IonSelectOption>
-                                                                                                  <IonSelectOption value="354" class="all-option">354</IonSelectOption>
-                                                                                                  <IonSelectOption value="360" class="all-option">360</IonSelectOption>
-                                                                                                  <IonSelectOption value="373" class="all-option">373</IonSelectOption>
-                                                                                                  <IonSelectOption value="381S" class="all-option">381S</IonSelectOption>
-                                                                                                  <IonSelectOption value="412" class="all-option">413</IonSelectOption>
-                                                                                                  <IonSelectOption value="485" class="all-option">485</IonSelectOption>
+                                                                                                  <IonSelectOption value="307" class="all-option">307</IonSelectOption>
+                                                                                                  <IonSelectOption value="371" class="all-option">371</IonSelectOption>
+                                                                                                  <IonSelectOption value="420" class="all-option">420</IonSelectOption>
+                                                                                                  <IonSelectOption value="480" class="all-option">480</IonSelectOption>
                                                                                                 </>
-                                                                                                : postClassName === 'PSYC' ?
+                                                                                                : postClassName === 'PSCI' ?
                                                                                                   <>
-                                                                                                    <IonSelectOption value="100" class="all-option">100</IonSelectOption>
-                                                                                                    <IonSelectOption value="104" class="all-option">104</IonSelectOption>
-                                                                                                    <IonSelectOption value="109" class="all-option">109</IonSelectOption>
-                                                                                                    <IonSelectOption value="198" class="all-option">198</IonSelectOption>
+                                                                                                    <IonSelectOption value="110" class="all-option">110</IonSelectOption>
+                                                                                                    <IonSelectOption value="159" class="all-option">159</IonSelectOption>
+                                                                                                    <IonSelectOption value="220" class="all-option">220</IonSelectOption>
+                                                                                                    <IonSelectOption value="235" class="all-option">235</IonSelectOption>
                                                                                                     <IonSelectOption value="240" class="all-option">240</IonSelectOption>
-                                                                                                    <IonSelectOption value="300" class="all-option">300</IonSelectOption>
-                                                                                                    <IonSelectOption value="302" class="all-option">302</IonSelectOption>
+                                                                                                    <IonSelectOption value="280" class="all-option">280</IonSelectOption>
+                                                                                                    <IonSelectOption value="295" class="all-option">295</IonSelectOption>
                                                                                                     <IonSelectOption value="303" class="all-option">303</IonSelectOption>
+                                                                                                    <IonSelectOption value="305" class="all-option">305</IonSelectOption>
                                                                                                     <IonSelectOption value="306" class="all-option">306</IonSelectOption>
-                                                                                                    <IonSelectOption value="311" class="all-option">311</IonSelectOption>
-                                                                                                    <IonSelectOption value="321" class="all-option">321</IonSelectOption>
-                                                                                                    <IonSelectOption value="322" class="all-option">322</IonSelectOption>
-                                                                                                    <IonSelectOption value="323" class="all-option">323</IonSelectOption>
-                                                                                                    <IonSelectOption value="324" class="all-option">324</IonSelectOption>
-                                                                                                    <IonSelectOption value="335" class="all-option">335</IonSelectOption>
-                                                                                                    <IonSelectOption value="336" class="all-option">336</IonSelectOption>
-                                                                                                    <IonSelectOption value="337" class="all-option">337</IonSelectOption>
-                                                                                                    <IonSelectOption value="338" class="all-option">338</IonSelectOption>
-                                                                                                    <IonSelectOption value="345" class="all-option">345</IonSelectOption>
-                                                                                                    <IonSelectOption value="411" class="all-option">411</IonSelectOption>
-                                                                                                    <IonSelectOption value="414" class="all-option">414</IonSelectOption>
-                                                                                                    <IonSelectOption value="415" class="all-option">415</IonSelectOption>
-                                                                                                    <IonSelectOption value="419" class="all-option">419</IonSelectOption>
-                                                                                                    <IonSelectOption value="436" class="all-option">436</IonSelectOption>
-                                                                                                    <IonSelectOption value="454" class="all-option">454</IonSelectOption>
-                                                                                                    <IonSelectOption value="473" class="all-option">473</IonSelectOption>
-                                                                                                    <IonSelectOption value="486" class="all-option">486</IonSelectOption>
-                                                                                                    <IonSelectOption value="489S" class="all-option">489S</IonSelectOption>
-                                                                                                    <IonSelectOption value="490" class="all-option">490</IonSelectOption>
-                                                                                                    <IonSelectOption value="495" class="all-option">495</IonSelectOption>
-                                                                                                    <IonSelectOption value="497" class="all-option">497</IonSelectOption>
-                                                                                                    <IonSelectOption value="499" class="all-option">499</IonSelectOption>
-                                                                                                    <IonSelectOption value="511" class="all-option">511</IonSelectOption>
-                                                                                                    <IonSelectOption value="605" class="all-option">605</IonSelectOption>
-                                                                                                    <IonSelectOption value="607" class="all-option">607</IonSelectOption>
-                                                                                                    <IonSelectOption value="616" class="all-option">616</IonSelectOption>
-                                                                                                    <IonSelectOption value="622" class="all-option">622</IonSelectOption>
-                                                                                                    <IonSelectOption value="632" class="all-option">632</IonSelectOption>
-                                                                                                    <IonSelectOption value="641" class="all-option">641</IonSelectOption>
-                                                                                                    <IonSelectOption value="647" class="all-option">647</IonSelectOption>
-                                                                                                    <IonSelectOption value="652" class="all-option">652</IonSelectOption>
-                                                                                                    <IonSelectOption value="653" class="all-option">653</IonSelectOption>
-                                                                                                    <IonSelectOption value="654" class="all-option">654</IonSelectOption>
-                                                                                                    <IonSelectOption value="657" class="all-option">657</IonSelectOption>
-                                                                                                    <IonSelectOption value="658" class="all-option">658</IonSelectOption>
-                                                                                                    <IonSelectOption value="659" class="all-option">659</IonSelectOption>
-                                                                                                    <IonSelectOption value="662" class="all-option">662</IonSelectOption>
-                                                                                                    <IonSelectOption value="673" class="all-option">673</IonSelectOption>
-                                                                                                    <IonSelectOption value="676" class="all-option">676</IonSelectOption>
-                                                                                                    <IonSelectOption value="680" class="all-option">680</IonSelectOption>
-                                                                                                    <IonSelectOption value="690" class="all-option">690</IonSelectOption>
+                                                                                                    <IonSelectOption value="317" class="all-option">317</IonSelectOption>
+                                                                                                    <IonSelectOption value="354" class="all-option">354</IonSelectOption>
+                                                                                                    <IonSelectOption value="360" class="all-option">360</IonSelectOption>
+                                                                                                    <IonSelectOption value="373" class="all-option">373</IonSelectOption>
+                                                                                                    <IonSelectOption value="381S" class="all-option">381S</IonSelectOption>
+                                                                                                    <IonSelectOption value="412" class="all-option">413</IonSelectOption>
+                                                                                                    <IonSelectOption value="485" class="all-option">485</IonSelectOption>
                                                                                                   </>
-                                                                                                  : postClassName === 'RS' ?
+                                                                                                  : postClassName === 'PSYC' ?
                                                                                                     <>
-                                                                                                      <IonSelectOption value="105" class="all-option">105</IonSelectOption>
-                                                                                                      <IonSelectOption value="120" class="all-option">120</IonSelectOption>
+                                                                                                      <IonSelectOption value="100" class="all-option">100</IonSelectOption>
+                                                                                                      <IonSelectOption value="104" class="all-option">104</IonSelectOption>
+                                                                                                      <IonSelectOption value="109" class="all-option">109</IonSelectOption>
+                                                                                                      <IonSelectOption value="198" class="all-option">198</IonSelectOption>
+                                                                                                      <IonSelectOption value="240" class="all-option">240</IonSelectOption>
                                                                                                       <IonSelectOption value="300" class="all-option">300</IonSelectOption>
-                                                                                                      <IonSelectOption value="332" class="all-option">332</IonSelectOption>
-                                                                                                      <IonSelectOption value="393" class="all-option">393</IonSelectOption>
-                                                                                                      <IonSelectOption value="394" class="all-option">394</IonSelectOption>
+                                                                                                      <IonSelectOption value="302" class="all-option">302</IonSelectOption>
+                                                                                                      <IonSelectOption value="303" class="all-option">303</IonSelectOption>
+                                                                                                      <IonSelectOption value="306" class="all-option">306</IonSelectOption>
+                                                                                                      <IonSelectOption value="311" class="all-option">311</IonSelectOption>
+                                                                                                      <IonSelectOption value="321" class="all-option">321</IonSelectOption>
+                                                                                                      <IonSelectOption value="322" class="all-option">322</IonSelectOption>
+                                                                                                      <IonSelectOption value="323" class="all-option">323</IonSelectOption>
+                                                                                                      <IonSelectOption value="324" class="all-option">324</IonSelectOption>
+                                                                                                      <IonSelectOption value="335" class="all-option">335</IonSelectOption>
+                                                                                                      <IonSelectOption value="336" class="all-option">336</IonSelectOption>
+                                                                                                      <IonSelectOption value="337" class="all-option">337</IonSelectOption>
+                                                                                                      <IonSelectOption value="338" class="all-option">338</IonSelectOption>
+                                                                                                      <IonSelectOption value="345" class="all-option">345</IonSelectOption>
+                                                                                                      <IonSelectOption value="411" class="all-option">411</IonSelectOption>
+                                                                                                      <IonSelectOption value="414" class="all-option">414</IonSelectOption>
+                                                                                                      <IonSelectOption value="415" class="all-option">415</IonSelectOption>
+                                                                                                      <IonSelectOption value="419" class="all-option">419</IonSelectOption>
+                                                                                                      <IonSelectOption value="436" class="all-option">436</IonSelectOption>
+                                                                                                      <IonSelectOption value="454" class="all-option">454</IonSelectOption>
+                                                                                                      <IonSelectOption value="473" class="all-option">473</IonSelectOption>
+                                                                                                      <IonSelectOption value="486" class="all-option">486</IonSelectOption>
+                                                                                                      <IonSelectOption value="489S" class="all-option">489S</IonSelectOption>
+                                                                                                      <IonSelectOption value="490" class="all-option">490</IonSelectOption>
+                                                                                                      <IonSelectOption value="495" class="all-option">495</IonSelectOption>
+                                                                                                      <IonSelectOption value="497" class="all-option">497</IonSelectOption>
+                                                                                                      <IonSelectOption value="499" class="all-option">499</IonSelectOption>
+                                                                                                      <IonSelectOption value="511" class="all-option">511</IonSelectOption>
+                                                                                                      <IonSelectOption value="605" class="all-option">605</IonSelectOption>
+                                                                                                      <IonSelectOption value="607" class="all-option">607</IonSelectOption>
+                                                                                                      <IonSelectOption value="616" class="all-option">616</IonSelectOption>
+                                                                                                      <IonSelectOption value="622" class="all-option">622</IonSelectOption>
+                                                                                                      <IonSelectOption value="632" class="all-option">632</IonSelectOption>
+                                                                                                      <IonSelectOption value="641" class="all-option">641</IonSelectOption>
+                                                                                                      <IonSelectOption value="647" class="all-option">647</IonSelectOption>
+                                                                                                      <IonSelectOption value="652" class="all-option">652</IonSelectOption>
+                                                                                                      <IonSelectOption value="653" class="all-option">653</IonSelectOption>
+                                                                                                      <IonSelectOption value="654" class="all-option">654</IonSelectOption>
+                                                                                                      <IonSelectOption value="657" class="all-option">657</IonSelectOption>
+                                                                                                      <IonSelectOption value="658" class="all-option">658</IonSelectOption>
+                                                                                                      <IonSelectOption value="659" class="all-option">659</IonSelectOption>
+                                                                                                      <IonSelectOption value="662" class="all-option">662</IonSelectOption>
+                                                                                                      <IonSelectOption value="673" class="all-option">673</IonSelectOption>
+                                                                                                      <IonSelectOption value="676" class="all-option">676</IonSelectOption>
+                                                                                                      <IonSelectOption value="680" class="all-option">680</IonSelectOption>
+                                                                                                      <IonSelectOption value="690" class="all-option">690</IonSelectOption>
                                                                                                     </>
-                                                                                                    : postClassName === 'SPAN' ?
+                                                                                                    : postClassName === 'RS' ?
                                                                                                       <>
                                                                                                         <IonSelectOption value="105" class="all-option">105</IonSelectOption>
-                                                                                                        <IonSelectOption value="106" class="all-option">106</IonSelectOption>
-                                                                                                        <IonSelectOption value="107" class="all-option">107</IonSelectOption>
-                                                                                                        <IonSelectOption value="108" class="all-option">108</IonSelectOption>
-                                                                                                        <IonSelectOption value="207" class="all-option">207</IonSelectOption>
-                                                                                                        <IonSelectOption value="308" class="all-option">308</IonSelectOption>
-                                                                                                        <IonSelectOption value="313" class="all-option">313</IonSelectOption>
-                                                                                                        <IonSelectOption value="343" class="all-option">343</IonSelectOption>
-                                                                                                        <IonSelectOption value="345" class="all-option">345</IonSelectOption>
-                                                                                                        <IonSelectOption value="370" class="all-option">370</IonSelectOption>
+                                                                                                        <IonSelectOption value="120" class="all-option">120</IonSelectOption>
+                                                                                                        <IonSelectOption value="300" class="all-option">300</IonSelectOption>
+                                                                                                        <IonSelectOption value="332" class="all-option">332</IonSelectOption>
+                                                                                                        <IonSelectOption value="393" class="all-option">393</IonSelectOption>
+                                                                                                        <IonSelectOption value="394" class="all-option">394</IonSelectOption>
                                                                                                       </>
-                                                                                                      : postClassName === 'STAT' ?
+                                                                                                      : postClassName === 'SPAN' ?
                                                                                                         <>
+                                                                                                          <IonSelectOption value="105" class="all-option">105</IonSelectOption>
+                                                                                                          <IonSelectOption value="106" class="all-option">106</IonSelectOption>
+                                                                                                          <IonSelectOption value="107" class="all-option">107</IonSelectOption>
                                                                                                           <IonSelectOption value="108" class="all-option">108</IonSelectOption>
-                                                                                                          <IonSelectOption value="109" class="all-option">109</IonSelectOption>
-                                                                                                          <IonSelectOption value="323" class="all-option">323</IonSelectOption>
-                                                                                                          <IonSelectOption value="333" class="all-option">333</IonSelectOption>
-                                                                                                          <IonSelectOption value="410" class="all-option">410</IonSelectOption>
-                                                                                                          <IonSelectOption value="510" class="all-option">510</IonSelectOption>
+                                                                                                          <IonSelectOption value="207" class="all-option">207</IonSelectOption>
+                                                                                                          <IonSelectOption value="308" class="all-option">308</IonSelectOption>
+                                                                                                          <IonSelectOption value="313" class="all-option">313</IonSelectOption>
+                                                                                                          <IonSelectOption value="343" class="all-option">343</IonSelectOption>
+                                                                                                          <IonSelectOption value="345" class="all-option">345</IonSelectOption>
+                                                                                                          <IonSelectOption value="370" class="all-option">370</IonSelectOption>
                                                                                                         </>
-                                                                                                        : postClassName === 'TA' ?
+                                                                                                        : postClassName === 'STAT' ?
                                                                                                           <>
-                                                                                                            <IonSelectOption value="104" class="all-option">104</IonSelectOption>
-                                                                                                            <IonSelectOption value="105" class="all-option">105</IonSelectOption>
-                                                                                                            <IonSelectOption value="106" class="all-option">106</IonSelectOption>
-                                                                                                            <IonSelectOption value="107" class="all-option">107</IonSelectOption>
-                                                                                                            <IonSelectOption value="231" class="all-option">231</IonSelectOption>
-                                                                                                            <IonSelectOption value="237" class="all-option">237</IonSelectOption>
-                                                                                                            <IonSelectOption value="328" class="all-option">328</IonSelectOption>
-                                                                                                            <IonSelectOption value="336" class="all-option">336</IonSelectOption>
-                                                                                                            <IonSelectOption value="340" class="all-option">340</IonSelectOption>
-                                                                                                            <IonSelectOption value="494" class="all-option">494</IonSelectOption>
+                                                                                                            <IonSelectOption value="108" class="all-option">108</IonSelectOption>
+                                                                                                            <IonSelectOption value="109" class="all-option">109</IonSelectOption>
+                                                                                                            <IonSelectOption value="323" class="all-option">323</IonSelectOption>
+                                                                                                            <IonSelectOption value="333" class="all-option">333</IonSelectOption>
+                                                                                                            <IonSelectOption value="410" class="all-option">410</IonSelectOption>
+                                                                                                            <IonSelectOption value="510" class="all-option">510</IonSelectOption>
                                                                                                           </>
-                                                                                                          : postClassName === 'WLDF' ?
+                                                                                                          : postClassName === 'TA' ?
                                                                                                             <>
-                                                                                                              <IonSelectOption value="111" class="all-option">111</IonSelectOption>
-                                                                                                              <IonSelectOption value="210" class="all-option">210</IonSelectOption>
-                                                                                                              <IonSelectOption value="244" class="all-option">244</IonSelectOption>
-                                                                                                              <IonSelectOption value="301" class="all-option">301</IonSelectOption>
-                                                                                                              <IonSelectOption value="311" class="all-option">311</IonSelectOption>
-                                                                                                              <IonSelectOption value="365" class="all-option">365</IonSelectOption>
-                                                                                                              <IonSelectOption value="422" class="all-option">422</IonSelectOption>
-                                                                                                              <IonSelectOption value="423" class="all-option">423</IonSelectOption>
-                                                                                                              <IonSelectOption value="430" class="all-option">430</IonSelectOption>
-                                                                                                              <IonSelectOption value="460" class="all-option">460</IonSelectOption>
-                                                                                                              <IonSelectOption value="468" class="all-option">468</IonSelectOption>
-                                                                                                              <IonSelectOption value="475" class="all-option">475</IonSelectOption>
-                                                                                                              <IonSelectOption value="478" class="all-option">478</IonSelectOption>
+                                                                                                              <IonSelectOption value="104" class="all-option">104</IonSelectOption>
+                                                                                                              <IonSelectOption value="105" class="all-option">105</IonSelectOption>
+                                                                                                              <IonSelectOption value="106" class="all-option">106</IonSelectOption>
+                                                                                                              <IonSelectOption value="107" class="all-option">107</IonSelectOption>
+                                                                                                              <IonSelectOption value="231" class="all-option">231</IonSelectOption>
+                                                                                                              <IonSelectOption value="237" class="all-option">237</IonSelectOption>
+                                                                                                              <IonSelectOption value="328" class="all-option">328</IonSelectOption>
+                                                                                                              <IonSelectOption value="336" class="all-option">336</IonSelectOption>
+                                                                                                              <IonSelectOption value="340" class="all-option">340</IonSelectOption>
+                                                                                                              <IonSelectOption value="494" class="all-option">494</IonSelectOption>
                                                                                                             </>
-                                                                                                            : postClassName === 'ZOOL' ?
+                                                                                                            : postClassName === 'WLDF' ?
                                                                                                               <>
-                                                                                                                <IonSelectOption value="110" class="all-option">110</IonSelectOption>
-                                                                                                                <IonSelectOption value="113" class="all-option">113</IonSelectOption>
-                                                                                                                <IonSelectOption value="198" class="all-option">198</IonSelectOption>
-                                                                                                                <IonSelectOption value="270" class="all-option">270</IonSelectOption>
-                                                                                                                <IonSelectOption value="310" class="all-option">310</IonSelectOption>
-                                                                                                                <IonSelectOption value="314" class="all-option">314</IonSelectOption>
-                                                                                                                <IonSelectOption value="356" class="all-option">356</IonSelectOption>
-                                                                                                                <IonSelectOption value="358" class="all-option">358</IonSelectOption>
-                                                                                                                <IonSelectOption value="370" class="all-option">370</IonSelectOption>
+                                                                                                                <IonSelectOption value="111" class="all-option">111</IonSelectOption>
+                                                                                                                <IonSelectOption value="210" class="all-option">210</IonSelectOption>
+                                                                                                                <IonSelectOption value="244" class="all-option">244</IonSelectOption>
+                                                                                                                <IonSelectOption value="301" class="all-option">301</IonSelectOption>
+                                                                                                                <IonSelectOption value="311" class="all-option">311</IonSelectOption>
+                                                                                                                <IonSelectOption value="365" class="all-option">365</IonSelectOption>
+                                                                                                                <IonSelectOption value="422" class="all-option">422</IonSelectOption>
+                                                                                                                <IonSelectOption value="423" class="all-option">423</IonSelectOption>
+                                                                                                                <IonSelectOption value="430" class="all-option">430</IonSelectOption>
+                                                                                                                <IonSelectOption value="460" class="all-option">460</IonSelectOption>
+                                                                                                                <IonSelectOption value="468" class="all-option">468</IonSelectOption>
+                                                                                                                <IonSelectOption value="475" class="all-option">475</IonSelectOption>
+                                                                                                                <IonSelectOption value="478" class="all-option">478</IonSelectOption>
                                                                                                               </>
-                                                                                                              : null
+                                                                                                              : postClassName === 'ZOOL' ?
+                                                                                                                <>
+                                                                                                                  <IonSelectOption value="110" class="all-option">110</IonSelectOption>
+                                                                                                                  <IonSelectOption value="113" class="all-option">113</IonSelectOption>
+                                                                                                                  <IonSelectOption value="198" class="all-option">198</IonSelectOption>
+                                                                                                                  <IonSelectOption value="270" class="all-option">270</IonSelectOption>
+                                                                                                                  <IonSelectOption value="310" class="all-option">310</IonSelectOption>
+                                                                                                                  <IonSelectOption value="314" class="all-option">314</IonSelectOption>
+                                                                                                                  <IonSelectOption value="356" class="all-option">356</IonSelectOption>
+                                                                                                                  <IonSelectOption value="358" class="all-option">358</IonSelectOption>
+                                                                                                                  <IonSelectOption value="370" class="all-option">370</IonSelectOption>
+                                                                                                                </>
+                                                                                                                : null
 
                   }
                 </>
@@ -1365,8 +1380,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           )
             : classPosts && classPosts.length == 0 ?
               <div className="ion-spinner">
-                <p style={{textAlign: "center", }}>No posts matching section number</p>
-                
+                <p style={{ textAlign: "center", }}>No posts matching section number</p>
+
               </div>
               : (
                 <div className="ion-spinner">

@@ -139,7 +139,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                         elements.push(userUid);
                         elements.push(msg.contactUid);
                       }
-                      console.log(elements[0] + '_' + elements[1]);
+                      // console.log(elements[0] + '_' + elements[1]);
                     } else {
                       Toast.error("Unable to open DMs");
                     }

@@ -219,7 +219,6 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               .then(async (res: any) => {
                 // first batch
                 if (res.userPosts.length > 0) {
-                  console.log(res.userPosts);
                   for (let i = 0; i < res.userPosts.length; ++i) {
                     const data = await getLikes(res.userPosts[i].key);
                     if (data) {

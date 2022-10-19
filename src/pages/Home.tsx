@@ -99,7 +99,9 @@ function Home() {
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [selectOptions, setSelectOptions] = useState<any>({});
+  const [selectFilterOptions, setFilterSelectOptions] = useState<any>({});
   const [selectOptionsNumber, setSelectOptionsNumber] = useState<any>({});
+  const [filterClassName, setFilterClassName] = useState<string>("");
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const [user] = useAuthState(auth);
@@ -512,6 +514,11 @@ function Home() {
         header: 'Class Number',
         subHeader: 'Select a class number'
       })
+      setFilterSelectOptions({
+        cssClass: 'my-custom-interface',
+        header: 'Class Filter',
+        subHeader: 'See posts about a specifc class'
+      })
     } else {
       setSelectOptions({
         header: 'Class',
@@ -520,6 +527,10 @@ function Home() {
       setSelectOptionsNumber({
         header: 'Class Number',
         subHeader: 'Select a class number'
+      })
+      setFilterSelectOptions({
+        header: 'Class Filter',
+        subHeader: 'See posts about a specifc class'
       })
     }
   }, [schoolColorToggled])
@@ -621,6 +632,71 @@ function Home() {
             <IonHeader class="ion-no-border" style={ionHeaderStyle} >
               <Header darkMode={darkModeToggled} colorPallete={schoolColorToggled} schoolName={schoolName} zoom={1} />
             </IonHeader>
+            {/* {schoolName && schoolName === "Cal Poly Humboldt" &&
+              <IonFab horizontal="end">
+                <IonSelect
+                  interface="action-sheet"
+                  interfaceOptions={selectFilterOptions}
+                  okText="Select"
+                  cancelText="Cancel"
+                  mode="ios"
+                  value={filterClassName}
+                  placeholder="Filter "
+                  onIonChange={(e: any) => {
+                    setFilterClassName(e.detail.value);
+                  }}
+                >
+                  <IonSelectOption value="AIE" class="all-option">AIE</IonSelectOption>
+                  <IonSelectOption value="ANTH" class="all-option">ANTH</IonSelectOption>
+                  <IonSelectOption value="ART" class="all-option">ART</IonSelectOption>
+                  <IonSelectOption value="AHSS" class="all-option">AHSS</IonSelectOption>
+                  <IonSelectOption value="BIOL" class="all-option">BIOL</IonSelectOption>
+                  <IonSelectOption value="BOT" class="all-option">BOT</IonSelectOption>
+                  <IonSelectOption value="BA" class="all-option">BA</IonSelectOption>
+                  <IonSelectOption value="CHEM" class="all-option">CHEM</IonSelectOption>
+                  <IonSelectOption value="CD" class="all-option">CD</IonSelectOption>
+                  <IonSelectOption value="COMM" class="all-option">COMM</IonSelectOption>
+                  <IonSelectOption value="CS" class="all-option">CS</IonSelectOption>
+                  <IonSelectOption value="CRIM" class="all-option">CRIM</IonSelectOption>
+                  <IonSelectOption value="CRGS" class="all-option">CRGS</IonSelectOption>
+                  <IonSelectOption value="DANC" class="all-option">DANC</IonSelectOption>
+                  <IonSelectOption value="ECON" class="all-option">ECON</IonSelectOption>
+                  <IonSelectOption value="EDUC" class="all-option">EDUC</IonSelectOption>
+                  <IonSelectOption value="EDL" class="all-option">EDL</IonSelectOption>
+                  <IonSelectOption value="ENGR" class="all-option">ENGR</IonSelectOption>
+                  <IonSelectOption value="ENGL" class="all-option">ENGL</IonSelectOption>
+                  <IonSelectOption value="ESM" class="all-option">ESM</IonSelectOption>
+                  <IonSelectOption value="ENST" class="all-option">ENST</IonSelectOption>
+                  <IonSelectOption value="ES" class="all-option">ES</IonSelectOption>
+                  <IonSelectOption value="FILM" class="all-option">FILM</IonSelectOption>
+                  <IonSelectOption value="FISH" class="all-option">FISH</IonSelectOption>
+                  <IonSelectOption value="FOR" class="all-option">FOR</IonSelectOption>
+                  <IonSelectOption value="FREN" class="all-option">FREN</IonSelectOption>
+                  <IonSelectOption value="GEOG" class="all-option">GEOG</IonSelectOption>
+                  <IonSelectOption value="GEOL" class="all-option">GEOL</IonSelectOption>
+                  <IonSelectOption value="GSP" class="all-option">GSP</IonSelectOption>
+                  <IonSelectOption value="GERM" class="all-option">GERM</IonSelectOption>
+                  <IonSelectOption value="HED" class="all-option">HED</IonSelectOption>
+                  <IonSelectOption value="HIST" class="all-option">HIST</IonSelectOption>
+                  <IonSelectOption value="JMC" class="all-option">JMC</IonSelectOption>
+                  <IonSelectOption value="KINS" class="all-option">KINS</IonSelectOption>
+                  <IonSelectOption value="MATH" class="all-option">MATH</IonSelectOption>
+                  <IonSelectOption value="MUS" class="all-option">MUS</IonSelectOption>
+                  <IonSelectOption value="NAS" class="all-option">NAS</IonSelectOption>
+                  <IonSelectOption value="OCN" class="all-option">OCN</IonSelectOption>
+                  <IonSelectOption value="PHIL" class="all-option">PHIL</IonSelectOption>
+                  <IonSelectOption value="PSCI" class="all-option">PSCI</IonSelectOption>
+                  <IonSelectOption value="PSYC" class="all-option">PYSC</IonSelectOption>
+                  <IonSelectOption value="RS" class="all-option">RS</IonSelectOption>
+                  <IonSelectOption value="SPAN" class="all-option">SPAN</IonSelectOption>
+                  <IonSelectOption value="STAT" class="all-option">STAT</IonSelectOption>
+                  <IonSelectOption value="TA" class="all-option">TA</IonSelectOption>
+                  <IonSelectOption value="WLDF" class="all-option">WLDF</IonSelectOption>
+                  <IonSelectOption value="WS" class="all-option">WS</IonSelectOption>
+                  <IonSelectOption value="ZOOL" class="all-option">ZOOL</IonSelectOption>
+                </IonSelect>
+              </IonFab>
+            } */}
           </FadeIn>
 
           {/* <IonFab horizontal="end">
@@ -1826,6 +1902,7 @@ function Home() {
             </IonFabButton>
           </IonFab>
 
+          {/* <br /> <br /> */}
           {posts && posts.length > 0 ? (
             posts?.map((post, index) => (
               <FadeIn key={post.key}>

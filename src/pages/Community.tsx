@@ -320,20 +320,20 @@ function Community() {
         setArticles(res);
       }
     });
-    const unsub = onSnapshot(doc(db, "schoolWeather", schoolName.replace(/\s+/g, "")), (doc) => {
-      const data = doc.data();
-      if (data) {
-        if (data.icon.includes('day')) {
-          setIsDay(true);
-        } else {
-          setIsDay(false);
-        }
-      } else {
-        Toast.error("Something went wrong when loading weather data");
-      }
-      setWeatherData(data);
-    });
-    return () => { unsub(); }
+    // const unsub = onSnapshot(doc(db, "schoolWeather", schoolName.replace(/\s+/g, "")), (doc) => {
+    //   const data = doc.data();
+    //   if (data) {
+    //     if (data.icon.includes('day')) {
+    //       setIsDay(true);
+    //     } else {
+    //       setIsDay(false);
+    //     }
+    //   } else {
+    //     Toast.error("Something went wrong when loading weather data");
+    //   }
+    //   setWeatherData(data);
+    // });
+    return () => {  }
   }, [schoolName]);
 
   return (

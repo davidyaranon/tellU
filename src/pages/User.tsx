@@ -6,7 +6,7 @@ import {
   IonText, IonCardContent, IonCard, IonSkeletonText,
   IonNote, IonSpinner, IonButtons, IonCardTitle,
   IonPage, useIonViewDidEnter, IonRow, IonCol,
-  IonGrid, IonSearchbar, useIonRouter, RouterDirection, IonBadge
+  IonGrid, IonSearchbar, useIonRouter, RouterDirection, IonBadge, IonRefresher, IonRefresherContent, RefresherEventDetail, IonFabButton
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -43,7 +43,7 @@ import { useSelector } from "react-redux";
 import {
   arrowForward,
   cameraReverseOutline, chatbubbleOutline, chatbubblesOutline, chevronBackOutline, colorFill, iceCream, logoInstagram,
-  logoSnapchat, logoTiktok, moon, schoolSharp
+  logoSnapchat, logoTiktok, moon, refreshOutline, schoolSharp
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
@@ -88,7 +88,7 @@ function User() {
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
-  const notif = useSelector((state : any) => state.notifSet.set);
+  const notif = useSelector((state: any) => state.notifSet.set);
   const inputRef = useRef<HTMLIonInputElement>(null);
   const inputUserRef = useRef<HTMLIonInputElement>(null);
   const [username, setUsername] = useState("");
@@ -136,6 +136,8 @@ function User() {
   const [aboutEdit, setAboutEdit] = useState<boolean>(true);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
   const router = useIonRouter();
+  const [loadedSlidesArr, setLoadedSlidesArr] = useState<boolean[]>([false, false, false, false, false, false])
+
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -811,7 +813,6 @@ function User() {
         Toast.error(err);
       });
     }
-
   };
 
   const loadUserPosts = () => {
@@ -951,7 +952,7 @@ function User() {
             >
               <IonIcon icon={chatbubblesOutline}>
               </IonIcon>
-              {notif && <IonBadge color='danger'>{'!'}</IonBadge> }
+              {notif && <IonBadge color='danger'>{'!'}</IonBadge>}
             </IonButton>
             <IonButton
               color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
@@ -1454,16 +1455,36 @@ function User() {
               case 0:
                 break;
               case 1:
-                loadNotifications();
+                if (!loadedSlidesArr[1]) {
+                  let tempArr: boolean[] = loadedSlidesArr;
+                  tempArr[1] = true;
+                  setLoadedSlidesArr(tempArr);
+                  loadNotifications();
+                }
                 break;
               case 2:
-                loadUserPosts();
+                if (!loadedSlidesArr[2]) {
+                  let tempArr: boolean[] = loadedSlidesArr;
+                  tempArr[2] = true;
+                  setLoadedSlidesArr(tempArr);
+                  loadUserPosts();
+                }
                 break;
               case 3:
-                loadUserLikes();
+                if (!loadedSlidesArr[3]) {
+                  let tempArr: boolean[] = loadedSlidesArr;
+                  tempArr[3] = true;
+                  setLoadedSlidesArr(tempArr);
+                  loadUserLikes();
+                }
                 break;
               case 4:
-                loadYourPolls();
+                if (!loadedSlidesArr[4]) {
+                  let tempArr: boolean[] = loadedSlidesArr;
+                  tempArr[4] = true;
+                  setLoadedSlidesArr(tempArr);
+                  loadYourPolls();
+                }
                 break;
               default:
                 break;
@@ -1616,6 +1637,11 @@ function User() {
               }}
             >
               Notifications
+              <IonFab horizontal="end">
+                <IonButton fill="clear" mode="ios" onClick={loadNotifications} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
+                  <IonIcon icon={refreshOutline} />
+                </IonButton>
+              </IonFab>
             </IonHeader>
             <IonCard className="user-card">
               <IonContent>
@@ -1696,6 +1722,11 @@ function User() {
               }}
             >
               Your Posts
+              <IonFab horizontal="end">
+                <IonButton mode="ios" fill="clear" onClick={loadUserPosts} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
+                  <IonIcon icon={refreshOutline} />
+                </IonButton>
+              </IonFab>
             </IonHeader>
             <IonCard className="user-card">
               <IonContent>
@@ -2163,6 +2194,11 @@ function User() {
               }}
             >
               Liked Posts
+              <IonFab horizontal="end">
+                <IonButton mode="ios" fill="clear" onClick={loadUserLikes} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
+                  <IonIcon icon={refreshOutline} />
+                </IonButton>
+              </IonFab>
             </IonHeader>
             <IonCard className="user-card">
               <IonContent>
@@ -2471,6 +2507,11 @@ function User() {
               }}
             >
               Your Polls
+              <IonFab horizontal="end">
+                <IonButton mode="ios" fill="clear" onClick={loadYourPolls} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
+                  <IonIcon icon={refreshOutline} />
+                </IonButton>
+              </IonFab>
             </IonHeader>
             <IonCard className="user-card">
               <IonContent>
