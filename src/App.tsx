@@ -139,7 +139,6 @@ const RoutingSystem: React.FunctionComponent = () => {
   }
 
   useEffect(() => {
-    // totally works! Enable toast or something detailing notification.body as message!
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema) => {
@@ -212,45 +211,45 @@ const RoutingSystem: React.FunctionComponent = () => {
           <IonTabButton tab="home" href="/home">
             <HomeIcon
               fontSize="medium"
-              style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "5vh", color: '#58c2a2' }
-                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "5.0vh" }
-                  : selectedTab === 'home' ? { fontSize: "5.0vh" }
+              style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4,5vh" }
+                  : selectedTab === 'home' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
             />
           </IonTabButton>
           {/*<IonTabButton tab="school" href="/school">
              <SchoolIcon
               fontSize="medium"
-              style={selectedTab === 'school' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "5.0vh", color: '#58c2a2' }
-                : selectedTab === 'school' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "5.0vh" }
-                  : selectedTab === 'school' ? { fontSize: "5.0vh" }
+              style={selectedTab === 'school' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+                : selectedTab === 'school' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
+                  : selectedTab === 'school' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
             />
           </IonTabButton> */}
           <IonTabButton tab="community" href="/community">
             <LocalFireDepartmentIcon
               fontSize="medium"
-              style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "5.0vh", color: '#58c2a2' }
-                : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "5.0vh" }
-                  : selectedTab === 'community' ? { fontSize: "5.0vh" }
+              style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+                : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
+                  : selectedTab === 'community' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
             />
           </IonTabButton>
           <IonTabButton tab="maps" href="/maps">
             <MapIcon
               fontSize="medium"
-              style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "5.0vh", color: '#58c2a2' }
-                : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "5.0vh" }
-                  : selectedTab === 'maps' ? { fontSize: "5.0vh" }
+              style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+                : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
+                  : selectedTab === 'maps' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
             />
           </IonTabButton>
           <IonTabButton tab="user" href="/user">
             <AccountCircleIcon
               fontSize="medium"
-              style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "5.0vh", color: '#58c2a2' }
-                : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "5.0vh" }
-                  : selectedTab === 'user' ? { fontSize: "5.0vh" }
+              style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+                : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
+                  : selectedTab === 'user' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
             />
             {notif &&

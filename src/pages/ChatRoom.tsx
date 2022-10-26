@@ -293,10 +293,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         </IonModal>
 
         <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios" onClick={() => { if ("uid" in contactInfo && contactInfo.uid) dynamicNavigate('about/' + contactInfo.uid, 'forward') }}>
-            {contactInfo &&
-              <IonTitle>{contactInfo.userName}</IonTitle>
-            }
+          <IonToolbar mode="ios">
             <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonButton
                 color={
@@ -309,6 +306,9 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               >
                 <IonIcon icon={chevronBackOutline}></IonIcon> Back
               </IonButton>
+              {contactInfo &&
+                <IonTitle style={{ marginLeft : "9%", width : "90vw"}} onClick={() => { if ("uid" in contactInfo && contactInfo.uid) dynamicNavigate('about/' + contactInfo.uid, 'forward') }}>{contactInfo.userName}</IonTitle>
+              }
             </IonButtons>
             <IonButtons slot='end'>
               <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={(e: any) => { e.stopPropagation(); reportUser() }}>
