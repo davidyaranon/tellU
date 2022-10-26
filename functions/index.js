@@ -39,7 +39,7 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
   const humboldtStateNews = await res2.json();
   const res3 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Lost%20Coast%20Outpost%20Humboldt&mkt=en-US', option);
   const lostCoastOutpost = await res3.json();
-  const res4 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=El%20Lenador%2020Humboldt&mkt=en-US', option);
+  const res4 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20Ca&mkt=en-US', option);
   const elLenador = await res4.json();
 
   let articles = [];
@@ -102,7 +102,7 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
       if ("image" in elLenador.value[i] && "thumbnail" in elLenador.value[i].image && "contentUrl" in elLenador.value[i].image.thumbnail) {
         temp['image'] = elLenador.value[i].image.thumbnail.contentUrl;
       } else {
-        temp['image'] = 'https://www.ellenadornews.com/wp-content/uploads/2019/03/cropped-Screen-Shot-2017-12-07-at-10.31.16-PM-192x192.png';
+        temp['image'] = '';
       }
       if ("name" in elLenador.value[i])
         temp['title'] = elLenador.value[i].name;

@@ -813,7 +813,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   ]
                                   CapacitorPhotoViewer.show({
                                     images: img,
-                                    mode: 'gallery',
+                                    mode: 'slider',
                                     options: {
                                       title: true
                                     },

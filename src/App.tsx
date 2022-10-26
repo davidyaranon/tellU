@@ -47,6 +47,7 @@ import UIContext from "./my-context";
 
 import { ToastProvider, useToast } from "@agney/ir-toast";
 import HomeIcon from '@mui/icons-material/Home';
+import SchoolIcon from '@mui/icons-material/School';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
@@ -70,6 +71,7 @@ import { useHistory } from "react-router";
 import Class from "./pages/Class";
 import ChatRoom from "./pages/ChatRoom";
 import DirectMessages from "./pages/DirectMessages";
+import School from "./pages/School";
 
 
 // // set up base push notifications with Capacitor
@@ -90,8 +92,6 @@ SplashScreen.show({
   autoHide: true,
   fadeInDuration: 300,
   fadeOutDuration: 300
-}).then(() => {
-  console.log('splash screen show');
 });
 
 // Global variables
@@ -112,7 +112,7 @@ const RoutingSystem: React.FunctionComponent = () => {
   const schoolName = useSelector((state: any) => state.user.school);
   const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const history = useHistory();
-  const notif = useSelector((state : any) => state.notifSet.set);
+  const notif = useSelector((state: any) => state.notifSet.set);
   const [present] = useIonToast();
 
   const presentToast = (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
@@ -126,7 +126,7 @@ const RoutingSystem: React.FunctionComponent = () => {
         {
           text: 'Open',
           role: 'info',
-          handler: () => { history.push(url); dispatch(setNotif(false));}
+          handler: () => { history.push(url); dispatch(setNotif(false)); }
         },
         {
           text: 'Dismiss',
@@ -171,85 +171,95 @@ const RoutingSystem: React.FunctionComponent = () => {
   }, []); // add notif count in useEffect dependency array, utilize redux to save state
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-        <AppUrlListener></AppUrlListener>
-        <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab); }}>
-          <IonRouterOutlet>
-            <Route path="/:tab(home)" exact={true}>
-              {" "}
-              <Home />{" "}
-            </Route>
-            <Route
-              path="/:tab(community)"
-              component={Community}
-              exact={true}
+      <AppUrlListener></AppUrlListener>
+      <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab); }}>
+        <IonRouterOutlet>
+          <Route path="/:tab(home)" exact={true}>
+            {" "}
+            <Home />{" "}
+          </Route>
+          <Route path="/:tab(school)" component={School} exact={true} />
+          <Route
+            path="/:tab(community)"
+            component={Community}
+            exact={true}
+          />
+          <Route path="/:tab(maps)" component={Maps} exact={true} />
+          <Route path="/:tab(user)" exact={true}>
+            {" "}
+            <User />{" "}
+          </Route>
+          <Route path="/landing-page" exact={true}>
+            {" "}
+            <LandingPage />{" "}
+          </Route>
+          <Route path="/post/:key" component={Post} />
+          <Route path="/about/:uid" component={UserProfile} />
+          <Route path="/class/:className" component={Class} />
+          <Route path="/chatroom/:collectionPath" component={ChatRoom} />
+          <Route path="/direct/:directMessageId" component={DirectMessages} />
+          <Route path="/register" component={Register} exact={true} />
+          <Route path="/forgot-password" component={ForgotPassword} exact={true} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+          <Route path="/404" component={RedirectComponent} />
+          <Route
+            exact
+            path="/"
+            render={() => <Redirect to="/home" />}
+          />
+        </IonRouterOutlet>
+        <IonTabBar slot="bottom" style={tabBarStyle}>
+          <IonTabButton tab="home" href="/home">
+            <HomeIcon
+              fontSize="medium"
+              style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                  : selectedTab === 'home' ? { fontSize: "4.3vh" }
+                    : { fontSize: "4.00vh" }}
             />
-            <Route path="/:tab(maps)" component={Maps} exact={true} />
-            <Route path="/:tab(user)" exact={true}>
-              {" "}
-              <User />{" "}
-            </Route>
-            <Route path="/landing-page" exact={true}>
-              {" "}
-              <LandingPage />{" "}
-            </Route>
-            <Route path="/post/:key" component={Post} />
-            <Route path="/about/:uid" component={UserProfile} />
-            <Route path="/class/:className" component={Class} />
-            <Route path="/chatroom/:collectionPath" component={ChatRoom} />
-            <Route path="/direct/:directMessageId" component={DirectMessages} />
-            <Route path="/register" component={Register} exact={true} />
-            <Route path="/forgot-password" component={ForgotPassword} exact={true} />
-            <Route path="/privacy-policy" component={PrivacyPolicy} />
-            <Route path="/404" component={RedirectComponent} />
-            <Route
-              exact
-              path="/"
-              render={() => <Redirect to="/home" />}
+          </IonTabButton>
+          {/* <IonTabButton tab="school" href="/school">
+            <SchoolIcon
+              fontSize="medium"
+              style={selectedTab === 'school' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                : selectedTab === 'school' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                  : selectedTab === 'school' ? { fontSize: "4.3vh" }
+                    : { fontSize: "4.00vh" }}
             />
-          </IonRouterOutlet>
-          <IonTabBar slot="bottom" style={tabBarStyle}>
-            <IonTabButton tab="home" href="/home">
-              <HomeIcon
-                fontSize="medium"
-                style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
-                  : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
-                    : selectedTab === 'home' ? { fontSize: "4.3vh" }
-                      : { fontSize: "4.00vh" }}
-              />
-            </IonTabButton>
-            <IonTabButton tab="community" href="/community">
-              <LocalFireDepartmentIcon
-                fontSize="medium"
-                style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
-                  : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
-                    : selectedTab === 'community' ? { fontSize: "4.3vh" }
-                      : { fontSize: "4.00vh" }}
-              />
-            </IonTabButton>
-            <IonTabButton tab="maps" href="/maps">
-              <MapIcon
-                fontSize="medium"
-                style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
-                  : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
-                    : selectedTab === 'maps' ? { fontSize: "4.3vh" }
-                      : { fontSize: "4.00vh" }}
-              />
-            </IonTabButton>
-            <IonTabButton tab="user" href="/user">
-              <AccountCircleIcon
-                fontSize="medium"
-                style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
-                  : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
-                    : selectedTab === 'user' ? { fontSize: "4.3vh" }
-                      : { fontSize: "4.00vh" }}
-              />
-              {notif &&
-                < IonBadge color="danger">{'!'}</IonBadge>
-              }
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      
+          </IonTabButton> */}
+          <IonTabButton tab="community" href="/community">
+            <LocalFireDepartmentIcon
+              fontSize="medium"
+              style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                  : selectedTab === 'community' ? { fontSize: "4.3vh" }
+                    : { fontSize: "4.00vh" }}
+            />
+          </IonTabButton>
+          <IonTabButton tab="maps" href="/maps">
+            <MapIcon
+              fontSize="medium"
+              style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                  : selectedTab === 'maps' ? { fontSize: "4.3vh" }
+                    : { fontSize: "4.00vh" }}
+            />
+          </IonTabButton>
+          <IonTabButton tab="user" href="/user">
+            <AccountCircleIcon
+              fontSize="medium"
+              style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.3vh", color: '#58c2a2' }
+                : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.3vh" }
+                  : selectedTab === 'user' ? { fontSize: "4.3vh" }
+                    : { fontSize: "4.00vh" }}
+            />
+            {notif &&
+              < IonBadge color="danger">{'!'}</IonBadge>
+            }
+          </IonTabButton>
+        </IonTabBar>
+      </IonTabs>
+
     </ToastProvider >
   );
 };
@@ -284,7 +294,7 @@ const App: React.FunctionComponent = () => {
 
   useEffect(() => {
     PushNotifications.getDeliveredNotifications().then((notifs) => {
-      if(notifs.notifications.length > 0) {
+      if (notifs.notifications.length > 0) {
         dispatch(setNotif(true));
       } else {
         dispatch(setNotif(false));
