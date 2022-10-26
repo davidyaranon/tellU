@@ -682,6 +682,8 @@ ion-image {
 
 img.chat_avatar {
   width: 45px;
+  height: 45px;
+  object-fit: contain;
   box-shadow: 1px 6px 18px rgba(31, 37, 72, 0.45);
   border-radius: 7px;
 }
