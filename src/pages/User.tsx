@@ -6,7 +6,7 @@ import {
   IonText, IonCardContent, IonCard, IonSkeletonText,
   IonNote, IonSpinner, IonButtons, IonCardTitle,
   IonPage, useIonViewDidEnter, IonRow, IonCol,
-  IonGrid, IonSearchbar, useIonRouter, RouterDirection, IonBadge, IonRefresher, IonRefresherContent, RefresherEventDetail, IonFabButton
+  IonGrid, IonSearchbar, useIonRouter, RouterDirection, IonBadge
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -41,9 +41,8 @@ import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
-  arrowForward,
-  cameraReverseOutline, chatbubbleOutline, chatbubblesOutline, chevronBackOutline, colorFill, iceCream, logoInstagram,
-  logoSnapchat, logoTiktok, moon, refreshOutline, schoolSharp
+  arrowForward, cameraReverseOutline, chatbubblesOutline, chevronBackOutline, colorFill, 
+  logoInstagram,logoSnapchat, logoTiktok, moon, refreshOutline
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
@@ -1879,7 +1878,7 @@ function User() {
                                               ]
                                               CapacitorPhotoViewer.show({
                                                 images: img,
-                                                mode: 'gallery',
+                                                mode: 'slider',
                                                 options: {
                                                   title: true
                                                 },

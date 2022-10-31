@@ -71,6 +71,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [reportMessage, setReportMessage] = useState<string>("");
   const [contactInfo, setContactInfo] = useState<any>();
+  const [contactPhoto, setContactPhoto] = useState<string>("");
   const Toast = useToast();
 
   async function takePicture() {
@@ -186,12 +187,18 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         secondUid += collectionPath[j];
       }
       if (user.uid === firstUid) { // firstUid is current user, so set contactUid to secondUid
-        getUserData(secondUid).then((res) => {
+        getUserData(secondUid).then(async (res : any) => {
           setContactInfo(res);
-        })
+          let url = "profilePictures/" + res.uid + "photoURL";
+          let imgSrc : string = await getDownloadURL(ref(storage, url));
+          setContactPhoto(imgSrc);
+        });
       } else if (user.uid === secondUid) {
-        getUserData(firstUid).then((res) => {
+        getUserData(firstUid).then(async (res : any) => {
           setContactInfo(res);
+          let url = "profilePictures/" + res.uid + "photoURL";
+          let imgSrc : string = await getDownloadURL(ref(storage, url));
+          setContactPhoto(imgSrc);
         })
       } else {
         Toast.error("Something went wrong getting contact info")
@@ -367,7 +374,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               <>
                 {messages?.map((msg: any, index: number) => (
                   <FadeIn transitionDuration={500}>
-                    <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} />
+                    <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} photo={contactPhoto}/>
                   </FadeIn>
                 ))}
                 {kbHeight != 0 ?
@@ -427,6 +434,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
 function ChatMessage(props: any) {
   const { message, uid, imgSrc, photoURL, date } = props.msg;
+  const photo = props.photo;
   const schoolName = props.school;
   const schoolColorToggled = props.toggled;
   const timeAgo = new TimeAgo("en-US");
@@ -465,7 +473,7 @@ function ChatMessage(props: any) {
       <div className={`message ${messageClass}`}>
         <div style={{ textAlign: "right", borderRadius: "10px" }}>
           {messageClass === 'received' && imgSrc && imgSrc.length > 0 &&
-            <img onClick={() => { dynamicNavigate("about/" + uid, 'forward'); }} className='dm-img' src={photoURL} />
+            <img onClick={() => { dynamicNavigate("about/" + uid, 'forward'); }} className='dm-img' src={photo || photoURL} />
           }
           {imgSrc && imgSrc.length > 0 &&
             <img style={{ width: "50vw", borderRadius: "10px", marginRight: "10px" }} src={imgSrc}
@@ -492,7 +500,7 @@ function ChatMessage(props: any) {
 
       <div className={`message ${messageClass}`}>
         {messageClass === 'received' && message && message.length > 0 &&
-          <img onClick={() => { dynamicNavigate("about/" + uid, 'forward'); }} className='dm-img' src={photoURL} />
+          <img onClick={() => { dynamicNavigate("about/" + uid, 'forward'); }} className='dm-img' src={photo || photoURL} />
         }
         {message && message.length > 0 &&
           <>

@@ -60,7 +60,7 @@ import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keybo
 import { StatusBar, Style } from '@capacitor/status-bar';
 import Post from "./pages/Post";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
-import { ActionPerformed, PushNotifications, PushNotificationSchema, Token } from "@capacitor/push-notifications";
+import { ActionPerformed, PushNotifications, PushNotificationSchema } from "@capacitor/push-notifications";
 import { FCM } from "@capacitor-community/fcm";
 import AppUrlListener from "./pages/AppUrlListener";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -73,18 +73,8 @@ import ChatRoom from "./pages/ChatRoom";
 import DirectMessages from "./pages/DirectMessages";
 import School from "./pages/School";
 
-
-// // set up base push notifications with Capacitor
-// await PushNotifications.requestPermissions();
-// await PushNotifications.register();
-
-// // set up Firebase Cloud Messaging topics
-// FCM.subscribeTo({ topic: "test" })
-//   .then((r) => alert(`subscribed to topic`))
-//   .catch((err) => console.log(err));
-
 setupIonicReact({
-  swipeBackEnabled: false,
+  swipeBackEnabled: false
 });
 
 SplashScreen.show({
@@ -327,7 +317,7 @@ const App: React.FunctionComponent = () => {
         const hasLoadedUser = promiseTimeout(30000, getCurrentUser());
         hasLoadedUser.then((user: any) => {
           if (user) {
-            let school = "";
+            let school = localStorage.getItem("userSchoolName") || "";
             const userRef = doc(db, "userData", user.uid);
             const docLoaded = promiseTimeout(30000, getDoc(userRef));
             docLoaded.then((userSnap) => {
@@ -340,6 +330,7 @@ const App: React.FunctionComponent = () => {
               //   school : school,
               // }
               // localStorage.setItem("userData", JSON.stringify(userData));
+              localStorage.setItem("userSchoolName", school.toString());
               dispatch(setUserState(user.displayName, user.email, false, school));
               setBusy(false);
               setShowTabs(true);
@@ -353,7 +344,7 @@ const App: React.FunctionComponent = () => {
               //   school : school,
               // }
               // localStorage.setItem("userData", JSON.stringify(userData));
-              dispatch(setUserState(user.displayName, user.email, false, ""));
+              dispatch(setUserState(user.displayName, user.email, false, localStorage.getItem("userSchoolName") || ""));
               setBusy(false);
               setShowTabs(true);
               window.history.replaceState({}, "", "/home");
