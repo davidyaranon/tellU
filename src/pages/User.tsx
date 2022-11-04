@@ -41,8 +41,8 @@ import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
-  arrowForward, cameraReverseOutline, chatbubblesOutline, chevronBackOutline, colorFill, 
-  logoInstagram,logoSnapchat, logoTiktok, moon, refreshOutline, warningSharp
+  arrowForward, cameraReverseOutline, chatbubblesOutline, chevronBackOutline, colorFill,
+  logoInstagram, logoSnapchat, logoTiktok, moon, refreshOutline, warningSharp
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
@@ -174,7 +174,7 @@ function User() {
     localStorage.setItem("schoolColorPallete", JSON.stringify(isChecked));
   }
 
-  const toggleSensitiveContent= async (isChecked: boolean) => {
+  const toggleSensitiveContent = async (isChecked: boolean) => {
     console.log(isChecked);
     dispatch(setSensitiveContent(isChecked));
     localStorage.setItem("sensitiveContent", JSON.stringify(isChecked));
@@ -1517,116 +1517,121 @@ function User() {
                 </IonFab>
               </FadeIn>
             </IonHeader>
-            <IonCard className="user-card">
-              <IonContent>
-                <IonList mode="ios" inset={true}>
-                  <IonItem key="singleton_item_3" mode="ios">
-                    {/* <IonGrid> */}
-                      <IonRow>
-                        <IonLabel mode="ios">
-                          <IonText color="medium">
-                            <p> Email </p>
-                          </IonText>
-                        </IonLabel>
-                      </IonRow>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      <IonRow>
-                        <p>{editableEmail}</p>
-                      </IonRow>
-                    {/* </IonGrid> */}
-                    <IonButton
-                      onClick={handleEdit}
-                      color="medium"
-                      slot="end"
-                    >
-                      {" "}
-                      Edit{" "}
-                    </IonButton>
-                  </IonItem>
-                  <IonItem key="singleton_item_3" mode="ios">
-                    {/* <IonGrid> */}
-                      <IonRow>
-                        <IonLabel mode="ios">
-                          <IonText color="medium">
-                            <p> Username </p>
-                          </IonText>
-                        </IonLabel>
-                      </IonRow>
-                      &nbsp;&nbsp;
-                      <IonRow>
-                        <p>{editableUsername}</p>
-                      </IonRow>
-                    {/* </IonGrid> */}
-                    <IonButton
-                      onClick={handleUserEdit}
-                      color="medium"
-                      slot="end"
-                    >
-                      {" "}
-                      Edit{" "}
-                    </IonButton>
-                  </IonItem>
+            <br />
+            {/* <IonCard className="user-card"> */}
+              {/* <IonContent> */}
+              <IonList mode="ios" inset={true}>
+                <IonItem key="singleton_item_3" mode="ios">
+                  {/* <IonGrid> */}
+                  <IonRow>
+                    <IonLabel mode="ios">
+                      <IonText color="medium">
+                        <p> Email </p>
+                      </IonText>
+                    </IonLabel>
+                  </IonRow>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <IonRow>
+                    <p style={{ fontSize: "0.9em" }}>{editableEmail}</p>
+                  </IonRow>
+                  {/* </IonGrid> */}
+                  <IonButton
+                    onClick={handleEdit}
+                    color="medium"
+                    slot="end"
+                  >
+                    {" "}
+                    Edit{" "}
+                  </IonButton>
+                </IonItem>
+                <IonItem key="singleton_item_3" mode="ios">
+                  {/* <IonGrid> */}
+                  <IonRow>
+                    <IonLabel mode="ios">
+                      <IonText color="medium">
+                        <p> Username </p>
+                      </IonText>
+                    </IonLabel>
+                  </IonRow>
+                  &nbsp;&nbsp;
+                  <IonRow>
+                    <p style={{ fontSize: "0.9em" }}>{editableUsername}</p>
+                  </IonRow>
+                  {/* </IonGrid> */}
+                  <IonButton
+                    onClick={handleUserEdit}
+                    color="medium"
+                    slot="end"
+                  >
+                    {" "}
+                    Edit{" "}
+                  </IonButton>
+                </IonItem>
+                <IonItem mode="ios">
+                  {/* <IonGrid> */}
+                  <IonRow>
+                    <IonLabel mode="ios">
+                      <IonText color="medium">
+                        <p> About </p>
+                      </IonText>
+                    </IonLabel>
+                  </IonRow>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <IonRow>
+                    <p style={{ fontSize: "0.9em" }}>...</p>
+                  </IonRow>
+                  {/* </IonGrid> */}
+                  <IonButton
+                    color="medium"
+                    slot="end"
+                    onClick={() => { handleEditAbout(); }}
+                  >
+                    Edit
+                  </IonButton>
+                </IonItem>
+              </IonList>
+            {/* </IonCard> */}
+            {/* <IonCard mode="ios"> */}
+              <IonList mode="ios" inset={true}>
+                <IonItem mode="ios">
+                  <p style={{ fontSize: "0.9em" }}> Dark mode </p>
+                  <IonIcon color="medium" icon={moon} slot="end" />
+                  <IonToggle
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                    slot="end"
+                    name="darkMode"
+                    checked={darkModeToggled}
+                    onIonChange={(e) => { toggleDarkModeHandler(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                  />
+                </IonItem>
+                {schoolName === "Cal Poly Humboldt" &&
                   <IonItem mode="ios">
-                    {/* <IonGrid> */}
-                      <IonRow>
-                        <IonLabel mode="ios">
-                          <IonText color="medium">
-                            <p> About </p>
-                          </IonText>
-                        </IonLabel>
-                      </IonRow>
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      <IonRow>
-                        <p>...</p>
-                      </IonRow>
-                    {/* </IonGrid> */}
-                    <IonButton
-                      color="medium"
-                      slot="end"
-                      onClick={() => { handleEditAbout(); }}
-                    >
-                      Edit
-                    </IonButton>
-                  </IonItem>
-                  <IonItem mode="ios">
-                    <p> Dark mode </p>
-                    <IonIcon color="medium" icon={moon} slot="end" />
+                    <p style={{ fontSize: "0.9em" }}> School Color Palette </p>
+                    <IonIcon color="medium" icon={colorFill} slot="end" />
                     <IonToggle
-                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                      color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                       slot="end"
-                      name="darkMode"
-                      checked={darkModeToggled}
-                      onIonChange={(e) => { toggleDarkModeHandler(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                      name="schoolColorToggle"
+                      checked={schoolColorToggled}
+                      onIonChange={(e) => { toggleSchoolColorPallete(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                     />
                   </IonItem>
-                  {schoolName === "Cal Poly Humboldt" &&
-                    <IonItem mode="ios">
-                      <p> School Color Palette </p>
-                      <IonIcon color="medium" icon={colorFill} slot="end" />
-                      <IonToggle
-                        color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
-                        slot="end"
-                        name="schoolColorToggle"
-                        checked={schoolColorToggled}
-                        onIonChange={(e) => { toggleSchoolColorPallete(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
-                      />
-                    </IonItem>
-                  }
-                  <IonItem mode="ios">
-                    <p> Hide Sensitive Content</p>
-                    <IonIcon color="medium" icon={warningSharp} slot="end" />
-                    <IonToggle
-                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                      slot="end"
-                      name="sensitiveContent"
-                      checked={sensitiveToggled}
-                      onIonChange={(e) => { toggleSensitiveContent(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
-                    />
-                  </IonItem>
-                </IonList>
-                <br /> <br /><br /> <br /><br /> <br />
-              </IonContent>
-            </IonCard>
+                }
+                <IonItem mode="ios">
+                  <p style={{ fontSize: "0.9em" }}> Hide Sensitive Content</p>
+                  <IonIcon color="medium" icon={warningSharp} slot="end" />
+                  <IonToggle
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                    slot="end"
+                    name="sensitiveContent"
+                    checked={sensitiveToggled}
+                    onIonChange={(e) => { toggleSensitiveContent(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                  />
+                </IonItem>
+              </IonList>
+              {/* <br /> <br /><br /> <br /><br /> <br /> */}
+              {/* </IonContent> */}
+            {/* </IonCard> */}
           </SwiperSlide>
           <SwiperSlide>
             <br />
