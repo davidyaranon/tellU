@@ -1,16 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   IonButton, IonButtons, IonCard, IonCardContent,
-  IonCardTitle, IonContent, IonIcon, IonPage, IonToolbar,
+  IonCardTitle, IonContent, IonIcon, IonLoading, IonPage, IonToolbar,
   RouterDirection, useIonRouter
 } from "@ionic/react";
 import { chevronBackOutline } from "ionicons/icons";
 import { useSelector } from "react-redux";
+import { Dialog } from "@capacitor/dialog";
+import { deleteUserDataAndAccount, logout, promiseTimeout } from "../fbconfig";
+import { useToast } from "@agney/ir-toast";
 
 export const PrivacyPolicy = () => {
   const router = useIonRouter();
   const schoolName = useSelector((state: any) => state.user.school);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const Toast = useToast();
+
+  const [deletingAccount, setDeletingAccount] = useState<boolean>(false);
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -24,9 +30,65 @@ export const PrivacyPolicy = () => {
     }
   }
 
+  const areYouSure = async () => {
+    const { value } = await Dialog.confirm({
+      title: 'Are you sure?',
+      message: 'Your entire account record will be deleted along with posts, messages, and other data. Are you sure you want to continue?',
+      okButtonTitle: 'Yes, delete my account'
+    });
+    return value;
+  }
+
+  const deleteAccount = async () => {
+    const { value } = await Dialog.confirm({
+      title: 'Delete Account',
+      message: `Are you sure you want to delete your account?`,
+      okButtonTitle: 'Delete my account'
+    });
+    if (!value) { return; }
+
+    const deleteMe = await areYouSure();
+
+    if (!deleteMe) { return; }
+
+    setDeletingAccount(true);
+
+    await deleteUserDataAndAccount().then(() => {
+      setDeletingAccount(false);
+    }).catch((err) => {console.log(err); Toast.error("Something went wrong!"); setDeletingAccount(false);});
+    window.localStorage.clear();
+    localStorage.clear();
+
+    // let promise = promiseTimeout(10000, logout());
+    // promise.then((loggedOut: boolean) => {
+    //   if (loggedOut) {
+    //     window.localStorage.clear();
+    //     localStorage.clear();
+    //     Toast.success("Logging out...");
+    //   } else {
+    //     Toast.error("Unable to logout");
+    //   }
+    //   setDeletingAccount(false);
+    // });
+    // promise.catch((err: any) => {
+    //   Toast.error(err);
+    //   setDeletingAccount(false);
+    // });
+
+    setDeletingAccount(false);
+  }
+
   return (
     <IonPage>
       <IonContent>
+
+        <IonLoading
+          spinner="dots"
+          message="Deleting Account..."
+          duration={0}
+          isOpen={deletingAccount}
+        ></IonLoading>
+
         <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios">
             <IonButtons style={{ marginLeft: "-2.5%" }}>
@@ -37,6 +99,17 @@ export const PrivacyPolicy = () => {
                 }}
               >
                 <IonIcon icon={chevronBackOutline} ></IonIcon> Back
+              </IonButton>
+            </IonButtons>
+            <IonButtons slot="end">
+              <IonButton
+                onClick={() => { deleteAccount() }}
+                color="danger"
+                mode="ios"
+                fill="clear"
+                id="deleteAccount"
+              >
+                Delete Account
               </IonButton>
             </IonButtons>
           </IonToolbar>
@@ -114,7 +187,10 @@ export const PrivacyPolicy = () => {
               Information. The reason is to perform the tasks assigned to
               them on our behalf. However, they are obligated not to
               disclose or use the information for any other purpose.
-            </p> <p><strong>Security</strong></p> <p>
+            </p> <p><strong>Objectionable or Otherwise Harmful User Content</strong></p> <p>
+              I may employ a ban hammer upon abusive users or users who post objectionable content. Be smart about what you post to tellU!
+            </p>
+            <p><strong>Security</strong></p> <p>
               I value your trust in providing us your
               Personal Information, thus we are striving to use commercially
               acceptable means of protecting it. But remember that no method

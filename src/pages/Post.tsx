@@ -28,7 +28,7 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
@@ -59,6 +59,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const router = useIonRouter();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
   const schoolName = useSelector((state: any) => state.user.school);
   const timeAgo = new TimeAgo("en-US");
   const db = getDatabase();
@@ -751,14 +752,14 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         )}
                       <div style={{ height: "0.75vh" }}>{" "}</div>
                       {"className" in post && "classNumber" in post  && post.className.length > 0 ?
-                        <Linkify tagName="h3" className="h2-message">
+                        <Linkify style={ sensitiveToggled && "reports" in post && post.reports > 1 ? {filter: "blur(0.25em)"} : {}} tagName="h3" className="h2-message">
                           {post.message} <IonNote onClick={(e) => {
                               e.stopPropagation();
                               dynamicNavigate("class/" + post.className, 'forward');
                             }}color="medium" style={{fontWeight: "400"}}> &nbsp; — {post.className}{post.classNumber}</IonNote>
                         </Linkify>
                         :
-                        <Linkify tagName="h3" className="h2-message">
+                        <Linkify style={ sensitiveToggled && "reports" in post && post.reports > 1 ? {filter: "blur(0.25em)"} : {}} tagName="h3" className="h2-message">
                           {post.message}
                         </Linkify>
                       }
@@ -768,7 +769,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           <div style={{ height: "0.75vh" }}>{" "}</div>
                           <div
                             className="ion-img-container"
-                            style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                            style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px',}}
                             onClick={(e) => {
                               e.stopPropagation();
                               const img: CapacitorImage = {
@@ -798,7 +799,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -828,7 +829,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -866,7 +867,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)"} : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -900,7 +901,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -935,7 +936,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           <>
                             <div
                               className="ion-img-container"
-                              style={{ backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '10px' }}
+                              style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '10px'}}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 const img: CapacitorImage[] = [
@@ -1050,6 +1051,16 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       <KeyboardArrowDownIcon />
                       <p>{Object.keys(post.dislikes).length - 1} </p>
                     </IonButton>
+                    {"reports" in post && post.reports > 1 &&
+                      <IonFab horizontal="end">
+                        <IonIcon icon={warningSharp} color="warning" onClick={() => {
+                          Dialog.alert({
+                            title: "Flagged Post",
+                            message: 'Post has been reported as sensitive/objectionable'
+                          })
+                        }}></IonIcon>
+                      </IonFab>
+                    }
                   </IonItem>
                 </IonList>
                 <div className="verticalLine"></div>

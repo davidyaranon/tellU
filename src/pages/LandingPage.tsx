@@ -1,5 +1,5 @@
 /* React imports */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useHistory } from 'react-router';
 import { useDispatch, useSelector } from "react-redux"
@@ -9,7 +9,7 @@ import { setUserState } from '../redux/actions';
 import { FCM } from '@capacitor-community/fcm';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
-import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading, IonTitle, InputChangeEventDetail } from '@ionic/react';
+import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading, IonTitle, InputChangeEventDetail, IonLabel } from '@ionic/react';
 
 /* Firebase */
 import { doc, getDoc } from "firebase/firestore";
@@ -37,6 +37,8 @@ const LandingPage: React.FC = () => {
   const Toast = useToast();
   const history = useHistory();
   const dispatch = useDispatch();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const { setShowTabs } = React.useContext(UIContext);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
 
@@ -48,7 +50,6 @@ const LandingPage: React.FC = () => {
       }
       const input = ionInput.value;
       setEmailSignIn(input || "");
-      console.log(input);
     },
     [],
   );
@@ -61,7 +62,6 @@ const LandingPage: React.FC = () => {
       }
       const input = ionInput.value;
       setPasswordSignIn(input || "");
-      console.log(input);
     },
     [],
   );
@@ -72,42 +72,113 @@ const LandingPage: React.FC = () => {
    * 
    */
   async function logIn() {
-    const didLogIn = promiseTimeout(10000, logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn));
-    didLogIn.then((res) => {
-      if (!res) {
-        Toast.error("Unable to login");
-        setBusy(false);
-        setLoggingIn(false);
-        return;
+    const emailRefValue = emailRef.current;
+    const passwordRefValue = passwordRef.current;
+    if (emailRefValue && passwordRefValue) {
+      console.log("Logging in with refs");
+      const email = emailRefValue.value;
+      const password = passwordRefValue.value;
+      if (email && password) {
+        const didLogIn = promiseTimeout(10000, logInWithEmailAndPassword(email.toString().trim(), password));
+        didLogIn.then((res) => {
+          if (!res) {
+            Toast.error("Unable to login");
+            setBusy(false);
+            setLoggingIn(false);
+            return;
+          }
+          let school = "";
+          const userRef = doc(db, "userData", res.user.uid);
+          getDoc(userRef).then((userSnap) => {
+            if (userSnap.exists()) {
+              school = userSnap.data().school;
+              localStorage.setItem("notificationsToken", userSnap.data().notificationsToken);
+            }
+            localStorage.setItem("userSchoolName", school.toString());
+            dispatch(setUserState(res.user.displayName, res.user.email, false, school));
+            Toast.success("Logged In!");
+          }).catch((err) => {
+            console.log(err);
+            dispatch(setUserState(res.user.displayName, res.user.email, false, ""));
+            setBusy(false);
+            setLoggingIn(false);
+          });
+        });
+        didLogIn.catch((err) => {
+          Toast.error(err);
+          setLoggingIn(false);
+          setBusy(false);
+        });
+      } else {
+        console.log("logging in with useState variables");
+        const didLogIn = promiseTimeout(10000, logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn));
+        didLogIn.then((res) => {
+          if (!res) {
+            Toast.error("Unable to login");
+            setBusy(false);
+            setLoggingIn(false);
+            return;
+          }
+          let school = "";
+          const userRef = doc(db, "userData", res.user.uid);
+          getDoc(userRef).then((userSnap) => {
+            if (userSnap.exists()) {
+              school = userSnap.data().school;
+              localStorage.setItem("notificationsToken", userSnap.data().notificationsToken);
+            }
+            localStorage.setItem("userSchoolName", school.toString());
+            dispatch(setUserState(res.user.displayName, res.user.email, false, school));
+            Toast.success("Logged In!");
+          }).catch((err) => {
+            console.log(err);
+            dispatch(setUserState(res.user.displayName, res.user.email, false, ""));
+            setBusy(false);
+            setLoggingIn(false);
+          });
+        });
+        didLogIn.catch((err) => {
+          Toast.error(err);
+          setLoggingIn(false);
+          setBusy(false);
+        });
       }
-      let school = "";
-      const userRef = doc(db, "userData", res.user.uid);
-      getDoc(userRef).then((userSnap) => {
-        if (userSnap.exists()) {
-          school = userSnap.data().school;
+    } else {
+      console.log("logging in with useState variables");
+      const didLogIn = promiseTimeout(10000, logInWithEmailAndPassword(emailSignIn.trim(), passwordSignIn));
+      didLogIn.then((res) => {
+        if (!res) {
+          Toast.error("Unable to login");
+          setBusy(false);
+          setLoggingIn(false);
+          return;
         }
-        dispatch(setUserState(res.user.displayName, res.user.email, false, school));
-        Toast.success("Logged In!");
-        // FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
-        // PushNotifications.register().then(() => {
-        //   FCM.getToken().then((r) => { console.log(r.token); updateNotificationsToken(r); localStorage.setItem("notificationsToken", r.token)}).catch((err) => console.error(err));
-        //   setBusy(false);
-        //   setLoggingIn(false);
-        // });
-      }).catch((err) => {
-        console.log(err);
-        dispatch(setUserState(res.user.displayName, res.user.email, false, ""));
-        setBusy(false);
-        setLoggingIn(false);
+        let school = "";
+        const userRef = doc(db, "userData", res.user.uid);
+        getDoc(userRef).then((userSnap) => {
+          if (userSnap.exists()) {
+            school = userSnap.data().school;
+            localStorage.setItem("notificationsToken", userSnap.data().notificationsToken);
+          }
+          localStorage.setItem("userSchoolName", school.toString());
+          dispatch(setUserState(res.user.displayName, res.user.email, false, school));
+          Toast.success("Logged In!");
+        }).catch((err) => {
+          console.log(err);
+          dispatch(setUserState(res.user.displayName, res.user.email, false, ""));
+          setBusy(false);
+          setLoggingIn(false);
+        });
       });
-    });
-    didLogIn.catch((err) => {
-      Toast.error(err);
-      setLoggingIn(false);
-      setBusy(false);
-    });
+      didLogIn.catch((err) => {
+        Toast.error(err);
+        setLoggingIn(false);
+        setBusy(false);
+      });
+    }
     setBusy(false);
   }
+
+
 
   useEffect(() => {
     setBusy(true);
@@ -172,10 +243,12 @@ const LandingPage: React.FC = () => {
 
         <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
           <IonItem mode='ios' >
-            <IonInput clearInput={true} color="transparent" mode='ios' value={emailSignIn} type="email" placeholder="Email" id="emailSignIn" onIonChange={updateEmailSignIn} ></IonInput>
+            <IonLabel position="stacked">Email</IonLabel>
+            <input className="html-input" type="email" ref={emailRef} onChange={(e: any) => { if (e && e.target && e.target.value) setEmailSignIn(e.target.value) }}></input>
           </IonItem>
           <IonItem mode='ios' >
-            <IonInput color="transparent" mode='ios' clearOnEdit={false} value={passwordSignIn} type="password" placeholder="Password" id="passwordSignIn" onIonChange={updatePassword} ></IonInput>
+            <IonLabel position="stacked">Password</IonLabel>
+            <input className="html-input" type="password" ref={passwordRef} onChange={(e: any) => { if (e && e.target && e.target.value) setPasswordSignIn(e.target.value) }}></input>
           </IonItem>
           <br />
           <IonButton color="transparent" mode='ios' onClick={() => { setLoggingIn(true); logIn(); }} shape="round" fill="outline" expand="block" id="signInButton" >Sign In</IonButton>

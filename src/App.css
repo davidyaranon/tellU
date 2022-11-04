@@ -680,6 +680,10 @@ ion-image {
   object-fit: contain;
 }
 
+input {border:0;outline:0;font-size: 15px; background-color: transparent;  padding: 12px;  padding-left: 0vw; width: 90vw;}
+input:focus {outline:none!important;}
+
+
 img.chat_avatar {
   width: 45px;
   height: 45px;

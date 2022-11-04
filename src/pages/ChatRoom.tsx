@@ -3,18 +3,16 @@ import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { v4 as uuidv4 } from "uuid";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import ClearIcon from '@mui/icons-material/Clear';
+import { getDownloadURL, ref } from "firebase/storage";
 import auth,
 {
-  addCommentNew, downVoteComment, getClassPostsDb, getLikes, getUserData, sendDm, sendDmNotification, sendReportStatus, storage, updateDmList, uploadImage,
+  getUserData, sendDm, storage, updateDmList, uploadImage,
 } from '../fbconfig';
-import { db, promiseTimeout } from "../fbconfig";
+import { db } from "../fbconfig";
 import {
-  addDoc, arrayRemove, arrayUnion, collection, deleteDoc,
-  doc, getDoc, getDocs, getFirestore, increment, limit, orderBy,
-  query, runTransaction, serverTimestamp, setDoc, startAfter,
-  updateDoc, where, writeBatch,
+  addDoc, collection, deleteDoc,
+  limit, orderBy,
+  query, serverTimestamp,
 } from "firebase/firestore";
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
@@ -24,7 +22,7 @@ import {
   IonFabButton, IonGrid, IonHeader, IonIcon,
   IonImg,
   IonItem, IonLabel, IonList, IonModal,
-  IonNote, IonPage, IonPopover, IonRow, IonSelect, IonSelectOption, IonSkeletonText,
+  IonNote, IonPage, IonPopover, IonRow,
   IonSpinner, IonText, IonTextarea,
   IonTitle, IonToolbar, RouterDirection, useIonPopover, useIonRouter
 } from "@ionic/react";
@@ -32,14 +30,11 @@ import FadeIn from "react-fade-in";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, banOutline } from "ionicons/icons";
-import { getColor, timeout } from '../components/functions';
-import Linkify from 'linkify-react';
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage, PhotoViewer } from '@capacitor-community/photoviewer';
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import { Dialog } from "@capacitor/dialog";
-import Clear from "@mui/icons-material/Clear";
 
 interface MatchUserPostParams {
   collectionPath: string;
@@ -340,7 +335,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             value={currMessage}
             placeholder={loading ? "Loading..." : "Send a message..."}
             id="DM"
-            disabled={loading}
+            disabled={loading || !contactInfo}
             onKeyDown={e => isEnterPressed(e.key)}
             onIonChange={(e: any) => {
               setCurrMessage(e.detail.value);
@@ -504,11 +499,11 @@ function ChatMessage(props: any) {
         }
         {message && message.length > 0 &&
           <>
-            <p onClick={(e: any) =>
-              present({
-                event: e,
-              })
-            } >{message}</p>
+            <p 
+            onClick={(e: any) =>
+              {}
+            } >{message}
+            </p>
           </>
         }
       </div>

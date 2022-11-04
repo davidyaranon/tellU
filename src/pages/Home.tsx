@@ -14,7 +14,7 @@ import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-p
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import Header, { ionHeaderStyle } from "./Header";
 import { RefresherEventDetail, RouterDirection } from "@ionic/core";
-import { add, cameraOutline } from "ionicons/icons";
+import { add, cameraOutline, warningSharp } from "ionicons/icons";
 import { addMessage, downVote, getAllPosts, promiseTimeout, upVote } from "../fbconfig";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
 import { caretUpOutline, chevronDownCircleOutline } from "ionicons/icons";
@@ -22,6 +22,7 @@ import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestor
 import { getColor, timeout } from '../components/functions';
 import { getDownloadURL, ref } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
+import { Dialog } from "@capacitor/dialog";
 
 import FadeIn from "react-fade-in";
 import ForumIcon from "@mui/icons-material/Forum";
@@ -77,6 +78,7 @@ function Home() {
   const { setShowTabs } = React.useContext(UIContext);
   const schoolName = useSelector((state: any) => state.user.school);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
 
   const [gettingLocation, setGettingLocation] = useState<boolean>(false);
   const [photo, setPhoto] = useState<GalleryPhoto[] | null>([]);
@@ -1978,9 +1980,9 @@ function Home() {
                             </IonNote>
                           </IonFab>
                         )}
-                      <div style={{ height: "0.75vh" }}>{" "}</div>
+                      <div style={{ height: "0.75vh", }}>{" "}</div>
                       {"className" in post && "classNumber" in post && post.className.length > 0 ?
-                        <Linkify tagName="h3" className="h2-message">
+                        <Linkify style={ sensitiveToggled && "reports" in post && post.reports > 1 ? {filter: "blur(0.25em)"} : {}}  tagName="h3" className="h2-message">
                           {post.message}
                           <IonNote
                             onClick={(e) => {
@@ -1994,7 +1996,7 @@ function Home() {
                           </IonNote>
                         </Linkify>
                         :
-                        <Linkify tagName="h3" className="h2-message">
+                        <Linkify style={ sensitiveToggled && "reports" in post && post.reports > 1 ? {filter: "blur(0.25em)"} : {}}  tagName="h3" className="h2-message">
                           {post.message}
                         </Linkify>
                       }
@@ -2005,7 +2007,7 @@ function Home() {
                           <div style={{ height: "0.75vh" }}>{" "}</div>
                           <div
                             className="ion-img-container"
-                            style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                            style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px'}}
                             onClick={(e) => {
                               e.stopPropagation();
                               const img: CapacitorImage = {
@@ -2034,7 +2036,7 @@ function Home() {
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled &&  "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -2064,7 +2066,7 @@ function Home() {
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -2097,12 +2099,12 @@ function Home() {
                       {"imgSrc" in post && post.imgSrc &&
                         post.imgSrc.length >= 3 ? (
                         <>
-                          <div style={{ height: "0.75vh" }}>{" "}</div>
+                          <div style={{ height: "0.75vh",}}>{" "}</div>
                           <IonRow>
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -2136,7 +2138,7 @@ function Home() {
                             <IonCol>
                               <div
                                 className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
+                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px', filter: "blur(0.25em)"} : { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   const img: CapacitorImage[] = [
@@ -2169,10 +2171,10 @@ function Home() {
                             </IonCol>
                           </IonRow>
                           <>
-                            <div style={{ height: "0.75vh" }}>{" "}</div>
+                            <div style={{ height: "0.75vh", }}>{" "}</div>
                             <div
                               className="ion-img-container"
-                              style={{ backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '20px' }}
+                              style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '20px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '20px'}}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 const img: CapacitorImage[] = [
@@ -2278,6 +2280,16 @@ function Home() {
                       <KeyboardArrowDownIcon />
                       <p>{Object.keys(post.dislikes).length - 1} </p>
                     </IonButton>
+                    {"reports" in post && post.reports > 1 &&
+                      <IonFab horizontal="end">
+                        <IonIcon icon={warningSharp} color="warning" onClick={() => {
+                          Dialog.alert({
+                            title: "Flagged Post",
+                            message: 'Post has been reported as sensitive/objectionable'
+                          })
+                        }}></IonIcon>
+                      </IonFab>
+                    }
                     {/* <IonButton color="medium" slot="end" onClick={() => { sharePost(post); }}>
                       <IonIcon icon={shareOutline} />
                     </IonButton> */}

@@ -14,6 +14,10 @@ export const setSchoolColorPallete = (colorToggled : boolean) => {
   return { type: 'SET_SCHOOL_COLOR_PALLETE', colorToggled }
 }
 
+export const setSensitiveContent = (sensitiveContent : boolean) => {
+  return { type: 'SET_SENSITIVE_CONTENT', sensitiveContent }
+}
+
 export const setNotif = (notifSet : boolean) => {
   return { type : 'SET_NOTIF', notifSet }
 }

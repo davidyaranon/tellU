@@ -12,7 +12,7 @@ import {
 import {
   createUserWithEmailAndPassword, getAuth, indexedDBLocalPersistence,
   initializeAuth, sendPasswordResetEmail, signInWithEmailAndPassword,
-  signOut, updateProfile,
+  signOut, updateProfile, deleteUser
 } from "firebase/auth";
 import {
   get, getDatabase,
@@ -306,6 +306,40 @@ export const sendPasswordReset = async (email) => {
   }
 };
 
+export const deleteUserDataAndAccount = async () => {
+  try {
+    const user = auth.currentUser;
+    const batch = writeBatch(db);
+    const userDoc = doc(db, "userData", user.uid);
+    const userMessagesCollection = collection(db, "userData", user.uid, "messages");
+    const userLikesCollection = collection(db, "userData", user.uid, "likes");
+
+    deleteUser(user).then(() => {
+      console.log("User Deleted");
+    }).catch((error) => {
+      console.log(error);
+    });
+
+    const docs = await getDocs(userMessagesCollection);
+    docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    const likesDocs = await getDocs(userLikesCollection);
+    likesDocs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    batch.delete(userDoc);
+
+    await batch.commit().catch((err) => {
+      console.log("Error deleting userDocs and/or DMs");
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const logout = async () => {
   try {
     var cookies = document.cookie.split(";");
@@ -413,6 +447,7 @@ export const addMessage = async (
             notificationsToken: notificationsToken,
             className: postClassName,
             classNumber: postClassNumber,
+            reports: 0,
           }
         ).catch((err) => {
           console.log(err);
@@ -1676,6 +1711,18 @@ export const sendReportStatus = async (message, schoolName, postKey) => {
     if (auth && auth.currentUser) {
       const userUid = auth.currentUser.uid;
       const userEmail = auth.currentUser.email;
+      const postDocRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts",
+        postKey
+      );
+      await updateDoc(postDocRef, {
+        reports: increment(1)
+      }).catch((err) => {
+        console.log(err);
+      });
       sendEmailOnReport({ // cloud function to send email to me when someone reports a post
         key: postKey,
         reporterUid: userUid,

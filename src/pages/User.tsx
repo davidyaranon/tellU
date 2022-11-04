@@ -42,11 +42,11 @@ import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
   arrowForward, cameraReverseOutline, chatbubblesOutline, chevronBackOutline, colorFill, 
-  logoInstagram,logoSnapchat, logoTiktok, moon, refreshOutline
+  logoInstagram,logoSnapchat, logoTiktok, moon, refreshOutline, warningSharp
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
-import { setDarkMode, setSchoolColorPallete } from "../redux/actions";
+import { setDarkMode, setSchoolColorPallete, setSensitiveContent } from "../redux/actions";
 import FadeIn from "react-fade-in";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper";
@@ -87,6 +87,7 @@ function User() {
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
   const notif = useSelector((state: any) => state.notifSet.set);
   const inputRef = useRef<HTMLIonInputElement>(null);
   const inputUserRef = useRef<HTMLIonInputElement>(null);
@@ -171,6 +172,12 @@ function User() {
   const toggleSchoolColorPallete = async (isChecked: boolean) => {
     dispatch(setSchoolColorPallete(isChecked));
     localStorage.setItem("schoolColorPallete", JSON.stringify(isChecked));
+  }
+
+  const toggleSensitiveContent= async (isChecked: boolean) => {
+    console.log(isChecked);
+    dispatch(setSensitiveContent(isChecked));
+    localStorage.setItem("sensitiveContent", JSON.stringify(isChecked));
   }
 
   const handleEditAbout = () => {
@@ -919,7 +926,7 @@ function User() {
     return (
       <IonLoading
         message="Please wait..."
-        duration={0}
+        duration={5000}
         isOpen={busy}
       ></IonLoading>
     );
@@ -994,7 +1001,7 @@ function User() {
         {/* </IonHeader> */}
         <IonLoading
           message="Please wait..."
-          duration={0}
+          duration={5000}
           isOpen={busy}
         ></IonLoading>
 
@@ -1620,6 +1627,17 @@ function User() {
                       />
                     </IonItem>
                   }
+                  <IonItem mode="ios">
+                    <p> Hide Sensitive Content</p>
+                    <IonIcon color="medium" icon={warningSharp} slot="end" />
+                    <IonToggle
+                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                      slot="end"
+                      name="sensitiveContent"
+                      checked={sensitiveToggled}
+                      onIonChange={(e) => { toggleSensitiveContent(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                    />
+                  </IonItem>
                 </IonList>
                 <br /> <br /><br /> <br /><br /> <br />
               </IonContent>

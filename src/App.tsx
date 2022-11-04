@@ -53,7 +53,7 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
 import { db, getCurrentUser, promiseTimeout } from "./fbconfig";
 import { doc, getDoc } from "firebase/firestore";
-import { setNotif, setSchoolColorPallete, setUserState } from "./redux/actions";
+import { setNotif, setSchoolColorPallete, setSensitiveContent, setUserState } from "./redux/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { setDarkMode } from "./redux/actions";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
@@ -99,10 +99,10 @@ const RoutingSystem: React.FunctionComponent = () => {
   const [selectedTab, setSelectedTab] = useState<string>("home");
   let tabBarStyle = showTabs ? undefined : { display: "none" };
   const dispatch = useDispatch();
-  const schoolName = useSelector((state: any) => state.user.school);
-  const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const schoolName = useSelector((state: any) => state.user.school) || "";
+  const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled) || false;
   const history = useHistory();
-  const notif = useSelector((state: any) => state.notifSet.set);
+  const notif = useSelector((state: any) => state.notifSet.set) || false;
   const [present] = useIonToast();
 
   const presentToast = (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
@@ -258,9 +258,10 @@ const App: React.FunctionComponent = () => {
   const dispatch = useDispatch();
   const [busy, setBusy] = useState<boolean>(true);
   const darkMode = localStorage.getItem("darkMode") || "false";
+  const sensitiveContentToggled = localStorage.getItem("sensitiveContent") || "false";
   const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
   const condition = navigator.onLine;
-  const schoolName = useSelector((state: any) => state.user.school);
+  const schoolName = useSelector((state: any) => state.user.school) || "";
   const { setShowTabs } = React.useContext(UIContext);
 
   const registerNotifications = async () => {
@@ -304,6 +305,11 @@ const App: React.FunctionComponent = () => {
         } else {
           dispatch(setSchoolColorPallete(true));
         }
+        if(sensitiveContentToggled == "false") {
+          dispatch(setSensitiveContent(false));
+        } else {
+          dispatch(setSensitiveContent(true));
+        }
         if (darkMode == "false") {
           dispatch(setDarkMode(false));
           Keyboard.setStyle(keyStyleOptionsLight);
@@ -318,37 +324,30 @@ const App: React.FunctionComponent = () => {
         hasLoadedUser.then((user: any) => {
           if (user) {
             let school = localStorage.getItem("userSchoolName") || "";
-            const userRef = doc(db, "userData", user.uid);
-            const docLoaded = promiseTimeout(30000, getDoc(userRef));
-            docLoaded.then((userSnap) => {
-              if (userSnap.exists()) {
-                school = userSnap.data().school;
-              }
-              // const userData : any = {
-              //   displayName : user.displayName,
-              //   email : user.email,
-              //   school : school,
-              // }
-              // localStorage.setItem("userData", JSON.stringify(userData));
-              localStorage.setItem("userSchoolName", school.toString());
+            if (school == "") { // first time loading school...
+              console.log('first login');
+              const userRef = doc(db, "userData", user.uid);
+              const docLoaded = promiseTimeout(30000, getDoc(userRef));
+              docLoaded.then((userSnap) => {
+                if (userSnap.exists()) {
+                  school = userSnap.data().school;
+                }
+                localStorage.setItem("userSchoolName", school.toString());
+                dispatch(setUserState(user.displayName, user.email, false, school));
+                setBusy(false);
+                setShowTabs(true);
+                window.history.replaceState({}, "", "/home");
+              });
+              docLoaded.catch((err) => {
+                console.log(err);
+                Toast.error('Check your internet connection');
+              });
+            } else {
               dispatch(setUserState(user.displayName, user.email, false, school));
               setBusy(false);
               setShowTabs(true);
               window.history.replaceState({}, "", "/home");
-            });
-            docLoaded.catch((err) => {
-              console.log(err);
-              // const userData : any = {
-              //   displayName : user.displayName,
-              //   email : user.email,
-              //   school : school,
-              // }
-              // localStorage.setItem("userData", JSON.stringify(userData));
-              dispatch(setUserState(user.displayName, user.email, false, localStorage.getItem("userSchoolName") || ""));
-              setBusy(false);
-              setShowTabs(true);
-              window.history.replaceState({}, "", "/home");
-            });
+            }
           } else {
             setBusy(false);
             window.history.replaceState({}, "", "/landing-page");
@@ -363,10 +362,12 @@ const App: React.FunctionComponent = () => {
         });
       }).catch(() => {
         console.log('offline');
+        Toast.error("Check your internet connection");
         setBusy(true);
       });
     } else {
       console.log('offline');
+      Toast.error("Check your internet connection");
       setBusy(true);
     }
   }, []);

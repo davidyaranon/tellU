@@ -26,6 +26,7 @@ import "../App.css";
 import Header from "./Header";
 import UIContext from "../my-context";
 import { useToast } from "@agney/ir-toast";
+import { Dialog } from "@capacitor/dialog";
 
 /* Global variables */
 const capitalLetters = /[ABCDEFGHIJKLMNOPQRSTUVWXYZ]/;
@@ -102,6 +103,10 @@ const Register: React.FC = () => {
       if (!isUnique) {
         Toast.error("Username has been taken!");
       } else {
+        await Dialog.alert({
+          title: "Agree to Terms and Conditions",
+          message: 'Don\'t post anything offensive, obscene, or harmful! Be nice... more at https://tellu-website.web.app/page/terms-and-conditions',
+        });
         const res = await registerWithEmailAndPassword(
           userNameSignUp.trim(),
           emailSignUp.trim(),

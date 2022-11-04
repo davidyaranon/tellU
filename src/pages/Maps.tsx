@@ -37,6 +37,7 @@ const zoomControlButtonsStyleDark = {
   border: 'none',
   display: 'block',
   outline: 'none',
+  textIndent: '-7.5px',
 }
 
 const zoomControlButtonsStyle = {
@@ -53,6 +54,7 @@ const zoomControlButtonsStyle = {
   border: 'none',
   display: 'block',
   outline: 'none',
+  textIndent: '-7.5px',
 }; // +/- buttons that appear on map can be styled here
 
 const schoolInfo = {
