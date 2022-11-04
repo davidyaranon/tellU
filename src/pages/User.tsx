@@ -1521,27 +1521,19 @@ function User() {
               <IonContent>
                 <IonList mode="ios" inset={true}>
                   <IonItem key="singleton_item_3" mode="ios">
-                    <IonGrid>
+                    {/* <IonGrid> */}
                       <IonRow>
                         <IonLabel mode="ios">
                           <IonText color="medium">
                             <p> Email </p>
                           </IonText>
-                          {/* <IonInput
-                      style={{ width: "60vw" }}
-                      ref={inputRef}
-                      readonly={false}
-                      value={editableEmail}
-                      onIonChange={(e) => {
-                        handleChangeEmailString(e);
-                      }}
-                    ></IonInput> */}
                         </IonLabel>
                       </IonRow>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <IonRow>
                         <p>{editableEmail}</p>
                       </IonRow>
-                    </IonGrid>
+                    {/* </IonGrid> */}
                     <IonButton
                       onClick={handleEdit}
                       color="medium"
@@ -1551,28 +1543,20 @@ function User() {
                       Edit{" "}
                     </IonButton>
                   </IonItem>
-                  <IonItem mode="ios">
-                    <IonGrid>
+                  <IonItem key="singleton_item_3" mode="ios">
+                    {/* <IonGrid> */}
                       <IonRow>
                         <IonLabel mode="ios">
                           <IonText color="medium">
                             <p> Username </p>
                           </IonText>
-                          {/* <IonInput
-                      maxlength={15}
-                      ref={inputUserRef}
-                      readonly={false}
-                      value={editableUsername}
-                      onIonChange={(e) => {
-                        handleChangeUsernameString(e);
-                      }}
-                    ></IonInput> */}
                         </IonLabel>
                       </IonRow>
+                      &nbsp;&nbsp;
                       <IonRow>
                         <p>{editableUsername}</p>
                       </IonRow>
-                    </IonGrid>
+                    {/* </IonGrid> */}
                     <IonButton
                       onClick={handleUserEdit}
                       color="medium"
@@ -1583,7 +1567,7 @@ function User() {
                     </IonButton>
                   </IonItem>
                   <IonItem mode="ios">
-                    <IonGrid>
+                    {/* <IonGrid> */}
                       <IonRow>
                         <IonLabel mode="ios">
                           <IonText color="medium">
@@ -1591,10 +1575,11 @@ function User() {
                           </IonText>
                         </IonLabel>
                       </IonRow>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <IonRow>
                         <p>...</p>
                       </IonRow>
-                    </IonGrid>
+                    {/* </IonGrid> */}
                     <IonButton
                       color="medium"
                       slot="end"

@@ -98,7 +98,6 @@ const Register: React.FC = () => {
     } else if (!numbers.test(passwordSignUp)) {
       Toast.error("Password must contain at least 1 number");
     } else {
-      
       const isUnique = await checkUsernameUniqueness(userNameSignUp.trim());
       if (!isUnique) {
         Toast.error("Username has been taken!");
@@ -117,7 +116,7 @@ const Register: React.FC = () => {
           Toast.error(res);
         } else {
           let notifcationsToken = localStorage.getItem("notificationsToken") || "";
-          if(notifcationsToken.length <= 0) {
+          if (notifcationsToken.length <= 0) {
             FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
             FCM.getToken().then((token) => {
               localStorage.setItem("notificationsToken", token.token);
@@ -262,26 +261,15 @@ const Register: React.FC = () => {
 
         <IonList mode="ios" inset={true} className="sign-in-sign-up-list">
           <IonItem class="ion-item-style">
-            <IonLabel position="stacked">School Email</IonLabel>
-            <IonInput
-              clearInput={true}
-              value={emailSignUp}
-              type="email"
-              placeholder="email@email.com"
-              id="emailSignUp"
-              onIonChange={(e: any) => setEmailSignUp(e.detail.value)}
-            ></IonInput>
-          </IonItem>
-          <IonItem class="ion-item-style">
             <IonLabel position="stacked">University</IonLabel>
             <IonSelect
               value={schoolName}
               placeholder="University of California"
-              onIonChange={(e: any) => { 
-                setSchoolName(e.detail.value); 
-                if(e.detail.value == 'Cal Poly Humboldt') {
+              onIonChange={(e: any) => {
+                setSchoolName(e.detail.value);
+                if (e.detail.value == 'Cal Poly Humboldt') {
                   setSchoolEmailEnding('humboldt.edu');
-                } else if(e.detail.value == 'UC Berkeley') {
+                } else if (e.detail.value == 'UC Berkeley') {
                   setSchoolEmailEnding('berkeley.edu');
                 } else if (e.detail.value == 'UC Davis') {
                   setSchoolEmailEnding('ucdavis.edu');
@@ -317,6 +305,17 @@ const Register: React.FC = () => {
               <IonSelectOption value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
               <IonSelectOption disabled={true} value="More schools to come!...">More schools to come!...</IonSelectOption>
             </IonSelect>
+          </IonItem>
+          <IonItem class="ion-item-style">
+            <IonLabel position="stacked">School Email</IonLabel>
+            <IonInput
+              clearInput={true}
+              value={emailSignUp}
+              type="email"
+              placeholder="email@email.com"
+              id="emailSignUp"
+              onIonChange={(e: any) => setEmailSignUp(e.detail.value)}
+            ></IonInput>
           </IonItem>
           <IonItem class="ion-item-style">
             <IonLabel position="stacked">Username</IonLabel>

@@ -314,12 +314,6 @@ export const deleteUserDataAndAccount = async () => {
     const userMessagesCollection = collection(db, "userData", user.uid, "messages");
     const userLikesCollection = collection(db, "userData", user.uid, "likes");
 
-    deleteUser(user).then(() => {
-      console.log("User Deleted");
-    }).catch((error) => {
-      console.log(error);
-    });
-
     const docs = await getDocs(userMessagesCollection);
     docs.forEach((doc) => {
       batch.delete(doc.ref);
@@ -333,6 +327,12 @@ export const deleteUserDataAndAccount = async () => {
 
     await batch.commit().catch((err) => {
       console.log("Error deleting userDocs and/or DMs");
+    });
+
+    deleteUser(user).then(() => {
+      console.log("User Deleted");
+    }).catch((error) => {
+      console.log(error);
     });
 
   } catch (err) {

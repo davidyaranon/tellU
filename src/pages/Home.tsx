@@ -890,8 +890,8 @@ function Home() {
                   </IonButtons>
                 </IonToolbar>
               </div>
-              <IonCard>
-                <div>
+              <IonCard >
+                {/* <div> */}
                   <IonRow class="ion-padding-top">
                     {profilePhoto ? (
                       <>
@@ -939,7 +939,7 @@ function Home() {
                         </>
                       )}
                   </IonRow>
-                  <br />
+                  <br /> <br /> <br/>
                   <IonRow>
                     {schoolName && schoolName === "Cal Poly Humboldt" &&
                       <IonFab horizontal="start" style={{
@@ -1886,7 +1886,7 @@ function Home() {
                     </>
                   ) : <> <br></br><br></br> </>}
 
-                </div>
+                {/* </div> */}
               </IonCard>
               {prevPostUploading &&
                 <p style={{ textAlign: "center" }}>Wait until previous post has <br />uploaded to post again</p>}
