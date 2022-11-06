@@ -89,73 +89,10 @@ export const testNewsUpdates = async () => {
       "Ocp-Apim-Subscription-Key": apiKey
     }
   };
-  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Lost%20Coast%20Outpost%20Humboldt&mkt=en-US', option);
-  const humboldtCountyNews = await res1.json();
-  const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=El%20Lenador%2020Humboldt&mkt=en-US', option);
-  const humboldtStateNews = await res2.json();
+  const berkNews = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
+  const berk = await berkNews.json();
+  console.log(berk);
 
-  let articles = [];
-  if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
-    let arrSize = humboldtCountyNews.value.length;
-    if (arrSize > 5) {
-      arrSize = 5;
-    }
-    for (let i = 0; i < arrSize; ++i) {
-      let temp = {};
-      if ("image" in humboldtCountyNews.value[i] && "thumbnail" in humboldtCountyNews.value[i].image && "contentUrl" in humboldtCountyNews.value[i].image.thumbnail) {
-        temp['image'] = humboldtCountyNews.value[i].image.thumbnail.contentUrl;
-      } else {
-        temp['image'] = '';
-      }
-      if ("name" in humboldtCountyNews.value[i])
-        temp['title'] = humboldtCountyNews.value[i].name;
-      if ("url" in humboldtCountyNews.value[i])
-        temp['url'] = humboldtCountyNews.value[i].url;
-      if ("datePublished" in humboldtCountyNews.value[i])
-        temp['date'] = humboldtCountyNews.value[i].datePublished;
-      articles.push(temp);
-    }
-    console.log(articles);
-  } else {
-    console.log("county articles if check failed");
-  }
-
-  let schoolArticles = [];
-  if (humboldtStateNews && "value" in humboldtStateNews && Array.isArray(humboldtStateNews.value)) {
-    let arrSize = humboldtStateNews.value.length;
-    if (arrSize > 10) {
-      arrSize = 10;
-    }
-    for (let i = 0; i < arrSize; ++i) {
-      let temp = {};
-      if ("image" in humboldtStateNews.value[i] && "thumbnail" in humboldtStateNews.value[i].image && "contentUrl" in humboldtStateNews.value[i].image.thumbnail) {
-        temp['image'] = humboldtStateNews.value[i].image.thumbnail.contentUrl;
-      } else {
-        temp['image'] = '';
-      }
-      if ("name" in humboldtStateNews.value[i])
-        temp['title'] = humboldtStateNews.value[i].name;
-      if ("url" in humboldtStateNews.value[i])
-        temp['url'] = humboldtStateNews.value[i].url;
-      if ("datePublished" in humboldtStateNews.value[i])
-        temp['date'] = humboldtStateNews.value[i].datePublished;
-      schoolArticles.push(temp);
-    }
-    console.log(schoolArticles);
-  } else {
-    console.log("school articles if check failed");
-  }
-  if (!schoolArticles || !articles || schoolArticles.length <= 0 || articles.length <= 0) {
-    console.log("articles empty");
-  } else {
-    // const batch = writeBatch(db);
-    // const newsRef = doc(db, "schoolNews", "CalPolyHumboldt");
-    // batch.update(newsRef, {
-    //   schoolArticles: schoolArticles,
-    //   localArticles: articles
-    // });
-    // await batch.commit().catch((err) => console.log(err));
-  }
 }
 
 export const spotifySearch = async (query) => {

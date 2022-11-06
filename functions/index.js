@@ -42,7 +42,8 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
   const res4 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20Ca&mkt=en-US', option);
   const elLenador = await res4.json();
 
-  const berkNews = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
+  const berk = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
+  const berkNews = await berk.json();
 
   let berkArticles = [];
 
@@ -69,7 +70,7 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
       berkArticles.push(temp);
     }
   } else {
-    console.log("county articles if check failed");
+    console.log("berk articles if check failed");
   }
 
   if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
