@@ -202,7 +202,7 @@ const RoutingSystem: React.FunctionComponent = () => {
             <HomeIcon
               fontSize="medium"
               style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
-                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4,5vh" }
+                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
                   : selectedTab === 'home' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
             />

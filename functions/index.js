@@ -42,7 +42,35 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
   const res4 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20Ca&mkt=en-US', option);
   const elLenador = await res4.json();
 
+  const berkNews = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
+
+  let berkArticles = [];
+
   let articles = [];
+
+  if (berkNews && "value" in berkNews && Array.isArray(berkNews.value)) {
+    let arrSize = berkNews.value.length;
+    if (arrSize > 15) {
+      arrSize = 15;
+    }
+    for (let i = 0; i < arrSize; ++i) {
+      let temp = {};
+      if ("image" in berkNews.value[i] && "thumbnail" in berkNews.value[i].image && "contentUrl" in berkNews.value[i].image.thumbnail) {
+        temp['image'] = berkNews.value[i].image.thumbnail.contentUrl;
+      } else {
+        temp['image'] = '';
+      }
+      if ("name" in berkNews.value[i])
+        temp['title'] = berkNews.value[i].name;
+      if ("url" in berkNews.value[i])
+        temp['url'] = berkNews.value[i].url;
+      if ("datePublished" in berkNews.value[i])
+        temp['date'] = berkNews.value[i].datePublished;
+      berkArticles.push(temp);
+    }
+  } else {
+    console.log("county articles if check failed");
+  }
 
   if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
     let arrSize = humboldtCountyNews.value.length;
@@ -141,6 +169,13 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
   } else {
     console.log("school articles if check failed");
   }
+
+  if(berkArticles.length > 0) {
+    admin.firestore().collection('schoolNews').doc('UCBerkeley').update({
+      schoolArticles: berkArticles
+    }).catch((err) => console.log(err));
+  }
+
   if (!schoolArticles || !articles || schoolArticles.length <= 0 || articles.length <= 0) {
     console.log("articles empty");
   } else {
