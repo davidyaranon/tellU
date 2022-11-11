@@ -14,7 +14,7 @@ import {
 } from "@ionic/react";
 import {
   chatbubbleOutline,
-  chatbubblesOutline, chevronBackOutline, logoInstagram,
+  chevronBackOutline, logoInstagram,
   logoSnapchat, logoTiktok, shareOutline
 } from "ionicons/icons";
 
@@ -26,7 +26,7 @@ import auth,
 }
   from '../fbconfig';
 import { ref, getDownloadURL } from "firebase/storage";
-import { getDatabase, onValue, goOffline, goOnline } from "firebase/database";
+import { getDatabase, goOffline, goOnline } from "firebase/database";
 
 /* mui Icons */
 import RoomIcon from '@mui/icons-material/Room';

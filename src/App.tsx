@@ -70,7 +70,7 @@ import { useHistory } from "react-router";
 import Class from "./pages/Class";
 import ChatRoom from "./pages/ChatRoom";
 import DirectMessages from "./pages/DirectMessages";
-import School from "./pages/School";
+// import School from "./pages/School";
 import Posttypes from "./pages/Posttypes";
 
 setupIonicReact({
@@ -167,7 +167,7 @@ const RoutingSystem: React.FunctionComponent = () => {
             {" "}
             <Home />{" "}
           </Route>
-          <Route path="/:tab(school)" component={School} exact={true} />
+          {/* <Route path="/:tab(school)" component={School} exact={true} /> */}
           <Route
             path="/:tab(community)"
             component={Community}

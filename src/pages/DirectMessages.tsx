@@ -1,43 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { v4 as uuidv4 } from "uuid";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import auth,
-{
-  addCommentNew, downVoteComment, getClassPostsDb, getLikes, getUserData, sendDm, sendDmNotification, sendReportStatus, storage, updateDmList, uploadImage,
-} from '../fbconfig';
-import { db, promiseTimeout } from "../fbconfig";
-import {
-  addDoc, arrayRemove, arrayUnion, collection, deleteDoc,
-  doc, getDoc, getDocs, getFirestore, increment, limit, orderBy,
-  query, runTransaction, serverTimestamp, setDoc, startAfter,
-  updateDoc, where, writeBatch,
-} from "firebase/firestore";
+import auth from '../fbconfig';
+import { db } from "../fbconfig";
+import { collection, limit, orderBy, query } from "firebase/firestore";
 import { useToast } from "@agney/ir-toast";
-import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonBadge, IonButton, IonButtons, IonCard,
-  IonCardContent, IonCol, IonContent, IonFab,
-  IonFabButton, IonGrid, IonHeader, IonIcon,
-  IonImg,
-  IonItem, IonLabel, IonList, IonModal,
-  IonNote, IonPage, IonRow, IonSelect, IonSelectOption, IonSkeletonText,
-  IonSpinner, IonText, IonTextarea,
+  IonButton, IonButtons, IonCol, IonContent, IonIcon, IonPage,
+  IonSpinner,
   IonTitle, IonToolbar, RouterDirection, useIonRouter, useIonViewWillEnter
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline } from "ionicons/icons";
-import { getColor, timeout } from '../components/functions';
-import Linkify from 'linkify-react';
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage, PhotoViewer } from '@capacitor-community/photoviewer';
+import { chevronBackOutline } from "ionicons/icons";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
-import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
-import { Dialog } from "@capacitor/dialog";
 import { setNotif } from "../redux/actions";
 
 interface MatchUserPostParams {

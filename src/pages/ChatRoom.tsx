@@ -10,7 +10,7 @@ import auth,
 } from '../fbconfig';
 import { db } from "../fbconfig";
 import {
-  addDoc, collection, deleteDoc,
+  addDoc, collection, 
   limit, orderBy,
   query, serverTimestamp,
 } from "firebase/firestore";
@@ -29,7 +29,7 @@ import {
 import FadeIn from "react-fade-in";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, banOutline } from "ionicons/icons";
+import { cameraOutline, chevronBackOutline, alertCircleOutline, banOutline } from "ionicons/icons";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";

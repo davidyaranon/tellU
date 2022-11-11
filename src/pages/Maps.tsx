@@ -10,7 +10,7 @@ import {
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
   RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave, IonHeader,
 } from "@ionic/react";
-import { pencilOutline, schoolOutline } from "ionicons/icons";
+import { schoolOutline } from "ionicons/icons";
 
 /* Firebase */
 import auth, { db } from "../fbconfig";
@@ -22,7 +22,6 @@ import { useToast } from "@agney/ir-toast";
 import { getColor } from "../components/functions";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
-import pencilOutlineWhite from '../images/pencil-outline-white.png';
 
 
 const zoomControlButtonsStyleDark = {

@@ -7,7 +7,7 @@ import {
 import { chevronBackOutline } from "ionicons/icons";
 import { useSelector } from "react-redux";
 import { Dialog } from "@capacitor/dialog";
-import { deleteUserDataAndAccount, logout, promiseTimeout } from "../fbconfig";
+import { deleteUserDataAndAccount } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 
 export const PrivacyPolicy = () => {

@@ -4,25 +4,24 @@ import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import auth,
 {
-  addCommentNew, downVoteComment, getClassPostsDb, getLikes,
+  getClassPostsDb
 } from '../fbconfig';
 import { promiseTimeout } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonButton, IonButtons, IonCard,
-  IonCardContent, IonCol, IonContent, IonFab,
-  IonFabButton, IonGrid, IonHeader, IonIcon,
-  IonItem, IonLabel, IonList, IonModal,
-  IonNote, IonPage, IonRow, IonSelect, IonSelectOption, IonSkeletonText,
-  IonSpinner, IonText, IonTextarea,
+  IonAvatar, IonButton, IonButtons, IonCol, IonContent, IonFab,
+  IonIcon,
+  IonItem, IonLabel, IonList,
+  IonNote, IonPage, IonRow, IonSelect, IonSelectOption,
+  IonSpinner, IonText,
   IonTitle, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline } from "ionicons/icons";
-import { getColor, timeout } from '../components/functions';
+import { chevronBackOutline } from "ionicons/icons";
+import { getColor } from '../components/functions';
 import Linkify from 'linkify-react';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import ProfilePhoto from "./ProfilePhoto";

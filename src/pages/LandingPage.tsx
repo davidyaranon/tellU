@@ -6,8 +6,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { setUserState } from '../redux/actions';
 
 /* Ionic/Capacitor */
-import { FCM } from '@capacitor-community/fcm';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading, IonTitle, InputChangeEventDetail, IonLabel } from '@ionic/react';
 

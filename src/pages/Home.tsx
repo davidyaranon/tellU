@@ -3,9 +3,9 @@ import "../theme/variables.css";
 
 import {
   IonAvatar, IonButton, IonButtons, IonCard, IonCheckbox, IonCol,
-  IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon,
-  IonImg, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList,
-  IonLoading, IonModal, IonNote, IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
+  IonContent, IonFab, IonFabButton, IonHeader, IonIcon,
+  IonImg, IonItem, IonLabel, IonList,
+  IonLoading, IonModal, IonNote, IonPage, IonRefresher, IonRefresherContent,
   IonRow, IonSelect, IonSelectOption, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar,
 } from "@ionic/react";
 import { Camera, GalleryPhoto } from "@capacitor/camera";
@@ -14,11 +14,11 @@ import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-p
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import TellUHeader, { ionHeaderStyle } from "./Header";
 import { RefresherEventDetail, RouterDirection } from "@ionic/core";
-import { add, cameraOutline, refreshCircleOutline, reloadCircleOutline, warningSharp } from "ionicons/icons";
+import { add, cameraOutline, refreshCircleOutline, warningSharp } from "ionicons/icons";
 import { addMessage, downVote, getAllPosts, promiseTimeout, upVote } from "../fbconfig";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
-import { caretUpOutline, chevronDownCircleOutline } from "ionicons/icons";
-import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
+import { chevronDownCircleOutline } from "ionicons/icons";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { getColor, timeout } from '../components/functions';
 import { getDownloadURL, ref } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";

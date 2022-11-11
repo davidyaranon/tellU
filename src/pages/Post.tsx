@@ -15,7 +15,7 @@ import RoomIcon from '@mui/icons-material/Room';
 import {
   IonAvatar, IonButton, IonButtons, IonCard,
   IonCardContent, IonCol, IonContent, IonFab,
-  IonFabButton, IonGrid, IonHeader, IonIcon,
+  IonFabButton, IonGrid, IonIcon,
   IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
   IonItem, IonLabel, IonList, IonModal,
   IonNote, IonPage, IonRow, IonSkeletonText,

@@ -19,20 +19,17 @@ import {
   useIonViewWillEnter,
   IonInput,
   IonCardSubtitle,
-  IonText,
   IonGrid,
   IonRefresherContent,
   IonRefresher,
   RefresherEventDetail,
   IonImg,
-  IonAvatar,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import TellUHeader, { ionHeaderStyle } from "./Header";
 import {
   addCircleOutline,
   chevronBackOutline,
-  phonePortraitOutline
 } from "ionicons/icons";
 import humboldtImage from '../images/humboldt_school.jpeg'
 
@@ -41,30 +38,16 @@ import auth, { db, getCommunityWidgets, getNewsArticles, getPolls, getWeatherDat
 import {
   promiseTimeout,
 } from "../fbconfig";
-import { doc, onSnapshot } from "firebase/firestore";
 import { useHistory } from "react-router";
 import { useToast } from "@agney/ir-toast";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useSelector } from "react-redux";
 import FadeIn from "react-fade-in";
-import tellU_Community from '../images/tellU_Community.png';
-import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
 import { Keyboard } from "@capacitor/keyboard";
-import feedback from '../images/feedback.png';
-import { Navigation } from "swiper";
-import clouds_96 from '../images/icons8-clouds-96.png';
-import sun_96 from '../images/icons8-sun-96.png';
-import partly_cloudy from '../images/icons8-partly-cloudy-day-96.png';
-import sunny_rainy from '../images/icons8-rain-cloud-96.png';
-import rainy from '../images/icons8-rain-96.png';
-import stormy from '../images/icons8-storm-96.png';
-import nighttime from '../images/icons8-moon-phase-96.png';
-import placeholder from '../images/placeholder.jpeg';
 import humboldt_trees from '../images/humboldt_trees.png';
 import "../App.css";
 import "swiper/css";
 import { Device } from '@capacitor/device';
-import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import TimeAgo from "javascript-time-ago";
 import { useTabsContext } from "../my-context";
