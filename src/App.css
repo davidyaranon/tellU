@@ -146,6 +146,11 @@ ion-checkbox {
   --border-color-checked: #ffffff;
 }
 
+#housingCheckbox {
+  --background-checked: #ffaf2e;
+  --border-color-checked: #ffffff;
+}
+
 #alert {
   width: 0.5%;
   height: 3.5vh;
@@ -522,7 +527,7 @@ ion-toolbar {
 
 .ion-img-container {
   background-size: cover;
-  background-position: center center;
+  background-position: center;
   height: 20.5vh;
 }
 

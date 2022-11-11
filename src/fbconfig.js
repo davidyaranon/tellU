@@ -148,7 +148,7 @@ export async function logInWithEmailAndPassword(email, password) {
 }
 
 const updateNotificationsTokenAfterLogout = async (userUid) => {
-  if(!userUid || userUid.length <= 0) { return; }
+  if (!userUid || userUid.length <= 0) { return; }
   const batch = writeBatch(db);
   const userDocRef = doc(db, "userData", userUid);
   batch.update(userDocRef, {
@@ -426,6 +426,27 @@ export async function checkUsernameUniqueness(userName) {
   }
 }
 
+export const getPostTypeDb = async (postType, schoolName) => {
+  try {
+    if (auth && db) {
+      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      const q = query(allPostsRef, where("postType", "==", postType, orderBy("timestamp", "desc", limit(50))));
+      const qSnapshot = await getDocs(q);
+      let classPosts = [];
+      const docs = qSnapshot.docs;
+      for (const doc of docs) {
+        classPosts.push({
+          ...doc.data(),
+          key: doc.id
+        });
+      }
+      return classPosts;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const getClassPostsDb = async (className, schoolName) => {
   try {
     if (auth && db) {
@@ -477,7 +498,7 @@ export async function getAllPostsNextBatch(schoolName, key) {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), startAfter(key), limit(25));
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), startAfter(key), limit(10));
       const querySnapshot = await getDocs(q);
       const allPosts = [];
       const docs = querySnapshot.docs;

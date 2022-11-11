@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'tellU',
   webDir: 'build',
   bundledWebRuntime: false,
+  loggingBehavior: 'none',
   plugins: {
     "PushNotifications": {
       "presentationOptions": ["sound", "badge"]

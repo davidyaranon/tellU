@@ -12,6 +12,8 @@ export const getColor = (postType: string) => {
       return "#eed202";
     case "research" :
       return "#743dff";
+    case "housing" :
+      return "#ffaf2e";
     default:
       break;
   }

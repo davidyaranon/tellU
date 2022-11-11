@@ -19,7 +19,7 @@ import auth, { promiseTimeout, logInWithEmailAndPassword, db, updateNotification
 /* CSS + Other components */
 import '../App.css';
 import Header from "./Header";
-import UIContext from '../my-context';
+import { useTabsContext } from '../my-context';
 import { useToast } from "@agney/ir-toast";
 
 /* global variables */
@@ -39,7 +39,7 @@ const LandingPage: React.FC = () => {
   const dispatch = useDispatch();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const { setShowTabs } = React.useContext(UIContext);
+  const tabs = useTabsContext();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
 
   const updateEmailSignIn = React.useCallback(
@@ -199,10 +199,10 @@ const LandingPage: React.FC = () => {
         history.replace("/home");
       });
     }
-    setShowTabs(false);
+    tabs.setShowTabs(false);
     setBusy(false);
     return () => {
-      setShowTabs(true);
+      tabs.setShowTabs(true);
       setBusy(false);
     }
   }, [user, loading]);

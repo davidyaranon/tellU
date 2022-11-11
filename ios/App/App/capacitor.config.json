@@ -3,6 +3,7 @@
 	"appName": "tellU",
 	"webDir": "build",
 	"bundledWebRuntime": false,
+	"loggingBehavior": "none",
 	"plugins": {
 		"PushNotifications": {
 			"presentationOptions": [

@@ -28,7 +28,7 @@ import {
   IonAvatar,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
-import Header, { ionHeaderStyle } from "./Header";
+import TellUHeader, { ionHeaderStyle } from "./Header";
 import {
   addCircleOutline,
   chevronBackOutline,
@@ -47,7 +47,6 @@ import { useToast } from "@agney/ir-toast";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useSelector } from "react-redux";
 import FadeIn from "react-fade-in";
-import UIContext from '../my-context';
 import tellU_Community from '../images/tellU_Community.png';
 import tellU_Community_Dark from '../images/tellU_Community_Dark.png';
 import { Keyboard } from "@capacitor/keyboard";
@@ -68,6 +67,7 @@ import { Device } from '@capacitor/device';
 import { buildStyles, CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import TimeAgo from "javascript-time-ago";
+import { useTabsContext } from "../my-context";
 
 interface PollAnswer {
   text: string,
@@ -80,7 +80,7 @@ function Community() {
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const schoolName = useSelector((state: any) => state.user.school);
-  const { setShowTabs } = React.useContext(UIContext);
+  const tabs = useTabsContext();
   const timeAgo = new TimeAgo("en-US");
 
   const [busy, setBusy] = useState<boolean>(false);
@@ -151,7 +151,7 @@ function Community() {
   };
 
   useIonViewWillEnter(() => {
-    setShowTabs(true);
+    tabs.setShowTabs(true);
     setBusy(true);
     if (!user) {
       history.replace("/landing-page");
@@ -342,7 +342,7 @@ function Community() {
 
         <FadeIn transitionDuration={1500}>
           <IonHeader class="ion-no-border" style={ionHeaderStyle} >
-            <Header darkMode={darkModeToggled} colorPallete={schoolColorToggled} schoolName={schoolName} zoom={1} />
+            <TellUHeader darkMode={darkModeToggled} colorPallete={schoolColorToggled} schoolName={schoolName} zoom={1} />
           </IonHeader>
         </FadeIn>
 

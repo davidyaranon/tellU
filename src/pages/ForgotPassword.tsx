@@ -7,21 +7,21 @@ import { Link } from "react-router-dom";
 import { useToast } from "@agney/ir-toast";
 
 import Header from "./Header";
-import UIContext from '../my-context';
 import { timeout } from "../components/functions";
 import { sendPasswordReset } from "../fbconfig";
+import { useTabsContext } from "../my-context";
 
 const ForgotPassword = () => {
   const Toast = useToast();
-  const { setShowTabs } = React.useContext(UIContext);
+  const tabs = useTabsContext();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
 
   const [email, setEmail] = useState<string>("");
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
 
   useEffect(() => {
-    setShowTabs(false);
-  }, []);
+    tabs.setShowTabs(false);
+  })
 
   const handleResetPassword = () => {
     setButtonDisabled(true);

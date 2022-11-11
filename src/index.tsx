@@ -3,18 +3,19 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
-import { UIProvider } from "./my-context";
+// import { UIProvider } from "./my-context";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import reducer from "./redux/reducer";
+import { TabsContextProvider } from "./my-context";
 
 const store = createStore(reducer);
 window.screen.orientation.lock("portrait");
 ReactDOM.render(
   <Provider store={store}>
-    <UIProvider>
+    <TabsContextProvider>
       <App />
-    </UIProvider>
+    </TabsContextProvider>
   </Provider>,
   document.getElementById("root")
 );

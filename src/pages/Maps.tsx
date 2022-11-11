@@ -8,9 +8,9 @@ import { useSelector } from "react-redux";
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave,
+  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave, IonHeader,
 } from "@ionic/react";
-import { schoolOutline } from "ionicons/icons";
+import { pencilOutline, schoolOutline } from "ionicons/icons";
 
 /* Firebase */
 import auth, { db } from "../fbconfig";
@@ -22,6 +22,8 @@ import { useToast } from "@agney/ir-toast";
 import { getColor } from "../components/functions";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
+import pencilOutlineWhite from '../images/pencil-outline-white.png';
+
 
 const zoomControlButtonsStyleDark = {
   width: "50px",
@@ -94,6 +96,7 @@ function Maps() {
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
   const [pinsLoading, setPinsLoading] = useState<boolean>(false);
   const [selectOptions, setSelectOptions] = useState<any>({});
+  const [editMode, setEditMode] = useState<boolean>(false);
 
 
   /**
@@ -171,6 +174,8 @@ function Maps() {
           filter = "buy/Sell";
         } else if (filter === "RESEARCH") {
           filter = "research";
+        } else if (filter === "HOUSING") {
+          filter = "housing"
         } else if (filter === "GENERAL") {
           filter = filter.toLowerCase();
         } else {
@@ -239,6 +244,7 @@ function Maps() {
    */
   useIonViewDidLeave(() => {
     setMarkerFilter("ALL");
+    setEditMode(false);
   });
 
   /**
@@ -262,9 +268,6 @@ function Maps() {
     }
   }, [user, schoolName]);
 
-  function randomInRange(min : number, max : number) {
-    return Math.random() < 0.5 ? ((1-Math.random()) * (max-min) + min) : (Math.random() * (max-min) + min);
-  }
 
   useEffect(() => {
     if (schoolName === "Cal Poly Humboldt" && schoolColorToggled) {
@@ -305,37 +308,60 @@ function Maps() {
             <IonSpinner name="lines"></IonSpinner>
           </IonFab>
         }
-        <div className={
-          darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearchDark" 
-          : darkModeToggled && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "overlaySearchDarkNotHumboldt" 
-          : darkModeToggled && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
-          : !darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearch"
-          : "overlaySearchNotHumboldt"
+        {!editMode ?
+          <div className={
+            darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearchDark"
+              : darkModeToggled && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "overlaySearchDarkNotHumboldt"
+                : darkModeToggled && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
+                  : !darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearch"
+                    : "overlaySearchNotHumboldt"
           }>
-          <IonLabel color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}> FILTER: </IonLabel>
-          <IonSelect
-            interface="action-sheet"
-            interfaceOptions={selectOptions}
-            okText="Filter"
-            cancelText="Cancel"
-            mode="ios"
-            value={markerFilter}
-            placeholder="Filter: ALL"
-            onIonChange={(e: any) => {
-              setOverlayIndex(-1);
-              updateMarkers(e.detail.value);
-            }}
-          >
-            <IonSelectOption value="ALL" class="all-option">All</IonSelectOption>
-            <IonSelectOption value="YOURS" class="your-option">Yours</IonSelectOption>
-            <IonSelectOption value="GENERAL" className="general-option">General</IonSelectOption>
-            <IonSelectOption value="ALERTS">Alerts</IonSelectOption>
-            <IonSelectOption value="BUY/SELL">Buy/Sell</IonSelectOption>
-            <IonSelectOption value="SIGHTINGS">Sightings</IonSelectOption>
-            <IonSelectOption value="EVENTS">Events</IonSelectOption>
-            <IonSelectOption value="RESEARCH">Research</IonSelectOption>
-          </IonSelect>
-        </div>
+            <IonLabel color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}> FILTER: </IonLabel>
+            <IonSelect
+              interface="action-sheet"
+              interfaceOptions={selectOptions}
+              okText="Filter"
+              cancelText="Cancel"
+              mode="ios"
+              value={markerFilter}
+              placeholder="Filter: ALL"
+              onIonChange={(e: any) => {
+                setOverlayIndex(-1);
+                updateMarkers(e.detail.value);
+              }}
+            >
+              <IonSelectOption value="ALL" class="all-option">All</IonSelectOption>
+              <IonSelectOption value="YOURS" class="your-option">Yours</IonSelectOption>
+              <IonSelectOption value="GENERAL" className="general-option">General</IonSelectOption>
+              <IonSelectOption value="ALERTS">Alerts</IonSelectOption>
+              <IonSelectOption value="BUY/SELL">Buy/Sell</IonSelectOption>
+              <IonSelectOption value="SIGHTINGS">Sightings</IonSelectOption>
+              <IonSelectOption value="EVENTS">Events</IonSelectOption>
+              <IonSelectOption value="RESEARCH">Research</IonSelectOption>
+              <IonSelectOption value="HOUSING">Housing</IonSelectOption>
+            </IonSelect>
+          </div>
+          :
+          <div className={
+            darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearchDark"
+              : darkModeToggled && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "overlaySearchDarkNotHumboldt"
+                : darkModeToggled && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
+                  : !darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearch"
+                    : "overlaySearchNotHumboldt"
+          }>
+            <IonLabel color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}> ADD PIN TO MAP: </IonLabel>
+            <IonSelect
+              disabled={true}
+              interface="action-sheet"
+              interfaceOptions={selectOptions}
+              okText="Filter"
+              cancelText="Cancel"
+              mode="ios"
+              value={markerFilter}
+            >
+            </IonSelect>
+          </div>
+        }
 
         <Map
           center={center}
@@ -346,15 +372,18 @@ function Maps() {
             setCenter(center);
             setZoom(zoom);
           }}
-          onClick={() => {
+          onClick={(e) => {
+            if (editMode) {
+              console.log(e.latLng);
+            }
             setOverlayIndex(-1);
           }}
         >
           <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={darkModeToggled ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
-          {markers ? markers.map((marker, index) => {
+          {markers && !editMode ? markers.map((marker, index) => {
             return (
               <Marker
-                style={zoom > 17 ? { opacity: "80%" } : { opacity : "75%"}}
+                style={zoom > 17 ? { opacity: "80%" } : { opacity: "75%" }}
                 color={getColor(marker.postType)}
                 key={marker.key}
                 anchor={[marker.location[0], marker.location[1]]}
@@ -370,7 +399,23 @@ function Maps() {
               />
             );
           })
-            : null}
+            :
+            markers && editMode ? markers.map((marker, index) => {
+              return (
+                <Marker
+                  style={zoom > 17 ? { opacity: "35%" } : { opacity: "35%" }}
+                  color={getColor(marker.postType)}
+                  key={marker.key}
+                  anchor={[marker.location[0], marker.location[1]]}
+                  width={50}
+                  onClick={() => {
+
+                  }}
+                />
+              );
+            })
+              :
+              null}
           {markers && overlayIndex != -1 && markers[overlayIndex] && "location" in markers[overlayIndex] ? (
             <Overlay
               anchor={[
@@ -423,11 +468,18 @@ function Maps() {
           <IonFab horizontal="end" vertical="bottom">
             <IonButton color={darkModeToggled ? "dark" : "light"} onClick={setDefaultCenter} mode="ios">
               {darkModeToggled ?
-                <img style={{width : "20px"}} src={schoolOutlineWhite} />
+                <img style={{ width: "20px" }} src={schoolOutlineWhite} />
                 :
                 <IonIcon icon={schoolOutline} />
               }
             </IonButton>
+            {/* <IonButton color={darkModeToggled ? "dark" : "light"} mode="ios" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditMode((isEditable) => !isEditable) }}>
+              {darkModeToggled ?
+                <img style={{ width: "20px" }} src={pencilOutlineWhite} />
+                :
+                <IonIcon icon={pencilOutline} />
+              }
+            </IonButton> */}
           </IonFab>
         </Map>
       </IonContent>

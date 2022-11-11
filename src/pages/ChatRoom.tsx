@@ -88,6 +88,8 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           setBlob(blobRes);
           setPhoto(image);
         }
+      } else {
+        Toast.error("Image not supported");
       }
     } catch (err: any) {
       // Toast.error(err.message.toString());

@@ -480,8 +480,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   useEffect(() => {
-    goOffline(db);
-    goOnline(db);
     setPost(null);
     setPreviousCommentLoading(false);
     setDeleted(false);

@@ -16,7 +16,7 @@ export const ionHeaderStyle = {
   padding: "2.5vh",
 };
 
-class Header extends Component<any, any>{
+class TellUHeader extends Component<any, any>{
   render() {
     const dark: boolean = this.props.darkMode;
     const zoom: number = this.props.zoom;
@@ -262,4 +262,4 @@ class Header extends Component<any, any>{
   }
 }
 
-export default React.memo(Header);
+export default React.memo(TellUHeader);

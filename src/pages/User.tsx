@@ -64,7 +64,7 @@ import {
 } from "@capacitor/keyboard";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { getColor, timeout } from '../components/functions';
-import UIContext from "../my-context";
+import { useTabsContext } from "../my-context";
 import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProfilePhoto from "./ProfilePhoto";
@@ -81,7 +81,7 @@ function User() {
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
-  const { setShowTabs } = React.useContext(UIContext);
+  const tabs = useTabsContext();
   const Toast = useToast();
   const dispatch = useDispatch();
   const schoolName = useSelector((state: any) => state.user.school);
@@ -885,7 +885,7 @@ function User() {
 
   useIonViewDidEnter(() => {
     // scrollToTop();
-    setShowTabs(true);
+    tabs.setShowTabs(true);
     if (!user) {
       history.replace("/landing-page");
     } else {

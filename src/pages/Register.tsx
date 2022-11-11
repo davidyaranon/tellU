@@ -24,7 +24,7 @@ import { doc, getDoc } from "firebase/firestore";
 /* CSS + Other components */
 import "../App.css";
 import Header from "./Header";
-import UIContext from "../my-context";
+import { useTabsContext } from "../my-context";
 import { useToast } from "@agney/ir-toast";
 import { Dialog } from "@capacitor/dialog";
 
@@ -51,7 +51,7 @@ const Register: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const { setShowTabs } = React.useContext(UIContext);
+  const tabs = useTabsContext();
 
   /**
    * Uses Firebase Auth to register using 
@@ -164,10 +164,10 @@ const Register: React.FC = () => {
           history.replace("/home");
         });
     }
-    setShowTabs(false);
+    tabs.setShowTabs(false);
     setBusy(false);
     return () => {
-      setShowTabs(true);
+      tabs.setShowTabs(true);
     };
   }, [user, loading]);
 

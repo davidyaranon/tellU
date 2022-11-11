@@ -43,11 +43,10 @@ import LandingPage from "./pages/LandingPage";
 import Register from "./pages/Register";
 import RedirectComponent from "./pages/RedirectComponent";
 import { UserProfile } from "./pages/UserProfile";
-import UIContext from "./my-context";
+import { TabsContextProvider, useTabsContext } from "./my-context";
 
 import { ToastProvider, useToast } from "@agney/ir-toast";
 import HomeIcon from '@mui/icons-material/Home';
-import SchoolIcon from '@mui/icons-material/School';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
@@ -72,6 +71,7 @@ import Class from "./pages/Class";
 import ChatRoom from "./pages/ChatRoom";
 import DirectMessages from "./pages/DirectMessages";
 import School from "./pages/School";
+import Posttypes from "./pages/Posttypes";
 
 setupIonicReact({
   swipeBackEnabled: false
@@ -95,9 +95,9 @@ const keyStyleOptionsLight: KeyboardStyleOptions = {
 
 
 const RoutingSystem: React.FunctionComponent = () => {
-  const { showTabs } = React.useContext(UIContext);
+  const tabs = useTabsContext();
   const [selectedTab, setSelectedTab] = useState<string>("home");
-  let tabBarStyle = showTabs ? undefined : { display: "none" };
+  let tabBarStyle = tabs?.showTabs ? undefined : { display: "none" };
   const dispatch = useDispatch();
   const schoolName = useSelector((state: any) => state.user.school) || "";
   const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled) || false;
@@ -185,6 +185,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/post/:key" component={Post} />
           <Route path="/about/:uid" component={UserProfile} />
           <Route path="/class/:className" component={Class} />
+          <Route path="/type/:type" component={Posttypes} />
           <Route path="/chatroom/:collectionPath" component={ChatRoom} />
           <Route path="/direct/:directMessageId" component={DirectMessages} />
           <Route path="/register" component={Register} exact={true} />
@@ -262,7 +263,7 @@ const App: React.FunctionComponent = () => {
   const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
   const condition = navigator.onLine;
   const schoolName = useSelector((state: any) => state.user.school) || "";
-  const { setShowTabs } = React.useContext(UIContext);
+  const tabs = useTabsContext();
 
   const registerNotifications = async () => {
     let permStatus = await PushNotifications.checkPermissions();
@@ -305,7 +306,7 @@ const App: React.FunctionComponent = () => {
         } else {
           dispatch(setSchoolColorPallete(true));
         }
-        if(sensitiveContentToggled == "false") {
+        if (sensitiveContentToggled == "false") {
           dispatch(setSensitiveContent(false));
         } else {
           dispatch(setSensitiveContent(true));
@@ -335,7 +336,7 @@ const App: React.FunctionComponent = () => {
                 localStorage.setItem("userSchoolName", school.toString());
                 dispatch(setUserState(user.displayName, user.email, false, school));
                 setBusy(false);
-                setShowTabs(true);
+                // tabs.setShowTabs(true);
                 window.history.replaceState({}, "", "/home");
               });
               docLoaded.catch((err) => {
@@ -345,7 +346,7 @@ const App: React.FunctionComponent = () => {
             } else {
               dispatch(setUserState(user.displayName, user.email, false, school));
               setBusy(false);
-              setShowTabs(true);
+              // tabs.setShowTabs(true);
               window.history.replaceState({}, "", "/home");
             }
           } else {
@@ -377,9 +378,11 @@ const App: React.FunctionComponent = () => {
       {busy ? (
         <IonSpinner class="ion-spinner" name="dots" color={schoolName == "Cal Poly Humboldt" ? "tertiary" : "primary"} />
       ) : (
-        <IonReactRouter history={historyInstance}>
-          <RoutingSystem />
-        </IonReactRouter>
+        <TabsContextProvider>
+          <IonReactRouter history={historyInstance}>
+            <RoutingSystem />
+          </IonReactRouter>
+        </TabsContextProvider>
       )}
     </IonApp>
   );
