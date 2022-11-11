@@ -3,9 +3,9 @@ import "../theme/variables.css";
 
 import {
   IonAvatar, IonButton, IonButtons, IonCard, IonCheckbox, IonCol,
-  IonContent, IonFab, IonFabButton, IonHeader, IonIcon,
-  IonImg, IonItem, IonLabel, IonList,
-  IonLoading, IonModal, IonNote, IonPage, IonRefresher, IonRefresherContent,
+  IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon,
+  IonImg, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList,
+  IonLoading, IonModal, IonNote, IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
   IonRow, IonSelect, IonSelectOption, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar,
 } from "@ionic/react";
 import { Camera, GalleryPhoto } from "@capacitor/camera";
@@ -14,11 +14,11 @@ import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-p
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import TellUHeader, { ionHeaderStyle } from "./Header";
 import { RefresherEventDetail, RouterDirection } from "@ionic/core";
-import { add, cameraOutline, refreshCircleOutline, warningSharp } from "ionicons/icons";
+import { add, cameraOutline, refreshCircleOutline, reloadCircleOutline, warningSharp } from "ionicons/icons";
 import { addMessage, downVote, getAllPosts, promiseTimeout, upVote } from "../fbconfig";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
-import { chevronDownCircleOutline } from "ionicons/icons";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { caretUpOutline, chevronDownCircleOutline } from "ionicons/icons";
+import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import { getColor, timeout } from '../components/functions';
 import { getDownloadURL, ref } from "firebase/storage";
 import { useEffect, useRef, useState } from "react";
@@ -605,20 +605,13 @@ const Home = React.memo(() => {
         console.log(change.type);
         console.log(change.doc.data());
         if (auth && auth.currentUser && auth.currentUser.uid) {
-          if (change.type === "added" && change.doc.data().uid === auth.currentUser.uid && snapshot.docChanges().length === 1) {
-            let datasCopy = newDataRef.current;
-            let justAdded: any[] = [];
+          if ((change.type === "added") && change.doc.data().uid === auth.currentUser.uid && snapshot.docChanges().length === 1) {
+            let datasCopy = newDataRef.current || [];
+            let justAdded : any[] = [];
             for (let i = 0; i < datasCopy.length; ++i) {
-              const likesData = await getLikes(datasCopy[i].key);
-              if (likesData) {
-                datasCopy[i].likes = likesData.likes;
-                datasCopy[i].dislikes = likesData.dislikes;
-                datasCopy[i].commentAmount = likesData.commentAmount;
-              } else {
-                datasCopy[i].likes = { 'null': true };
-                datasCopy[i].dislikes = { 'null': true };
-                datasCopy[i].commentAmount = 0;
-              }
+              datasCopy[i].likes = { 'null': true };
+              datasCopy[i].dislikes = { 'null': true };
+              datasCopy[i].commentAmount = 0;
             }
             console.log(datasCopy);
             justAdded.push({
@@ -628,14 +621,21 @@ const Home = React.memo(() => {
             justAdded[0].likes = { 'null': true };
             justAdded[0].dislikes = { 'null': true };
             justAdded[0].commentAmount = 0;
-            const finalData: any[] = justAdded.concat(datasCopy);
+            const finalData : any[] = justAdded.concat(datasCopy);
             console.log(finalData);
             setPosts([...finalData, ...postsRef.current]);
             virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
             setNewPostsLoaded(false);
             setNewData([]);
             break;
+          } else {
+            console.log("long if check failed")
+            console.log(change.type === "added");
+            console.log(change.doc.data().uid === auth.currentUser.uid);
+            console.log(snapshot.docChanges().length);
           }
+        } else {
+          console.log("something wrong with auth")
         }
         if (change.type === "added") {
           data.push({
@@ -650,22 +650,15 @@ const Home = React.memo(() => {
         if (postsRef.current) {
           console.log("post ref current");
           for (let i = 0; i < data.length; ++i) {
-            const likesData = await getLikes(data[i].key);
-            if (likesData) {
-              data[i].likes = likesData.likes;
-              data[i].dislikes = likesData.dislikes;
-              data[i].commentAmount = likesData.commentAmount;
-            } else {
-              data[i].likes = { 'null': true };
-              data[i].dislikes = { 'null': true };
-              data[i].commentAmount = 0;
-            }
+            data[i].likes = { 'null': true };
+            data[i].dislikes = { 'null': true };
+            data[i].commentAmount = 0;
           }
           console.log(newData);
           console.log(newDataRef.current);
           console.log("after data for loop");
           console.log(data);
-          if (newDataRef.current) {
+          if(newDataRef.current) {
             console.log("more than 1 new post");
             setNewData([...data, ...newDataRef.current])
           } else {

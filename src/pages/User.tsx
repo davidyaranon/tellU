@@ -698,13 +698,15 @@ function User() {
         if (res.userLikes.length == 0) {
           setNoMoreLikes(true);
         }
+        event.target.complete();
       }).catch((err: any) => {
         Toast.error(err.message.toString());
+        event.target.complete();
       });
     } else {
       setNoMoreLikes(true);
+      event.target.complete();
     }
-    event.target.complete();
   }
 
   const loadYourPolls = () => {
@@ -2482,6 +2484,8 @@ function User() {
                   ) : (null)}
                   {userLikedPosts &&
                     <IonInfiniteScroll
+                      position="bottom"
+                      threshold="0%"
                       onIonInfinite={(e: any) => { fetchMoreLikes(e) }}
                       disabled={noMoreLikes}
                     >
@@ -2491,10 +2495,14 @@ function User() {
                       ></IonInfiniteScrollContent>
                     </IonInfiniteScroll>
                   }
-                  {!noMoreLikes &&
+                  {!noMoreLikes ?
                     <div style={{ margin: "0 auto", textAlign: "center" }}>
                       <IonSpinner style={{ margin: "0 auto" }} name="circular" color={schoolName == "Cal Poly Humboldt" ? "tertiary" : "primary"}  ></IonSpinner>
                     </div>
+                    :
+                    <>
+                    <br /> <br /> <br /> <br/>
+                    </>
                   }
                 </div>
               </IonContent>
