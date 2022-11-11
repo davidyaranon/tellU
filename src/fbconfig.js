@@ -566,7 +566,7 @@ export const promiseTimeout = function (ms, promise) {
 export const getUserLikedPosts = async (uid) => {
   try {
     const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), limit(10));
+    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), limit(4));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";
@@ -586,8 +586,9 @@ export const getUserLikedPosts = async (uid) => {
 
 export const getUserLikedPostsNextBatch = async (uid, key) => {
   try {
+    console.log("new");
     const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), startAfter(key), limit(10));
+    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), startAfter(key), limit(1));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";

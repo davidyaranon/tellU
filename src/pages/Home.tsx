@@ -136,7 +136,9 @@ const Home = React.memo(() => {
   const [postClassNumber, setPostClassNumber] = useState<string>();
   const [noMorePosts, setNoMorePosts] = useState(false);
 
-  const [data, setData] = useState<any[]>([]);
+  const [newData, setNewData] = useState<any[] | null>(null);
+  const newDataRef = useRef<any>();
+  newDataRef.current = newData;
   const virtuosoRef = useRef<any>(null);
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
@@ -498,7 +500,7 @@ const Home = React.memo(() => {
             setPostClassNumber("");
             setPrevPostUploading(false);
             setShowProgressBar(false);
-            scrollToTop();
+            // scrollToTop();
           }
           // setBusy(false);
         }
@@ -528,13 +530,14 @@ const Home = React.memo(() => {
           setPostClassName("");
           setPostClassNumber("");
           // handleLoadPosts();
-          scrollToTop();
+          // scrollToTop();
           setShowProgressBar(false);
           setPrevPostUploading(false);
         }
         // setBusy(false);
       }
     }
+    console.log("message added");
   };
 
   useEffect(() => {
@@ -592,28 +595,88 @@ const Home = React.memo(() => {
     if (schoolName) {
       school = schoolName.toString().replace(/\s+/g, "");
     }
-    const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"), limit(20));
+    const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const data: any = [];
-      snapshot.docChanges().forEach((change) => {
+      let count = 0;
+      for (let i = 0; i < snapshot.docChanges().length; ++i) {
+        if (count++ > 15) { break; }
+        let change = snapshot.docChanges()[i];
+        console.log(change.type);
+        console.log(change.doc.data());
+        if (auth && auth.currentUser && auth.currentUser.uid) {
+          if (change.type === "added" && change.doc.data().uid === auth.currentUser.uid && snapshot.docChanges().length === 1) {
+            let datasCopy = newDataRef.current;
+            let justAdded: any[] = [];
+            for (let i = 0; i < datasCopy.length; ++i) {
+              const likesData = await getLikes(datasCopy[i].key);
+              if (likesData) {
+                datasCopy[i].likes = likesData.likes;
+                datasCopy[i].dislikes = likesData.dislikes;
+                datasCopy[i].commentAmount = likesData.commentAmount;
+              } else {
+                datasCopy[i].likes = { 'null': true };
+                datasCopy[i].dislikes = { 'null': true };
+                datasCopy[i].commentAmount = 0;
+              }
+            }
+            console.log(datasCopy);
+            justAdded.push({
+              ...change.doc.data(),
+              key: change.doc.id
+            });
+            justAdded[0].likes = { 'null': true };
+            justAdded[0].dislikes = { 'null': true };
+            justAdded[0].commentAmount = 0;
+            const finalData: any[] = justAdded.concat(datasCopy);
+            console.log(finalData);
+            setPosts([...finalData, ...postsRef.current]);
+            virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
+            setNewPostsLoaded(false);
+            setNewData([]);
+            break;
+          }
+        }
         if (change.type === "added") {
           data.push({
             ...change.doc.data(),
             key: change.doc.id,
           });
         }
-      });
+      }
+      console.log("after for each");
       if (data.length > 0) {
+        console.log("data length > 0");
         if (postsRef.current) {
+          console.log("post ref current");
           for (let i = 0; i < data.length; ++i) {
-            data[i].likes = { 'null': true };
-            data[i].dislikes = { 'null': true };
-            data[i].commentAmount = 0;
+            const likesData = await getLikes(data[i].key);
+            if (likesData) {
+              data[i].likes = likesData.likes;
+              data[i].dislikes = likesData.dislikes;
+              data[i].commentAmount = likesData.commentAmount;
+            } else {
+              data[i].likes = { 'null': true };
+              data[i].dislikes = { 'null': true };
+              data[i].commentAmount = 0;
+            }
           }
-          setData(data);
-          // setPosts([...data, ...postsRef.current]);
+          console.log(newData);
+          console.log(newDataRef.current);
+          console.log("after data for loop");
+          console.log(data);
+          if (newDataRef.current) {
+            console.log("more than 1 new post");
+            setNewData([...data, ...newDataRef.current])
+          } else {
+            console.log("Only one new post");
+            setNewData(data);
+          }
+          console.log("after set data");
           setNewPostsLoaded(true);
+          console.log("after set true");
         } else { // on init
+          console.log("init");
           for (let i = 0; i < data.length; ++i) {
             const likesData = await getLikes(data[i].key);
             if (likesData) {
@@ -673,15 +736,19 @@ const Home = React.memo(() => {
           </IonFabButton>
         </IonFab>
 
-        {newPostsLoaded && (
-          <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
-            <IonFabButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} className="load-new-posts" mode="ios" onClick={() => { 
-              setPosts([...data, ...postsRef.current]); 
-              virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({top : 0, behavior: "smooth"})
-              setNewPostsLoaded(false); }
-            }>New Posts <IonIcon icon={refreshCircleOutline} /> </IonFabButton>
-          </IonFab>
-        )}
+        <div>
+          {newPostsLoaded && (
+            <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
+              <IonFabButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} className="load-new-posts" mode="ios" onClick={() => {
+                setPosts([...newDataRef.current, ...postsRef.current]);
+                virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
+                setNewPostsLoaded(false);
+                setNewData([]);
+              }
+              }>New Posts <IonIcon icon={refreshCircleOutline} /> </IonFabButton>
+            </IonFab>
+          )}
+        </div>
 
         <IonLoading
           spinner="dots"

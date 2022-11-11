@@ -6,7 +6,7 @@ import {
   IonText, IonCardContent, IonCard, IonSkeletonText,
   IonNote, IonSpinner, IonButtons, IonCardTitle,
   IonPage, useIonViewDidEnter, IonRow, IonCol,
-  IonGrid, IonSearchbar, useIonRouter, RouterDirection, IonBadge
+  IonGrid, IonSearchbar, useIonRouter, RouterDirection, IonBadge, IonInfiniteScroll, IonInfiniteScrollContent
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -137,7 +137,7 @@ function User() {
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
   const router = useIonRouter();
   const [loadedSlidesArr, setLoadedSlidesArr] = useState<boolean[]>([false, false, false, false, false, false])
-
+  const [loadingLikes, setLoadingLikes] = useState<boolean>(false);
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -688,11 +688,12 @@ function User() {
     }
   };
 
-  const fetchMoreLikes = () => {
+  const fetchMoreLikes = (event: any) => {
     if (lastLikesKey && user) {
+      setLoadingLikes(true);
       console.log("clicked");
       console.log(lastLikesKey);
-      getUserLikedPostsNextBatch(user.uid, lastLikesKey).then((res: any) => {
+      getUserLikedPostsNextBatch(user.uid, lastLikesKey).then(async (res: any) => {
         console.log(res);
         setLastLikesKey(res.lastKey);
         setUserLikedPosts(userLikedPosts?.concat(res.userLikes)!);
@@ -701,10 +702,14 @@ function User() {
         }
       }).catch((err: any) => {
         Toast.error(err.message.toString());
+        setLoadingLikes(false);
       });
     } else {
+      setLoadingLikes(false);
       setNoMoreLikes(true);
     }
+    setLoadingLikes(false);
+    event.target.complete();
   }
 
   const loadYourPolls = () => {
@@ -1519,118 +1524,118 @@ function User() {
             </IonHeader>
             <br />
             {/* <IonCard className="user-card"> */}
-              {/* <IonContent> */}
-              <IonList mode="ios" inset={true}>
-                <IonItem key="singleton_item_3" mode="ios">
-                  {/* <IonGrid> */}
-                  <IonRow>
-                    <IonLabel mode="ios">
-                      <IonText color="medium">
-                        <p> Email </p>
-                      </IonText>
-                    </IonLabel>
-                  </IonRow>
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <IonRow>
-                    <p style={{ fontSize: "0.9em" }}>{editableEmail}</p>
-                  </IonRow>
-                  {/* </IonGrid> */}
-                  <IonButton
-                    onClick={handleEdit}
-                    color="medium"
-                    slot="end"
-                  >
-                    {" "}
-                    Edit{" "}
-                  </IonButton>
-                </IonItem>
-                <IonItem key="singleton_item_4" mode="ios">
-                  {/* <IonGrid> */}
-                  <IonRow>
-                    <IonLabel mode="ios">
-                      <IonText color="medium">
-                        <p> Username </p>
-                      </IonText>
-                    </IonLabel>
-                  </IonRow>
-                  &nbsp;&nbsp;
-                  <IonRow>
-                    <p style={{ fontSize: "0.9em" }}>{editableUsername}</p>
-                  </IonRow>
-                  {/* </IonGrid> */}
-                  <IonButton
-                    onClick={handleUserEdit}
-                    color="medium"
-                    slot="end"
-                  >
-                    {" "}
-                    Edit{" "}
-                  </IonButton>
-                </IonItem>
-                <IonItem mode="ios">
-                  {/* <IonGrid> */}
-                  <IonRow>
-                    <IonLabel mode="ios">
-                      <IonText color="medium">
-                        <p> About </p>
-                      </IonText>
-                    </IonLabel>
-                  </IonRow>
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <IonRow>
-                    <p style={{ fontSize: "0.9em" }}>...</p>
-                  </IonRow>
-                  {/* </IonGrid> */}
-                  <IonButton
-                    color="medium"
-                    slot="end"
-                    onClick={() => { handleEditAbout(); }}
-                  >
-                    Edit
-                  </IonButton>
-                </IonItem>
-              </IonList>
+            {/* <IonContent> */}
+            <IonList mode="ios" inset={true}>
+              <IonItem key="singleton_item_3" mode="ios">
+                {/* <IonGrid> */}
+                <IonRow>
+                  <IonLabel mode="ios">
+                    <IonText color="medium">
+                      <p> Email </p>
+                    </IonText>
+                  </IonLabel>
+                </IonRow>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <IonRow>
+                  <p style={{ fontSize: "0.9em" }}>{editableEmail}</p>
+                </IonRow>
+                {/* </IonGrid> */}
+                <IonButton
+                  onClick={handleEdit}
+                  color="medium"
+                  slot="end"
+                >
+                  {" "}
+                  Edit{" "}
+                </IonButton>
+              </IonItem>
+              <IonItem key="singleton_item_4" mode="ios">
+                {/* <IonGrid> */}
+                <IonRow>
+                  <IonLabel mode="ios">
+                    <IonText color="medium">
+                      <p> Username </p>
+                    </IonText>
+                  </IonLabel>
+                </IonRow>
+                &nbsp;&nbsp;
+                <IonRow>
+                  <p style={{ fontSize: "0.9em" }}>{editableUsername}</p>
+                </IonRow>
+                {/* </IonGrid> */}
+                <IonButton
+                  onClick={handleUserEdit}
+                  color="medium"
+                  slot="end"
+                >
+                  {" "}
+                  Edit{" "}
+                </IonButton>
+              </IonItem>
+              <IonItem mode="ios">
+                {/* <IonGrid> */}
+                <IonRow>
+                  <IonLabel mode="ios">
+                    <IonText color="medium">
+                      <p> About </p>
+                    </IonText>
+                  </IonLabel>
+                </IonRow>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <IonRow>
+                  <p style={{ fontSize: "0.9em" }}>...</p>
+                </IonRow>
+                {/* </IonGrid> */}
+                <IonButton
+                  color="medium"
+                  slot="end"
+                  onClick={() => { handleEditAbout(); }}
+                >
+                  Edit
+                </IonButton>
+              </IonItem>
+            </IonList>
             {/* </IonCard> */}
             {/* <IonCard mode="ios"> */}
-              <IonList mode="ios" inset={true}>
+            <IonList mode="ios" inset={true}>
+              <IonItem mode="ios">
+                <p style={{ fontSize: "0.9em" }}> Dark mode </p>
+                <IonIcon color="medium" icon={moon} slot="end" />
+                <IonToggle
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  slot="end"
+                  name="darkMode"
+                  checked={darkModeToggled}
+                  onIonChange={(e) => { toggleDarkModeHandler(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                />
+              </IonItem>
+              {schoolName === "Cal Poly Humboldt" &&
                 <IonItem mode="ios">
-                  <p style={{ fontSize: "0.9em" }}> Dark mode </p>
-                  <IonIcon color="medium" icon={moon} slot="end" />
+                  <p style={{ fontSize: "0.9em" }}> School Color Palette </p>
+                  <IonIcon color="medium" icon={colorFill} slot="end" />
                   <IonToggle
-                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                    color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
                     slot="end"
-                    name="darkMode"
-                    checked={darkModeToggled}
-                    onIonChange={(e) => { toggleDarkModeHandler(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                    name="schoolColorToggle"
+                    checked={schoolColorToggled}
+                    onIonChange={(e) => { toggleSchoolColorPallete(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                   />
                 </IonItem>
-                {schoolName === "Cal Poly Humboldt" &&
-                  <IonItem mode="ios">
-                    <p style={{ fontSize: "0.9em" }}> School Color Palette </p>
-                    <IonIcon color="medium" icon={colorFill} slot="end" />
-                    <IonToggle
-                      color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
-                      slot="end"
-                      name="schoolColorToggle"
-                      checked={schoolColorToggled}
-                      onIonChange={(e) => { toggleSchoolColorPallete(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
-                    />
-                  </IonItem>
-                }
-                <IonItem mode="ios">
-                  <p style={{ fontSize: "0.9em" }}> Hide Sensitive Content</p>
-                  <IonIcon color="medium" icon={warningSharp} slot="end" />
-                  <IonToggle
-                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                    slot="end"
-                    name="sensitiveContent"
-                    checked={sensitiveToggled}
-                    onIonChange={(e) => { toggleSensitiveContent(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
-                  />
-                </IonItem>
-              </IonList>
-              {/* <br /> <br /><br /> <br /><br /> <br /> */}
-              {/* </IonContent> */}
+              }
+              <IonItem mode="ios">
+                <p style={{ fontSize: "0.9em" }}> Hide Sensitive Content</p>
+                <IonIcon color="medium" icon={warningSharp} slot="end" />
+                <IonToggle
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  slot="end"
+                  name="sensitiveContent"
+                  checked={sensitiveToggled}
+                  onIonChange={(e) => { toggleSensitiveContent(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                />
+              </IonItem>
+            </IonList>
+            {/* <br /> <br /><br /> <br /><br /> <br /> */}
+            {/* </IonContent> */}
             {/* </IonCard> */}
           </SwiperSlide>
           <SwiperSlide>
@@ -2480,26 +2485,23 @@ function User() {
                   {userLikedPosts && userLikedPosts.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
                   ) : (null)}
-                  {userLikedPosts && userLikedPosts.length > 10 &&
-                    <FadeIn>
-                      <div style={{ display: "flex", justifyContent: "center" }}>
-                        <IonButton
-                          disabled={!userLikedPosts || noMoreLikes}
-                          color="medium"
-                          mode="ios"
-                          fill="outline"
-                          expand="block"
-                          onClick={() => {
-                            fetchMoreLikes();
-                          }}
-                        >
-                          LOAD MORE LIKES{" "}
-                        </IonButton>
-                      </div>
-                    </FadeIn>
+                  {userLikedPosts &&
+                    <IonInfiniteScroll
+                      onIonInfinite={(e: any) => { fetchMoreLikes(e) }}
+                      disabled={noMoreLikes}
+                    >
+                      <IonInfiniteScrollContent
+                        loadingSpinner="circular"
+                        loadingText="Loading"
+                      ></IonInfiniteScrollContent>
+                    </IonInfiniteScroll>
+                  }
+                  {!noMoreLikes &&
+                    <div style={{ margin: "0 auto", textAlign: "center" }}>
+                      <IonSpinner style={{ margin: "0 auto" }} name="circular" color={schoolName == "Cal Poly Humboldt" ? "tertiary" : "primary"}  ></IonSpinner>
+                    </div>
                   }
                 </div>
-                <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
             </IonCard>
           </SwiperSlide>
