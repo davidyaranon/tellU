@@ -7,7 +7,7 @@ import { setUserState } from '../redux/actions';
 
 /* Ionic/Capacitor */
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
-import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading, IonTitle, InputChangeEventDetail, IonLabel } from '@ionic/react';
+import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading, IonTitle, InputChangeEventDetail, IonLabel, useIonRouter, RouterDirection } from '@ionic/react';
 
 /* Firebase */
 import { doc, getDoc } from "firebase/firestore";
@@ -38,7 +38,13 @@ const LandingPage: React.FC = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const tabs = useTabsContext();
+  const router = useIonRouter();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
 
   const updateEmailSignIn = React.useCallback(
     async (e: CustomEvent<InputChangeEventDetail>) => {
@@ -189,7 +195,7 @@ const LandingPage: React.FC = () => {
         }
         dispatch(setUserState(user.displayName, user.email, false, school));
         setBusy(false);
-        history.replace("/home");
+        dynamicNavigate('home', 'root');
       }).catch((err) => {
         console.log(err);
         dispatch(setUserState(user.displayName, user.email, false, ""));

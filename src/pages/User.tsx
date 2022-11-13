@@ -889,7 +889,7 @@ function User() {
     // scrollToTop();
     tabs.setShowTabs(true);
     if (!user) {
-      history.replace("/landing-page");
+      dynamicNavigate("landing-page", 'root');
     } else {
       setEmail(user.email!);
       setEditableEmail(user.email!);

@@ -693,7 +693,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         </p>
                       </IonText>
                       {post.postType ? (
-                        <IonFab vertical="top" horizontal="end">
+                        <IonFab vertical="top" horizontal="end" onClick={(e) => {
+                          if (post.postType !== "general") {
+                            e.stopPropagation();
+                            dynamicNavigate("type/" + post.postType, 'forward');
+                          }
+                        }}>
                           {post.postType !== "general" ?
                             <p
                               style={{

@@ -10,7 +10,7 @@ import { setUserState } from "../redux/actions";
 import {
   IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons,
   IonCard, IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal,
-  IonToolbar, IonTitle, IonPage, useIonViewDidEnter
+  IonToolbar, IonTitle, IonPage, useIonViewDidEnter, useIonRouter, RouterDirection
 } from "@ionic/react";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
@@ -50,6 +50,12 @@ const Register: React.FC = () => {
   const history = useHistory();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const tabs = useTabsContext();
+  const router = useIonRouter();
+
+  const dynamicNavigate = (path: string, direction: RouterDirection) => {
+    const action = direction === "forward" ? "push" : "pop";
+    router.push(path, direction, action);
+  }
 
   /**
    * Uses Firebase Auth to register using 
@@ -149,13 +155,13 @@ const Register: React.FC = () => {
           }
           dispatch(setUserState(user.displayName, user.email, false, school));
           setBusy(false);
-          history.replace("/home");
+          dynamicNavigate('home', 'root');
         })
         .catch((err) => {
           console.log(err);
           dispatch(setUserState(user.displayName, user.email, false, ""));
           setBusy(false);
-          history.replace("/home");
+          dynamicNavigate('home', 'root');
         });
     }
     tabs.setShowTabs(false);

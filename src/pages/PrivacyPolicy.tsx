@@ -26,7 +26,7 @@ export const PrivacyPolicy = () => {
     if (router.canGoBack()) {
       router.goBack();
     } else {
-      dynamicNavigate("user", "forward");
+      dynamicNavigate("user", "back");
     }
   }
 

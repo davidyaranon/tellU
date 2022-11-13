@@ -27,4 +27,4 @@ const ProfilePhoto = (props : UserInfo) => {
   );
 };
 
-export default ProfilePhoto;
+export default React.memo(ProfilePhoto);
