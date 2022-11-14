@@ -15,7 +15,7 @@ const PostImages = (props: any) => {
         <div style={{ height: "0.75vh" }}>{" "}</div>
         <div
           className="ion-img-container"
-          style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+          style={sensitiveToggled && "reports" in post && post.reports > 1 ? { borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius : '10px'}}
           onClick={(e) => {
             e.stopPropagation();
             const img: CapacitorImage = {

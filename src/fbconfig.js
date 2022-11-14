@@ -530,7 +530,7 @@ export async function getAllPosts(schoolName) {
         schoolName.replace(/\s+/g, ""),
         "allPosts"
       );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(50));
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(15));
       const querySnapshot = await getDocs(q);
       const allPosts = [];
       const docs = querySnapshot.docs;

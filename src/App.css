@@ -525,16 +525,33 @@ ion-toolbar {
   height: 40px;
 }
 
+ion-img::part(image) {
+  border-radius: 10px;
+}
+
 .ion-img-container {
   background-size: cover;
   background-position: center;
   height: 20.5vh;
+  -webkit-transform: translate3d(0,0,1px); 
+  -webkit-backface-visibility: hidden;
+}
+
+.ion-img-container.visible {
+  background-size: cover;
+  background-position: center;
+  height: 20.5vh;
+  border-radius: 10px;
+  -webkit-transform: translate3d(0,0,1px); 
+  -webkit-backface-visibility: hidden;
 }
 
 .ion-img-container-2 {
   background-size: cover;
   background-position: center center;
   height: 11.25vh;
+  -webkit-transform: translate3d(0,0,1px); 
+  -webkit-backface-visibility: hidden;
 }
 
 ion-app {
