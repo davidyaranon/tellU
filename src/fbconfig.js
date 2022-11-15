@@ -1468,6 +1468,9 @@ export const removePoll = async (postKey, schoolName) => {
 
 export const removePost = async (postKey, schoolName, postUrl) => {
   try {
+    console.log(postKey);
+    console.log(schoolName)
+    console.log(postUrl);
     if (postUrl.length > 0) {
       for (let i = 0; i < postUrl.length; ++i) {
         deleteImage({ // cloud function to delete images attached to post

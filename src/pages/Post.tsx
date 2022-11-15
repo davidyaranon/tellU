@@ -7,7 +7,7 @@ import auth,
 {
   addCommentNew, downVoteComment, getLikes,
   getOnePost, loadCommentsNew, loadCommentsNewNextBatch,
-  removeCommentNew, sendReportStatus, uploadImage, upVoteComment
+  removeCommentNew, removePost, sendReportStatus, uploadImage, upVoteComment
 } from '../fbconfig';
 import { upVote, downVote, promiseTimeout } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
@@ -17,7 +17,7 @@ import {
   IonCardContent, IonCol, IonContent, IonFab,
   IonFabButton, IonGrid, IonIcon,
   IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
-  IonItem, IonLabel, IonList, IonModal,
+  IonItem, IonLabel, IonList, IonLoading, IonModal,
   IonNote, IonPage, IonRow, IonSkeletonText,
   IonSpinner, IonText, IonTextarea,
   IonTitle, IonToolbar, RouterDirection, useIonRouter
@@ -39,6 +39,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import ProfilePhoto from "./ProfilePhoto";
 import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
+import PostImages from "./PostImages";
 
 interface MatchUserPostParams {
   key: string;
@@ -86,6 +87,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [reportMessage, setReportMessage] = useState<string>("");
   const [notificationsToken, setNotificationsToken] = useState<string>("");
+  const [deletingComment, setDeletingComment] = useState<boolean>(false);
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -512,6 +514,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     <IonPage>
       <IonContent ref={contentRef} scrollEvents>
 
+        <IonLoading isOpen={deletingComment} duration={0} message={"Deleting post..."} />
+
         <IonModal isOpen={showReportModal} mode="ios">
           {/* <IonHeader translucent> */}
           <div slot="fixed" style={{ width: "100%" }}>
@@ -606,30 +610,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </IonButtons>
           </IonToolbar>
         </div>
-        {/* <IonFab
-          style={darkModeToggled ?
-            { bottom: `${kbHeight + 115}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } :
-            { bottom: `${kbHeight + 115}px`, height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }}
-          className={darkModeToggled ? "text-area-dark" : "text-area-light"}
-          vertical="bottom"
-          edge={true}
-          hidden={!showTags}
-        >
-          <IonList mode="ios" inset lines="none">
-            {listOfUsers.length > 0 && listOfUsersMap &&
-              <>
-                {listOfUsersMap.get(attedUser)?.map((username: string, index: number) => {
-                  return (
-                    <IonItem mode="ios" key={index} lines="none">
-                      @{username}
-                    </IonItem>
-                  )
-                })}
-              </>
-            }
-          </IonList>
-        </IonFab> */}
-        {/* <div style={darkModeToggled ? { top: "70vh", bottom: "5vh", height: "25vh", width: "100vw", border: '2px solid #282828', borderRadius: "10px" } : { top: "80vh", height: "20vh", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed" className={darkModeToggled ? "text-area-dark" : "text-area-light"}> */}
         <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
           : { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={darkModeToggled ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
@@ -694,22 +674,17 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       </IonText>
                       {post.postType ? (
                         <IonFab vertical="top" horizontal="end" onClick={(e) => {
-                            if (post.postType !== "general") {
-                              e.stopPropagation();
-                              dynamicNavigate("type/" + post.postType, 'forward');
-                            }
-                          }}>
+                          if (post.postType !== "general") {
+                            e.stopPropagation();
+                            dynamicNavigate("type/" + post.postType, 'forward');
+                          }
+                        }}>
                           {post.postType !== "general" ?
                             <p
                               style={{
                                 fontWeight: "bold",
                                 color: getColor(post.postType),
                               }}
-                            // onClick={() => {
-                            //   localStorage.setItem("lat", (post.location[0].toString()));
-                            //   localStorage.setItem("long", (post.location[1].toString()));
-                            //   history.push("maps");
-                            // }}
                             >
                               {post.postType.toUpperCase()}
                               &nbsp;
@@ -754,224 +729,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           </IonFab>
                         )}
                       <div style={{ height: "0.75vh" }}>{" "}</div>
-                      {"className" in post && "classNumber" in post  && post.className.length > 0 ?
-                        <Linkify style={ sensitiveToggled && "reports" in post && post.reports > 1 ? {filter: "blur(0.25em)"} : {}} tagName="h3" className="h2-message">
+                      {"className" in post && "classNumber" in post && post.className.length > 0 ?
+                        <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
                           {post.message} <IonNote onClick={(e) => {
-                              e.stopPropagation();
-                              dynamicNavigate("class/" + post.className, 'forward');
-                            }}color="medium" style={{fontWeight: "400"}}> &nbsp; — {post.className}{post.classNumber}</IonNote>
+                            e.stopPropagation();
+                            dynamicNavigate("class/" + post.className, 'forward');
+                          }} color="medium" style={{ fontWeight: "400" }}> &nbsp; — {post.className}{post.classNumber}</IonNote>
                         </Linkify>
                         :
-                        <Linkify style={ sensitiveToggled && "reports" in post && post.reports > 1 ? {filter: "blur(0.25em)"} : {}} tagName="h3" className="h2-message">
+                        <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
                           {post.message}
                         </Linkify>
                       }
-                      {"imgSrc" in post && post.imgSrc &&
-                        post.imgSrc.length == 1 &&
-                        <>
-                          <div style={{ height: "0.75vh" }}>{" "}</div>
-                          <div
-                            className="ion-img-container"
-                            style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px',}}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const img: CapacitorImage = {
-                                url: post.imgSrc[0],
-                                title: `${post.userName}'s post`
-                              };
-                              CapacitorPhotoViewer.show({
-                                images: [img],
-                                mode: 'one',
-                                options: {
-                                  title: true
-                                },
-                                startFrom: 0
-                              }).catch((err) => {
-                                Toast.error('Unable to open image on web version');
-                              });
-                            }}
-                          >
-                          </div>
-                        </>
-                      }
-                      {"imgSrc" in post && post.imgSrc &&
-                        post.imgSrc.length == 2 ? (
-                        <>
-                          <div style={{ height: "0.75vh" }}>{" "}</div>
-                          <IonRow>
-                            <IonCol>
-                              <div
-                                className="ion-img-container"
-                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px'}}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const img: CapacitorImage[] = [
-                                    {
-                                      url: post.imgSrc[0],
-                                      title: `${post.userName}'s post`
-                                    },
-                                    {
-                                      url: post.imgSrc[1],
-                                      title: `${post.userName}'s post`
-                                    },
-                                  ]
-                                  CapacitorPhotoViewer.show({
-                                    images: img,
-                                    mode: 'slider',
-                                    options: {
-                                      title: true
-                                    },
-                                    startFrom: 0,
-                                  }).catch((err) => {
-                                    Toast.error('Unable to open image on web version');
-                                  });
-                                }}
-                              >
-                              </div>
-                            </IonCol>
-                            <IonCol>
-                              <div
-                                className="ion-img-container"
-                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px'}}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const img: CapacitorImage[] = [
-                                    {
-                                      url: post.imgSrc[0],
-                                      title: `${post.userName}'s post`
-                                    },
-                                    {
-                                      url: post.imgSrc[1],
-                                      title: `${post.userName}'s post`
-                                    },
-                                  ]
-                                  CapacitorPhotoViewer.show({
-                                    images: img,
-                                    mode: 'slider',
-                                    options: {
-                                      title: true
-                                    },
-                                    startFrom: 1,
-                                  }).catch((err) => {
-                                    Toast.error('Unable to open image on web version');
-                                  });
-                                }}
-                              >
-                              </div>
-                            </IonCol>
-                          </IonRow>
-                        </>
-                      ) : null}
-                      {"imgSrc" in post && post.imgSrc &&
-                        post.imgSrc.length >= 3 ? (
-                        <>
-                          <div style={{ height: "0.75vh" }}>{" "}</div>
-                          <IonRow>
-                            <IonCol>
-                              <div
-                                className="ion-img-container"
-                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px', filter: "blur(0.25em)"} : { backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px'}}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const img: CapacitorImage[] = [
-                                    {
-                                      url: post.imgSrc[0],
-                                      title: `${post.userName}'s post`
-                                    },
-                                    {
-                                      url: post.imgSrc[1],
-                                      title: `${post.userName}'s post`
-                                    },
-                                    {
-                                      url: post.imgSrc[2],
-                                      title: `${post.userName}'s post`
-                                    },
-                                  ]
-                                  CapacitorPhotoViewer.show({
-                                    images: img,
-                                    mode: 'slider',
-                                    options: {
-                                      title: true
-                                    },
-                                    startFrom: 0
-                                  }).catch((err) => {
-                                    Toast.error('Unable to open image on web version');
-                                  });
-                                }}
-                              >
-                              </div>
-                            </IonCol>
-                            <IonCol>
-                              <div
-                                className="ion-img-container"
-                                style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px'}}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const img: CapacitorImage[] = [
-                                    {
-                                      url: post.imgSrc[0],
-                                      title: `${post.userName}'s post`
-                                    },
-                                    {
-                                      url: post.imgSrc[1],
-                                      title: `${post.userName}'s post`
-                                    },
-                                    {
-                                      url: post.imgSrc[2],
-                                      title: `${post.userName}'s post`
-                                    },
-                                  ]
-                                  CapacitorPhotoViewer.show({
-                                    images: img,
-                                    mode: 'slider',
-                                    options: {
-                                      title: true
-                                    },
-                                    startFrom: 1,
-                                  }).catch((err) => {
-                                    Toast.error('Unable to open image on web version');
-                                  });
-                                }}
-                              >
-                              </div>
-                            </IonCol>
-                          </IonRow>
-                          <>
-                            <div
-                              className="ion-img-container"
-                              style={sensitiveToggled && "reports" in post && post.reports > 1 ? { backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '10px'}}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const img: CapacitorImage[] = [
-                                  {
-                                    url: post.imgSrc[0],
-                                    title: `${post.userName}'s post`
-                                  },
-                                  {
-                                    url: post.imgSrc[1],
-                                    title: `${post.userName}'s post`
-                                  },
-                                  {
-                                    url: post.imgSrc[2],
-                                    title: `${post.userName}'s post`
-                                  },
-                                ]
-                                CapacitorPhotoViewer.show({
-                                  images: img,
-                                  mode: 'slider',
-                                  options: {
-                                    title: true
-                                  },
-                                  startFrom: 2
-                                }).catch((err) => {
-                                  Toast.error('Unable to open image on web version');
-                                });
-                              }}
-                            >
-                            </div>
-                          </>
-                        </>
-                      ) : null}
+
+                      <PostImages isSensitive={sensitiveToggled} post={post} />
+
                     </IonLabel>
                     <div
                       id={post.postType.replace("/", "")}
@@ -1054,7 +826,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       <KeyboardArrowDownIcon />
                       <p>{Object.keys(post.dislikes).length - 1} </p>
                     </IonButton>
-                    {"reports" in post && post.reports > 1 &&
+                    {"reports" in post && post.reports > 1 && user && user.uid !== post.uid &&
                       <IonFab horizontal="end">
                         <IonIcon icon={warningSharp} color="warning" onClick={() => {
                           Dialog.alert({
@@ -1064,6 +836,75 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         }}></IonIcon>
                       </IonFab>
                     }
+                    {user && user.uid === post.uid && "reports" in post && post.reports > 1 ? (
+                      <IonFab horizontal="end">
+                        <IonButton
+                          mode="ios"
+                          fill="outline"
+                          color="danger"
+                          onClick={() => { }}
+                        >
+                          <DeleteIcon />
+                        </IonButton>
+                        {" "}
+                        <IonButton mode="ios" fill="clear" onClick={() => {
+                          Dialog.alert({
+                            title: "Flagged Post",
+                            message: 'Post has been reported as sensitive/objectionable'
+                          })
+                        }}>
+                          <IonIcon icon={warningSharp} color="warning" style={{ padding: "-10vh" }}></IonIcon>
+                        </IonButton>
+                      </IonFab>
+                    ) : user && user.uid === post.uid && "reports" in post && post.reports < 2 ?
+                      (
+                        <IonFab horizontal="end">
+                          <IonButton
+                            mode="ios"
+                            fill="outline"
+                            color="danger"
+                            onClick={async () => {
+                              const { value } = await Dialog.confirm({
+                                title: 'Delete Post',
+                                message: `Are you sure you'd like to delete your post?`,
+                                okButtonTitle: 'Delete'
+                              });
+                              if (!value) { return; }
+                              if ("url" in post && post.url && post.url.length > 0) {
+                                console.log("deleting post with images");
+                                if (!schoolName) {
+                                  Toast.error("Something went wrong, try again");
+                                }
+                                setDeletingComment(true);
+                                const didDelete = await removePost(postKey, schoolName, post.url);
+                                if (didDelete !== undefined) {
+                                  Toast.success("Deleted post");
+                                } else {
+                                  Toast.error("Something went wrong when deleting post, try again")
+                                }
+                                dynamicNavigate("about/" + post.uid, "back");
+                                setDeletingComment(false);
+                              } else {
+                                console.log("deleting post without images");
+                                if (!schoolName) {
+                                  Toast.error("Something went wrong, try again");
+                                }
+                                setDeletingComment(true);
+                                const didDelete = await removePost(postKey, schoolName, []);
+                                if (didDelete !== undefined) {
+                                  Toast.success("Deleted post");
+                                } else {
+                                  Toast.error("Something went wrong when deleting post, try again")
+                                }
+                                dynamicNavigate("about/" + post.uid, "back");
+                                setDeletingComment(false);
+                              }
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IonButton>
+                        </IonFab>
+                      ) : null}
                   </IonItem>
                 </IonList>
                 <div className="verticalLine"></div>
@@ -1104,165 +945,165 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           ) : (
             <FadeIn>
               {/* <div> */}
-                {comments && comments.length > 0
-                  ? comments?.map((comment: any, index: number) => (
-                    <IonList inset={true} key={index}>
-                      {" "}
-                      <IonItem mode="ios" lines="none">
-                        <IonLabel class="ion-text-wrap">
-                          <IonText color="medium">
-                            <p>
-                              {/* <FadeIn> */}
-                              <IonAvatar
-                                onClick={() => {
-                                  // setComments([]);
-                                  setComment("");
-                                  handleUserPageNavigation(comment.uid);
-                                }}
-                                class="posts-avatar"
-                              >
-                                <ProfilePhoto uid={comment.uid}></ProfilePhoto>
-                              </IonAvatar>
-                              {/* </FadeIn> */}
-                              {comment.userName}
-                            </p>
-                          </IonText>
-                          <Linkify tagName="h3" className="h2-message">
-                            {comment.comment}
-                          </Linkify>
-                          {"imgSrc" in comment && comment.imgSrc && comment.imgSrc.length > 0 ? (
-                            <>
-                              <br></br>
-                              <div
-                                className="ion-img-container"
-                                style={{ backgroundImage: `url(${comment.imgSrc})`, borderRadius: '10px' }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const img: CapacitorImage = {
-                                    url: comment.imgSrc,
-                                    title: `${comment.userName}'s comment`
-                                  };
-                                  CapacitorPhotoViewer.show({
-                                    options: {
-                                      title: true
-                                    },
-                                    images: [img],
-                                    mode: 'one',
-                                  }).catch((err) => {
-                                    Toast.error('Unable to open image on web version');
-                                  });
-                                  // PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
-                                }}
-                              >
-                              </div>
-                            </>
-                          ) : null}
-                        </IonLabel>
-                        {"timestamp" in comment ? (
-                          <IonFab vertical="top" horizontal="end">
-                            <IonNote style={{ fontSize: "0.75em" }}>
-                              {getDate(comment.timestamp)}
-                            </IonNote>
-                          </IonFab>
+              {comments && comments.length > 0
+                ? comments?.map((comment: any, index: number) => (
+                  <IonList inset={true} key={index}>
+                    {" "}
+                    <IonItem mode="ios" lines="none">
+                      <IonLabel class="ion-text-wrap">
+                        <IonText color="medium">
+                          <p>
+                            {/* <FadeIn> */}
+                            <IonAvatar
+                              onClick={() => {
+                                // setComments([]);
+                                setComment("");
+                                handleUserPageNavigation(comment.uid);
+                              }}
+                              class="posts-avatar"
+                            >
+                              <ProfilePhoto uid={comment.uid}></ProfilePhoto>
+                            </IonAvatar>
+                            {/* </FadeIn> */}
+                            {comment.userName}
+                          </p>
+                        </IonText>
+                        <Linkify tagName="h3" className="h2-message">
+                          {comment.comment}
+                        </Linkify>
+                        {"imgSrc" in comment && comment.imgSrc && comment.imgSrc.length > 0 ? (
+                          <>
+                            <br></br>
+                            <div
+                              className="ion-img-container"
+                              style={{ backgroundImage: `url(${comment.imgSrc})`, borderRadius: '10px' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const img: CapacitorImage = {
+                                  url: comment.imgSrc,
+                                  title: `${comment.userName}'s comment`
+                                };
+                                CapacitorPhotoViewer.show({
+                                  options: {
+                                    title: true
+                                  },
+                                  images: [img],
+                                  mode: 'one',
+                                }).catch((err) => {
+                                  Toast.error('Unable to open image on web version');
+                                });
+                                // PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
+                              }}
+                            >
+                            </div>
+                          </>
                         ) : null}
-                        <div></div>
-                      </IonItem>
-                      <IonItem lines="none" mode="ios">
-                        <IonButton
-                          onAnimationEnd={() => {
-                            setLikeAnimationComments(-1);
-                          }}
-                          className={
-                            likeAnimationComments === comment.key ? "likeAnimation" : ""
-                          }
-                          disabled={disabledLikeButtonsComments === index || deleted || (Object.keys(comment.likes).length - 1) === -1}
-                          mode="ios"
-                          fill="outline"
-                          color={
-                            comment &&
+                      </IonLabel>
+                      {"timestamp" in comment ? (
+                        <IonFab vertical="top" horizontal="end">
+                          <IonNote style={{ fontSize: "0.75em" }}>
+                            {getDate(comment.timestamp)}
+                          </IonNote>
+                        </IonFab>
+                      ) : null}
+                      <div></div>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios">
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setLikeAnimationComments(-1);
+                        }}
+                        className={
+                          likeAnimationComments === comment.key ? "likeAnimation" : ""
+                        }
+                        disabled={disabledLikeButtonsComments === index || deleted || (Object.keys(comment.likes).length - 1) === -1}
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          comment &&
+                            user &&
+                            "likes" in comment &&
+                            comment.likes[user.uid] !==
+                            undefined &&
+                            schoolName === "Cal Poly Humboldt" && schoolColorToggled ?
+                            "tertiary"
+                            : comment &&
                               user &&
                               "likes" in comment &&
                               comment.likes[user.uid] !==
                               undefined &&
-                              schoolName === "Cal Poly Humboldt" && schoolColorToggled ?
-                              "tertiary"
-                              : comment &&
-                                user &&
-                                "likes" in comment &&
-                                comment.likes[user.uid] !==
-                                undefined &&
-                                schoolName === "Cal Poly Humboldt" && !schoolColorToggled ?
-                                "primary"
-                                : "medium"
-                          }
-                          onClick={() => {
-                            setLikeAnimationComments(comment.key);
-                            setDisabledLikeButtonsComments(index);
-                            handleUpVoteComment(comment.key, index);
-                          }}
-                        >
-                          <KeyboardArrowUpIcon />
-                          <p>{Object.keys(comment.likes).length - 1} </p>
-                        </IonButton>
-                        <IonButton
-                          mode="ios"
-                          fill="outline"
-                          disabled={
-                            disabledLikeButtonsComments === index || deleted || Object.keys(comment.dislikes).length - 1 === -1
-                          }
-                          onAnimationEnd={() => {
-                            setDislikeAnimationComments(-1);
-                          }}
-                          className={
-                            dislikeAnimationComments === comment.key ? "likeAnimation" : ""
-                          }
-                          color={
-                            comment &&
-                              user &&
-                              "dislikes" in comment &&
-                              comment.dislikes[user.uid] !==
-                              undefined
-                              ? "danger"
+                              schoolName === "Cal Poly Humboldt" && !schoolColorToggled ?
+                              "primary"
                               : "medium"
-                          }
-                          onClick={() => {
-                            setDislikeAnimationComments(comment.key);
-                            setDisabledLikeButtonsComments(index);
-                            handleDownVoteComment(comment.key, index);
-                          }}
-                        >
-                          <KeyboardArrowDownIcon />
-                          <p>{Object.keys(comment.dislikes).length - 1} </p>
-                        </IonButton>
-                        {user && user.uid === comment.uid ? (
-                          <IonFab horizontal="end">
-                            <IonButton
-                              mode="ios"
-                              fill="outline"
-                              color="danger"
-                              onClick={() => { deleteComment(index, comment.url); }}
-                            >
-                              <DeleteIcon />
-                            </IonButton>
-                          </IonFab>
-                        ) : null}
-                      </IonItem>
-                    </IonList>
-                  ))
-                  : null}
-                {kbHeight !== 0 || kbHeight > 0 ?
-                  <>
-                    <IonItem lines="none" mode="ios" disabled>
+                        }
+                        onClick={() => {
+                          setLikeAnimationComments(comment.key);
+                          setDisabledLikeButtonsComments(index);
+                          handleUpVoteComment(comment.key, index);
+                        }}
+                      >
+                        <KeyboardArrowUpIcon />
+                        <p>{Object.keys(comment.likes).length - 1} </p>
+                      </IonButton>
+                      <IonButton
+                        mode="ios"
+                        fill="outline"
+                        disabled={
+                          disabledLikeButtonsComments === index || deleted || Object.keys(comment.dislikes).length - 1 === -1
+                        }
+                        onAnimationEnd={() => {
+                          setDislikeAnimationComments(-1);
+                        }}
+                        className={
+                          dislikeAnimationComments === comment.key ? "likeAnimation" : ""
+                        }
+                        color={
+                          comment &&
+                            user &&
+                            "dislikes" in comment &&
+                            comment.dislikes[user.uid] !==
+                            undefined
+                            ? "danger"
+                            : "medium"
+                        }
+                        onClick={() => {
+                          setDislikeAnimationComments(comment.key);
+                          setDisabledLikeButtonsComments(index);
+                          handleDownVoteComment(comment.key, index);
+                        }}
+                      >
+                        <KeyboardArrowDownIcon />
+                        <p>{Object.keys(comment.dislikes).length - 1} </p>
+                      </IonButton>
+                      {user && user.uid === comment.uid ? (
+                        <IonFab horizontal="end">
+                          <IonButton
+                            mode="ios"
+                            fill="outline"
+                            color="danger"
+                            onClick={() => { deleteComment(index, comment.url); }}
+                          >
+                            <DeleteIcon />
+                          </IonButton>
+                        </IonFab>
+                      ) : null}
                     </IonItem>
-                    <IonItem lines="none" mode="ios" disabled>
-                    </IonItem>
-                    <IonItem lines="none" mode="ios" disabled>
-                    </IonItem>
-                    <IonItem lines="none" mode="ios" disabled>
-                    </IonItem>
-                  </>
-                  :
-                  null}
+                  </IonList>
+                ))
+                : null}
+              {kbHeight !== 0 || kbHeight > 0 ?
+                <>
+                  <IonItem lines="none" mode="ios" disabled>
+                  </IonItem>
+                  <IonItem lines="none" mode="ios" disabled>
+                  </IonItem>
+                  <IonItem lines="none" mode="ios" disabled>
+                  </IonItem>
+                  <IonItem lines="none" mode="ios" disabled>
+                  </IonItem>
+                </>
+                :
+                null}
               {/* </div> */}
             </FadeIn>
           )}
