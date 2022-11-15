@@ -451,7 +451,7 @@ export const getClassPostsDb = async (className, schoolName) => {
   try {
     if (auth && db) {
       const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(50))));
+      const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(125))));
       const qSnapshot = await getDocs(q);
       let classPosts = [];
       const docs = qSnapshot.docs;
@@ -638,7 +638,7 @@ export const getUserPosts = async (schoolName, uid) => {
   try {
     if (db) {
       const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(10));
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(1));
       const qSnap = await getDocs(q);
       let userPosts = [];
       let lastKey = "";
@@ -1612,7 +1612,7 @@ export const loadCommentsNewNextBatch = async (postKey, schoolName, key) => {
         postKey,
         "comments"
       );
-      const q = query(commentsRef, orderBy("timestamp", "asc"), startAfter(key), limit(20));
+      const q = query(commentsRef, orderBy("timestamp", "asc"), startAfter(key), limit(10));
       const querySnapshot = await getDocs(q);
       let comments = [];
       let lastKey = "";

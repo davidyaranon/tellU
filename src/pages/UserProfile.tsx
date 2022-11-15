@@ -44,6 +44,8 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import { useToast } from "@agney/ir-toast";
 import { getColor, timeout } from '../components/functions';
+import { Virtuoso } from "react-virtuoso";
+import PostImages from "./PostImages";
 
 interface MatchParams {
   uid: string;
@@ -74,6 +76,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [userInstagram, setUserInstagram] = useState<string>("");
   const [spotifyUri, setSpotifyUri] = useState<string>("");
   const [iFrameLoader, setIframeLoader] = useState<boolean>(false);
+  const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
   const Toast = useToast();
   const router = useIonRouter();
   const db = getDatabase();
@@ -163,7 +166,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     return '';
   };
 
-  const fetchMorePosts = (event: any) => {
+  const fetchMorePosts = () => {
+    console.log("fetching more posts");
     if (lastKey) {
       getNextBatchUserPosts(schoolName, uid, lastKey)
         .then(async (res: any) => {
@@ -181,7 +185,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             }
           }
           setUserPosts(userPosts.concat(res.userPosts));
-          event.target.complete();
+          // event.target.complete();
           if (res.userPosts.length == 0) {
             setNoMorePosts(true);
           }
@@ -274,70 +278,10 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     }
   }, [user, uid, schoolName, match.params.uid]);
 
-  // if (!noPostsYet) {
-  return (
-    <IonPage>
-      <IonContent>
-        <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios" >
-            <IonButtons style={{ marginLeft: "-2.5%" }}>
-              <IonButton
-                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                mode="ios"
-                onClick={() => {
-                  navigateBack();
-                }}
-              >
-                <IonIcon icon={chevronBackOutline}></IonIcon> Back
-              </IonButton>
-            </IonButtons>
-            <IonButtons slot="end">
-              {/* <div> */}
-              <span id='trigger-popover'>
-                {uid !== user?.uid &&
-                  <IonButton
-                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                    slot="end"
-                    mode="ios"
-                    onClick={() => {
-                      let elements : any[] = [];
-                      if(user && user.uid && uid){
-                        if(user.uid < uid) {
-                          elements.push(uid);
-                          elements.push(user.uid);
-                        } else {
-                          elements.push(user.uid);
-                          elements.push(uid);
-                        }
-                      } else {
-                        Toast.error("Unable to open DMs");
-                      }  
-                      dynamicNavigate("/chatroom/" + elements[0] + '_' + elements[1], 'forward')
-                    }}
-                  >
-                    <IonIcon icon={chatbubbleOutline} />
-                  </IonButton>
-                }
-              </span>
-
-              {/* </div> */}
-              <IonButton
-                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                disabled
-                slot="end"
-                mode="ios"
-                onClick={() => {
-                  sharePost();
-                }}
-              >
-                <IonIcon icon={shareOutline} />
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </div>
-
-
-        <br></br><br></br>
+  const Header = () => {
+    return (
+      <>
+        <br /> <br />
         <FadeIn>
           <IonCard mode="ios">
             <IonCardContent>
@@ -370,7 +314,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                   </IonFab>
                 </div>
               ) : (
-                <FadeIn>
+                <>
                   <div>
                     <IonRow class="ion-justify-content-start">
                       <IonCol size="4">
@@ -483,7 +427,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                       </FadeIn>
                     }
                   </div>
-                </FadeIn>
+                </>
               )}
 
 
@@ -497,631 +441,306 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
               </div>
             </FadeIn>
           }
-
-
         </FadeIn>
+      </>
+    );
+  }
 
+  const Footer = () => {
+    if (!busy && userPosts && userPosts.length > 0) {
+      return (
+        <div
+          style={{
+            padding: '2rem',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          {!noMorePosts ? "Loading..." : ""}
+        </div>
+      )
+    }
+    return <></>
+  }
 
-        <br />
+  return (
+    <IonPage>
+      <IonContent fullscreen scrollY={false}>
+        <div slot="fixed" style={{ width: "100%" }}>
+          <IonToolbar mode="ios" >
+            <IonButtons style={{ marginLeft: "-2.5%" }}>
+              <IonButton
+                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                mode="ios"
+                onClick={() => {
+                  navigateBack();
+                }}
+              >
+                <IonIcon icon={chevronBackOutline}></IonIcon> Back
+              </IonButton>
+            </IonButtons>
+            <IonButtons slot="end">
+              {/* <div> */}
+              <span id='trigger-popover'>
+                {uid !== user?.uid &&
+                  <IonButton
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                    slot="end"
+                    mode="ios"
+                    onClick={() => {
+                      let elements: any[] = [];
+                      if (user && user.uid && uid) {
+                        if (user.uid < uid) {
+                          elements.push(uid);
+                          elements.push(user.uid);
+                        } else {
+                          elements.push(user.uid);
+                          elements.push(uid);
+                        }
+                      } else {
+                        Toast.error("Unable to open DMs");
+                      }
+                      dynamicNavigate("/chatroom/" + elements[0] + '_' + elements[1], 'forward')
+                    }}
+                  >
+                    <IonIcon icon={chatbubbleOutline} />
+                  </IonButton>
+                }
+              </span>
 
-        <div>
-          <>
-            {userPosts && userPosts.length > 0
-              ? userPosts.map((post: any, index: number) => {
-                if (busy) {
-                  return (
-                    <FadeIn key={post.key}>
-                      <IonList inset={true} mode="ios">
-                        <IonItem lines="none" mode="ios">
-                          <IonLabel>
-                            <IonFab horizontal="end">
-                              <IonSkeletonText
-                                animated
-                                style={{
-                                  fontSize: "0.75em",
-                                  width: "30vw",
-                                }}
-                              />
-                            </IonFab>
-                            <IonFab horizontal="start" style={{ marginLeft: '-1.5%' }}>
-                              <p
-                                style={{
-                                  fontWeight: "bold",
-                                  color: getColor(post.postType),
-                                }}
-                              >
-                                <IonSkeletonText
-                                  style={{
-                                    width: "30vw",
-                                    height: "1.75em",
-                                  }}
-                                  animated
-                                />
-                              </p>
-                            </IonFab>
-                            <br></br>
-                            <h3
-                              className="h2-message"
+              {/* </div> */}
+              <IonButton
+                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                disabled
+                slot="end"
+                mode="ios"
+                onClick={() => {
+                  sharePost();
+                }}
+              >
+                <IonIcon icon={shareOutline} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </div>
+
+        <Virtuoso
+          overscan={2000}
+          endReached={fetchMorePosts}
+          className="ion-content-scroll-host"
+          data={userPosts}
+          style={{ height: "100%" }}
+          itemContent={(item: number) => {
+            let post = userPosts[item];
+            let index = item;
+            if (busy) {
+              return (
+                <FadeIn key={post.key}>
+                  <IonList inset={true} mode="ios">
+                    <IonItem lines="none" mode="ios">
+                      <IonLabel>
+                        <IonFab horizontal="end">
+                          <IonSkeletonText
+                            animated
+                            style={{
+                              fontSize: "0.75em",
+                              width: "30vw",
+                            }}
+                          />
+                        </IonFab>
+                        <IonFab horizontal="start" style={{ marginLeft: '-1.5%' }}>
+                          <p
+                            style={{
+                              fontWeight: "bold",
+                              color: getColor(post.postType),
+                            }}
+                          >
+                            <IonSkeletonText
                               style={{
-                                marginLeft: "1.5%",
-                                marginTop: "5%",
+                                width: "30vw",
+                                height: "1.75em",
+                              }}
+                              animated
+                            />
+                          </p>
+                        </IonFab>
+                        <br></br>
+                        <h3
+                          className="h2-message"
+                          style={{
+                            marginLeft: "1.5%",
+                            marginTop: "5%",
+                          }}
+                        >
+                          {" "}
+                          <IonSkeletonText animated />{" "}
+                          {" "}
+                          <IonSkeletonText animated />{" "}
+                          {" "}
+                          <IonSkeletonText animated />{" "}
+                        </h3>
+
+                        {post.imgSrc && post.imgSrc.length > 0 ? (
+                          <div>
+                            <br></br>
+                            <br></br>
+                            <IonSkeletonText
+                              style={{ height: "50vw" }}
+                              animated
+                            />
+                          </div>
+                        ) : null}
+                      </IonLabel>
+                    </IonItem>
+                  </IonList>
+                </FadeIn>
+              );
+            }
+            return (
+              <>
+                <FadeIn key={post.key}>
+                  <IonList inset={true} mode="ios">
+                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward'); }}>
+                      <IonLabel>
+                        <IonFab horizontal="end">
+                          <IonNote style={{ fontSize: "0.75em" }}>
+                            {" "}
+                            {getDate(post.timestamp)}{" "}
+                          </IonNote>
+                        </IonFab>
+                        <IonFab horizontal="start" style={{ marginLeft: '-1%' }}>
+                          {post.postType != "general" ? (
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                color: getColor(post.postType),
                               }}
                             >
-                              {" "}
-                              <IonSkeletonText animated />{" "}
-                              {" "}
-                              <IonSkeletonText animated />{" "}
-                              {" "}
-                              <IonSkeletonText animated />{" "}
-                            </h3>
-
-                            {post.imgSrc && post.imgSrc.length > 0 ? (
-                              <div>
-                                <br></br>
-                                <br></br>
-                                <IonSkeletonText
-                                  style={{ height: "50vw" }}
-                                  animated
-                                />
-                              </div>
-                            ) : null}
-                          </IonLabel>
-                        </IonItem>
-                      </IonList>
-                    </FadeIn>
-                  );
-                }
-                return (
-                  <FadeIn key={post.key}>
-                    <IonList inset={true} mode="ios">
-                      <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward'); }}>
-                        <IonLabel>
-                          <IonFab horizontal="end">
-                            <IonNote style={{ fontSize: "0.75em" }}>
-                              {" "}
-                              {getDate(post.timestamp)}{" "}
-                            </IonNote>
-                          </IonFab>
-                          <IonFab horizontal="start" style={{ marginLeft: '-1%' }}>
-                            {post.postType != "general" ? (
-                              <p
-                                style={{
-                                  fontWeight: "bold",
-                                  color: getColor(post.postType),
-                                }}
-                              >
-                                {post.postType.toUpperCase()}
-                                &nbsp;
-                                {post.marker ? (
-                                  <RoomIcon
-                                    style={{ fontSize: "1em" }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      localStorage.setItem("lat", (post.location[0].toString()));
-                                      localStorage.setItem("long", (post.location[1].toString()));
-                                      dynamicNavigate("maps", 'forward');
-                                    }}
-                                  />
-                                ) : null}
-                              </p>
-                            ) : null}
-                          </IonFab>
-                          <br></br>
-                          {"className" in post && "classNumber" in post && post.className.length > 0 ?
-                            <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.25%", marginTop: "5%" }}>
-                              {post.message} <IonNote onClick={(e) => {
-                                e.stopPropagation();
-                                dynamicNavigate("class/" + post.className, 'forward');
-                              }} color="medium" style={{ fontWeight: "400" }}> &nbsp; — {post.className}{post.classNumber}</IonNote>
-                            </Linkify>
-                            :
-                            <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.25%", marginTop: "5%" }}>
-                              {post.message}
-                            </Linkify>
-                          }
-
-                          {"imgSrc" in post && post.imgSrc &&
-                            post.imgSrc.length == 1 &&
-                            <>
-                              <div style={{ height: "0.75vh" }}>{" "}</div>
-                              <div
-                                className="ion-img-container"
-                                style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const img: CapacitorImage = {
-                                    url: post.imgSrc[0],
-                                    title: `${post.userName}'s post`
-                                  };
-                                  CapacitorPhotoViewer.show({
-                                    images: [img],
-                                    mode: 'one',
-                                    options: {
-                                      title: true
-                                    }
-                                  }).catch((err) => {
-                                    Toast.error('Unable to open image on web version');
-                                  });
-                                }}
-                              >
-                              </div>
-                            </>
-                          }
-                          {"imgSrc" in post && post.imgSrc &&
-                            post.imgSrc.length == 2 ? (
-                            <>
-                              <div style={{ height: "0.75vh" }}>{" "}</div>
-                              <IonRow>
-                                <IonCol>
-                                  <div
-                                    className="ion-img-container"
-                                    style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const img: CapacitorImage[] = [
-                                        {
-                                          url: post.imgSrc[0],
-                                          title: `${post.userName}'s post`
-                                        },
-                                        {
-                                          url: post.imgSrc[1],
-                                          title: `${post.userName}'s post`
-                                        },
-                                      ]
-                                      CapacitorPhotoViewer.show({
-                                        images: img,
-                                        mode: 'gallery',
-                                        options: {
-                                          title: true
-                                        }
-                                      }).catch((err) => {
-                                        Toast.error('Unable to open image on web version');
-                                      });
-                                    }}
-                                  >
-                                  </div>
-                                </IonCol>
-                                <IonCol>
-                                  <div
-                                    className="ion-img-container"
-                                    style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const img: CapacitorImage[] = [
-                                        {
-                                          url: post.imgSrc[0],
-                                          title: `${post.userName}'s post`
-                                        },
-                                        {
-                                          url: post.imgSrc[1],
-                                          title: `${post.userName}'s post`
-                                        },
-                                      ]
-                                      CapacitorPhotoViewer.show({
-                                        images: img,
-                                        mode: 'slider',
-                                        options: {
-                                          title: true
-                                        }
-                                      }).catch((err) => {
-                                        Toast.error('Unable to open image on web version');
-                                      });
-                                    }}
-                                  >
-                                  </div>
-                                </IonCol>
-                              </IonRow>
-                            </>
-                          ) : null}
-                          {"imgSrc" in post && post.imgSrc &&
-                            post.imgSrc.length == 3 ? (
-                            <>
-                              <div style={{ height: "0.75vh" }}>{" "}</div>
-                              <IonRow>
-                                <IonCol>
-                                  <div
-                                    className="ion-img-container"
-                                    style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const img: CapacitorImage[] = [
-                                        {
-                                          url: post.imgSrc[0],
-                                          title: `${post.userName}'s post`
-                                        },
-                                        {
-                                          url: post.imgSrc[1],
-                                          title: `${post.userName}'s post`
-                                        },
-                                        {
-                                          url: post.imgSrc[2],
-                                          title: `${post.userName}'s post`
-                                        },
-                                      ]
-                                      CapacitorPhotoViewer.show({
-                                        images: img,
-                                        mode: 'slider',
-                                        options: {
-                                          title: true
-                                        },
-                                        startFrom: 0
-                                      }).catch((err) => {
-                                        Toast.error('Unable to open image on web version');
-                                      });
-                                    }}
-                                  >
-                                  </div>
-                                </IonCol>
-                                <IonCol>
-                                  <div
-                                    className="ion-img-container"
-                                    style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const img: CapacitorImage[] = [
-                                        {
-                                          url: post.imgSrc[0],
-                                          title: `${post.userName}'s post`
-                                        },
-                                        {
-                                          url: post.imgSrc[1],
-                                          title: `${post.userName}'s post`
-                                        },
-                                        {
-                                          url: post.imgSrc[2],
-                                          title: `${post.userName}'s post`
-                                        },
-                                      ]
-                                      CapacitorPhotoViewer.show({
-                                        images: img,
-                                        mode: 'slider',
-                                        options: {
-                                          title: true
-                                        },
-                                        startFrom: 1,
-                                      }).catch((err) => {
-                                        Toast.error('Unable to open image on web version');
-                                      });
-                                    }}
-                                  >
-                                  </div>
-                                </IonCol>
-                              </IonRow>
-                              <>
-                                <div
-                                  className="ion-img-container"
-                                  style={{ backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '10px' }}
+                              {post.postType.toUpperCase()}
+                              &nbsp;
+                              {post.marker ? (
+                                <RoomIcon
+                                  style={{ fontSize: "1em" }}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    const img: CapacitorImage[] = [
-                                      {
-                                        url: post.imgSrc[0],
-                                        title: `${post.userName}'s post`
-                                      },
-                                      {
-                                        url: post.imgSrc[1],
-                                        title: `${post.userName}'s post`
-                                      },
-                                      {
-                                        url: post.imgSrc[2],
-                                        title: `${post.userName}'s post`
-                                      },
-                                    ]
-                                    CapacitorPhotoViewer.show({
-                                      images: img,
-                                      mode: 'slider',
-                                      options: {
-                                        title: true
-                                      },
-                                      startFrom: 1,
-                                    }).catch((err) => {
-                                      Toast.error('Unable to open image on web version');
-                                    });
+                                    localStorage.setItem("lat", (post.location[0].toString()));
+                                    localStorage.setItem("long", (post.location[1].toString()));
+                                    dynamicNavigate("maps", 'forward');
                                   }}
-                                >
-                                </div>
-                              </>
-                            </>
+                                />
+                              ) : null}
+                            </p>
                           ) : null}
-                        </IonLabel>
-                      </IonItem>
-                      <FadeIn>
-                        <IonItem lines="none" mode="ios">
-                          <IonButton
-                            onAnimationEnd={() => {
-                              setLikeAnimation(-1);
-                            }}
-                            className={
-                              likeAnimation === post.key
-                                ? "likeAnimation"
-                                : ""
-                            }
-                            disabled={disabledLikeButtons === index}
-                            mode="ios"
-                            fill="outline"
-                            color={
-                              userPosts &&
+                        </IonFab>
+                        <br></br>
+                        {"className" in post && "classNumber" in post && post.className.length > 0 ?
+                          <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.25%", marginTop: "5%" }}>
+                            {post.message} <IonNote onClick={(e) => {
+                              e.stopPropagation();
+                              dynamicNavigate("class/" + post.className, 'forward');
+                            }} color="medium" style={{ fontWeight: "400" }}> &nbsp; — {post.className}{post.classNumber}</IonNote>
+                          </Linkify>
+                          :
+                          <Linkify tagName="h3" className="h2-message" style={{ marginLeft: "2.25%", marginTop: "5%" }}>
+                            {post.message}
+                          </Linkify>
+                        }
+
+                        <PostImages isSensitive={sensitiveToggled} post={post} />
+
+                      </IonLabel>
+                    </IonItem>
+                    <FadeIn>
+                      <IonItem lines="none" mode="ios">
+                        <IonButton
+                          onAnimationEnd={() => {
+                            setLikeAnimation(-1);
+                          }}
+                          className={
+                            likeAnimation === post.key
+                              ? "likeAnimation"
+                              : ""
+                          }
+                          disabled={disabledLikeButtons === index}
+                          mode="ios"
+                          fill="outline"
+                          color={
+                            userPosts &&
+                              user &&
+                              userPosts[index].likes[user.uid] !== undefined &&
+                              schoolName !== "Cal Poly Humboldt"
+                              ? "primary"
+                              : userPosts &&
                                 user &&
                                 userPosts[index].likes[user.uid] !== undefined &&
-                                schoolName !== "Cal Poly Humboldt"
-                                ? "primary"
+                                schoolName === "Cal Poly Humboldt" && schoolColorToggled
+                                ? "tertiary"
                                 : userPosts &&
                                   user &&
                                   userPosts[index].likes[user.uid] !== undefined &&
-                                  schoolName === "Cal Poly Humboldt" && schoolColorToggled
-                                  ? "tertiary"
-                                  : userPosts &&
-                                    user &&
-                                    userPosts[index].likes[user.uid] !== undefined &&
-                                    schoolName === "Cal Poly Humboldt" && !schoolColorToggled
-                                    ? "primary"
-                                    : "medium"
-                            }
-                            onClick={() => {
-                              setLikeAnimation(post.key);
-                              setDisabledLikeButtons(index);
-                              handleUpVote(post.key, index, post);
-                            }}
-                          >
-                            <KeyboardArrowUpIcon />
-                            <p>{Object.keys(post.likes).length - 1} </p>
-                          </IonButton>
-                          <p>&nbsp;</p>
-                          <IonButton
-                            mode="ios"
-                            color="medium"
-                            onClick={() => {
-                              // history.push("/userPost/" + post.key);
-                              dynamicNavigate("post/" + post.key, 'forward');
-                            }}
-                          >
-                            <ForumIcon />
-                            <p>&nbsp; {post.commentAmount} </p>
-                          </IonButton>
-                          <IonButton
-                            onAnimationEnd={() => {
-                              setDislikeAnimation(-1);
-                            }}
-                            className={
-                              dislikeAnimation === post.key
-                                ? "likeAnimation"
-                                : ""
-                            }
-                            disabled={disabledLikeButtons === index}
-                            mode="ios"
-                            fill="outline"
-                            color={
-                              userPosts &&
-                                user &&
-                                userPosts[index].dislikes[user.uid] !==
-                                undefined
-                                ? "danger"
-                                : "medium"
-                            }
-                            onClick={() => {
-                              setDislikeAnimation(post.key);
-                              setDisabledLikeButtons(index);
-                              handleDownVote(post.key, index, post);
-                            }}
-                          >
-                            <KeyboardArrowDownIcon />
-                            <p>{Object.keys(post.dislikes).length - 1} </p>
-                          </IonButton>
-                        </IonItem>
-                      </FadeIn>
-                    </IonList>
-                  </FadeIn>
-                );
-              })
-              :
-              null
-            }
-          </>
-          <IonInfiniteScroll
-            onIonInfinite={(e: any) => { fetchMorePosts(e) }}
-            disabled={noMorePosts}
-          >
-            <IonInfiniteScrollContent
-              loadingSpinner="circular"
-              loadingText="Loading"
-            ></IonInfiniteScrollContent>
-          </IonInfiniteScroll>
-        </div>
+                                  schoolName === "Cal Poly Humboldt" && !schoolColorToggled
+                                  ? "primary"
+                                  : "medium"
+                          }
+                          onClick={() => {
+                            setLikeAnimation(post.key);
+                            setDisabledLikeButtons(index);
+                            handleUpVote(post.key, index, post);
+                          }}
+                        >
+                          <KeyboardArrowUpIcon />
+                          <p>{Object.keys(post.likes).length - 1} </p>
+                        </IonButton>
+                        <p>&nbsp;</p>
+                        <IonButton
+                          mode="ios"
+                          color="medium"
+                          onClick={() => {
+                            // history.push("/userPost/" + post.key);
+                            dynamicNavigate("post/" + post.key, 'forward');
+                          }}
+                        >
+                          <ForumIcon />
+                          <p>&nbsp; {post.commentAmount} </p>
+                        </IonButton>
+                        <IonButton
+                          onAnimationEnd={() => {
+                            setDislikeAnimation(-1);
+                          }}
+                          className={
+                            dislikeAnimation === post.key
+                              ? "likeAnimation"
+                              : ""
+                          }
+                          disabled={disabledLikeButtons === index}
+                          mode="ios"
+                          fill="outline"
+                          color={
+                            userPosts &&
+                              user &&
+                              userPosts[index].dislikes[user.uid] !==
+                              undefined
+                              ? "danger"
+                              : "medium"
+                          }
+                          onClick={() => {
+                            setDislikeAnimation(post.key);
+                            setDisabledLikeButtons(index);
+                            handleDownVote(post.key, index, post);
+                          }}
+                        >
+                          <KeyboardArrowDownIcon />
+                          <p>{Object.keys(post.dislikes).length - 1} </p>
+                        </IonButton>
+                      </IonItem>
+                    </FadeIn>
+                  </IonList>
+                </FadeIn>
+              </>
+            );
+          }}
+          components={{ Footer, Header }} />
       </IonContent>
     </IonPage>
-    // );
-    // } else {
-    //   return (
-    //     <IonPage>
-    //       <IonContent>
-    //         <div slot="fixed" style={{ width: "100%" }}>
-    //           <IonToolbar mode="ios" >
-    //             <IonButtons slot="start">
-    //               <IonButton
-    //                 color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-    //                 mode="ios"
-    //                 onClick={() => {
-    //                   navigateBack();
-    //                 }}
-    //               >
-    //                 <IonIcon icon={chevronBackOutline}></IonIcon> Back
-    //               </IonButton>
-    //             </IonButtons>
-    //             <IonButtons slot="end">
-    //               {/* <div> */}
-    //               <span id='trigger-popover'>
-    //                 <IonButton
-    //                   slot="end"
-    //                   mode="ios"
-    //                   disabled={true}
-    //                 >
-    //                   <IonIcon icon={chatbubblesOutline} />
-    //                 </IonButton>
-    //               </span>
-
-    //               {/* </div> */}
-    //               <IonButton
-    //                 disabled
-    //                 slot="end"
-    //                 mode="ios"
-    //                 onClick={() => {
-    //                   sharePost();
-    //                 }}
-    //               >
-    //                 <IonIcon icon={shareOutline} />
-    //               </IonButton>
-    //             </IonButtons>
-    //           </IonToolbar>
-    //         </div>
-    //         <br></br><br></br>
-    //         <FadeIn>
-    //           <IonCard mode="ios">
-    //             <IonCardContent>
-    //               {busy ? (
-    //                 <div>
-    //                   <IonAvatar className="user-avatar">
-    //                     <IonLabel>
-    //                       <IonSkeletonText animated={true} />
-    //                     </IonLabel>
-    //                   </IonAvatar>
-    //                   <IonFab vertical="center">
-    //                     <IonLabel>
-    //                       <IonSkeletonText
-    //                         animated={true}
-    //                         style={{ width: "50vw", height: "1.75em" }}
-    //                       />
-    //                       <IonSkeletonText
-    //                         animated={true}
-    //                         style={{ width: "50vw" }}
-    //                       />
-    //                     </IonLabel>
-    //                   </IonFab>
-    //                 </div>
-    //               ) : (
-    //                 <div>
-    //                   <IonRow class="ion-justify-content-start">
-    //                     <IonCol size="4">
-    //                       <IonAvatar className="user-avatar">
-    //                         <IonImg onClick={() => {
-    //                           const img: CapacitorImage = {
-    //                             url: profilePhoto,
-    //                             title: username
-    //                           };
-    //                           CapacitorPhotoViewer.show({
-    //                             options: {
-    //                               title: true
-    //                             },
-    //                             images: [img],
-    //                             mode: 'one',
-    //                           }).catch((err) => {
-    //                             Toast.error('Unable to open image on web version');
-    //                           });
-    //                           // PhotoViewer.show(profilePhoto, username);
-    //                         }}
-    //                           src={profilePhoto} />
-    //                       </IonAvatar>
-    //                     </IonCol>
-    //                     {userMajor && userMajor.length > 0 ? (
-    //                       <IonCol class="ion-padding-top" size="8">
-    //                         <p style={{ fontSize: "1.5em" }}>{username}</p>
-    //                         <IonNote style={{ fontSize: "1em" }}>
-    //                           {userMajor}
-    //                         </IonNote>
-    //                       </IonCol>
-    //                     ) : <IonCol class="ion-padding-top" size="8">
-    //                       <p className="ion-padding-top" style={{ fontSize: "1.5em" }}> {username}</p>
-    //                     </IonCol>}
-    //                   </IonRow>
-    //                   {userSnapchat && userSnapchat.length > 0 ? (
-    //                     <>
-    //                       <IonCol size="12">
-    //                         <IonText style={{ fontSize: "0.75em" }}>
-    //                           <IonIcon style={{}} icon={logoSnapchat} />
-    //                           {'\u00A0'}
-    //                           {userSnapchat}
-    //                         </IonText>
-    //                       </IonCol>
-    //                     </>
-    //                   ) : null}
-    //                   {userInstagram && userInstagram.length > 0 ? (
-    //                     <>
-    //                       <IonCol size="12">
-    //                         <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram); }} style={{ fontSize: "0.75em" }}>
-    //                           <IonIcon style={{}} icon={logoInstagram} />
-    //                           {'\u00A0'}
-    //                           {userInstagram}
-    //                         </IonText>
-    //                       </IonCol>
-    //                     </>
-    //                   ) : null}
-    //                   {userTiktok && userTiktok.length > 0 ? (
-    //                     <>
-    //                       <IonCol size="12">
-    //                         <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
-    //                           <IonIcon style={{}} icon={logoTiktok} />
-    //                           {'\u00A0'}
-    //                           {userTiktok}
-    //                         </IonText>
-    //                       </IonCol>
-    //                     </>
-    //                   ) : null}
-    //                   {userTiktok && userSnapchat && userInstagram && (userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0) ? (
-    //                     <>
-    //                       <br />
-    //                     </>
-    //                   ) : null}
-    //                   {userBio && userBio.length > 0 ? (
-    //                     <>
-    //                       <br />
-    //                       <IonRow class="ion-justify-content-start">
-    //                         <p style={{ fontSize: "1em", marginLeft: "2%" }}>{userBio}</p>
-    //                       </IonRow>
-    //                     </>
-    //                   ) : null}
-
-    //                   {spotifyUri &&
-    //                     <FadeIn delay={250} transitionDuration={750}>
-    //                       <br />
-    //                       {darkModeToggled ?
-    //                         <iframe
-    //                           id="iframe1"
-    //                           title="darkmode_iframe_spotify"
-    //                           style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
-    //                           className='Music'
-    //                           onLoad={() => { setIframeLoader(false); }}
-    //                           src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
-    //                           seamless={true}
-    //                           loading="eager"
-    //                         >
-    //                         </iframe>
-    //                         :
-    //                         <iframe
-    //                           id="iframetwo"
-    //                           title="lightmode_iframe_spotify"
-    //                           style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#f2f1f1", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { backgroundColor: "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
-    //                           className='Music'
-    //                           onLoad={() => { setIframeLoader(false); }}
-    //                           src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
-    //                           seamless={true}
-    //                           loading="eager"
-    //                         >
-    //                         </iframe>
-    //                       }
-
-    //                     </FadeIn>
-    //                   }
-    //                 </div>
-    //               )}
-    //             </IonCardContent>
-    //           </IonCard>
-    //           <div style={{ textAlign: "center", alignItems: "center" }}>
-    //             <IonLabel>No Posts Yet!</IonLabel>
-    //           </div>
-    //         </FadeIn>
-
-    //       </IonContent>
-    //     </IonPage>
-    //   );
-    // }
   );
 };

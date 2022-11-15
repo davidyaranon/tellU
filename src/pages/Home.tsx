@@ -1965,10 +1965,11 @@ const Home = React.memo(() => {
               <p style={{ textAlign: "center" }}>Wait until previous post has <br />uploaded to post again</p>}
           </IonContent>
         </IonModal>
-        
+
         <IonContent fullscreen scrollY={false}>
           <Virtuoso
             ref={virtuosoRef}
+            overscan={2000}
             endReached={handleLoadPostsNextBatch}
             className="ion-content-scroll-host"
             data={posts}
