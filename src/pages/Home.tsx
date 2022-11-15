@@ -1969,7 +1969,7 @@ const Home = React.memo(() => {
         <IonContent fullscreen scrollY={false}>
           <Virtuoso
             ref={virtuosoRef}
-            overscan={2000}
+            overscan={2500}
             endReached={handleLoadPostsNextBatch}
             className="ion-content-scroll-host"
             data={posts}

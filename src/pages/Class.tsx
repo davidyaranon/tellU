@@ -1084,7 +1084,6 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         <br /> <br />
 
         <Virtuoso
-          overscan={2000}
           className="ion-content-scroll-host"
           data={classPosts}
           style={{ height: "100%" }}

@@ -638,7 +638,7 @@ export const getUserPosts = async (schoolName, uid) => {
   try {
     if (db) {
       const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(1));
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(5));
       const qSnap = await getDocs(q);
       let userPosts = [];
       let lastKey = "";

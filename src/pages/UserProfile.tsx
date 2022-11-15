@@ -46,6 +46,7 @@ import { useToast } from "@agney/ir-toast";
 import { getColor, timeout } from '../components/functions';
 import { Virtuoso } from "react-virtuoso";
 import PostImages from "./PostImages";
+import React from "react";
 
 interface MatchParams {
   uid: string;
@@ -278,7 +279,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     }
   }, [user, uid, schoolName, match.params.uid]);
 
-  const Header = () => {
+  const Header = React.useCallback(() => {
     return (
       <>
         <br /> <br />
@@ -444,7 +445,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
         </FadeIn>
       </>
     );
-  }
+  }, [busy]);
 
   const Footer = () => {
     if (!busy && userPosts && userPosts.length > 0) {
@@ -525,7 +526,6 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
         </div>
 
         <Virtuoso
-          overscan={2000}
           endReached={fetchMorePosts}
           className="ion-content-scroll-host"
           data={userPosts}
