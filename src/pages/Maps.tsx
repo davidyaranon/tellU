@@ -175,7 +175,10 @@ function Maps() {
           filter = "research";
         } else if (filter === "HOUSING") {
           filter = "housing"
-        } else if (filter === "GENERAL") {
+        } else if (filter === "DINING") {
+          filter = "dining"
+        }
+        else if (filter === "GENERAL") {
           filter = filter.toLowerCase();
         } else {
           filter = filter.toLowerCase();
@@ -338,6 +341,7 @@ function Maps() {
               <IonSelectOption value="EVENTS">Events</IonSelectOption>
               <IonSelectOption value="RESEARCH">Research</IonSelectOption>
               <IonSelectOption value="HOUSING">Housing</IonSelectOption>
+              <IonSelectOption value="DINING">Dining</IonSelectOption>
             </IonSelect>
           </div>
           :

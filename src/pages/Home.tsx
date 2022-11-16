@@ -109,6 +109,7 @@ const Home = React.memo(() => {
   const [eventsChecked, setEventsChecked] = useState<boolean>(false);
   const [researchChecked, setResearchChecked] = useState<boolean>(false);
   const [housingChecked, setHousingChecked] = useState<boolean>(false);
+  const [diningChecked, setDiningChecked] = useState<boolean>(false);
   const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
@@ -252,6 +253,7 @@ const Home = React.memo(() => {
         setSightingChecked(false);
         setResearchChecked(false);
         setHousingChecked(false);
+        setDiningChecked(false);
         break;
       case "alert":
         setGeneralChecked(false);
@@ -260,6 +262,7 @@ const Home = React.memo(() => {
         setSightingChecked(false);
         setResearchChecked(false);
         setHousingChecked(false);
+        setDiningChecked(false);
         break;
       case "buySell":
         setAlertChecked(false);
@@ -268,6 +271,7 @@ const Home = React.memo(() => {
         setSightingChecked(false);
         setResearchChecked(false);
         setHousingChecked(false);
+        setDiningChecked(false);
         break;
       case "event":
         setAlertChecked(false);
@@ -276,6 +280,7 @@ const Home = React.memo(() => {
         setSightingChecked(false);
         setResearchChecked(false);
         setHousingChecked(false);
+        setDiningChecked(false);
         break;
       case "sighting":
         setAlertChecked(false);
@@ -284,6 +289,7 @@ const Home = React.memo(() => {
         setGeneralChecked(false);
         setResearchChecked(false);
         setHousingChecked(false);
+        setDiningChecked(false);
         break;
       case "research":
         setAlertChecked(false);
@@ -292,6 +298,7 @@ const Home = React.memo(() => {
         setGeneralChecked(false);
         setSightingChecked(false);
         setHousingChecked(false);
+        setDiningChecked(false);
         break;
       case "housing":
         setAlertChecked(false);
@@ -300,6 +307,16 @@ const Home = React.memo(() => {
         setGeneralChecked(false);
         setSightingChecked(false);
         setResearchChecked(false);
+        setDiningChecked(false);
+        break;
+      case "dining":
+        setAlertChecked(false);
+        setBuySellChecked(false);
+        setEventsChecked(false);
+        setGeneralChecked(false);
+        setSightingChecked(false);
+        setResearchChecked(false);
+        setHousingChecked(false);
         break;
       default:
         break;
@@ -442,7 +459,8 @@ const Home = React.memo(() => {
       !sightingChecked &&
       !generalChecked &&
       !researchChecked &&
-      !housingChecked
+      !housingChecked &&
+      !diningChecked
     ) {
       Toast.error("Select a post type");
     } else {
@@ -568,7 +586,7 @@ const Home = React.memo(() => {
       history.replace("/landing-page");
       setProfilePhoto(null);
       setPosts([]);
-      tabs.setShowTabs(true);
+      tabs.setShowTabs(false);
     } else if (schoolName && !profilePhoto) {
       getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL"))
         .then((url: string) => {
@@ -717,6 +735,13 @@ const Home = React.memo(() => {
       </>
     )
   }
+
+  const handleImgLoad = (didLoad: boolean) => {
+    if (didLoad) {
+      console.log("img loaded");
+      virtuosoRef && virtuosoRef.current && virtuosoRef.current.autoscrollToBottom();
+    }
+  };
 
 
   if (posts && posts.length > 0) {
@@ -884,6 +909,19 @@ const Home = React.memo(() => {
                   handleCheckboxChange("housing");
                   setHousingChecked(e.detail.checked);
                   if (e.detail.checked) setCheckboxSelection("housing");
+                }}
+              ></IonCheckbox>
+            </IonItem>
+            <IonItem lines="none" mode="ios">
+              <IonLabel>Dining</IonLabel>
+              <IonCheckbox
+                id="diningCheckbox"
+                checked={diningChecked}
+                slot="start"
+                onIonChange={(e) => {
+                  handleCheckboxChange("dining");
+                  setDiningChecked(e.detail.checked);
+                  if (e.detail.checked) setCheckboxSelection("dining");
                 }}
               ></IonCheckbox>
             </IonItem>
@@ -1955,6 +1993,9 @@ const Home = React.memo(() => {
         <IonContent fullscreen scrollY={false}>
           <Virtuoso
             ref={virtuosoRef}
+            overscan={1000}
+            // increaseViewportBy={{top : 0, bottom: 500}}
+            defaultItemHeight={400}
             endReached={handleLoadPostsNextBatch}
             className="ion-content-scroll-host"
             data={posts}
@@ -2062,7 +2103,7 @@ const Home = React.memo(() => {
                           </Linkify>
                         }
 
-                        <PostImages isSensitive={sensitiveToggled} post={post} />
+                        <PostImages isSensitive={sensitiveToggled} post={post} imgLoad={handleImgLoad} />
 
                       </IonLabel>
                     </IonItem>

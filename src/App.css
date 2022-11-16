@@ -151,6 +151,11 @@ ion-checkbox {
   --border-color-checked: #ffffff;
 }
 
+#diningCheckbox {
+  --background-checked: #1ef8c5;
+  --border-color-checked: #ffffff;
+}
+
 #alert {
   width: 0.5%;
   height: 3.5vh;
@@ -535,6 +540,7 @@ ion-img::part(image) {
   height: 20.5vh;
   -webkit-transform: translate3d(0,0,1px); 
   -webkit-backface-visibility: hidden;
+  image-rendering: pixelated;
 }
 
 .ion-img-container.visible {

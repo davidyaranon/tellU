@@ -101,11 +101,13 @@ const LandingPage: React.FC = () => {
             localStorage.setItem("userSchoolName", school.toString());
             dispatch(setUserState(res.user.displayName, res.user.email, false, school));
             Toast.success("Logged In!");
+            tabs.setShowTabs(true);
           }).catch((err) => {
             console.log(err);
             dispatch(setUserState(res.user.displayName, res.user.email, false, ""));
             setBusy(false);
             setLoggingIn(false);
+            tabs.setShowTabs(true);
           });
         });
         didLogIn.catch((err) => {

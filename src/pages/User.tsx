@@ -1112,7 +1112,10 @@ function User() {
               </IonToolbar>
             </div>
             <IonLoading isOpen={!userDataHasLoaded} spinner="dots" />
-            <br /> <br />
+            <br /> <br /> < br />
+            <div style={{ textAlign: "center" }}>
+              <IonNote style={{ textAlign: "center" }}>Click on your Username in the Settings menu to see your user profile!</IonNote>
+            </div>
             <IonCard mode="ios">
               <IonCardContent>
                 <IonLabel>About</IonLabel>
@@ -2482,7 +2485,7 @@ function User() {
                   {userLikedPosts && userLikedPosts.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
                   ) : (null)}
-                  {userLikedPosts &&
+                  {/* {userLikedPosts &&
                     <IonInfiniteScroll
                       position="bottom"
                       threshold="0%"
@@ -2503,8 +2506,10 @@ function User() {
                     <>
                     <br /> <br /> <br /> <br/>
                     </>
-                  }
+                  } */}
                 </div>
+                <br /> <br /><br /> <br /><br /> <br />
+
               </IonContent>
             </IonCard>
           </SwiperSlide>

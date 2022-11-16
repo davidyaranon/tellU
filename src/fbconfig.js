@@ -472,7 +472,7 @@ export const getYourPolls = async (schoolName, userUid) => {
   try {
     if (auth && db) {
       const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
-      const q = query(pollsRef, where("uid", "==", userUid), orderBy("timestamp", "desc"), limit(25));
+      const q = query(pollsRef, where("uid", "==", userUid), orderBy("timestamp", "desc"), limit(10));
       const querySnapshot = await getDocs(q);
       let yourPolls = [];
       const docs = querySnapshot.docs;
@@ -566,7 +566,7 @@ export const promiseTimeout = function (ms, promise) {
 export const getUserLikedPosts = async (uid) => {
   try {
     const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), limit(4));
+    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), limit(10));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";
@@ -588,7 +588,7 @@ export const getUserLikedPostsNextBatch = async (uid, key) => {
   try {
     console.log("new");
     const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), startAfter(key), limit(1));
+    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), startAfter(key), limit(10));
     const querySnapshot = await getDocs(q);
     let userLikes = [];
     let lastKey = "";
