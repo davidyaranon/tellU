@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -28,7 +28,7 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp, arrowUpCircleOutline, arrowUpOutline } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
@@ -40,6 +40,10 @@ import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@c
 import ProfilePhoto from "./ProfilePhoto";
 import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
 import PostImages from "./PostImages";
+import { Mention, MentionsInput, SuggestionDataItem } from 'react-mentions';
+import mentionInputStyles from "../mentionInputStyles";
+import mentionInputStylesLight from "../mentionInputStylesLight";
+import { useTabsContext } from "../my-context";
 
 interface MatchUserPostParams {
   key: string;
@@ -58,6 +62,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [user] = useAuthState(auth);
   const Toast = useToast();
   const router = useIonRouter();
+  const context = useTabsContext();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
@@ -112,6 +117,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
+  const [taggedUserActivated, setTaggedUserActivated] = useState<boolean>(false);
+
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
     setComment(currComment);
@@ -142,7 +149,42 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       Keyboard.hide();
     } else {
       setPhoto(null);
-      const tempComment = comment;
+      //[tellU🎓](0tellU🎓)
+      const tempComment2 = comment;
+      const tempComment1 = tempComment2.replaceAll('[', '');
+      const tempComment = tempComment1.replaceAll(']', '');
+      console.log({tempComment});
+      console.log({notificationsToken});
+      let containsAt: boolean = false;
+      let attedUser: string = "";
+      let attedUsers = new Map();
+      let attedUsersList : string[] = [];
+      console.log(tempComment2);
+      for (let i = 0; i < tempComment2.length; ++i) {
+        if (tempComment2[i] === '@') {
+          containsAt = true;
+        }
+        if (tempComment2[i] === '[' && containsAt) {
+          let j = i + 1;
+          while (tempComment2[j] !== ']') {
+            attedUser += tempComment2[j++];
+          }
+          attedUsers.set(attedUser, 1);
+          attedUser = "";
+          containsAt = false;
+        }
+      }
+      let commentUsernames : string[] = [];
+      commentUsers.forEach((value, index) => {
+        console.log(value.display);
+        commentUsernames.push(value.display || "");
+      })
+      attedUsers.forEach((value : number, key : string) => {
+        if(commentUsernames.includes(key)){
+          console.log("real @'d user: ", key);
+          attedUsersList.push(key);
+        }
+      });
       setComment("");
       Keyboard.hide();
       // setCommentsLoading(true);
@@ -154,7 +196,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       }
       const hasTimedOut = promiseTimeout(
         10000,
-        addCommentNew(postKey, schoolName, tempComment, blob, uniqueId.toString(), notificationsToken, post.uid, localStorage.getItem("notificationsToken") || "")
+        addCommentNew(postKey, schoolName, tempComment, blob, uniqueId.toString(), notificationsToken, post.uid, localStorage.getItem("notificationsToken") || "", attedUsersList)
       );
       hasTimedOut.then(async (commentSent: any) => {
         if (commentSent) {
@@ -262,13 +304,25 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     return "just now";
   };
 
+  const [commentUsers, setCommentUsers] = useState<SuggestionDataItem[]>([]);
+
   const getPostComments = () => {
     setCommentsLoading(true);
     if (postKey && schoolName) {
       const commentsLoaded = promiseTimeout(7500, loadCommentsNew(postKey, schoolName));
       commentsLoaded.then(async (res) => {
         if (res) {
+          let repeatMap = new Map();
           for (let i = 0; i < res.comments.length; ++i) {
+            let dataItem: SuggestionDataItem = {
+              id: i.toString() + res.comments[i].userName,
+              display: res.comments[i].userName
+            }
+            if (!repeatMap.get(res.comments[i].userName) && auth.currentUser?.displayName !== res.comments[i].userName) {
+              console.log(dataItem);
+              setCommentUsers(curr => [...curr, dataItem]);
+            }
+            repeatMap.set(res.comments[i].userName, 1);
             const data = await getLikes(res.comments[i].key);
             if (data) {
               res.comments[i].likes = data.likes;
@@ -481,10 +535,15 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
+  const changeTaggedString = (id: string | number, display: string) => {
+    return "@" + display;
+  }
+
   useEffect(() => {
     setPost(null);
     setPreviousCommentLoading(false);
     setDeleted(false);
+    context.setShowTabs(true);
     if (user && schoolName) {
       getPost();
       getPostComments();
@@ -610,42 +669,72 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </IonButtons>
           </IonToolbar>
         </div>
-        <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
-          : { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
+        <br /> <br /> <br />
+        <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
+          : { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={darkModeToggled ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
-          <IonTextarea
-            mode="ios"
-            enterkeyhint="send"
-            rows={3}
-            style={photo === null ? { width: "80vw", marginLeft: "2.5vw" }
-              : { width: "69vw", marginLeft: "2.5vw" }}
-            color="secondary"
-            spellcheck={true}
-            maxlength={300}
-            value={comment}
-            disabled={deleted || previousCommentLoading || !post}
-            placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Leave a comment..."}
-            id="commentModal"
-            onKeyDown={e => isEnterPressed(e.key)}
-            // onKeyPress={e => isEnterPressed(e.key)}
-            onIonChange={(e: any) => {
-              handleChangeComment(e);
-            }}
-            className={darkModeToggled ? "text-area-dark" : "text-area-light"}
-          ></IonTextarea>
-          <IonFab vertical="top" horizontal="end">
-            <IonGrid>
-              <IonRow>
+          <IonFab horizontal="end" vertical="top">
+            <IonRow>
+              <IonCol>
                 {photo !== null && photo !== undefined ? (
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
-                <IonFabButton disabled={!showPictureAddButton || previousCommentLoading} onClick={() => { takePicture(); }} color="medium" size="small" mode="ios">
-                  <IonIcon size="small" icon={cameraOutline} />
-                </IonFabButton>
-              </IonRow>
-            </IonGrid>
+              </IonCol>
+              <IonFabButton size="small" color={schoolColorToggled ? "tertiary" : "primary"} onClick={() => { handleCommentSubmit(); }}>
+                <IonIcon icon={arrowUpOutline} color={!darkModeToggled ? "light" : ""} size="small" mode="ios" />
+              </IonFabButton>
+            </IonRow>
+            <IonRow>
+              <IonCol></IonCol>
+              <IonFabButton size="small" color="medium" onClick={() => { takePicture(); }}>
+                <IonIcon icon={cameraOutline} size="small" />
+              </IonFabButton>
+            </IonRow>
           </IonFab>
+          {darkModeToggled ?
+            <MentionsInput
+              disabled={deleted || previousCommentLoading || !post}
+              allowSuggestionsAboveCursor
+              forceSuggestionsAboveCursor
+              ignoreAccents
+              style={mentionInputStyles}
+              maxLength={250}
+              value={comment}
+              placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Leave a comment..."}
+              onChange={(e) => {
+                setComment(e.target.value);
+              }}
+            >
+              <Mention
+                style={schoolColorToggled ? { backgroundColor: "#58c2a2" } : { backgroundColor: "#61dbfb" }}
+                trigger='@'
+                displayTransform={changeTaggedString}
+                markup="@[__display__]"
+                data={commentUsers} />
+            </MentionsInput>
+            :
+            <MentionsInput
+              disabled={deleted || previousCommentLoading || !post}
+              allowSuggestionsAboveCursor
+              forceSuggestionsAboveCursor
+              ignoreAccents
+              style={mentionInputStylesLight}
+              value={comment}
+              placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Leave a comment..."}
+              onChange={(e) => {
+                setComment(e.target.value);
+              }}
+            >
+              <Mention
+                style={schoolColorToggled ? { backgroundColor: "#58c2a2" } : { backgroundColor: "#61dbfb" }}
+                trigger='@'
+                displayTransform={changeTaggedString}
+                markup="@[__display__]"
+                data={commentUsers} />
+            </MentionsInput>
+          }
         </IonFab>
+
         <div className="ion-modal">
           {post ? (
             <FadeIn>
@@ -1124,7 +1213,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </div>
             </FadeIn>
           ) : (null)}
-          <br></br><br></br>
+          <br></br><br></br> <br />
         </div>
       </IonContent>
     </IonPage >

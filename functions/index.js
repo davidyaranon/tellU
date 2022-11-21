@@ -171,7 +171,7 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
     console.log("school articles if check failed");
   }
 
-  if(berkArticles.length > 0) {
+  if (berkArticles.length > 0) {
     admin.firestore().collection('schoolNews').doc('UCBerkeley').update({
       schoolArticles: berkArticles
     }).catch((err) => console.log(err));
@@ -350,12 +350,16 @@ exports.sendDmNotification = functions.https.onCall(async (data, context) => {
 
 exports.sendCommentsNotification = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
+    functions.logger.log("no context");
+    console.log("No context");
     throw new functions.https.HttpsError(
       'unauthenticated',
       'Something went wrong, try logging in again'
     );
   }
-  if (!data.userName || !data.notificationsToken || !data.comment || !data.data.url || !data.icon || !data.posterUid || !data.postKey) {
+  if (!data.userName || !data.comment || !data.data.url || !data.icon || !data.posterUid || !data.postKey) {
+    functions.logger.log("invalid data");
+    console.log("invalid data");
     throw new functions.https.HttpsError(
       'resource-exhausted',
       'Invalid data, try again'
@@ -364,6 +368,46 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
 
   functions.logger.log(data.notificationsToken);
   functions.logger.log(data.userName);
+  console.log(data.userName);
+
+  if ("taggedUsers" in data && data.taggedUsers.length > 0) {
+    for (let i = 0; i < data.taggedUsers.length; ++i) {
+      const taggedUser = data.taggedUsers[i];
+      const userDoc = await app.firestore().collection("userData").where("userName", "==", taggedUser).get();
+      functions.logger.log(taggedUser);
+      functions.logger.log(userDoc);
+      for (let j = 0; j < userDoc.docs.length; ++j) {
+        let commenterNotifToken = userDoc.docs[j].data().notificationsToken;
+        const notifBody = {
+          notification: {
+            title: 'tellU',
+            body: data.userName + ' tagged you in a comment',
+            sound: 'default',
+            data: {
+              url: data.data.url
+            },
+            click_action: 'FCM_PLUGIN_ACTIVITY'
+          },
+          to: commenterNotifToken
+        }
+        await fetch('https://fcm.googleapis.com/fcm/send', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'key=AAAAa1skHNM:APA91bFyQscFwRAN4en0Jkt5IYZ4iwUQC6DhOIPCKNeoQJ7rO5BAEUlH1iB0da18o1Jq0gqfx19e_UrBvSyCTRzY1jjKnPXvAAi5KDYKJFd-e2QsioP4E_uC5XY6flVUnfX0JYhTiEy6',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(notifBody)
+        }).then(() => {
+          functions.logger.log("sent tagged notif to: ", commenterNotifToken, taggedUser);
+        }).catch((err) => {
+          console.log('something went wrong when sending tagged notifs');
+          console.log(err);
+        });
+      }
+    }
+  } else {
+    functions.logger.log("no tagged users");
+  }
 
   const body = {
     notification: {

@@ -96,7 +96,7 @@ function Community() {
   const doRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     setBusy(true);
     if (!user) {
-      history.replace("/landing-page");
+      history.replace("/register");
     } else {
       // Device.getBatteryInfo().then((res) => {
       //   if (res && res.batteryLevel) {
@@ -288,18 +288,22 @@ function Community() {
   useEffect(() => {
     getNewsArticles(schoolName).then((res) => {
       if (res) {
-        res.schoolArticles.sort(function (a: any, b: any) {
-          var keyA = new Date(a.date), keyB = new Date(b.date);
-          if (keyA < keyB) return 1;
-          if (keyA > keyB) return -1;
-          return 0;
-        });
-        res.localArticles.sort(function (a: any, b: any) {
-          var keyA = new Date(a.date), keyB = new Date(b.date);
-          if (keyA < keyB) return 1;
-          if (keyA > keyB) return -1;
-          return 0;
-        });
+        if(res.schoolArticles) {
+          res.schoolArticles.sort(function (a: any, b: any) {
+            var keyA = new Date(a.date), keyB = new Date(b.date);
+            if (keyA < keyB) return 1;
+            if (keyA > keyB) return -1;
+            return 0;
+          });
+        }
+        if(res.localArticles) {
+          res.localArticles.sort(function (a: any, b: any) {
+            var keyA = new Date(a.date), keyB = new Date(b.date);
+            if (keyA < keyB) return 1;
+            if (keyA > keyB) return -1;
+            return 0;
+          });
+        }
         setArticles(res);
       }
     });
@@ -455,14 +459,6 @@ function Community() {
         ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
           <div style={{ textAlign: "center" }}><p>No polls within past week</p></div>
           <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
-
-        {/* <FadeIn>
-          <IonHeader mode='ios'>
-            <div>
-              <img draggable={false} src={darkModeToggled ? tellU_Community_Dark : tellU_Community} alt="tellU Community Logo" />
-            </div>
-          </IonHeader>
-        </FadeIn> */}
 
         {
           !polls ? (

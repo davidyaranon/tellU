@@ -62,6 +62,52 @@ export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNotification');
 export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
 
+export const addPostToAllSchools = async (message, postType) => {
+  try {
+    if (db) {
+      const schools = [
+        "CSU Channel Islands", "CSU Dominguez Hills", "CSU Bakersfield",
+        "CSUN", "Sac State", "Stanislaus State", "Sonoma State", "San Diego State", "Fresno State",
+        "Chico State", "San Jose State", "SF State", "Cal State Long Beach", "Cal State San Bernardino",
+        "Cal Maritime", "CSU Monterey Bay", "Cal Poly Humboldt", "Cal Poly San Luis Obispo", "Cal Poly Pomona",
+        "UC Merced", "UC Berkeley", "UC Davis", "UC Irvine", "UCLA", "UC San Diego", "UC Santa Barbara", "UC Santa Cruz",
+        "UC Riverside", "UCSF"
+      ];
+      for (let i = 0; i < schools.length; ++i) {
+        let docName = schools[i].replace(/\s+/g, "");
+        const docId = await addDoc(collection(db, "schoolPosts", docName, "allPosts"), {
+          timestamp: serverTimestamp(),
+          message: message,
+          userName: "tellU🎓",
+          url: "",
+          uid: auth.currentUser.uid,
+          location: [0, 0],
+          postType: postType,
+          imgSrc: [],
+          marker: false,
+          notificationsToken: "",
+          className: "",
+          classNumber: "",
+          reports: 0,
+        });
+        await set(rtdbRef(database, docId.id), {
+          likes: {
+            'null': true
+          },
+          dislikes: {
+            'null': true
+          },
+          commentAmount: 0,
+        }).catch((err) => {
+          console.log(err);
+        });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const getNewsArticles = async (schoolName) => {
   try {
     if (db) {
@@ -146,6 +192,8 @@ export async function logInWithEmailAndPassword(email, password) {
     console.log(err);
   }
 }
+
+
 
 const updateNotificationsTokenAfterLogout = async (userUid) => {
   if (!userUid || userUid.length <= 0) { return; }
@@ -1309,7 +1357,27 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
   }
 };
 
-export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken) => {
+export const getUserUid = async (userName) => {
+  try {
+    if (db) {
+      const usersRef = collection(db, "userData");
+      const q = query(usersRef, where("userName", "==", userName));
+      const snap = await getDocs(q);
+      for(let i = 0; i < snap.docs.length; ++i) {
+        let userUid = snap.docs[i].id;
+        if(userUid){
+          return userUid.toString();
+        }
+      }
+    } else {
+      return "/home";
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken, attedUsersList) => {
   try {
     if (auth && database && auth.currentUser && db) {
       const uid = auth.currentUser.uid;
@@ -1345,7 +1413,17 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
         commentAmount: rtdbIncrement(1)
       });
 
-
+      console.log({postKey});
+      console.log({posterUid});
+      console.log({userName})
+      console.log({notificationsToken});
+      console.log({commentString});
+      console.log({attedUsersList});
+      if(attedUsersList && attedUsersList.length > 0){
+        for (let i = 0; i < attedUsersList.length; ++i) {
+          console.log(attedUsersList[i]);
+        }
+      }
       if (posterUid != uid) {
         sendCommentsNotification({
           postKey: postKey,
@@ -1353,6 +1431,7 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
           userName: userName,
           notificationsToken: notificationsToken,
           comment: commentString,
+          taggedUsers: attedUsersList,
           data: {
             url: "/post/" + postKey
           },

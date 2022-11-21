@@ -12,7 +12,6 @@ import {
   IonCard, IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal,
   IonToolbar, IonTitle, IonPage, useIonViewDidEnter, useIonRouter, RouterDirection
 } from "@ionic/react";
-import { PushNotifications } from "@capacitor/push-notifications";
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { FCM } from "@capacitor-community/fcm";
 
@@ -286,10 +285,72 @@ const Register: React.FC = () => {
                   setSchoolEmailEnding('ucsb.edu');
                 } else if (e.detail.value == 'UC Santa Cruz') {
                   setSchoolEmailEnding('ucsc.edu');
-                }
+                } else if (e.detail.value == 'Cal Poly Pomona') {
+                  setSchoolEmailEnding('cpp.edu');
+                } else if (e.detail.value == 'Cal Poly San Luis Obispo') {
+                  setSchoolEmailEnding('calpoly.edu');
+                } else if (e.detail.value == "Cal State Fullerton"){
+                  setSchoolEmailEnding('fullerton.edu');
+                } else if (e.detail.value == "Cal State East Bay"){
+                  setSchoolEmailEnding('csueastbay.edu');
+                } else if (e.detail.value == "Cal State LA") {
+                  setSchoolEmailEnding('calstatela.edu');
+                } else if (e.detail.value == "Cal Maritime") {
+                  setSchoolEmailEnding('csum.edu');
+                } else if (e.detail.value == "Cal State San Bernardino") {
+                  setSchoolEmailEnding('csusb.edu');
+                } else if (e.detail.value == "Cal State Long Beach") {
+                  setSchoolEmailEnding('csulb.edu');
+                } else if (e.detail.value == "SF State") {
+                  setSchoolEmailEnding('sfsu.edu');
+                } else if (e.detail.value == "San Jose State") {
+                  setSchoolEmailEnding('sjsu.edu');
+                } else if (e.detail.value == "Chico State") {
+                  setSchoolEmailEnding('csuchico.edu');
+                } else if (e.detail.value == "Fresno State") {
+                  setSchoolEmailEnding('csufresno.edu');
+                } else if (e.detail.value == "Stanislaus State") {
+                  setSchoolEmailEnding('csustan.edu');
+                } else if (e.detail.value == "Sac State") {
+                  setSchoolEmailEnding('csus.edu');
+                } else if (e.detail.value == "CSUN") {
+                  setSchoolEmailEnding('csun.edu');
+                } else if (e.detail.value == "CSU Bakersfield") {
+                  setSchoolEmailEnding('csub.edu');
+                } else if (e.detail.value == "CSU Dominguez Hills") {
+                  setSchoolEmailEnding('csudh.edu');
+                } else if (e.detail.value == "CSU Dominguez Hills") {
+                  setSchoolEmailEnding('csudh.edu');
+                } else if (e.detail.value == "CSU Channel Islands") {
+                  setSchoolEmailEnding('csuci.edu');
+                } else if (e.detail.value == "CSU Monterey Bay") {
+                  setSchoolEmailEnding('csumb.edu');
+                } 
+               
               }}
             >
               <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
+              <IonSelectOption value="Cal Poly Pomona">Cal Poly Pomona</IonSelectOption>
+              <IonSelectOption value="Cal Poly San Luis Obispo">Cal Poly San Luis Obispo</IonSelectOption>
+              <IonSelectOption value="Cal State Fullerton">Cal State Fullerton</IonSelectOption>
+              <IonSelectOption value="Cal State East Bay">Cal State East Bay</IonSelectOption>
+              <IonSelectOption value="Cal State LA">Cal State LA</IonSelectOption>
+              <IonSelectOption value="Cal Maritime">Cal Maritime</IonSelectOption>
+              <IonSelectOption value="Cal State San Bernardino">Cal State San Bernardino</IonSelectOption>
+              <IonSelectOption value="Cal State Long Beach">Cal State Long Beach</IonSelectOption>
+              <IonSelectOption value="SF State">SF State</IonSelectOption>
+              <IonSelectOption value="San Jose State">San Jose State</IonSelectOption>
+              <IonSelectOption value="Chico State">Chico State</IonSelectOption>
+              <IonSelectOption value="Fresno State">Fresno State</IonSelectOption>
+              <IonSelectOption value="San Diego State">San Diego State</IonSelectOption>
+              <IonSelectOption value="Sonoma State">Sonoma State</IonSelectOption>
+              <IonSelectOption value="Stanislaus State">Stanislaus State</IonSelectOption>
+              <IonSelectOption value="Sac State">Sac State</IonSelectOption>
+              <IonSelectOption value="CSUN">CSUN</IonSelectOption>
+              <IonSelectOption value="CSU Bakersfield">CSU Bakersfield</IonSelectOption>
+              <IonSelectOption value="CSU Dominguez Hills">CSU Dominguez Hills</IonSelectOption>
+              <IonSelectOption value="CSU Channel Islands">CSU Channel Islands</IonSelectOption>
+              <IonSelectOption value="CSU Monterey Bay">CSU Monterey Bay</IonSelectOption>
               <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
               <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
               <IonSelectOption value="UC Irvine">UC Irvine</IonSelectOption>

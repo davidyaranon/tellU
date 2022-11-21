@@ -1,6 +1,6 @@
 /* React */
 import { Route, Redirect } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   IonApp,
   IonTabs,
@@ -11,6 +11,7 @@ import {
   IonTabButton,
   IonBadge,
   useIonToast,
+  isPlatform,
   // IonBadge,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
@@ -50,7 +51,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import MapIcon from "@mui/icons-material/Map";
-import { db, getCurrentUser, promiseTimeout } from "./fbconfig";
+import auth, { db, getCurrentUser, promiseTimeout } from "./fbconfig";
 import { doc, getDoc } from "firebase/firestore";
 import { setNotif, setSchoolColorPallete, setSensitiveContent, setUserState } from "./redux/actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -72,6 +73,7 @@ import ChatRoom from "./pages/ChatRoom";
 import DirectMessages from "./pages/DirectMessages";
 // import School from "./pages/School";
 import Posttypes from "./pages/Posttypes";
+import { Capacitor } from "@capacitor/core";
 
 setupIonicReact({
   swipeBackEnabled: false
@@ -283,6 +285,24 @@ const App: React.FunctionComponent = () => {
       }
     }
   };
+
+  const onDeviceReady = useCallback(() => {
+    console.log("device ready")
+    auth.onAuthStateChanged((user) => {
+      if(user) {
+        console.log("user reloading");
+        user.reload();
+      }
+    })
+  }, []);
+
+  useEffect(() => {
+    console.log("HI")
+    document.addEventListener("deviceready", onDeviceReady);
+    return () => {
+      document.removeEventListener("deviceready", onDeviceReady);
+    }
+  }, [])
 
   useEffect(() => {
     PushNotifications.getDeliveredNotifications().then((notifs) => {

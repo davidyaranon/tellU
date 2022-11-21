@@ -19,59 +19,10 @@ import { collection, query, where, getDocs, orderBy, limit } from "firebase/fire
 /* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
-import { getColor } from "../components/functions";
+import { getColor, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../components/functions";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
-
-
-const zoomControlButtonsStyleDark = {
-  width: "50px",
-  height: '50px',
-  borderRadius: '7.5px',
-  boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
-  background: '#2f2f2f',
-  lineHeight: '26px',
-  fontSize: '25PX',
-  fontWeight: '700',
-  color: 'WHITE',
-  cursor: 'pointer',
-  border: 'none',
-  display: 'block',
-  outline: 'none',
-  textIndent: '-7.5px',
-}
-
-const zoomControlButtonsStyle = {
-  width: "50px",
-  height: '50px',
-  borderRadius: '7.5px',
-  boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
-  background: 'white',
-  lineHeight: '26px',
-  fontSize: '25PX',
-  fontWeight: '700',
-  color: 'BLACK',
-  cursor: 'pointer',
-  border: 'none',
-  display: 'block',
-  outline: 'none',
-  textIndent: '-7.5px',
-}; // +/- buttons that appear on map can be styled here
-
-const schoolInfo = {
-  "Cal Poly Humboldt": [40.875130691835615, -124.07857275064532, 15.74],
-  "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
-  "UC Davis": [38.53906813693881, -121.7519863294826, 15],
-  "UC Irvine": [33.642798513829284, -117.83657521816043, 14.5],
-  "UCLA": [34.068060230062784, -118.4450963024167, 15.5],
-  "UC Merced": [37.362385, -120.427911, 15],
-  "UC Riverside": [33.972975051337265, -117.32790083366463, 16],
-  "UC San Diego": [32.8791284369769, -117.2368054903461, 15],
-  "UCSF": [37.76894651194302, -122.42952641954717, 13],
-  "UC Santa Barbara": [34.41302723872466, -119.84749752183016, 15],
-  "UC Santa Cruz": [36.994178678923895, -122.05892788857311, 15],
-  "": [37.250458, -120.350249, 6],
-}; // school latitude, longitude, and zoom level
+import { useTabsContext } from "../my-context";
 
 
 function Maps() {
@@ -81,6 +32,7 @@ function Maps() {
   const schoolName = useSelector((state: any) => state.user.school);
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const tabsContext = useTabsContext();
 
   // state variables
   const [user, loading, error] = useAuthState(auth);
@@ -258,6 +210,7 @@ function Maps() {
     if (!user) {
       history.replace("/landing-page");
     } else {
+      tabsContext.setShowTabs(true);
       let lat: string = localStorage.getItem("lat") || "";
       let long: string = localStorage.getItem("long") || "";
       if (lat !== "" && long !== "") {
