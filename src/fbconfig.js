@@ -1387,6 +1387,46 @@ export const getUserUid = async (userName) => {
   }
 }
 
+export const addCommentToPoll = async (postKey, schoolName, commentString, notificationsToken, posterUid) => {
+  try {
+    if (auth && database && auth.currentUser && db) {
+      const uid = auth.currentUser.uid;
+      const userName = auth.currentUser.displayName;
+      const commentsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
+        "polls", postKey, "comments");
+      const addedDoc = await addDoc(commentsRef, {
+        comment: commentString,
+        userName: userName,
+        uid: uid,
+        timestamp: serverTimestamp(),
+      });
+      await set(rtdbRef(database, addedDoc.id), {
+        likes: {
+          'null': true
+        },
+        dislikes: {
+          'null': true
+        },
+      });
+      if (posterUid != uid) {
+        // sendPollNotification({
+        //   postKey: postKey,
+        //   posterUid: posterUid,
+        //   userName: userName,
+        //   notificationsToken: notificationsToken,
+        //   comment: commentString,
+        //   data: {
+        //     url: "/community"
+        //   },
+        //   icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
+        // });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken, attedUsersList) => {
   try {
     if (auth && database && auth.currentUser && db) {

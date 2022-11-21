@@ -69,19 +69,27 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   const handlePhotoUrls = useCallback(async () => {
     if (messages && messages.length > 0) {
       let urls: string[] = [];
+      console.log("running loop");
       for (let i = 0; i < messages.length; ++i) {
         const photoUrl = await getUserPhotoUrl(messages[i].contactUid);
         urls.push(photoUrl);
       }
       setContactPhotoUrls([...urls]);
+    } else {
+      console.log("messages null");
+      console.log({messages});
+      setContactPhotoUrls([]);
     }
-  }, []);
+  }, [messages]);
 
   useEffect(() => {
-    if (messages && messages.length > 0) {
+    console.log({loading})
+    console.log({messages})
+    if (!loading && messages && messages.length > 0) {
+      console.log("running");
       handlePhotoUrls().catch((err) => { console.log(err); })
     }
-  }, [messages])
+  }, [loading, messages])
 
   return (
     <IonPage>
@@ -122,9 +130,8 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
           }
           <FadeIn>
             {
-              messages && messages.length > 0 && contactPhotoUrls &&
+              messages && messages.length > 0 &&
               messages.map((msg: any, index: number) => {
-                console.log(msg)
                 return (
                   <div className="chat" key={msg.contactUid + '-' + index.toString()} onClick={() => {
                     let elements: any[] = [];
