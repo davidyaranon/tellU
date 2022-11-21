@@ -381,7 +381,7 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
         const notifBody = {
           notification: {
             title: 'tellU',
-            body: data.userName + ' tagged you in a comment',
+            body: data.userName + ' tagged you in a reply',
             sound: 'default',
             data: {
               url: data.data.url

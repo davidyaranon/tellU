@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -15,7 +15,7 @@ import RoomIcon from '@mui/icons-material/Room';
 import {
   IonAvatar, IonButton, IonButtons, IonCard,
   IonCardContent, IonCol, IonContent, IonFab,
-  IonFabButton, IonGrid, IonIcon,
+  IonFabButton, IonIcon,
   IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
   IonItem, IonLabel, IonList, IonLoading, IonModal,
   IonNote, IonPage, IonRow, IonSkeletonText,
@@ -28,7 +28,7 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp, arrowUpCircleOutline, arrowUpOutline } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp, arrowUpCircleOutline, arrowUpOutline, banOutline } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
@@ -85,7 +85,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const contentRef = useRef<HTMLIonContentElement | null>(null);
   const [blob, setBlob] = useState<any | null>(null);
   const [photo, setPhoto] = useState<Photo | null>(null);
-  const [showPictureAddButton, setShowPictureAddButton] = useState<boolean>(true);
   const [kbHeight, setKbHeight] = useState<number>(0);
   const [previousCommentLoading, setPreviousCommentLoading] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
@@ -153,12 +152,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       const tempComment2 = comment;
       const tempComment1 = tempComment2.replaceAll('[', '');
       const tempComment = tempComment1.replaceAll(']', '');
-      console.log({tempComment});
-      console.log({notificationsToken});
+      console.log({ tempComment });
+      console.log({ notificationsToken });
       let containsAt: boolean = false;
       let attedUser: string = "";
       let attedUsers = new Map();
-      let attedUsersList : string[] = [];
+      let attedUsersList: string[] = [];
       console.log(tempComment2);
       for (let i = 0; i < tempComment2.length; ++i) {
         if (tempComment2[i] === '@') {
@@ -174,13 +173,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           containsAt = false;
         }
       }
-      let commentUsernames : string[] = [];
+      let commentUsernames: string[] = [];
       commentUsers.forEach((value, index) => {
         console.log(value.display);
         commentUsernames.push(value.display || "");
       })
-      attedUsers.forEach((value : number, key : string) => {
-        if(commentUsernames.includes(key)){
+      attedUsers.forEach((value: number, key: string) => {
+        if (commentUsernames.includes(key)) {
           console.log("real @'d user: ", key);
           attedUsersList.push(key);
         }
@@ -248,7 +247,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           Toast.error("Post has been deleted");
           setPost(null);
           setDeleted(true);
-          setShowPictureAddButton(false);
         }
       });
       onePost.catch((err) => {
@@ -669,7 +667,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </IonButtons>
           </IonToolbar>
         </div>
-        <br /> <br /> <br />
         <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
           : { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={darkModeToggled ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
@@ -680,15 +677,21 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
               </IonCol>
-              <IonFabButton size="small" color={schoolColorToggled ? "tertiary" : "primary"} onClick={() => { handleCommentSubmit(); }}>
+              <IonFabButton disabled={deleted || previousCommentLoading || !post} size="small" color={schoolColorToggled ? "tertiary" : "primary"} onClick={() => { handleCommentSubmit(); }}>
                 <IonIcon icon={arrowUpOutline} color={!darkModeToggled ? "light" : ""} size="small" mode="ios" />
               </IonFabButton>
             </IonRow>
             <IonRow>
               <IonCol></IonCol>
-              <IonFabButton size="small" color="medium" onClick={() => { takePicture(); }}>
-                <IonIcon icon={cameraOutline} size="small" />
-              </IonFabButton>
+              {!photo ?
+                <IonFabButton disabled={deleted || previousCommentLoading || !post} size="small" color="medium" onClick={() => { takePicture(); }}>
+                  <IonIcon icon={cameraOutline} size="small" />
+                </IonFabButton>
+                :
+                <IonFabButton disabled={deleted || previousCommentLoading || !post} onClick={() => { setPhoto(null); setBlob(null) }} color="medium" size="small">
+                  <IonIcon size="small" icon={banOutline} />
+                </IonFabButton>
+              }
             </IonRow>
           </IonFab>
           {darkModeToggled ?
@@ -700,7 +703,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               style={mentionInputStyles}
               maxLength={250}
               value={comment}
-              placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Leave a comment..."}
+              placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Use @ to reply to a comment..."}
               onChange={(e) => {
                 setComment(e.target.value);
               }}
@@ -719,8 +722,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               forceSuggestionsAboveCursor
               ignoreAccents
               style={mentionInputStylesLight}
+              maxLength={250}
               value={comment}
-              placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Leave a comment..."}
+              placeholder={previousCommentLoading || deleted || !post ? "Please wait..." : "Use @ to reply to a comment..."}
               onChange={(e) => {
                 setComment(e.target.value);
               }}

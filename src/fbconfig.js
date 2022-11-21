@@ -1229,6 +1229,16 @@ export const sendDm = async (chatroomString, notificationsToken, message, contac
   }
 };
 
+export const getUserPhotoUrl = async (userUid) => {
+  try {
+    const url = await getDownloadURL(ref(storage, "profilePictures/" + userUid + "photoURL"));
+    return url;
+  } catch(err) {
+    console.log(err);
+    return "";
+  }
+}
+
 export const updateDmList = async (message, contactUid, contactUserName) => {
 
   if (auth && db) {

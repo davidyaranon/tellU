@@ -1,7 +1,7 @@
 import { RouteComponentProps } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth from '../fbconfig';
+import auth, { getUserPhotoUrl } from '../fbconfig';
 import { db } from "../fbconfig";
 import { collection, limit, orderBy, query } from "firebase/firestore";
 import { useToast } from "@agney/ir-toast";
@@ -16,6 +16,7 @@ import TimeAgo from "javascript-time-ago";
 import { chevronBackOutline } from "ionicons/icons";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { setNotif } from "../redux/actions";
+import { useCallback, useEffect, useState } from "react";
 
 interface MatchUserPostParams {
   directMessageId: string;
@@ -30,6 +31,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   const messagesRef = collection(db, 'userData', user?.uid || "", 'messages');
   const q = query(messagesRef, orderBy("date", "desc"), limit(100));
   const [messages, loading] = useCollectionData(q);
+  const [contactPhotoUrls, setContactPhotoUrls] = useState<string[]>([]);
   const timeAgo = new TimeAgo("en-US");
   const Toast = useToast();
   const dispatch = useDispatch();
@@ -63,6 +65,23 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   useIonViewWillEnter(() => {
     dispatch(setNotif(false));
   })
+
+  const handlePhotoUrls = useCallback(async () => {
+    if (messages && messages.length > 0) {
+      let urls: string[] = [];
+      for (let i = 0; i < messages.length; ++i) {
+        const photoUrl = await getUserPhotoUrl(messages[i].contactUid);
+        urls.push(photoUrl);
+      }
+      setContactPhotoUrls([...urls]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      handlePhotoUrls().catch((err) => { console.log(err); })
+    }
+  }, [messages])
 
   return (
     <IonPage>
@@ -103,8 +122,9 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
           }
           <FadeIn>
             {
-              messages && messages.length > 0 &&
+              messages && messages.length > 0 && contactPhotoUrls &&
               messages.map((msg: any, index: number) => {
+                console.log(msg)
                 return (
                   <div className="chat" key={msg.contactUid + '-' + index.toString()} onClick={() => {
                     let elements: any[] = [];
@@ -124,13 +144,13 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                   }
                   }>
                     <IonCol size="2">
-                      <img className="chat_avatar" src={msg.photoURL} />
+                      <img className="chat_avatar" src={!contactPhotoUrls[index] || contactPhotoUrls[index] === "" ? msg.photoURL : contactPhotoUrls[index]} />
                     </IonCol>
                     <IonCol size="7">
                       <div className="chat_info">
                         <div className="contact_name">{msg.userName}</div>
-                        <div className={"read" in msg && msg.read === false ? "contactMsgBold" : "contactMsg"}>{msg.recent.length > 25 ?
-                          msg.recent.slice(0, 25) + "..."
+                        <div className={"read" in msg && msg.read === false ? "contactMsgBold" : "contactMsg"}>{msg.recent.length > 50 ?
+                          msg.recent.slice(0, 50) + "..."
                           : msg.recent.length == 0 ?
                             '[picture]'
                             : msg.recent}
@@ -142,7 +162,6 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                       {"read" in msg && msg.read == false && <div className="chat_new grad_pb">Reply</div>}
                     </IonCol>
                   </div>
-
                 )
               })
             }

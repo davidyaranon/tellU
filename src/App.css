@@ -765,10 +765,12 @@ img.chat_avatar {
 .contactMsg {
   font-weight: 300;
   font-size: 12px;
+  width: 55vw;
 }
 .contactMsgBold {
   font-weight: 450;
   font-size: 12px;
+  width: 55vw;
 }
 
 .contact_msg {

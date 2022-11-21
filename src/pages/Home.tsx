@@ -115,7 +115,6 @@ const Home = React.memo(() => {
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [selectOptions, setSelectOptions] = useState<any>({});
-  const [selectFilterOptions, setFilterSelectOptions] = useState<any>({});
   const [selectOptionsNumber, setSelectOptionsNumber] = useState<any>({});
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
@@ -132,7 +131,6 @@ const Home = React.memo(() => {
   originalLastKeyRef.current = originalLastKey;
   const [showProgressBar, setShowProgressBar] = useState<boolean>(false);
   const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
-  const [scrollPosition, setScrollPosition] = useState<number>(0);
   const [postClassName, setPostClassName] = useState<string>()
   const [postClassNumber, setPostClassNumber] = useState<string>();
   const [noMorePosts, setNoMorePosts] = useState(false);
@@ -556,25 +554,16 @@ const Home = React.memo(() => {
         cssClass: 'my-custom-interface',
         header: 'Class Number',
         subHeader: 'Select a class number'
-      })
-      setFilterSelectOptions({
-        cssClass: 'my-custom-interface',
-        header: 'Class Filter',
-        subHeader: 'See posts about a specifc class'
-      })
+      });
     } else {
       setSelectOptions({
         header: 'Class',
         subHeader: 'Select a class to post about'
-      })
+      });
       setSelectOptionsNumber({
         header: 'Class Number',
         subHeader: 'Select a class number'
-      })
-      setFilterSelectOptions({
-        header: 'Class Filter',
-        subHeader: 'See posts about a specifc class'
-      })
+      });
     }
   }, [schoolColorToggled])
 
