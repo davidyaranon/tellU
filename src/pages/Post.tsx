@@ -7,15 +7,16 @@ import auth,
 {
   addCommentNew, downVoteComment, getLikes,
   getOnePost, loadCommentsNew, loadCommentsNewNextBatch,
+  makeReaction,
   removeCommentNew, removePost, sendReportStatus, uploadImage, upVoteComment
 } from '../fbconfig';
 import { upVote, downVote, promiseTimeout } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonButton, IonButtons, IonCard,
+  IonAvatar, IonBadge, IonButton, IonButtons, IonCard,
   IonCardContent, IonCol, IonContent, IonFab,
-  IonFabButton, IonIcon,
+  IonFabButton, IonGrid, IonIcon,
   IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
   IonItem, IonLabel, IonList, IonLoading, IonModal,
   IonNote, IonPage, IonRow, IonSkeletonText,
@@ -28,7 +29,7 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp, arrowUpCircleOutline, arrowUpOutline, banOutline } from "ionicons/icons";
+import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp, arrowUpCircleOutline, arrowUpOutline, banOutline, arrowUpCircleSharp } from "ionicons/icons";
 import { getColor, timeout } from '../components/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
@@ -44,6 +45,10 @@ import { Mention, MentionsInput, SuggestionDataItem } from 'react-mentions';
 import mentionInputStyles from "../mentionInputStyles";
 import mentionInputStylesLight from "../mentionInputStylesLight";
 import { useTabsContext } from "../my-context";
+import tree from "../images/result.svg";
+import humboldt from "../images/humboldt.png";
+import ozzie from '../images/ozzie_box.png';
+import axe from '../images/axe.png';
 
 interface MatchUserPostParams {
   key: string;
@@ -92,6 +97,19 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [reportMessage, setReportMessage] = useState<string>("");
   const [notificationsToken, setNotificationsToken] = useState<string>("");
   const [deletingComment, setDeletingComment] = useState<boolean>(false);
+  const [disabledReactionOne, setDisabledReactionOne] = useState<boolean>(false);
+  const [disabledReactionTwo, setDisabledReactionTwo] = useState<boolean>(false);
+  const [disabledReactionThree, setDisabledReactionThree] = useState<boolean>(false);
+  const [disabledReactionFour, setDisabledReactionFour] = useState<boolean>(false);
+  const [reactionOne, setReactionOne] = useState<number>(0);
+  const [reactionTwo, setReactionTwo] = useState<number>(0);
+  const [reactionThree, setReactionThree] = useState<number>(0);
+  const [reactionFour, setReactionFour] = useState<number>(0);
+  const [firstButtonPressed, setFirstButtonPressed] = useState<boolean>(false);
+  const [secondButtonPressed, setSecondButtonPressed] = useState<boolean>(false);
+  const [thirdButtonPressed, setThirdButtonPressed] = useState<boolean>(false);
+  const [fourthButtonPressed, setFourthButtonPressed] = useState<boolean>(false);
+
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -234,13 +252,52 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             }
           });
           const data = await getLikes(postKey);
+          console.log(data);
           if (data) {
             res.likes = data.likes;
             res.dislikes = data.dislikes;
+            res.reactionOne = data.reactionOne;
+            res.reactionTwo = data.reactionTwo;
+            res.reactionThree = data.reactionThree;
+            res.reactionFour = data.reactionFour;
           } else {
             res.likes = {};
             res.dislikes = {};
+            res.reactionOne = {};
+            res.reactionTwo = {};
+            res.reactionThree = {};
+            res.reactionFour = {};
           }
+          if (user) {
+            if ("reactionOne" in res && res["reactionOne"] !== undefined && res["reactionOne"][user.uid]) {
+              setFirstButtonPressed(true);
+            } else {
+              setFirstButtonPressed(false);
+            }
+            if ("reactionTwo" in res && res["reactionTwo"] !== undefined && res["reactionTwo"][user.uid]) {
+              setSecondButtonPressed(true);
+            } else {
+              setSecondButtonPressed(false);
+            }
+            if ("reactionThree" in res && res["reactionThree"] !== undefined && res["reactionThree"][user.uid]) {
+              setThirdButtonPressed(true);
+            } else {
+              setThirdButtonPressed(false);
+            }
+            if ("reactionFour" in res && res["reactionFour"] !== undefined && res["reactionFour"][user.uid]) {
+              setFourthButtonPressed(true);
+            } else {
+              setFourthButtonPressed(false);
+            }
+          }
+          if ("reactionOne" in res && res["reactionOne"])
+            setReactionOne(Object.keys(res.reactionOne).length - 1);
+          if ("reactionTwo" in res && res["reactionTwo"])
+            setReactionTwo(Object.keys(res.reactionTwo).length - 1);
+          if ("reactionThree" in res && res["reactionThree"])
+            setReactionThree(Object.keys(res.reactionThree).length - 1);
+          if ("reactionOne" in res && res["reactionFour"])
+              setReactionFour(Object.keys(res.reactionFour).length - 1);
           setPost(res);
           setNotificationsToken(res.notificationsToken);
         } else {
@@ -449,6 +506,32 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       Toast.error("Unable to dislike comment");
     }
   };
+
+  const handleMakeReaction = async (reaction: string) => {
+    const val = await makeReaction(postKey, post, reaction);
+    if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
+      if (reaction === "reactionOne") {
+        setReactionOne((prev) => prev + val);
+        if (user) {
+
+        }
+      }
+      if (reaction === "reactionTwo") {
+        setReactionTwo((prev) => prev + val);
+      }
+      if (reaction === "reactionThree") {
+        setReactionThree((prev) => prev + val);
+      }
+      if (reaction === "reactionFour") {
+        setReactionFour((prev) => prev + val);
+      }
+    } else {
+      Toast.error("Unable to make reaction");
+    }
+  }
 
   const handleUpVote = async (post: any) => {
     const val = await upVote(postKey, post);
@@ -741,269 +824,339 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
         <div className="ion-modal">
           {post ? (
-            <FadeIn>
-              <div>
-                <IonList inset={true}>
-                  <IonItem lines="none">
-                    <IonLabel class="ion-text-wrap">
-                      <IonText color="medium">
-                        <FadeIn>
-                          <IonAvatar
-                            onClick={() => {
-                              // setComments([]);
-                              setComment("");
-                              handleUserPageNavigation(
-                                post.uid
-                              );
-                            }}
-                            class="posts-avatar"
-                          >
-                            <ProfilePhoto uid={post.uid}></ProfilePhoto>
-                          </IonAvatar>
-                        </FadeIn>
-                        <p>
-                          {post.userName}
-                        </p>
-                      </IonText>
-                      {post.postType ? (
-                        <IonFab vertical="top" horizontal="end" onClick={(e) => {
-                          if (post.postType !== "general") {
-                            e.stopPropagation();
-                            dynamicNavigate("type/" + post.postType, 'forward');
-                          }
-                        }}>
-                          {post.postType !== "general" ?
-                            <p
-                              style={{
-                                fontWeight: "bold",
-                                color: getColor(post.postType),
+            <>
+              <FadeIn>
+                <div>
+                  <IonList inset={true}>
+                    <IonItem lines="none">
+                      <IonLabel class="ion-text-wrap">
+                        <IonText color="medium">
+                          <FadeIn>
+                            <IonAvatar
+                              onClick={() => {
+                                // setComments([]);
+                                setComment("");
+                                handleUserPageNavigation(
+                                  post.uid
+                                );
                               }}
+                              class="posts-avatar"
                             >
-                              {post.postType.toUpperCase()}
-                              &nbsp;
-                              {post.marker ? (
-                                <RoomIcon
-                                  style={{ fontSize: "1em" }}
-                                  onClick={() => {
+                              <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                            </IonAvatar>
+                          </FadeIn>
+                          <p>
+                            {post.userName}
+                          </p>
+                        </IonText>
+                        {post.postType ? (
+                          <IonFab vertical="top" horizontal="end" onClick={(e) => {
+                            if (post.postType !== "general") {
+                              e.stopPropagation();
+                              dynamicNavigate("type/" + post.postType, 'forward');
+                            }
+                          }}>
+                            {post.postType !== "general" ?
+                              <p
+                                style={{
+                                  fontWeight: "bold",
+                                  color: getColor(post.postType),
+                                }}
+                              >
+                                {post.postType.toUpperCase()}
+                                &nbsp;
+                                {post.marker ? (
+                                  <RoomIcon
+                                    style={{ fontSize: "1em" }}
+                                    onClick={() => {
+                                      localStorage.setItem("lat", (post.location[0].toString()));
+                                      localStorage.setItem("long", (post.location[1].toString()));
+                                      dynamicNavigate("maps", 'forward');
+                                    }}
+                                  />
+                                ) : null}
+                              </p>
+                              :
+                              <p
+                                style={{
+                                  fontWeight: "bold",
+                                  color: getColor(post.postType),
+                                  marginLeft: "75%"
+                                }}
+                              >
+                                {post.marker ? (
+                                  <RoomIcon onClick={() => {
                                     localStorage.setItem("lat", (post.location[0].toString()));
                                     localStorage.setItem("long", (post.location[1].toString()));
                                     dynamicNavigate("maps", 'forward');
                                   }}
-                                />
-                              ) : null}
-                            </p>
-                            :
-                            <p
-                              style={{
-                                fontWeight: "bold",
-                                color: getColor(post.postType),
-                                marginLeft: "75%"
-                              }}
-                            >
-                              {post.marker ? (
-                                <RoomIcon onClick={() => {
-                                  localStorage.setItem("lat", (post.location[0].toString()));
-                                  localStorage.setItem("long", (post.location[1].toString()));
-                                  dynamicNavigate("maps", 'forward');
-                                }}
-                                  style={{ fontSize: "1em" }} />) : null}
-                            </p>
-                          }
-                          <IonNote style={{ fontSize: "0.85em" }}>
-                            {getDate(post.timestamp)}
-                          </IonNote>
-                        </IonFab>
-                      ) :
-                        (
-                          <IonFab vertical="top" horizontal="end">
+                                    style={{ fontSize: "1em" }} />) : null}
+                              </p>
+                            }
                             <IonNote style={{ fontSize: "0.85em" }}>
                               {getDate(post.timestamp)}
                             </IonNote>
                           </IonFab>
-                        )}
-                      <div style={{ height: "0.75vh" }}>{" "}</div>
-                      {"className" in post && "classNumber" in post && post.className.length > 0 ?
-                        <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
-                          {post.message} <IonNote onClick={(e) => {
-                            e.stopPropagation();
-                            dynamicNavigate("class/" + post.className, 'forward');
-                          }} color="medium" style={{ fontWeight: "400" }}> &nbsp; — {post.className}{post.classNumber}</IonNote>
-                        </Linkify>
-                        :
-                        <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
-                          {post.message}
-                        </Linkify>
-                      }
-
-                      <PostImages isSensitive={sensitiveToggled} post={post} />
-
-                    </IonLabel>
-                    <div
-                      id={post.postType.replace("/", "")}
-                    ></div>
-                  </IonItem>
-                  <IonItem lines="none" mode="ios">
-                    <IonButton
-                      onAnimationEnd={() => {
-                        setLikeAnimation(-1);
-                      }}
-                      className={likeAnimation === 0 ? "likeAnimation" : ""}
-                      disabled={
-                        disabledLikeButtons === 0 || Object.keys(post.likes).length - 1 === -1
-                      }
-                      mode="ios"
-                      fill="outline"
-                      color={
-                        post &&
-                          user &&
-                          "likes" in post &&
-                          post.likes[user.uid] !== undefined
-                          && schoolName !== "Cal Poly Humboldt"
-                          ? "primary"
+                        ) :
+                          (
+                            <IonFab vertical="top" horizontal="end">
+                              <IonNote style={{ fontSize: "0.85em" }}>
+                                {getDate(post.timestamp)}
+                              </IonNote>
+                            </IonFab>
+                          )}
+                        <div style={{ height: "0.75vh" }}>{" "}</div>
+                        {"className" in post && "classNumber" in post && post.className.length > 0 ?
+                          <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
+                            {post.message} <IonNote onClick={(e) => {
+                              e.stopPropagation();
+                              dynamicNavigate("class/" + post.className, 'forward');
+                            }} color="medium" style={{ fontWeight: "400" }}> &nbsp; — {post.className}{post.classNumber}</IonNote>
+                          </Linkify>
                           :
+                          <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
+                            {post.message}
+                          </Linkify>
+                        }
+
+                        <PostImages isSensitive={sensitiveToggled} post={post} />
+
+                      </IonLabel>
+                      <div
+                        id={post.postType.replace("/", "")}
+                      ></div>
+                    </IonItem>
+                    <IonItem lines="none" mode="ios">
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setLikeAnimation(-1);
+                        }}
+                        className={likeAnimation === 0 ? "likeAnimation" : ""}
+                        disabled={
+                          disabledLikeButtons === 0 || Object.keys(post.likes).length - 1 === -1
+                        }
+                        mode="ios"
+                        fill="outline"
+                        color={
                           post &&
                             user &&
                             "likes" in post &&
                             post.likes[user.uid] !== undefined
-                            && schoolName === "Cal Poly Humboldt" && schoolColorToggled
-                            ? "tertiary"
+                            && schoolName !== "Cal Poly Humboldt"
+                            ? "primary"
                             :
                             post &&
                               user &&
                               "likes" in post &&
                               post.likes[user.uid] !== undefined
-                              && schoolName === "Cal Poly Humboldt" && !schoolColorToggled
-                              ? "primary"
-                              : "medium"
+                              && schoolName === "Cal Poly Humboldt" && schoolColorToggled
+                              ? "tertiary"
+                              :
+                              post &&
+                                user &&
+                                "likes" in post &&
+                                post.likes[user.uid] !== undefined
+                                && schoolName === "Cal Poly Humboldt" && !schoolColorToggled
+                                ? "primary"
+                                : "medium"
+                        }
+                        onClick={() => {
+                          setLikeAnimation(0);
+                          setDisabledLikeButtons(0);
+                          handleUpVote(post);
+                        }}
+                      >
+                        <KeyboardArrowUpIcon />
+                        <p>{Object.keys(post.likes).length - 1} </p>
+                      </IonButton>
+                      <p>&nbsp;</p>
+                      <IonButton
+                        onAnimationEnd={() => {
+                          setDislikeAnimation(-1);
+                        }}
+                        className={
+                          dislikeAnimation === 0
+                            ? "likeAnimation"
+                            : ""
+                        }
+                        disabled={
+                          disabledLikeButtons === 0 || Object.keys(post.dislikes).length - 1 === -1
+                        }
+                        mode="ios"
+                        fill="outline"
+                        color={
+                          post &&
+                            user &&
+                            "dislikes" in post &&
+                            post.dislikes[
+                            user.uid
+                            ] !== undefined
+                            ? "danger"
+                            : "medium"
+                        }
+                        onClick={() => {
+                          setDislikeAnimation(0);
+                          setDisabledLikeButtons(0);
+                          handleDownVote(post);
+                        }}
+                      >
+                        <KeyboardArrowDownIcon />
+                        <p>{Object.keys(post.dislikes).length - 1} </p>
+                      </IonButton>
+                      {"reports" in post && post.reports > 1 && user && user.uid !== post.uid &&
+                        <IonFab horizontal="end">
+                          <IonIcon icon={warningSharp} color="warning" onClick={() => {
+                            Dialog.alert({
+                              title: "Flagged Post",
+                              message: 'Post has been reported as sensitive/objectionable'
+                            })
+                          }}></IonIcon>
+                        </IonFab>
                       }
-                      onClick={() => {
-                        setLikeAnimation(0);
-                        setDisabledLikeButtons(0);
-                        handleUpVote(post);
-                      }}
-                    >
-                      <KeyboardArrowUpIcon />
-                      <p>{Object.keys(post.likes).length - 1} </p>
-                    </IonButton>
-                    <p>&nbsp;</p>
-                    <IonButton
-                      onAnimationEnd={() => {
-                        setDislikeAnimation(-1);
-                      }}
-                      className={
-                        dislikeAnimation === 0
-                          ? "likeAnimation"
-                          : ""
-                      }
-                      disabled={
-                        disabledLikeButtons === 0 || Object.keys(post.dislikes).length - 1 === -1
-                      }
-                      mode="ios"
-                      fill="outline"
-                      color={
-                        post &&
-                          user &&
-                          "dislikes" in post &&
-                          post.dislikes[
-                          user.uid
-                          ] !== undefined
-                          ? "danger"
-                          : "medium"
-                      }
-                      onClick={() => {
-                        setDislikeAnimation(0);
-                        setDisabledLikeButtons(0);
-                        handleDownVote(post);
-                      }}
-                    >
-                      <KeyboardArrowDownIcon />
-                      <p>{Object.keys(post.dislikes).length - 1} </p>
-                    </IonButton>
-                    {"reports" in post && post.reports > 1 && user && user.uid !== post.uid &&
-                      <IonFab horizontal="end">
-                        <IonIcon icon={warningSharp} color="warning" onClick={() => {
-                          Dialog.alert({
-                            title: "Flagged Post",
-                            message: 'Post has been reported as sensitive/objectionable'
-                          })
-                        }}></IonIcon>
-                      </IonFab>
-                    }
-                    {user && user.uid === post.uid && "reports" in post && post.reports > 1 ? (
-                      <IonFab horizontal="end">
-                        <IonButton
-                          mode="ios"
-                          fill="outline"
-                          color="danger"
-                          onClick={() => { }}
-                        >
-                          <DeleteIcon />
-                        </IonButton>
-                        {" "}
-                        <IonButton mode="ios" fill="clear" onClick={() => {
-                          Dialog.alert({
-                            title: "Flagged Post",
-                            message: 'Post has been reported as sensitive/objectionable'
-                          })
-                        }}>
-                          <IonIcon icon={warningSharp} color="warning" style={{ padding: "-10vh" }}></IonIcon>
-                        </IonButton>
-                      </IonFab>
-                    ) : user && user.uid === post.uid && "reports" in post && post.reports < 2 ?
-                      (
+                      {user && user.uid === post.uid && "reports" in post && post.reports > 1 ? (
                         <IonFab horizontal="end">
                           <IonButton
                             mode="ios"
                             fill="outline"
                             color="danger"
-                            onClick={async () => {
-                              const { value } = await Dialog.confirm({
-                                title: 'Delete Post',
-                                message: `Are you sure you'd like to delete your post?`,
-                                okButtonTitle: 'Delete'
-                              });
-                              if (!value) { return; }
-                              if ("url" in post && post.url && post.url.length > 0) {
-                                console.log("deleting post with images");
-                                if (!schoolName) {
-                                  Toast.error("Something went wrong, try again");
-                                }
-                                setDeletingComment(true);
-                                const didDelete = await removePost(postKey, schoolName, post.url);
-                                if (didDelete !== undefined) {
-                                  Toast.success("Deleted post");
-                                } else {
-                                  Toast.error("Something went wrong when deleting post, try again")
-                                }
-                                dynamicNavigate("about/" + post.uid, "back");
-                                setDeletingComment(false);
-                              } else {
-                                console.log("deleting post without images");
-                                if (!schoolName) {
-                                  Toast.error("Something went wrong, try again");
-                                }
-                                setDeletingComment(true);
-                                const didDelete = await removePost(postKey, schoolName, []);
-                                if (didDelete !== undefined) {
-                                  Toast.success("Deleted post");
-                                } else {
-                                  Toast.error("Something went wrong when deleting post, try again")
-                                }
-                                dynamicNavigate("about/" + post.uid, "back");
-                                setDeletingComment(false);
-                              }
-                            }}
+                            onClick={() => { }}
                           >
                             <DeleteIcon />
                           </IonButton>
+                          {" "}
+                          <IonButton mode="ios" fill="clear" onClick={() => {
+                            Dialog.alert({
+                              title: "Flagged Post",
+                              message: 'Post has been reported as sensitive/objectionable'
+                            })
+                          }}>
+                            <IonIcon icon={warningSharp} color="warning" style={{ padding: "-10vh" }}></IonIcon>
+                          </IonButton>
                         </IonFab>
-                      ) : null}
-                  </IonItem>
-                </IonList>
-                <div className="verticalLine"></div>
-              </div>
-            </FadeIn>
-
+                      ) : user && user.uid === post.uid && "reports" in post && post.reports < 2 ?
+                        (
+                          <IonFab horizontal="end">
+                            <IonButton
+                              mode="ios"
+                              fill="outline"
+                              color="danger"
+                              onClick={async () => {
+                                const { value } = await Dialog.confirm({
+                                  title: 'Delete Post',
+                                  message: `Are you sure you'd like to delete your post?`,
+                                  okButtonTitle: 'Delete'
+                                });
+                                if (!value) { return; }
+                                if ("url" in post && post.url && post.url.length > 0) {
+                                  console.log("deleting post with images");
+                                  if (!schoolName) {
+                                    Toast.error("Something went wrong, try again");
+                                  }
+                                  setDeletingComment(true);
+                                  const didDelete = await removePost(postKey, schoolName, post.url);
+                                  if (didDelete !== undefined) {
+                                    Toast.success("Deleted post");
+                                  } else {
+                                    Toast.error("Something went wrong when deleting post, try again")
+                                  }
+                                  dynamicNavigate("about/" + post.uid, "back");
+                                  setDeletingComment(false);
+                                } else {
+                                  console.log("deleting post without images");
+                                  if (!schoolName) {
+                                    Toast.error("Something went wrong, try again");
+                                  }
+                                  setDeletingComment(true);
+                                  const didDelete = await removePost(postKey, schoolName, []);
+                                  if (didDelete !== undefined) {
+                                    Toast.success("Deleted post");
+                                  } else {
+                                    Toast.error("Something went wrong when deleting post, try again")
+                                  }
+                                  dynamicNavigate("about/" + post.uid, "back");
+                                  setDeletingComment(false);
+                                }
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IonButton>
+                          </IonFab>
+                        ) : null}
+                    </IonItem>
+                  </IonList>
+                </div>
+              </FadeIn>
+              {"reactionOne" in post && post.reactionOne &&
+                "reactionTwo" in post && post.reactionTwo &&
+                "reactionThree" in post && post.reactionThree &&
+                "reactionFour" in post && post.reactionFour && user &&
+                <FadeIn>
+                  <div>
+                    <IonList inset lines="none">
+                      <IonItem lines="none">
+                        <IonGrid>
+                          <IonRow className="ion-justify-content-center">
+                            <IonCol style={{ left: "-2vw" }}>
+                              <div>
+                                <IonBadge color={firstButtonPressed && schoolColorToggled ? "secondary" : firstButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionOne}</IonBadge>
+                                <IonButton disabled={disabledReactionOne} onClick={async () => {
+                                  setFirstButtonPressed((prev) => !prev);
+                                  setDisabledReactionOne(true);
+                                  handleMakeReaction("reactionOne");
+                                  setDisabledReactionOne(false);
+                                }} style={{ height: "5vh" }} fill="clear" >
+                                  <IonImg style={{ height: "5vh" }} src={tree} />
+                                </IonButton>
+                              </div>
+                            </IonCol>
+                            <IonCol style={{ left: "-2vw" }}>
+                              <div>
+                                <IonBadge color={secondButtonPressed && schoolColorToggled ? "secondary" : secondButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionTwo}</IonBadge>
+                                <IonButton disabled={disabledReactionTwo} onClick={async () => {
+                                  setSecondButtonPressed((prev) => !prev);
+                                  setDisabledReactionTwo(true);
+                                  handleMakeReaction("reactionTwo");
+                                  setDisabledReactionTwo(false);
+                                }} style={{ height: "5vh" }} fill="clear">
+                                  <IonImg style={{ height: "10vh" }} src={humboldt} />
+                                </IonButton>
+                              </div>
+                            </IonCol>
+                            <IonCol style={{ left: "-2vw" }}>
+                              <div>
+                                <IonBadge color={thirdButtonPressed && schoolColorToggled ? "secondary" : thirdButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionThree}</IonBadge>
+                                <IonButton disabled={disabledReactionThree} onClick={async () => {
+                                  setThirdButtonPressed((prev) => !prev);
+                                  setDisabledReactionThree(true);
+                                  handleMakeReaction("reactionThree");
+                                  setDisabledReactionThree(false);
+                                }} style={{ height: "5vh" }} fill="clear">
+                                  <IonImg style={{ height: "5vh" }} src={ozzie} />
+                                </IonButton>
+                              </div>
+                            </IonCol>
+                            <IonCol style={{ left: "-2vw" }}>
+                              <div>
+                                <IonBadge color={fourthButtonPressed && schoolColorToggled ? "secondary" : fourthButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionFour}</IonBadge>
+                                <IonButton disabled={disabledReactionFour} onClick={async () => {
+                                  setFourthButtonPressed((prev) => !prev);
+                                  setDisabledReactionFour(true);
+                                  handleMakeReaction("reactionFour");
+                                  setDisabledReactionFour(false);
+                                }} style={{ height: "5vh" }} fill="clear">
+                                  <IonImg style={{ height: "5vh" }} src={axe} />
+                                </IonButton>
+                              </div>
+                            </IonCol>
+                          </IonRow>
+                        </IonGrid>
+                      </IonItem>
+                    </IonList>
+                  </div>
+                </FadeIn>
+              }
+              <div className="verticalLine"></div>
+            </>
           ) :
             <>
               <FadeIn>
@@ -1224,4 +1377,4 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   )
 }
 
-export default React.memo(Post);
+export default Post;

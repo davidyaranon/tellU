@@ -587,14 +587,9 @@ const Home = React.memo(() => {
     let school = "blank";
     if (schoolName) {
       school = schoolName.toString().replace(/\s+/g, "");
-      console.log(school);
-      FCM.subscribeTo({ topic: school }).then((res) => { console.log(res) }).catch((err) => { console.log(err) });
     }
-    tabs.setShowTabs(true);
-    console.log(school);
     const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"), limit(15));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
-      // const count = await getCountFromServer(q);
       const data: any = [];
       for (let i = 0; i < snapshot.docChanges().length; ++i) {
         let change = snapshot.docChanges()[i];
@@ -622,9 +617,7 @@ const Home = React.memo(() => {
             const finalData: any[] = justAdded.concat(datasCopy);
             console.log(finalData);
             await timeout(500);
-            if (postsRef && postsRef.current && postsRef.current.size > 0) {
-              setPosts([...finalData, ...postsRef.current]);
-            }
+            setPosts([...finalData, ...postsRef.current]);
             virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
             setNewPostsLoaded(false);
             setNewData([]);
@@ -639,7 +632,6 @@ const Home = React.memo(() => {
           console.log("something wrong with auth")
         }
         if (change.type === "added") {
-          console.log("adding to data");
           data.push({
             ...change.doc.data(),
             key: change.doc.id,
@@ -700,7 +692,7 @@ const Home = React.memo(() => {
       }
     });
     return () => { unsubscribe(); };
-  }, [user, schoolName, postsRef]);
+  }, [user, schoolName]);
 
   const Footer = () => {
     return (
@@ -1000,7 +992,6 @@ const Home = React.memo(() => {
                         spellcheck={true}
                         ref={inputRef}
                         rows={4}
-                        color="secondary"
                         maxlength={500}
                         disabled={prevPostUploading}
                         value={message}

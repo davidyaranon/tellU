@@ -381,7 +381,6 @@ function Community() {
               </IonHeader>
               <IonInput
                 autoCorrect="on"
-                color="secondary"
                 type="text"
                 style={{ width: "90vw", left: "5vw", fontWeight: "bold" }}
                 maxlength={100}

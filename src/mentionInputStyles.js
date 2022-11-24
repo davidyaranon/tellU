@@ -1,4 +1,5 @@
 export default {
+  color : "white",
   borderColor : "#121212",
   borderRadius : "1px",
   input: {

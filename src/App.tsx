@@ -246,7 +246,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                     : { fontSize: "3.75vh" }}
             />
             {notif &&
-              < IonBadge color="danger">{'!'}</IonBadge>
+              < IonBadge color="danger">{'!'}</IonBadge> 
             }
           </IonTabButton>
         </IonTabBar>
@@ -294,7 +294,7 @@ const App: React.FunctionComponent = () => {
         user.reload();
       }
     })
-  }, []);
+  }, [auth]);
 
   useEffect(() => {
     console.log("HI")
@@ -302,7 +302,7 @@ const App: React.FunctionComponent = () => {
     return () => {
       document.removeEventListener("deviceready", onDeviceReady);
     }
-  }, [])
+  }, [auth]);
 
   useEffect(() => {
     PushNotifications.getDeliveredNotifications().then((notifs) => {

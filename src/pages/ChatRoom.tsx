@@ -331,7 +331,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             rows={3}
             style={photo === null ? { width: "80vw", marginLeft: "2.5vw" }
               : { width: "69vw", marginLeft: "2.5vw" }}
-            color="secondary"
+            color={schoolColorToggled ? "tertiary" : "primary"}
             spellcheck={true}
             maxlength={300}
             value={currMessage}

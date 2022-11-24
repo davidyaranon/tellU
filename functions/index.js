@@ -357,7 +357,7 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
       'Something went wrong, try logging in again'
     );
   }
-  if (!data.userName || !data.comment || !data.data.url || !data.icon || !data.posterUid || !data.postKey) {
+  if (!data.userName || !data.comment || !data.data.url || !data.icon || !data.posterUid || !data.postKey || !("isNotSameUser" in data)) {
     functions.logger.log("invalid data");
     console.log("invalid data");
     throw new functions.https.HttpsError(
@@ -409,54 +409,56 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
     functions.logger.log("no tagged users");
   }
 
-  const body = {
-    notification: {
-      title: 'tellU',
-      body: data.userName + ' commented: ' + data.comment,
-      sound: 'default',
-      data: {
-        url: data.data.url
+  if (data.isNotSameUser) {
+    const body = {
+      notification: {
+        title: 'tellU',
+        body: data.userName + ' commented: ' + data.comment,
+        sound: 'default',
+        data: {
+          url: data.data.url
+        },
+        click_action: 'FCM_PLUGIN_ACTIVITY'
       },
-      click_action: 'FCM_PLUGIN_ACTIVITY'
-    },
-    to: data.notificationsToken
-  }
-  const document = await app.firestore().collection("userData").doc(data.posterUid).get();
-  if (document && document.data()) {
-    let arr = document.data().notifs;
-    let newNotifs = [];
-    let count = 0;
-    if (arr.length > 0) {
-      for (let i = arr.length - 1; i >= 0; --i) {
-        newNotifs.push(arr[i]);
-        count++;
-        if (count >= 30) { break; }
-      }
+      to: data.notificationsToken
     }
-    const created_at = admin.firestore.Timestamp.now()
-    newNotifs.push({
-      userName: data.userName,
-      comment: data.comment,
-      postKey: data.postKey,
-      posterUid: data.posterUid,
-      date: created_at
-    });
-    app.firestore().collection("userData").doc(data.posterUid).update({
-      notifs: newNotifs
+    const document = await app.firestore().collection("userData").doc(data.posterUid).get();
+    if (document && document.data()) {
+      let arr = document.data().notifs;
+      let newNotifs = [];
+      let count = 0;
+      if (arr.length > 0) {
+        for (let i = arr.length - 1; i >= 0; --i) {
+          newNotifs.push(arr[i]);
+          count++;
+          if (count >= 30) { break; }
+        }
+      }
+      const created_at = admin.firestore.Timestamp.now()
+      newNotifs.push({
+        userName: data.userName,
+        comment: data.comment,
+        postKey: data.postKey,
+        posterUid: data.posterUid,
+        date: created_at
+      });
+      app.firestore().collection("userData").doc(data.posterUid).update({
+        notifs: newNotifs
+      });
+    }
+    await fetch('https://fcm.googleapis.com/fcm/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'key=AAAAa1skHNM:APA91bFyQscFwRAN4en0Jkt5IYZ4iwUQC6DhOIPCKNeoQJ7rO5BAEUlH1iB0da18o1Jq0gqfx19e_UrBvSyCTRzY1jjKnPXvAAi5KDYKJFd-e2QsioP4E_uC5XY6flVUnfX0JYhTiEy6',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }).then(() => {
+      functions.logger.log("sent notif to: ", data.notificationsToken);
+    }).catch((err) => {
+      console.log('something went wrong when sending notifs');
+      console.log(err);
     });
   }
-  await fetch('https://fcm.googleapis.com/fcm/send', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'key=AAAAa1skHNM:APA91bFyQscFwRAN4en0Jkt5IYZ4iwUQC6DhOIPCKNeoQJ7rO5BAEUlH1iB0da18o1Jq0gqfx19e_UrBvSyCTRzY1jjKnPXvAAi5KDYKJFd-e2QsioP4E_uC5XY6flVUnfX0JYhTiEy6',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  }).then(() => {
-    functions.logger.log("sent notif to: ", data.notificationsToken);
-  }).catch((err) => {
-    console.log('something went wrong when sending notifs');
-    console.log(err);
-  });
 });
 

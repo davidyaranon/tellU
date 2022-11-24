@@ -1,7 +1,7 @@
 export default {
   color : "black",
   borderColor : "white",
-  borderRadius : "1px",
+  borderRadius : "10px",
   input: {
     borderRadius : "1px",
     overflow: 'auto',
@@ -13,9 +13,11 @@ export default {
     borderColor: "Transparent",
   },
   highlighter: {
+    borderRadius: "10px",
     borderColor : "white",
   },
   control: {
+    borderRadius: "10px",
     backgroundColor: 'white',
     fontSize: 16,
     borderColor : "white",
@@ -26,6 +28,7 @@ export default {
     // fontWeight: 'normal',
   },
   suggestions: {
+    borderRadius: "10px",
     list: {
       borderRadius: "10px",
       backgroundColor: '#d0d0d0',

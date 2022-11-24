@@ -412,6 +412,18 @@ export const addMessage = async (
           dislikes: {
             'null': true
           },
+          reactionOne: {
+            'null': true
+          },
+          reactionTwo: {
+            'null': true
+          },
+          reactionThree: {
+            'null': true
+          },
+          reactionFour: {
+            'null': true
+          },
           commentAmount: 0,
         }).catch((err) => {
           console.log(err);
@@ -1106,6 +1118,32 @@ export const upVoteComment = async (commentKey) => {
   }
 }
 
+export const makeReaction = async (postKey, post, reaction) => {
+  try {
+    if (db && database && auth && auth.currentUser) {
+      let inc = null;
+      const userUid = auth.currentUser.uid;
+      const likesRef = rtdbRef(database, postKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post[reaction]) {
+          if (post[reaction][userUid]) { // if liked before
+            post[reaction][userUid] = null;
+            inc = -1;
+          } else {
+            post[reaction][userUid] = true;
+            inc = 1;
+          }
+        }
+        return post;
+      });
+      console.log(inc);
+      return inc;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const upVote = async (postKey, post) => {
   try {
     if (db && database && auth && auth.currentUser) {
@@ -1233,7 +1271,7 @@ export const getUserPhotoUrl = async (userUid) => {
   try {
     const url = await getDownloadURL(ref(storage, "profilePictures/" + userUid + "photoURL"));
     return url;
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     return "";
   }
@@ -1373,9 +1411,9 @@ export const getUserUid = async (userName) => {
       const usersRef = collection(db, "userData");
       const q = query(usersRef, where("userName", "==", userName));
       const snap = await getDocs(q);
-      for(let i = 0; i < snap.docs.length; ++i) {
+      for (let i = 0; i < snap.docs.length; ++i) {
         let userUid = snap.docs[i].id;
-        if(userUid){
+        if (userUid) {
           return userUid.toString();
         }
       }
@@ -1463,19 +1501,20 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
         commentAmount: rtdbIncrement(1)
       });
 
-      console.log({postKey});
-      console.log({posterUid});
-      console.log({userName})
-      console.log({notificationsToken});
-      console.log({commentString});
-      console.log({attedUsersList});
-      if(attedUsersList && attedUsersList.length > 0){
+      console.log({ postKey });
+      console.log({ posterUid });
+      console.log({ userName })
+      console.log({ notificationsToken });
+      console.log({ commentString });
+      console.log({ attedUsersList });
+      if (attedUsersList && attedUsersList.length > 0) {
         for (let i = 0; i < attedUsersList.length; ++i) {
           console.log(attedUsersList[i]);
         }
       }
-      if (posterUid != uid) {
+      // if (posterUid != uid) {
         sendCommentsNotification({
+          isNotSameUser: (posterUid != uid),
           postKey: postKey,
           posterUid: posterUid,
           userName: userName,
@@ -1487,7 +1526,7 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
           },
           icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
         });
-      }
+      // }
       // nodeFetch('https://fcm.googleapis.com/fcm/send', {
       //   method: 'POST',
       //   headers: {
