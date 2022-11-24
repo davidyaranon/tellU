@@ -58,7 +58,14 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import { Virtuoso } from 'react-virtuoso';
 import PostImages from "./PostImages";
-import { FCM } from "@capacitor-community/fcm";
+import tree from "../images/tree_.png";
+import humboldt from "../images/humboldt.png";
+import ozzie from '../images/ozzie_box.png';
+import axe from '../images/axe.png';
+import house from '../images/house.png';
+import dollar from '../images/dollar.png';
+import research from '../images/research.png';
+import event from '../images/event.png';
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -822,6 +829,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("general");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img src={humboldt} style={{ height: "3vh" }} />
+              }
             </IonItem>
             <IonItem lines="none" mode="ios">
               <IonLabel>Alert</IonLabel>
@@ -835,6 +845,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("alert");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img style={{ float: "right", height: "3vh", transform: "translateX(10%)" }} src={axe} />
+              }
             </IonItem>
             <IonItem lines="none" mode="ios">
               <IonLabel>Buy/Sell</IonLabel>
@@ -848,6 +861,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("buy/Sell");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img src={dollar} style={{ height: "3vh" }} />
+              }
             </IonItem>
             <IonItem lines="none" mode="ios">
               <IonLabel>Sighting</IonLabel>
@@ -861,6 +877,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("sighting");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img src={tree} style={{ transform: "translateX(-5%)", height: "3vh" }} />
+              }
             </IonItem>
             <IonItem lines="none" mode="ios">
               <IonLabel>Event</IonLabel>
@@ -874,6 +893,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("event");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img src={event} style={{ height: "3vh" }} />
+              }
             </IonItem>
             <IonItem lines="none" mode="ios">
               <IonLabel>Research</IonLabel>
@@ -887,6 +909,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("research");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img src={research} style={{ transform: "translateX(10%)", height: "3vh" }} />
+              }
             </IonItem>
             <IonItem lines="none" mode="ios">
               <IonLabel>Housing</IonLabel>
@@ -900,6 +925,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("housing");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img src={house} style={{ height: "2.75vh" }} />
+              }
             </IonItem>
             <IonItem lines="none" mode="ios">
               <IonLabel>Dining</IonLabel>
@@ -913,6 +941,9 @@ const Home = React.memo(() => {
                   if (e.detail.checked) setCheckboxSelection("dining");
                 }}
               ></IonCheckbox>
+              {schoolName && schoolName === "Cal Poly Humboldt" && schoolColorToggled &&
+                <img src={ozzie} style={{ height: "2vh", transform: "translateX(2.5%)" }} />
+              }
             </IonItem>
           </IonList>
           <IonList inset={true} mode="ios">

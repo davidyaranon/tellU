@@ -7,7 +7,6 @@ import auth,
 {
   addCommentNew, downVoteComment, getLikes,
   getOnePost, loadCommentsNew, loadCommentsNewNextBatch,
-  makeReaction,
   removeCommentNew, removePost, sendReportStatus, uploadImage, upVoteComment
 } from '../fbconfig';
 import { upVote, downVote, promiseTimeout } from "../fbconfig";
@@ -45,10 +44,6 @@ import { Mention, MentionsInput, SuggestionDataItem } from 'react-mentions';
 import mentionInputStyles from "../mentionInputStyles";
 import mentionInputStylesLight from "../mentionInputStylesLight";
 import { useTabsContext } from "../my-context";
-import tree from "../images/result.svg";
-import humboldt from "../images/humboldt.png";
-import ozzie from '../images/ozzie_box.png';
-import axe from '../images/axe.png';
 
 interface MatchUserPostParams {
   key: string;
@@ -97,19 +92,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [reportMessage, setReportMessage] = useState<string>("");
   const [notificationsToken, setNotificationsToken] = useState<string>("");
   const [deletingComment, setDeletingComment] = useState<boolean>(false);
-  const [disabledReactionOne, setDisabledReactionOne] = useState<boolean>(false);
-  const [disabledReactionTwo, setDisabledReactionTwo] = useState<boolean>(false);
-  const [disabledReactionThree, setDisabledReactionThree] = useState<boolean>(false);
-  const [disabledReactionFour, setDisabledReactionFour] = useState<boolean>(false);
-  const [reactionOne, setReactionOne] = useState<number>(0);
-  const [reactionTwo, setReactionTwo] = useState<number>(0);
-  const [reactionThree, setReactionThree] = useState<number>(0);
-  const [reactionFour, setReactionFour] = useState<number>(0);
-  const [firstButtonPressed, setFirstButtonPressed] = useState<boolean>(false);
-  const [secondButtonPressed, setSecondButtonPressed] = useState<boolean>(false);
-  const [thirdButtonPressed, setThirdButtonPressed] = useState<boolean>(false);
-  const [fourthButtonPressed, setFourthButtonPressed] = useState<boolean>(false);
-
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -133,8 +115,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       setShowReportModal(true);
     }
   }
-
-  const [taggedUserActivated, setTaggedUserActivated] = useState<boolean>(false);
 
   const handleChangeComment = (e: any) => {
     let currComment = e.detail.value;
@@ -256,48 +236,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           if (data) {
             res.likes = data.likes;
             res.dislikes = data.dislikes;
-            res.reactionOne = data.reactionOne;
-            res.reactionTwo = data.reactionTwo;
-            res.reactionThree = data.reactionThree;
-            res.reactionFour = data.reactionFour;
           } else {
             res.likes = {};
             res.dislikes = {};
-            res.reactionOne = {};
-            res.reactionTwo = {};
-            res.reactionThree = {};
-            res.reactionFour = {};
           }
-          if (user) {
-            if ("reactionOne" in res && res["reactionOne"] !== undefined && res["reactionOne"][user.uid]) {
-              setFirstButtonPressed(true);
-            } else {
-              setFirstButtonPressed(false);
-            }
-            if ("reactionTwo" in res && res["reactionTwo"] !== undefined && res["reactionTwo"][user.uid]) {
-              setSecondButtonPressed(true);
-            } else {
-              setSecondButtonPressed(false);
-            }
-            if ("reactionThree" in res && res["reactionThree"] !== undefined && res["reactionThree"][user.uid]) {
-              setThirdButtonPressed(true);
-            } else {
-              setThirdButtonPressed(false);
-            }
-            if ("reactionFour" in res && res["reactionFour"] !== undefined && res["reactionFour"][user.uid]) {
-              setFourthButtonPressed(true);
-            } else {
-              setFourthButtonPressed(false);
-            }
-          }
-          if ("reactionOne" in res && res["reactionOne"])
-            setReactionOne(Object.keys(res.reactionOne).length - 1);
-          if ("reactionTwo" in res && res["reactionTwo"])
-            setReactionTwo(Object.keys(res.reactionTwo).length - 1);
-          if ("reactionThree" in res && res["reactionThree"])
-            setReactionThree(Object.keys(res.reactionThree).length - 1);
-          if ("reactionOne" in res && res["reactionFour"])
-              setReactionFour(Object.keys(res.reactionFour).length - 1);
           setPost(res);
           setNotificationsToken(res.notificationsToken);
         } else {
@@ -506,32 +448,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       Toast.error("Unable to dislike comment");
     }
   };
-
-  const handleMakeReaction = async (reaction: string) => {
-    const val = await makeReaction(postKey, post, reaction);
-    if (val && (val === 1 || val === -1)) {
-      if (val === 1) {
-        Haptics.impact({ style: ImpactStyle.Light });
-      }
-      if (reaction === "reactionOne") {
-        setReactionOne((prev) => prev + val);
-        if (user) {
-
-        }
-      }
-      if (reaction === "reactionTwo") {
-        setReactionTwo((prev) => prev + val);
-      }
-      if (reaction === "reactionThree") {
-        setReactionThree((prev) => prev + val);
-      }
-      if (reaction === "reactionFour") {
-        setReactionFour((prev) => prev + val);
-      }
-    } else {
-      Toast.error("Unable to make reaction");
-    }
-  }
 
   const handleUpVote = async (post: any) => {
     const val = await upVote(postKey, post);
@@ -832,18 +748,19 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       <IonLabel class="ion-text-wrap">
                         <IonText color="medium">
                           <FadeIn>
-                            <IonAvatar
-                              onClick={() => {
-                                // setComments([]);
-                                setComment("");
-                                handleUserPageNavigation(
-                                  post.uid
-                                );
-                              }}
-                              class="posts-avatar"
-                            >
-                              <ProfilePhoto uid={post.uid}></ProfilePhoto>
-                            </IonAvatar>
+                            <div>
+                              <IonAvatar
+                                onClick={() => {
+                                  setComment("");
+                                  handleUserPageNavigation(
+                                    post.uid
+                                  );
+                                }}
+                                class="posts-avatar"
+                              >
+                                <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                              </IonAvatar>
+                            </div>
                           </FadeIn>
                           <p>
                             {post.userName}
@@ -1086,75 +1003,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </IonList>
                 </div>
               </FadeIn>
-              {"reactionOne" in post && post.reactionOne &&
-                "reactionTwo" in post && post.reactionTwo &&
-                "reactionThree" in post && post.reactionThree &&
-                "reactionFour" in post && post.reactionFour && user &&
-                <FadeIn>
-                  <div>
-                    <IonList inset lines="none">
-                      <IonItem lines="none">
-                        <IonGrid>
-                          <IonRow className="ion-justify-content-center">
-                            <IonCol style={{ left: "-2vw" }}>
-                              <div>
-                                <IonBadge color={firstButtonPressed && schoolColorToggled ? "secondary" : firstButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionOne}</IonBadge>
-                                <IonButton disabled={disabledReactionOne} onClick={async () => {
-                                  setFirstButtonPressed((prev) => !prev);
-                                  setDisabledReactionOne(true);
-                                  handleMakeReaction("reactionOne");
-                                  setDisabledReactionOne(false);
-                                }} style={{ height: "5vh" }} fill="clear" >
-                                  <IonImg style={{ height: "5vh" }} src={tree} />
-                                </IonButton>
-                              </div>
-                            </IonCol>
-                            <IonCol style={{ left: "-2vw" }}>
-                              <div>
-                                <IonBadge color={secondButtonPressed && schoolColorToggled ? "secondary" : secondButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionTwo}</IonBadge>
-                                <IonButton disabled={disabledReactionTwo} onClick={async () => {
-                                  setSecondButtonPressed((prev) => !prev);
-                                  setDisabledReactionTwo(true);
-                                  handleMakeReaction("reactionTwo");
-                                  setDisabledReactionTwo(false);
-                                }} style={{ height: "5vh" }} fill="clear">
-                                  <IonImg style={{ height: "10vh" }} src={humboldt} />
-                                </IonButton>
-                              </div>
-                            </IonCol>
-                            <IonCol style={{ left: "-2vw" }}>
-                              <div>
-                                <IonBadge color={thirdButtonPressed && schoolColorToggled ? "secondary" : thirdButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionThree}</IonBadge>
-                                <IonButton disabled={disabledReactionThree} onClick={async () => {
-                                  setThirdButtonPressed((prev) => !prev);
-                                  setDisabledReactionThree(true);
-                                  handleMakeReaction("reactionThree");
-                                  setDisabledReactionThree(false);
-                                }} style={{ height: "5vh" }} fill="clear">
-                                  <IonImg style={{ height: "5vh" }} src={ozzie} />
-                                </IonButton>
-                              </div>
-                            </IonCol>
-                            <IonCol style={{ left: "-2vw" }}>
-                              <div>
-                                <IonBadge color={fourthButtonPressed && schoolColorToggled ? "secondary" : fourthButtonPressed && !schoolColorToggled ? "primary" : schoolColorToggled ? "tertiary" : "dark"}>{reactionFour}</IonBadge>
-                                <IonButton disabled={disabledReactionFour} onClick={async () => {
-                                  setFourthButtonPressed((prev) => !prev);
-                                  setDisabledReactionFour(true);
-                                  handleMakeReaction("reactionFour");
-                                  setDisabledReactionFour(false);
-                                }} style={{ height: "5vh" }} fill="clear">
-                                  <IonImg style={{ height: "5vh" }} src={axe} />
-                                </IonButton>
-                              </div>
-                            </IonCol>
-                          </IonRow>
-                        </IonGrid>
-                      </IonItem>
-                    </IonList>
-                  </div>
-                </FadeIn>
-              }
+              
               <div className="verticalLine"></div>
             </>
           ) :

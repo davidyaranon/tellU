@@ -404,24 +404,11 @@ export const addMessage = async (
           long = pos.coords.longitude;
           marker = true;
         }
-
         await set(rtdbRef(database, docId), {
           likes: {
             'null': true
           },
           dislikes: {
-            'null': true
-          },
-          reactionOne: {
-            'null': true
-          },
-          reactionTwo: {
-            'null': true
-          },
-          reactionThree: {
-            'null': true
-          },
-          reactionFour: {
             'null': true
           },
           commentAmount: 0,

@@ -15,7 +15,7 @@ export const getColor = (postType: string) => {
     case "housing" :
       return "#ffaf2e";
     case "dining" :
-      return "#1ef8c5";
+      return "#1ef8f1";
     default:
       break;
   }
