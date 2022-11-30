@@ -13,7 +13,7 @@ import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-p
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import TellUHeader, { ionHeaderStyle } from "./Header";
 import { RefresherEventDetail } from "@ionic/core";
-import { add, cameraOutline, refreshCircleOutline, warningSharp } from "ionicons/icons";
+import { add, cameraOutline, refreshCircleOutline } from "ionicons/icons";
 import { addMessage, downVote, getAllPosts, promiseTimeout, upVote } from "../fbconfig";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
 import { chevronDownCircleOutline } from "ionicons/icons";
@@ -76,20 +76,23 @@ const locationOptions: GeolocationOptions = {
 };
 
 const Home = () => {
-  console.log("home");
-  const inputRef = useRef<HTMLIonTextareaElement>(null);
+
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const timeAgo = new TimeAgo("en-US");
-  const tabs = useTabsContext();
   const schoolName = useSelector((state: any) => state.user.school);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
 
-  const [gettingLocation, setGettingLocation] = useState<boolean>(false);
-  const [photo, setPhoto] = useState<GalleryPhoto[] | null>([]);
   const Toast = useToast();
+  const tabs = useTabsContext();
+  const [user] = useAuthState(auth);
+  const history = useHistory();
+
+  const timeAgo = new TimeAgo("en-US");
+  const inputRef = useRef<HTMLIonTextareaElement>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
+  const [gettingLocation, setGettingLocation] = useState<boolean>(false);
+  const [photo, setPhoto] = useState<GalleryPhoto[] | null>([]);
   const [blob, setBlob] = useState<any | null>(null);
   const [posts, setPosts] = useState<any[] | null>(null);
   const postsRef = useRef<any>();
@@ -105,10 +108,7 @@ const Home = () => {
   const [diningChecked, setDiningChecked] = useState<boolean>(false);
   const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
   const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
-
-  const [user] = useAuthState(auth);
   const [lastKey, setLastKey] = useState<string>("");
-  const history = useHistory();
   const [position, setPosition] = useState<Geoposition | null>();
   const modalContentRef = useRef<HTMLIonContentElement | null>(null);
   const [newPostsLoaded, setNewPostsLoaded] = useState<boolean>(false);
@@ -121,7 +121,6 @@ const Home = () => {
   const [postClassName, setPostClassName] = useState<string>()
   const [postClassNumber, setPostClassNumber] = useState<string>();
   const [noMorePosts, setNoMorePosts] = useState(false);
-
   const [newData, setNewData] = useState<any[] | null>(null);
   const newDataRef = useRef<any>();
   newDataRef.current = newData;
@@ -692,7 +691,7 @@ const Home = () => {
         </div>
 
         <IonContent fullscreen scrollY={false}>
-          
+
           <Virtuoso
             ref={virtuosoRef}
             overscan={1000}
@@ -797,9 +796,9 @@ const Home = () => {
 
                       </IonLabel>
                     </IonItem>
-                    
+
                     <LikeDislike posts={posts} handleUpVote={handleUpVote} handleDownVote={handleDownVote} user={user} schoolName={schoolName} schoolColorToggled={schoolColorToggled} post={post} index={index} />
-                    
+
                   </IonList>
                 </FadeIn>
               )
@@ -1113,36 +1112,17 @@ const Home = () => {
     return (
       <IonPage>
         <IonContent>
-          <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-            <IonRefresherContent
-              pullingIcon={chevronDownCircleOutline}
-              pullingText="Pull to refresh"
-              refreshingSpinner="crescent"
-              refreshingText="Refreshing..."
-            ></IonRefresherContent>
-          </IonRefresher>
 
           <IonHeader class="ion-no-border" style={ionHeaderStyle}>
             <TellUHeader />
           </IonHeader>
 
-          <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-            <IonRefresherContent
-              pullingIcon={chevronDownCircleOutline}
-              pullingText="Pull to refresh"
-              refreshingSpinner="crescent"
-              refreshingText="Refreshing..."
-            ></IonRefresherContent>
-          </IonRefresher>
-          <div>
-            <h3 className="h3-error">
-              {" "}
-              Unable to load posts, swipe down from top to reload page{" "}
-            </h3>
-            <div className="h3-error">
-              <SignalWifiOff fontSize="large" style={{ fontSize: "4.10vh" }} />
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            <div style={{ textAlign: "center" }}>
+              <p>Check your internet connection and try again</p>
             </div>
           </div>
+
         </IonContent>
       </IonPage>
     );
