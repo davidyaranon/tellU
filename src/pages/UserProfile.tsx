@@ -465,7 +465,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   }
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent fullscreen scrollY={false}>
         <div slot="fixed" style={{ width: "100%" }}>
           <IonToolbar mode="ios" >

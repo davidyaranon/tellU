@@ -229,6 +229,7 @@ ion-checkbox {
   z-index: 2;
   width: 70%;
   height: 3rem;
+  transform: translateY(75%);
   text-align: center;
   margin-left: 14%;
   margin-top: 10pt;
@@ -242,6 +243,7 @@ ion-checkbox {
 
 .overlaySearch {
   position: absolute;
+  transform: translateY(75%);
   z-index: 2;
   width: 70%;
   height: 3rem;
@@ -365,6 +367,7 @@ ion-checkbox {
 
 .overlaySearchDarkNotHumboldt {
   position: absolute;
+  transform: translateY(75%);
   z-index: 2;
   width: 70%;
   height: 3rem;
@@ -381,6 +384,7 @@ ion-checkbox {
 
 .overlaySearchDark {
   position: absolute;
+  transform: translateY(75%);
   z-index: 2;
   width: 70%;
   height: 3rem;
@@ -585,12 +589,7 @@ ion-img::part(image) {
   -webkit-backface-visibility: hidden;
 }
 
-ion-app {
-  margin-top: constant(safe-area-inset-top);
-  margin-top: env(safe-area-inset-top);
-}
-
-.ios-notch {
+.ion-page-ios-notch {
   margin-top: constant(safe-area-inset-top);
   margin-top: env(safe-area-inset-top);
 }

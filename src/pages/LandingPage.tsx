@@ -232,7 +232,7 @@ const LandingPage: React.FC = () => {
   }
 
   return (
-    <IonPage className='app-root'>
+    <IonPage className="ion-page-ios-notch">
       <IonContent>
         {loggingIn ? (
           <IonLoading

@@ -556,7 +556,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }, [user, schoolName, match.params.key]);
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} scrollEvents>
 
         <IonLoading isOpen={deletingComment} duration={0} message={"Deleting post..."} />

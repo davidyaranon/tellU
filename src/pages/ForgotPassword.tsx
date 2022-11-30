@@ -45,7 +45,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent>
 
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>

@@ -934,7 +934,7 @@ function User() {
     );
   }
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} className="no-scroll-content" scrollY={false}>
         {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
         <IonToolbar mode="ios" style={{ height: "5vh" }}>

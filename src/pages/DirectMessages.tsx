@@ -92,7 +92,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   }, [loading, messages])
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent scrollEvents>
 
         <div slot="fixed" style={{ width: "100%" }}>

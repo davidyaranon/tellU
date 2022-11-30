@@ -226,7 +226,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }, [user, collectionPath, messages, schoolName])
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} scrollEvents>
 
         <IonModal isOpen={showReportModal} mode="ios">

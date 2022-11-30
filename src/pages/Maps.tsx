@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave, IonHeader,
+  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 

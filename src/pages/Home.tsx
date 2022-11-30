@@ -37,16 +37,6 @@ import { useHistory } from "react-router";
 import { useSelector } from "react-redux";
 import { useToast } from "@agney/ir-toast";
 import { v4 as uuidv4 } from "uuid";
-import '@ionic/react/css/core.css';
-import '@ionic/react/css/normalize.css';
-import '@ionic/react/css/structure.css';
-import '@ionic/react/css/typography.css';
-import '@ionic/react/css/padding.css';
-import '@ionic/react/css/float-elements.css';
-import '@ionic/react/css/text-alignment.css';
-import '@ionic/react/css/text-transformation.css';
-import '@ionic/react/css/flex-utils.css';
-import '@ionic/react/css/display.css';
 import { Virtuoso } from 'react-virtuoso';
 import PostImages from "./PostImages";
 import { ClassSelections } from "./ClassSelections";
@@ -664,7 +654,7 @@ const Home = () => {
 
   if (posts && posts.length > 0) {
     return (
-      <IonPage>
+      <IonPage className="ion-page-ios-notch">
 
         <div>
           {newPostsLoaded && (

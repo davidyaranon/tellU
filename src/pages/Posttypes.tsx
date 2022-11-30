@@ -106,7 +106,7 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent fullscreen scrollY={false}>
 
         <div slot="fixed" style={{ width: "100%" }}>

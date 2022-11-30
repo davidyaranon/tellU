@@ -62,7 +62,7 @@ export const PrivacyPolicy = () => {
   }
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent>
 
         <IonLoading

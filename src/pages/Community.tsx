@@ -261,7 +261,7 @@ function Community() {
   }, [schoolName]);
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent>
 
         <FadeIn transitionDuration={1500}>

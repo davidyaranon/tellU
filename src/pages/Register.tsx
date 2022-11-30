@@ -191,7 +191,7 @@ const Register: React.FC = () => {
   }
 
   return (
-    <IonPage>
+    <IonPage className="ion-page-ios-notch">
       <IonContent>
         <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
           <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
