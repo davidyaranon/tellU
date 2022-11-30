@@ -43,7 +43,7 @@ import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@c
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import { useToast } from "@agney/ir-toast";
-import { getColor, timeout } from '../components/functions';
+import { getColor, timeout } from '../shared/functions';
 import { Virtuoso } from "react-virtuoso";
 import PostImages from "./PostImages";
 import React from "react";

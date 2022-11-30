@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { useToast } from "@agney/ir-toast";
 
 import Header from "./Header";
-import { timeout } from "../components/functions";
+import { timeout } from "../shared/functions";
 import { sendPasswordReset } from "../fbconfig";
 import { useTabsContext } from "../my-context";
 

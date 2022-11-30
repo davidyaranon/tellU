@@ -6,7 +6,7 @@ import {
   IonText, IonCardContent, IonCard, IonSkeletonText,
   IonNote, IonSpinner, IonButtons, IonCardTitle,
   IonPage, useIonViewDidEnter, IonRow, IonCol,
-  IonSearchbar, useIonRouter, RouterDirection, IonBadge, IonInfiniteScroll, IonInfiniteScrollContent
+  IonSearchbar, useIonRouter, RouterDirection, IonBadge,
 } from "@ionic/react";
 import React, { useRef, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -63,7 +63,7 @@ import {
   KeyboardStyleOptions,
 } from "@capacitor/keyboard";
 import { StatusBar, Style } from "@capacitor/status-bar";
-import { getColor, timeout } from '../components/functions';
+import { getColor, timeout } from '../shared/functions';
 import { useTabsContext } from "../my-context";
 import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
@@ -197,7 +197,7 @@ function User() {
             setEditableUserSnapchat(res.snapchat);
             setEditableUserTiktok(res.tiktok);
             setEditableSpotifyUri(res.spotify);
-            setNotifs(res.notifs);
+            setNotifs(res.notifs.slice(0, 15));
           } else {
             Toast.error("Trouble loading data");
             setAboutEdit(false);
@@ -810,7 +810,7 @@ function User() {
             if (keyA > keyB) return 1;
             return 0;
           });
-          setNotifs(res.notifs);
+          setNotifs(res.notifs.slice(0, 15));
         } else {
           Toast.error("Trouble loading data");
           setAboutEdit(false);

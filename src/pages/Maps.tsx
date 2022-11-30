@@ -19,7 +19,7 @@ import { collection, query, where, getDocs, orderBy, limit } from "firebase/fire
 /* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
-import { getColor, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../components/functions";
+import { getColor, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../shared/functions";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
 import { useTabsContext } from "../my-context";

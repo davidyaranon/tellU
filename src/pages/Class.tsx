@@ -21,7 +21,7 @@ import FadeIn from "react-fade-in";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import { chevronBackOutline } from "ionicons/icons";
-import { getColor } from '../components/functions';
+import { getColor } from '../shared/functions';
 import Linkify from 'linkify-react';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import ProfilePhoto from "./ProfilePhoto";

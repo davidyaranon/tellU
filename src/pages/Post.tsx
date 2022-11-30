@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -13,14 +13,14 @@ import { upVote, downVote, promiseTimeout } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonBadge, IonButton, IonButtons, IonCard,
+  IonAvatar, IonBackButton, IonButton, IonButtons, IonCard,
   IonCardContent, IonCol, IonContent, IonFab,
-  IonFabButton, IonGrid, IonIcon,
+  IonFabButton, IonIcon,
   IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
   IonItem, IonLabel, IonList, IonLoading, IonModal,
   IonNote, IonPage, IonRow, IonSkeletonText,
   IonSpinner, IonText, IonTextarea,
-  IonTitle, IonToolbar, RouterDirection, useIonRouter
+  IonTitle, IonToolbar
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { v4 as uuidv4 } from "uuid";
@@ -28,15 +28,21 @@ import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { cameraOutline, shareOutline, chevronBackOutline, alertCircleOutline, warningSharp, arrowUpCircleOutline, arrowUpOutline, banOutline, arrowUpCircleSharp } from "ionicons/icons";
-import { getColor, timeout } from '../components/functions';
+import {
+  cameraOutline, shareOutline, chevronBackOutline,
+  alertCircleOutline, warningSharp, arrowUpOutline, banOutline
+} from "ionicons/icons";
+import { getColor, timeout } from '../shared/functions';
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import Linkify from 'linkify-react';
 import { Share } from "@capacitor/share";
 import { Dialog } from '@capacitor/dialog';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
+import {
+  PhotoViewer as CapacitorPhotoViewer,
+  Image as CapacitorImage
+} from '@capacitor-community/photoviewer';
 import ProfilePhoto from "./ProfilePhoto";
 import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
 import PostImages from "./PostImages";
@@ -58,10 +64,11 @@ const defaultResizeOptions: KeyboardResizeOptions = {
 }
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
+  console.log("post");
   const postKey = match.params.key;
   const [user] = useAuthState(auth);
   const Toast = useToast();
-  const router = useIonRouter();
+  const history = useHistory();
   const context = useTabsContext();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
@@ -93,17 +100,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [notificationsToken, setNotificationsToken] = useState<string>("");
   const [deletingComment, setDeletingComment] = useState<boolean>(false);
 
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      dynamicNavigate('home', 'back');
-    }
-  }
 
   const reportPost = async () => {
     const { value } = await Dialog.confirm({
@@ -392,8 +388,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const handleUserPageNavigation = (uid: string) => {
-    // history.push("/about/" + uid);
-    dynamicNavigate("about/" + uid, 'forward');
+    history.push("/about/" + uid);
   };
 
   const handleUpVoteComment = async (commentKey: string, index: number) => {
@@ -498,12 +493,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       }
     } else {
       Toast.error("Unable to dislike post :(");
-    }
-  };
-
-  const isEnterPressed = (key: any) => {
-    if (key === "Enter") {
-      handleCommentSubmit();
     }
   };
 
@@ -645,16 +634,14 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               <IonTitle>{post.userName}'s Post</IonTitle>
             }
             <IonButtons style={{ marginLeft: "-2.5%" }}>
-              <IonButton
+              <IonBackButton
+                style={{ marginLeft: "2.5%" }}
                 color={
                   schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
                 }
-                onClick={() => {
-                  navigateBack();
-                }}
-              >
-                <IonIcon icon={chevronBackOutline}></IonIcon> Back
-              </IonButton>
+                defaultHref="/home"
+                icon={chevronBackOutline}
+              />
             </IonButtons>
             <IonButtons slot='end'>
               <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={() => { reportPost(); }}>
@@ -666,6 +653,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </IonButtons>
           </IonToolbar>
         </div>
+
         <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
           : { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={darkModeToggled ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
@@ -676,7 +664,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
               </IonCol>
-              <IonFabButton disabled={deleted || previousCommentLoading || !post} size="small" color={schoolColorToggled ? "tertiary" : "primary"} onClick={() => { handleCommentSubmit(); }}>
+              <IonFabButton disabled={deleted || previousCommentLoading || !post || comment.length === 0} size="small" color={schoolColorToggled ? "tertiary" : "primary"} onClick={() => { handleCommentSubmit(); }}>
                 <IonIcon icon={arrowUpOutline} color={!darkModeToggled ? "light" : ""} size="small" mode="ios" />
               </IonFabButton>
             </IonRow>
@@ -770,7 +758,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           <IonFab vertical="top" horizontal="end" onClick={(e) => {
                             if (post.postType !== "general") {
                               e.stopPropagation();
-                              dynamicNavigate("type/" + post.postType, 'forward');
+                              history.push("type/" + post.postType);
                             }
                           }}>
                             {post.postType !== "general" ?
@@ -788,7 +776,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                     onClick={() => {
                                       localStorage.setItem("lat", (post.location[0].toString()));
                                       localStorage.setItem("long", (post.location[1].toString()));
-                                      dynamicNavigate("maps", 'forward');
+                                      history.push("/maps");
                                     }}
                                   />
                                 ) : null}
@@ -805,7 +793,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   <RoomIcon onClick={() => {
                                     localStorage.setItem("lat", (post.location[0].toString()));
                                     localStorage.setItem("long", (post.location[1].toString()));
-                                    dynamicNavigate("maps", 'forward');
+                                    history.push("/maps");
                                   }}
                                     style={{ fontSize: "1em" }} />) : null}
                               </p>
@@ -827,7 +815,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
                             {post.message} <IonNote onClick={(e) => {
                               e.stopPropagation();
-                              dynamicNavigate("class/" + post.className, 'forward');
+                              history.push("/class/" + post.className);
                             }} color="medium" style={{ fontWeight: "400" }}> &nbsp; — {post.className}{post.classNumber}</IonNote>
                           </Linkify>
                           :
@@ -843,6 +831,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                         id={post.postType.replace("/", "")}
                       ></div>
                     </IonItem>
+
                     <IonItem lines="none" mode="ios">
                       <IonButton
                         onAnimationEnd={() => {
@@ -930,6 +919,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           }}></IonIcon>
                         </IonFab>
                       }
+
                       {user && user.uid === post.uid && "reports" in post && post.reports > 1 ? (
                         <IonFab horizontal="end">
                           <IonButton
@@ -976,7 +966,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   } else {
                                     Toast.error("Something went wrong when deleting post, try again")
                                   }
-                                  dynamicNavigate("about/" + post.uid, "back");
+                                  history.push("/about/" + post.uid);
                                   setDeletingComment(false);
                                 } else {
                                   console.log("deleting post without images");
@@ -990,7 +980,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   } else {
                                     Toast.error("Something went wrong when deleting post, try again")
                                   }
-                                  dynamicNavigate("about/" + post.uid, "back");
+                                  history.push("/about/" + post.uid);
                                   setDeletingComment(false);
                                 }
                               }}
@@ -1003,7 +993,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </IonList>
                 </div>
               </FadeIn>
-              
+
               <div className="verticalLine"></div>
             </>
           ) :
@@ -1025,7 +1015,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </FadeIn>
             </>
           }
-          {/* <IonButton onClick={() => {handleCommentSubmit();}}>SEND</IonButton> */}
+
           {commentsLoading || !comments ? (
             <div
               style={{
@@ -1048,10 +1038,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       <IonLabel class="ion-text-wrap">
                         <IonText color="medium">
                           <p>
-                            {/* <FadeIn> */}
                             <IonAvatar
                               onClick={() => {
-                                // setComments([]);
                                 setComment("");
                                 handleUserPageNavigation(comment.uid);
                               }}
@@ -1059,7 +1047,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             >
                               <ProfilePhoto uid={comment.uid}></ProfilePhoto>
                             </IonAvatar>
-                            {/* </FadeIn> */}
                             {comment.userName}
                           </p>
                         </IonText>
@@ -1087,7 +1074,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                 }).catch((err) => {
                                   Toast.error('Unable to open image on web version');
                                 });
-                                // PhotoViewer.show(comment.imgSrc, `${comment.userName}'s comment`);
                               }}
                             >
                             </div>

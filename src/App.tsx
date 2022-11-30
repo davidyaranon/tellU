@@ -11,8 +11,6 @@ import {
   IonTabButton,
   IonBadge,
   useIonToast,
-  isPlatform,
-  // IonBadge,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 
@@ -71,9 +69,7 @@ import { useHistory } from "react-router";
 import Class from "./pages/Class";
 import ChatRoom from "./pages/ChatRoom";
 import DirectMessages from "./pages/DirectMessages";
-// import School from "./pages/School";
 import Posttypes from "./pages/Posttypes";
-import { Capacitor } from "@capacitor/core";
 
 setupIonicReact({
   swipeBackEnabled: false
@@ -134,12 +130,10 @@ const RoutingSystem: React.FunctionComponent = () => {
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema) => {
-        // alert('Push received: ' + JSON.stringify(notification));
         let urlJSON = notification.data["gcm.notification.data"]
         let noBackSlashes = urlJSON.toString().replaceAll('\\', '');
         let removedUrl = noBackSlashes.substring(7, noBackSlashes.length);
         let finalUrl = removedUrl.slice(1, removedUrl.length - 2);
-        // alert(finalUrl);
         presentToast(notification.body || "", finalUrl || "", 'top');
       },
     ).then(() => {
@@ -169,7 +163,6 @@ const RoutingSystem: React.FunctionComponent = () => {
             {" "}
             <Home />{" "}
           </Route>
-          {/* <Route path="/:tab(school)" component={School} exact={true} /> */}
           <Route
             path="/:tab(community)"
             component={Community}
@@ -210,15 +203,6 @@ const RoutingSystem: React.FunctionComponent = () => {
                     : { fontSize: "3.75vh" }}
             />
           </IonTabButton>
-          {/*<IonTabButton tab="school" href="/school">
-             <SchoolIcon
-              fontSize="medium"
-              style={selectedTab === 'school' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
-                : selectedTab === 'school' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
-                  : selectedTab === 'school' ? { fontSize: "4.5vh" }
-                    : { fontSize: "3.75vh" }}
-            />
-          </IonTabButton> */}
           <IonTabButton tab="community" href="/community">
             <LocalFireDepartmentIcon
               fontSize="medium"
@@ -297,7 +281,6 @@ const App: React.FunctionComponent = () => {
   }, [auth]);
 
   useEffect(() => {
-    console.log("HI")
     document.addEventListener("deviceready", onDeviceReady);
     return () => {
       document.removeEventListener("deviceready", onDeviceReady);

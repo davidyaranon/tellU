@@ -2,18 +2,15 @@ import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth,
-{
-  addCommentNew, downVoteComment, getClassPostsDb, getLikes, getPostTypeDb,
-} from '../fbconfig';
+import auth, { getPostTypeDb } from '../fbconfig';
 import { promiseTimeout } from "../fbconfig";
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonButton, IonButtons, IonCol,
+  IonAvatar, IonButton, IonButtons,
   IonContent, IonFab, IonIcon,
   IonItem, IonLabel, IonList,
-  IonNote, IonPage, IonRow,
+  IonNote, IonPage, 
   IonSpinner, IonText,
   IonTitle, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
@@ -21,9 +18,8 @@ import FadeIn from "react-fade-in";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import { chevronBackOutline } from "ionicons/icons";
-import { getColor, timeout } from '../components/functions';
+import { getColor } from '../shared/functions';
 import Linkify from 'linkify-react';
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import ProfilePhoto from "./ProfilePhoto";
 import { Virtuoso } from "react-virtuoso";
 import PostImages from "./PostImages";
@@ -32,7 +28,6 @@ interface MatchUserPostParams {
   type: string;
 }
 
-
 const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postType = match.params.type;
   const [user] = useAuthState(auth);
@@ -40,10 +35,10 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const router = useIonRouter();
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
   const schoolName = useSelector((state: any) => state.user.school);
-  const timeAgo = new TimeAgo("en-US");
   const [posts, setPosts] = useState<any[]>();
   const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
-
+  const timeAgo = new TimeAgo("en-US");
+  
   const getDate = (timestamp: any) => {
     if (!timestamp) {
       return '';
@@ -57,7 +52,6 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       return '';
     }
   };
-
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
