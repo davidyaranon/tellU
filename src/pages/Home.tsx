@@ -795,7 +795,7 @@ const Home = () => {
                       </IonLabel>
                     </IonItem>
 
-                    <LikeDislike posts={posts} handleUpVote={handleUpVote} handleDownVote={handleDownVote} user={user} schoolName={schoolName} schoolColorToggled={schoolColorToggled} post={post} index={index} />
+                    <LikeDislike handleUpVote={handleUpVote} handleDownVote={handleDownVote} user={user} schoolName={schoolName} schoolColorToggled={schoolColorToggled} post={post} index={index} />
 
                   </IonList>
                 </FadeIn>

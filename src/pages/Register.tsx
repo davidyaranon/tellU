@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link } from "react-router-dom";
-import { useHistory } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserState } from "../redux/actions";
 
@@ -46,7 +45,6 @@ const Register: React.FC = () => {
 
   const Toast = useToast();
   const dispatch = useDispatch();
-  const history = useHistory();
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const tabs = useTabsContext();
   const router = useIonRouter();
@@ -67,7 +65,6 @@ const Register: React.FC = () => {
     if (schoolName) {
       var idx = emailSignUp.lastIndexOf('@');
       if (idx > -1 && (emailSignUp.slice(idx + 1)).toLowerCase() === schoolEmailEnding) {
-        // console.log('school matches email');
       } else {
         Toast.error('Use your university\'s email address!');
         setBusy(false);
@@ -326,7 +323,6 @@ const Register: React.FC = () => {
                 } else if (e.detail.value == "CSU Monterey Bay") {
                   setSchoolEmailEnding('csumb.edu');
                 } 
-               
               }}
             >
               <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
@@ -438,4 +434,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default React.memo(Register);
+export default Register;

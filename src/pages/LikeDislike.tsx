@@ -1,5 +1,5 @@
 import { IonButton, IonFab, IonIcon, IonItem } from "@ionic/react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from "@mui/icons-material/Forum";
@@ -8,7 +8,7 @@ import { warningSharp } from "ionicons/icons";
 import { Dialog } from "@capacitor/dialog";
 
 
-export const LikeDislike = (props: any) => {
+export const LikeDislike = memo((props: any) => {
 
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
@@ -16,7 +16,6 @@ export const LikeDislike = (props: any) => {
   const history = useHistory();
 
   const post = props.post;
-  const posts = props.posts;
   const handleUpVote = props.handleUpVote;
   const handleDownVote = props.handleDownVote;
   const index = props.index;
@@ -79,11 +78,8 @@ export const LikeDislike = (props: any) => {
         fill="outline"
         color={
           index != -1 &&
-            posts &&
-            posts[index] &&
-            "dislikes" in posts[index] &&
             user &&
-            posts[index].dislikes[user.uid] !== undefined
+            post.dislikes[user.uid] !== undefined
             ? "danger"
             : "medium"
         }
@@ -109,4 +105,4 @@ export const LikeDislike = (props: any) => {
       }
     </IonItem>
   )
-}
+});
