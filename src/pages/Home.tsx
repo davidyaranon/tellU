@@ -4,8 +4,8 @@ import "../theme/variables.css";
 import {
   IonAvatar, IonButton, IonButtons, IonCard, IonCheckbox, IonCol,
   IonContent, IonFab, IonFabButton, IonFooter, IonHeader, IonIcon,
-  IonImg, IonItem, IonLabel, IonList,
-  IonLoading, IonModal, IonNote, IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
+  IonImg, IonItem, IonLabel, IonList,IonLoading, IonModal, IonNote, 
+  IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
   IonRow, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar,
 } from "@ionic/react";
 import { Camera, GalleryPhoto } from "@capacitor/camera";
@@ -16,7 +16,6 @@ import { RefresherEventDetail } from "@ionic/core";
 import { add, cameraOutline, refreshCircleOutline } from "ionicons/icons";
 import { addMessage, downVote, getAllPosts, promiseTimeout, upVote } from "../fbconfig";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
-import { chevronDownCircleOutline } from "ionicons/icons";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import { getColor, timeout } from '../shared/functions';
 import { getDownloadURL, ref } from "firebase/storage";
@@ -27,7 +26,6 @@ import Linkify from 'linkify-react';
 import Map from "@mui/icons-material/Map";
 import ProfilePhoto from "./ProfilePhoto";
 import RoomIcon from '@mui/icons-material/Room';
-import SignalWifiOff from "@mui/icons-material/SignalWifiOff";
 import TimeAgo from "javascript-time-ago";
 import { useTabsContext } from "../my-context";
 import { db } from '../fbconfig';

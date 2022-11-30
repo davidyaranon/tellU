@@ -58,23 +58,6 @@ export const PrivacyPolicy = () => {
     }).catch((err) => {console.log(err); Toast.error("Something went wrong!"); setDeletingAccount(false);});
     window.localStorage.clear();
     localStorage.clear();
-
-    // let promise = promiseTimeout(10000, logout());
-    // promise.then((loggedOut: boolean) => {
-    //   if (loggedOut) {
-    //     window.localStorage.clear();
-    //     localStorage.clear();
-    //     Toast.success("Logging out...");
-    //   } else {
-    //     Toast.error("Unable to logout");
-    //   }
-    //   setDeletingAccount(false);
-    // });
-    // promise.catch((err: any) => {
-    //   Toast.error(err);
-    //   setDeletingAccount(false);
-    // });
-
     setDeletingAccount(false);
   }
 

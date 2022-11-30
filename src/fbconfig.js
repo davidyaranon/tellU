@@ -1,8 +1,4 @@
 import "firebase/compat/firestore";
-
-// import {fetch as nodeFetch} from 'node-fetch';
-// import axios from 'axios';
-
 import {
   addDoc, arrayRemove, arrayUnion, collection, deleteDoc,
   doc, getDoc, getDocs, getFirestore, increment, limit, orderBy,
@@ -53,7 +49,7 @@ export const db = getFirestore(app);
 export const storage = getStorage();
 export const database = getDatabase();
 
-// cloud functions
+/* cloud functions */
 export const deletePoll = httpsCallable(functions, 'deletePoll');
 export const deleteImage = httpsCallable(functions, 'deleteImage');
 export const deleteLikesDocFromRtdb = httpsCallable(functions, 'deleteLikesDocFromRtdb');
@@ -62,52 +58,15 @@ export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNotification');
 export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
 
-export const addPostToAllSchools = async (message, postType) => {
-  try {
-    if (db) {
-      const schools = [
-        "CSU Channel Islands", "CSU Dominguez Hills", "CSU Bakersfield",
-        "CSUN", "Sac State", "Stanislaus State", "Sonoma State", "San Diego State", "Fresno State",
-        "Chico State", "San Jose State", "SF State", "Cal State Long Beach", "Cal State San Bernardino",
-        "Cal Maritime", "CSU Monterey Bay", "Cal Poly Humboldt", "Cal Poly San Luis Obispo", "Cal Poly Pomona",
-        "UC Merced", "UC Berkeley", "UC Davis", "UC Irvine", "UCLA", "UC San Diego", "UC Santa Barbara", "UC Santa Cruz",
-        "UC Riverside", "UCSF"
-      ];
-      for (let i = 0; i < schools.length; ++i) {
-        let docName = schools[i].replace(/\s+/g, "");
-        const docId = await addDoc(collection(db, "schoolPosts", docName, "allPosts"), {
-          timestamp: serverTimestamp(),
-          message: message,
-          userName: "tellU🎓",
-          url: "",
-          uid: auth.currentUser.uid,
-          location: [0, 0],
-          postType: postType,
-          imgSrc: [],
-          marker: false,
-          notificationsToken: "",
-          className: "",
-          classNumber: "",
-          reports: 0,
-        });
-        await set(rtdbRef(database, docId.id), {
-          likes: {
-            'null': true
-          },
-          dislikes: {
-            'null': true
-          },
-          commentAmount: 0,
-        }).catch((err) => {
-          console.log(err);
-        });
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
+/**
+ * Returns news articles from Firestore database in location /schoolNews/{schoolName}
+ * NOTE: News articles are updated every 6 hours by a cloud function
+ * 
+ * @param {string} schoolName name of school to recieve news
+ * @returns map containing news articles
+ * TODO: add more schools, only
+ * UC Berkeley and Cal Poly Humboldt are supported
+ */
 export const getNewsArticles = async (schoolName) => {
   try {
     if (db) {
@@ -127,20 +86,13 @@ export const getNewsArticles = async (schoolName) => {
   }
 }
 
-export const testNewsUpdates = async () => {
-  const apiKey = '8b14944f22e147c8a9f16104c71461e9';
-  const option = {
-    mode: "cors",
-    headers: {
-      "Ocp-Apim-Subscription-Key": apiKey
-    }
-  };
-  const berkNews = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
-  const berk = await berkNews.json();
-  console.log(berk);
-
-}
-
+/**
+ * Retrieves Spotify tracks based on a search query
+ * Uses Spotify Web API
+ * 
+ * @param {string} query query to search for
+ * @returns Top 25 Spotify tracks that match the query
+ */
 export const spotifySearch = async (query) => {
   try {
     const res = await fetch('https://accounts.spotify.com/api/token', {
@@ -162,6 +114,14 @@ export const spotifySearch = async (query) => {
   }
 };
 
+/**
+ * Uploads an image to Firestore storage
+ * 
+ * @param {string} location path in Firestore storage where the image is being uploaded
+ * @param {blob} blob bytes of the image
+ * @param {string} url basename of location in Firestore storage
+ * @returns 
+ */
 export async function uploadImage(location, blob, url) {
   try {
     const currentUserUid = auth.currentUser.uid;
@@ -184,6 +144,13 @@ export async function uploadImage(location, blob, url) {
   }
 }
 
+/**
+ * Function that logs in a user based on email and password
+ * 
+ * @param {string} email user email
+ * @param {string} password user password
+ * @returns UserCredential object
+ */
 export async function logInWithEmailAndPassword(email, password) {
   try {
     const res = await signInWithEmailAndPassword(auth, email, password);
@@ -193,8 +160,11 @@ export async function logInWithEmailAndPassword(email, password) {
   }
 }
 
-
-
+/**
+ * Resets the notifications token of a device after logout
+ * 
+ * @param {string} userUid uid of user logging out
+ */
 const updateNotificationsTokenAfterLogout = async (userUid) => {
   if (!userUid || userUid.length <= 0) { return; }
   const batch = writeBatch(db);
@@ -205,6 +175,12 @@ const updateNotificationsTokenAfterLogout = async (userUid) => {
   await batch.commit().catch((err) => console.log(err));
 }
 
+/**
+ * Sets the notificationsToken field in Firestore userData/{uid}
+ * Allows for unique push notifications to be sent to the user
+ * 
+ * @param {string} token notifications token from Google FCM
+ */
 export const updateNotificationsToken = async (token) => {
   try {
     if (!token || token.length <= 0) { return; }
@@ -222,12 +198,16 @@ export const updateNotificationsToken = async (token) => {
   }
 };
 
-export async function registerWithEmailAndPassword(
-  name,
-  email,
-  password,
-  school
-) {
+/**
+ * Registers user with Firestore auth based on email and password
+ * 
+ * @param {string} name provided user name 
+ * @param {string} email provided user email
+ * @param {string} password provided user password
+ * @param {string} school school the user is attending
+ * @returns 
+ */
+export async function registerWithEmailAndPassword(name, email, password, school) {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const batch = writeBatch(db);
@@ -239,18 +219,6 @@ export async function registerWithEmailAndPassword(
           "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd",
       });
       try {
-        // batch.set(doc(db, "userData", user.uid.toString()), {
-        //   bio: "",
-        //   snapchat: "",
-        //   instagram: "",
-        //   tiktok: "",
-        //   spotify: "",
-        //   userName: name,
-        //   userEmail: email,
-        //   uid: user.uid,
-        //   school: school,
-        //   timestamp: serverTimestamp(),
-        // });
         await setDoc(doc(db, "userData", user.uid.toString()), {
           bio: "",
           snapchat: "",
@@ -265,13 +233,9 @@ export async function registerWithEmailAndPassword(
           timestamp: serverTimestamp(),
           notificationsToken: "",
         });
-        // batch.set(doc(db, "userPhotoUrls", user.uid.toString()), {
-        //   url: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
-        // });
         await setDoc(doc(db, "userPhotoUrls", user.uid.toString()), {
           url: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
         });
-        // await batch.commit().catch((err) => {console.log(err);});
       } catch (docErr) {
         console.log(docErr);
       }
@@ -282,6 +246,12 @@ export async function registerWithEmailAndPassword(
   }
 }
 
+/**
+ * Sends password reset email in case user forgets password
+ * 
+ * @param {string} email email to send paassword reset instructions to
+ * @returns boolean if email was sent
+ */
 export const sendPasswordReset = async (email) => {
   try {
     await sendPasswordResetEmail(auth, email);
@@ -291,6 +261,9 @@ export const sendPasswordReset = async (email) => {
   }
 };
 
+/**
+ * Deletes all user data from Firestore database
+ */
 export const deleteUserDataAndAccount = async () => {
   try {
     const user = auth.currentUser;
@@ -325,6 +298,12 @@ export const deleteUserDataAndAccount = async () => {
   }
 }
 
+/**
+ * Logs user out of Firebase auth
+ * Clears cookies and reloads window
+ * 
+ * @returns boolean if user is logged out
+ */
 export const logout = async () => {
   try {
     var cookies = document.cookie.split(";");
@@ -345,6 +324,11 @@ export const logout = async () => {
   }
 };
 
+/**
+ * Retreives currently logged in user
+ * 
+ * @returns User object from Firebase auth
+ */
 export function getCurrentUser() {
   return new Promise((resolve, reject) => {
     const unsubscribe = auth.onAuthStateChanged(function (user) {
@@ -358,6 +342,12 @@ export function getCurrentUser() {
   });
 }
 
+/**
+ * Retreives data from Firebase RTDB for a specific post
+ * 
+ * @param {string} key uid of post
+ * @returns object containing post data (likes, dislikes, comment amount)
+ */
 export const getLikes = async (key) => {
   try {
     const likesRef = rtdbRef(database, key);
@@ -368,22 +358,24 @@ export const getLikes = async (key) => {
   }
 };
 
-function randomInRange(min, max) {
-  return Math.random() < 0.5 ? ((1 - Math.random()) * (max - min) + min) : (Math.random() * (max - min) + min);
-}
-
-export const addMessage = async (
-  mess,
-  blob,
-  id,
-  pos,
-  school,
-  notificationsToken,
-  postType = "general",
-  postClassName = "",
-  postClassNumber = "",
-  docId
-) => {
+/**
+ * Adds message to Firestore database in location /schoolPosts/{schoolName}/allPosts/{docId}
+ * Uploads images to Firebase storage if provided
+ * Sets likes document in RTDB to null values
+ * 
+ * @param {string} mess 
+ * @param {blob} blob 
+ * @param {string} id 
+ * @param {Geoposition | null | undefined} pos 
+ * @param {string} school 
+ * @param {string} notificationsToken 
+ * @param {string} postType 
+ * @param {string} postClassName 
+ * @param {string} postClassNumber 
+ * @param {string} docId 
+ * @returns boolean if message was successfully uploaded
+ */
+export const addMessage = async (mess, blob, id, pos, school, notificationsToken, postType = "general", postClassName = "", postClassNumber = "", docId) => {
   try {
     if (auth.currentUser != null) {
       if (auth.currentUser.uid != null) {
@@ -454,6 +446,12 @@ export const addMessage = async (
   }
 };
 
+/**
+ * Checks if a user name has been taken by another user
+ * 
+ * @param {string} userName userName to check
+ * @returns boolean value whether or not the username is taken
+ */
 export async function checkUsernameUniqueness(userName) {
   try {
     if (db) {
@@ -473,6 +471,13 @@ export async function checkUsernameUniqueness(userName) {
   }
 }
 
+/**
+ * Retrieves the last 50 posts that have a flair of postType
+ * 
+ * @param {string} postType post flairs: GENERAL, ALERT, SIGHTING, DINING, HOUSING, BUY/SELL, EVENT
+ * @param {string} schoolName name of school to check for
+ * @returns 
+ */
 export const getPostTypeDb = async (postType, schoolName) => {
   try {
     if (auth && db) {
@@ -494,11 +499,18 @@ export const getPostTypeDb = async (postType, schoolName) => {
   }
 }
 
+/**
+ * Retrieves the last 50 posts that have and a class name of className
+ * 
+ * @param {string} className 
+ * @param {string} schoolName name of school to check for
+ * @returns 
+ */
 export const getClassPostsDb = async (className, schoolName) => {
   try {
     if (auth && db) {
       const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(125))));
+      const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(50))));
       const qSnapshot = await getDocs(q);
       let classPosts = [];
       const docs = qSnapshot.docs;
@@ -515,6 +527,13 @@ export const getClassPostsDb = async (className, schoolName) => {
   }
 };
 
+/**
+ * Retrieves the last 10 polls posted by the user
+ * 
+ * @param {string} schoolName school user is attending
+ * @param {*} userUid unique ID of user
+ * @returns Array of polls
+ */
 export const getYourPolls = async (schoolName, userUid) => {
   try {
     if (auth && db) {
@@ -536,6 +555,12 @@ export const getYourPolls = async (schoolName, userUid) => {
   }
 }
 
+/**
+ * 
+ * @param {string} schoolName 
+ * @param {string} key 
+ * @returns 
+ */
 export async function getAllPostsNextBatch(schoolName, key) {
   try {
     if (auth.currentUser != null && db) {
@@ -1500,19 +1525,19 @@ export const addCommentNew = async (postKey, schoolName, commentString, blob, id
         }
       }
       // if (posterUid != uid) {
-        sendCommentsNotification({
-          isNotSameUser: (posterUid != uid),
-          postKey: postKey,
-          posterUid: posterUid,
-          userName: userName,
-          notificationsToken: notificationsToken,
-          comment: commentString,
-          taggedUsers: attedUsersList,
-          data: {
-            url: "/post/" + postKey
-          },
-          icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
-        });
+      sendCommentsNotification({
+        isNotSameUser: (posterUid != uid),
+        postKey: postKey,
+        posterUid: posterUid,
+        userName: userName,
+        notificationsToken: notificationsToken,
+        comment: commentString,
+        taggedUsers: attedUsersList,
+        data: {
+          url: "/post/" + postKey
+        },
+        icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
+      });
       // }
       // nodeFetch('https://fcm.googleapis.com/fcm/send', {
       //   method: 'POST',
@@ -1728,7 +1753,7 @@ export const removeComment = async (comment, schoolName, postKey) => {
   }
 
 }
-// /schoolPosts/UCDavis/allPosts/xGhnEiKAGyMSbiQIDPeW/comments/5nVNdPGw0lAJBCSH3l0i
+
 export const loadCommentsNew = async (postKey, schoolName) => {
   try {
     if (auth && auth.currentUser) {
@@ -1856,15 +1881,71 @@ export const sendReportStatus = async (message, schoolName, postKey) => {
   }
 }
 
-// messages/CalPolyHumboldt/TUAt5BpThxYPFQ1CVnBz6iqpXs82_AjH4RHadaVWIvCt3hV0f5fvdlgp2/ {doc_id} SEqZgsBSX8PZPHrLcCtc
 
-// export const getDirectMessages = async (schoolName, contactUid) => {
-//   try {
-//     if(db && auth) {
-//       const userUid = auth.currentUser.uid;
-//       const messagesRef = collection(db, 'messages', schoolName.replace(/\s+/g, ""), userUid + '_' + contactUid);
-//       const q = query(messagesRef, orderBy("date", "asc"), limit(100));
-//       const querySnapshot = await getDocs(q);
-//     }
-//   }
-// };
+/**
+ * Admin function to add post to every school from tellU account
+ * @param {string} message 
+ * @param {string} postType 
+ */
+export const addPostToAllSchools = async (message, postType) => {
+  try {
+    if (db) {
+      const schools = [
+        "CSU Channel Islands", "CSU Dominguez Hills", "CSU Bakersfield",
+        "CSUN", "Sac State", "Stanislaus State", "Sonoma State", "San Diego State", "Fresno State",
+        "Chico State", "San Jose State", "SF State", "Cal State Long Beach", "Cal State San Bernardino",
+        "Cal Maritime", "CSU Monterey Bay", "Cal Poly Humboldt", "Cal Poly San Luis Obispo", "Cal Poly Pomona",
+        "UC Merced", "UC Berkeley", "UC Davis", "UC Irvine", "UCLA", "UC San Diego", "UC Santa Barbara", "UC Santa Cruz",
+        "UC Riverside", "UCSF"
+      ];
+      for (let i = 0; i < schools.length; ++i) {
+        let docName = schools[i].replace(/\s+/g, "");
+        const docId = await addDoc(collection(db, "schoolPosts", docName, "allPosts"), {
+          timestamp: serverTimestamp(),
+          message: message,
+          userName: "tellU🎓",
+          url: "",
+          uid: auth.currentUser.uid,
+          location: [0, 0],
+          postType: postType,
+          imgSrc: [],
+          marker: false,
+          notificationsToken: "",
+          className: "",
+          classNumber: "",
+          reports: 0,
+        });
+        await set(rtdbRef(database, docId.id), {
+          likes: {
+            'null': true
+          },
+          dislikes: {
+            'null': true
+          },
+          commentAmount: 0,
+        }).catch((err) => {
+          console.log(err);
+        });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * Temporary function to test retreival of news articles
+ */
+export const testNewsUpdates = async () => {
+  const apiKey = '8b14944f22e147c8a9f16104c71461e9';
+  const option = {
+    mode: "cors",
+    headers: {
+      "Ocp-Apim-Subscription-Key": apiKey
+    }
+  };
+  const berkNews = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
+  const berk = await berkNews.json();
+  console.log(berk);
+
+}

@@ -1,18 +1,58 @@
-/* React */
-import { Route, Redirect } from "react-router-dom";
+/* Ionic/React + Capacitor */
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  IonApp,
-  IonTabs,
-  IonRouterOutlet,
-  IonSpinner,
-  setupIonicReact,
-  IonTabBar,
-  IonTabButton,
-  IonBadge,
+  IonApp, IonTabs,
+  IonRouterOutlet, IonSpinner,
+  setupIonicReact, IonTabBar,
+  IonTabButton, IonBadge,
   useIonToast,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
+import { Route, Redirect } from "react-router-dom";
+import { useHistory } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { FCM } from "@capacitor-community/fcm";
+import { createBrowserHistory } from "history";
+import { Network } from '@capacitor/network';
+import { setDarkMode } from "./redux/actions";
+import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
+import { setNotif, setSchoolColorPallete, setSensitiveContent, setUserState } from "./redux/actions";
+import { ActionPerformed, PushNotifications, PushNotificationSchema } from "@capacitor/push-notifications";
+
+/* Pages */
+import Home from "./pages/Home";
+import Post from "./pages/Post";
+import Maps from "./pages/Maps";
+import User from "./pages/User";
+import Class from "./pages/Class";
+import ChatRoom from "./pages/ChatRoom";
+import Register from "./pages/Register";
+import Community from "./pages/Community";
+import Posttypes from "./pages/Posttypes";
+import LandingPage from "./pages/LandingPage";
+import { UserProfile } from "./pages/UserProfile";
+import AppUrlListener from "./pages/AppUrlListener";
+import ForgotPassword from "./pages/ForgotPassword";
+import DirectMessages from "./pages/DirectMessages";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import RedirectComponent from "./pages/RedirectComponent";
+
+/* Other Components */
+import { ToastProvider, useToast } from "@agney/ir-toast";
+import { TabsContextProvider, useTabsContext } from "./my-context";
+
+/* Icons */
+import MapIcon from "@mui/icons-material/Map";
+import HomeIcon from '@mui/icons-material/Home';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+
+/* Firestore/Google */
+import auth, { db, getCurrentUser, promiseTimeout } from "./fbconfig";
+import { doc, getDoc } from "firebase/firestore";
+
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -31,46 +71,12 @@ import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 
 /* Theme variables */
-import "./theme/variables.css";
 import "./App.css";
+import "./theme/variables.css";
 
-import Home from "./pages/Home";
-import Community from "./pages/Community";
-import Maps from "./pages/Maps";
-import User from "./pages/User";
-import LandingPage from "./pages/LandingPage";
-import Register from "./pages/Register";
-import RedirectComponent from "./pages/RedirectComponent";
-import { UserProfile } from "./pages/UserProfile";
-import { TabsContextProvider, useTabsContext } from "./my-context";
 
-import { ToastProvider, useToast } from "@agney/ir-toast";
-import HomeIcon from '@mui/icons-material/Home';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
-import MapIcon from "@mui/icons-material/Map";
-import auth, { db, getCurrentUser, promiseTimeout } from "./fbconfig";
-import { doc, getDoc } from "firebase/firestore";
-import { setNotif, setSchoolColorPallete, setSensitiveContent, setUserState } from "./redux/actions";
-import { useDispatch, useSelector } from "react-redux";
-import { setDarkMode } from "./redux/actions";
-import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
-import { StatusBar, Style } from '@capacitor/status-bar';
-import Post from "./pages/Post";
-import { PrivacyPolicy } from "./pages/PrivacyPolicy";
-import { ActionPerformed, PushNotifications, PushNotificationSchema } from "@capacitor/push-notifications";
-import { FCM } from "@capacitor-community/fcm";
-import AppUrlListener from "./pages/AppUrlListener";
-import ForgotPassword from "./pages/ForgotPassword";
-import { createBrowserHistory } from "history";
-import { Network } from '@capacitor/network';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { useHistory } from "react-router";
-import Class from "./pages/Class";
-import ChatRoom from "./pages/ChatRoom";
-import DirectMessages from "./pages/DirectMessages";
-import Posttypes from "./pages/Posttypes";
 
+/* Globals */
 setupIonicReact({
   swipeBackEnabled: false
 });
@@ -82,7 +88,6 @@ SplashScreen.show({
   fadeOutDuration: 300
 });
 
-// Global variables
 const historyInstance = createBrowserHistory();
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
@@ -92,17 +97,35 @@ const keyStyleOptionsLight: KeyboardStyleOptions = {
 }
 
 
+/**
+ * Main app tabs and routing logic
+ */
 const RoutingSystem: React.FunctionComponent = () => {
+
+  /* Hooks */
   const tabs = useTabsContext();
-  const [selectedTab, setSelectedTab] = useState<string>("home");
-  let tabBarStyle = tabs?.showTabs ? undefined : { display: "none" };
   const dispatch = useDispatch();
-  const schoolName = useSelector((state: any) => state.user.school) || "";
-  const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled) || false;
   const history = useHistory();
-  const notif = useSelector((state: any) => state.notifSet.set) || false;
   const [present] = useIonToast();
 
+  /* State variables */
+  const [selectedTab, setSelectedTab] = useState<string>("home");
+
+  /* Global state (redux/context) */
+  let tabBarStyle = tabs?.showTabs ? undefined : { display: "none" };
+  const schoolName = useSelector((state: any) => state.user.school) || "";
+  const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled) || false;
+  const notif = useSelector((state: any) => state.notifSet.set) || false;
+
+
+  /**
+   * A function that presents an in-app toast notification
+   * when they recieive a DM push notification
+   * 
+   * @param {string} message the message to be displayed
+   * @param {string} url the url to be opened if a user clicks the notification
+   * @param {string} position where the toast will be displayed on the screen (top, middle, bottom)
+   */
   const presentToast = (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
     dispatch(setNotif(true));
     message = message.replace(' sent a DM', "");
@@ -126,6 +149,10 @@ const RoutingSystem: React.FunctionComponent = () => {
     });
   }
 
+  /**
+   * Runs once on app load
+   * Adds a listener to PushNotifications
+   */
   useEffect(() => {
     PushNotifications.addListener(
       'pushNotificationReceived',
@@ -153,30 +180,18 @@ const RoutingSystem: React.FunctionComponent = () => {
     ).then(() => {
       console.log('adding listener for notif action performed');
     });
-  }, []); // add notif count in useEffect dependency array, utilize redux to save state
+  }, []);
+
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
       <AppUrlListener></AppUrlListener>
       <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab); }}>
         <IonRouterOutlet>
-          <Route path="/:tab(home)" exact={true}>
-            {" "}
-            <Home />{" "}
-          </Route>
-          <Route
-            path="/:tab(community)"
-            component={Community}
-            exact={true}
-          />
-          <Route path="/:tab(maps)" component={Maps} exact={true} />
-          <Route path="/:tab(user)" exact={true}>
-            {" "}
-            <User />{" "}
-          </Route>
-          <Route path="/landing-page" exact={true}>
-            {" "}
-            <LandingPage />{" "}
-          </Route>
+          <Route path="/:tab(home)" exact={true}> <Home /> </Route>
+          <Route path="/:tab(community)" exact={true} component={Community} />
+          <Route path="/:tab(maps)" exact={true} component={Maps} />
+          <Route path="/:tab(user)" exact={true}> <User /> </Route>
+          <Route path="/landing-page" exact={true}> <LandingPage /> </Route>
           <Route path="/post/:key" component={Post} />
           <Route path="/about/:uid" component={UserProfile} />
           <Route path="/class/:className" component={Class} />
@@ -187,11 +202,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/forgot-password" component={ForgotPassword} exact={true} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
           <Route path="/404" component={RedirectComponent} />
-          <Route
-            exact
-            path="/"
-            render={() => <Redirect to="/home" />}
-          />
+          <Route exact path="/" render={() => <Redirect to="/home" />} />
         </IonRouterOutlet>
         <IonTabBar slot="bottom" style={tabBarStyle}>
           <IonTabButton tab="home" href="/home">
@@ -230,27 +241,38 @@ const RoutingSystem: React.FunctionComponent = () => {
                     : { fontSize: "3.75vh" }}
             />
             {notif &&
-              < IonBadge color="danger">{'!'}</IonBadge> 
+              < IonBadge color="danger">{'!'}</IonBadge>
             }
           </IonTabButton>
         </IonTabBar>
       </IonTabs>
-
     </ToastProvider >
   );
 };
 
 const App: React.FunctionComponent = () => {
+
+  /* Hooks */
   const Toast = useToast();
   const dispatch = useDispatch();
+
+  /* State variables */
+  const condition = navigator.onLine;
   const [busy, setBusy] = useState<boolean>(true);
+
+  /* Global state (redux/context) */
   const darkMode = localStorage.getItem("darkMode") || "false";
   const sensitiveContentToggled = localStorage.getItem("sensitiveContent") || "false";
   const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
-  const condition = navigator.onLine;
   const schoolName = useSelector((state: any) => state.user.school) || "";
-  const tabs = useTabsContext();
 
+  /**
+   * A function that will check permissions for push notifications on iOS
+   * If accepted, user will be registered to receive push notifications
+   * and will be assigned a unique token to identify them 
+   * 
+   * Uses Google FCM to send push notifications
+   */
   const registerNotifications = async () => {
     let permStatus = await PushNotifications.checkPermissions();
     console.log(permStatus.receive);
@@ -270,16 +292,23 @@ const App: React.FunctionComponent = () => {
     }
   };
 
+  /**
+   * Coupled with below useEffect, this function will check if the user is logged in
+   * When coming back to app after sometime in background
+   */
   const onDeviceReady = useCallback(() => {
     console.log("device ready")
     auth.onAuthStateChanged((user) => {
-      if(user) {
+      if (user) {
         console.log("user reloading");
         user.reload();
       }
     })
   }, [auth]);
 
+  /**
+   * Adds listener to check if user is logged in when app is brought back to foreground
+   */
   useEffect(() => {
     document.addEventListener("deviceready", onDeviceReady);
     return () => {
@@ -287,6 +316,10 @@ const App: React.FunctionComponent = () => {
     }
   }, [auth]);
 
+
+  /**
+   * Checks if user has any new notifications and sets the notif state variable
+   */
   useEffect(() => {
     PushNotifications.getDeliveredNotifications().then((notifs) => {
       if (notifs.notifications.length > 0) {
@@ -297,6 +330,14 @@ const App: React.FunctionComponent = () => {
     });
   }, [])
 
+
+  /**
+   * Runs on app startup
+   * Checks if user is logged in and sets the busy state variable
+   * Sets dark mode if user has it toggled on
+   * Redirects to Home page if user is logged in
+   * Redirects to Login page if user is not logged in
+   */
   useEffect(() => {
     if (condition) {
       registerNotifications();
@@ -339,7 +380,6 @@ const App: React.FunctionComponent = () => {
                 localStorage.setItem("userSchoolName", school.toString());
                 dispatch(setUserState(user.displayName, user.email, false, school));
                 setBusy(false);
-                // tabs.setShowTabs(true);
                 window.history.replaceState({}, "", "/home");
               });
               docLoaded.catch((err) => {
@@ -349,7 +389,6 @@ const App: React.FunctionComponent = () => {
             } else {
               dispatch(setUserState(user.displayName, user.email, false, school));
               setBusy(false);
-              // tabs.setShowTabs(true);
               window.history.replaceState({}, "", "/home");
             }
           } else {
@@ -375,6 +414,7 @@ const App: React.FunctionComponent = () => {
       setBusy(true);
     }
   }, []);
+  
 
   return (
     <IonApp>
