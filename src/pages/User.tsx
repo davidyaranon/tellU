@@ -69,6 +69,7 @@ import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProfilePhoto from "./ProfilePhoto";
 import Linkify from "linkify-react";
+import "../App.css";
 
 const titleStyle = {
   fontSize: "1.4em",
@@ -1514,7 +1515,7 @@ function User() {
           }}
         >
           <SwiperSlide>
-            <br />
+            <div style={{ height: "2vh" }}></div>
             <IonHeader
               class="ion-no-border"
               style={{
@@ -1524,18 +1525,8 @@ function User() {
               }}
             >
               Settings
-              <FadeIn delay={500} transitionDuration={1500}>
-                <IonFab horizontal="end">
-                  <div>
-                    <IonNote>Swipe &nbsp;</IonNote>
-                    <IonIcon icon={arrowForward} />
-                  </div>
-                </IonFab>
-              </FadeIn>
             </IonHeader>
-            <br />
-            {/* <IonCard className="user-card"> */}
-            {/* <IonContent> */}
+
             <IonList mode="ios" inset={true}>
               <IonItem key="singleton_item_3" mode="ios">
                 {/* <IonGrid> */}
@@ -1650,7 +1641,7 @@ function User() {
             {/* </IonCard> */}
           </SwiperSlide>
           <SwiperSlide>
-            <br />
+            <div style={{ height: "2vh" }} />
             <IonHeader
               class="ion-no-border"
               style={{
@@ -1735,7 +1726,7 @@ function User() {
             </IonCard>
           </SwiperSlide>
           <SwiperSlide>
-            <br />
+            <div style={{ height: "2vh" }} />
             <IonHeader
               class="ion-no-border"
               style={{
@@ -2207,7 +2198,7 @@ function User() {
             </IonCard>
           </SwiperSlide>
           <SwiperSlide>
-            <br />
+            <div style={{ height: "2vh" }} />
             <IonHeader
               class="ion-no-border"
               style={{
@@ -2525,7 +2516,7 @@ function User() {
             </IonCard>
           </SwiperSlide>
           <SwiperSlide>
-            <br />
+            <div style={{ height: "2vh" }} />
             <IonHeader
               class="ion-no-border"
               style={{

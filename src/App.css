@@ -1,8 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Dosis&family=Noto+Serif+Khojki&display=swap');
 
-ion-button, ion-back-button, ion-title, ion-item, ion-label, ion-input, ion-note
-ion-content, ion-page, input, form, label, ion-checkbox, ion-label, ion-item, svg, html, body, label, button, ion-toast, ion-loading,
-ion-card, ion-card-title, p, div, ion-note{
+ion-button,
+ion-back-button,
+ion-title,
+ion-item,
+ion-label,
+ion-input,
+ion-note ion-content,
+ion-page,
+input,
+form,
+label,
+ion-checkbox,
+ion-label,
+ion-item,
+svg,
+html,
+body,
+label,
+button,
+ion-toast,
+ion-loading,
+ion-card,
+ion-card-title,
+p,
+div,
+ion-note {
   font-family: 'Dosis', sans-serif;
   font-family: 'Noto Serif Khojki', serif;
 }
@@ -17,6 +40,7 @@ ion-card, ion-card-title, p, div, ion-note{
 textarea:focus-visible {
   border-color: #179b59;
 }
+
 textarea {
   border-color: #179b59;
 }
@@ -99,6 +123,8 @@ ion-fab.fab-horizontal-center {
   background: transparent;
   box-shadow: none !important;
   min-height: 65vh;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 ion-skeleton-text {
@@ -434,9 +460,9 @@ ion-checkbox {
 
 hr {
   border: 0;
-  clear:both;
-  display:block;
-  background-color:#7c7c7c;
+  clear: both;
+  display: block;
+  background-color: #7c7c7c;
   height: 1px;
 }
 
@@ -584,7 +610,7 @@ ion-img::part(image) {
   background-size: cover;
   background-position: center;
   height: 20.5vh;
-  -webkit-transform: translate3d(0,0,1px); 
+  -webkit-transform: translate3d(0, 0, 1px);
   -webkit-backface-visibility: hidden;
   image-rendering: pixelated;
 }
@@ -594,7 +620,7 @@ ion-img::part(image) {
   background-position: center;
   height: 20.5vh;
   border-radius: 10px;
-  -webkit-transform: translate3d(0,0,1px); 
+  -webkit-transform: translate3d(0, 0, 1px);
   -webkit-backface-visibility: hidden;
 }
 
@@ -602,7 +628,7 @@ ion-img::part(image) {
   background-size: cover;
   background-position: center center;
   height: 11.25vh;
-  -webkit-transform: translate3d(0,0,1px); 
+  -webkit-transform: translate3d(0, 0, 1px);
   -webkit-backface-visibility: hidden;
 }
 
@@ -627,7 +653,7 @@ ion-img::part(image) {
 }
 
 .ssky-mention-input__suggestions__item {
-  color : black;
+  color: black;
 }
 
 .text-area-dark {
@@ -753,8 +779,19 @@ ion-image {
   object-fit: contain;
 }
 
-input {border:0;outline:0;font-size: 15px; background-color: transparent;  padding: 12px;  padding-left: 0vw; width: 90vw;}
-input:focus {outline:none!important;}
+input {
+  border: 0;
+  outline: 0;
+  font-size: 15px;
+  background-color: transparent;
+  padding: 12px;
+  padding-left: 0vw;
+  width: 90vw;
+}
+
+input:focus {
+  outline: none !important;
+}
 
 
 img.chat_avatar {
@@ -783,6 +820,7 @@ img.chat_avatar {
   font-size: 12px;
   width: 55vw;
 }
+
 .contactMsgBold {
   font-weight: 450;
   font-size: 12px;
@@ -808,7 +846,7 @@ img.chat_avatar {
   padding: 2px 5px;
   font-size: 11px;
   border-radius: 2px;
-  color:#cf3c4f;
+  color: #cf3c4f;
 }
 
 .chat_status {
@@ -821,9 +859,11 @@ img.chat_avatar {
 .toast-options {
   transform: translateY(-50px) !important;
 }
+
 .ios .toast-options {
   transform: translateY(-50px) !important;
 }
+
 .md .toast-options {
   transform: translateY(-50px) !important;
 }
