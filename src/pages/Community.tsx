@@ -392,9 +392,9 @@ function Community() {
               })}
             </Swiper>
           </FadeIn>
-        ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-          <div style={{ textAlign: "center" }}><p>No polls within past week</p></div>
-          <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
+        ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br />
+          <div style={{ textAlign: "center", fontSize : "01em" }}><p>No polls within past week</p></div>
+          <br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
 
         {
           !polls ? (

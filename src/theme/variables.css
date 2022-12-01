@@ -19,7 +19,7 @@
 	--ion-color-secondary-tint: #1a8062;
 
   /** tertiary **/
-  --ion-color-tertiary: #58c2a2;
+  --ion-color-tertiary: #00856A;
 	--ion-color-tertiary-rgb: 88,194,162;
 	--ion-color-tertiary-contrast: #000000;
 	--ion-color-tertiary-contrast-rgb: 0,0,0;
@@ -90,7 +90,7 @@ body.dark {
 	--ion-color-secondary-shade: #016446;
 	--ion-color-secondary-tint: #1a8062;
 
-  --ion-color-tertiary: #58c2a2;
+  --ion-color-tertiary: #00856A;
 	--ion-color-tertiary-rgb: 88,194,162;
 	--ion-color-tertiary-contrast: #000000;
 	--ion-color-tertiary-contrast-rgb: 0,0,0;

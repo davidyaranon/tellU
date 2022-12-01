@@ -208,7 +208,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <IonTabButton tab="home" href="/home">
             <HomeIcon
               fontSize="medium"
-              style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+              style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
                 : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
                   : selectedTab === 'home' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
@@ -217,7 +217,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <IonTabButton tab="community" href="/community">
             <LocalFireDepartmentIcon
               fontSize="medium"
-              style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+              style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
                 : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
                   : selectedTab === 'community' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
@@ -226,7 +226,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <IonTabButton tab="maps" href="/maps">
             <MapIcon
               fontSize="medium"
-              style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+              style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
                 : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
                   : selectedTab === 'maps' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
@@ -235,7 +235,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <IonTabButton tab="user" href="/user">
             <AccountCircleIcon
               fontSize="medium"
-              style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#58c2a2' }
+              style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
                 : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
                   : selectedTab === 'user' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}

@@ -1,3 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Dosis&family=Noto+Serif+Khojki&display=swap');
+
+ion-button, ion-back-button, ion-title, ion-item, ion-label, ion-input, ion-note
+ion-content, ion-page, input, form, label, ion-checkbox, ion-label, ion-item, svg, html, body, label, button, ion-toast, ion-loading,
+ion-card, ion-card-title, p, div, ion-note{
+  font-family: 'Dosis', sans-serif;
+  font-family: 'Noto Serif Khojki', serif;
+}
+
 .ion-spinner {
   position: fixed;
   top: 50%;
@@ -14,20 +23,20 @@ textarea {
 
 /* Action Sheet Interface: set color for the action sheet using its button CSS variables */
 .my-custom-interface .select-interface-option {
-  --button-color-selected: #58c2a2;
-  --cancel-button-color: #58c2a2;
-  --cancel-button-color-selected: #58c2a2;
-  --button-color: #58c2a2;
-  --button-color-hover: #58c2a2;
+  --button-color-selected: #00856A;
+  --cancel-button-color: #00856A;
+  --cancel-button-color-selected: #00856A;
+  --button-color: #00856A;
+  --button-color-hover: #00856A;
 }
 
 .my-custom-interface {
-  color: #58c2a2;
-  --button-color-selected: #58c2a2;
-  --cancel-button-color: #58c2a2;
-  --cancel-button-color-selected: #58c2a2;
-  --button-color: #58c2a2;
-  --button-color-hover: #58c2a2;
+  color: #00856A;
+  --button-color-selected: #00856A;
+  --cancel-button-color: #00856A;
+  --cancel-button-color-selected: #00856A;
+  --button-color: #00856A;
+  --button-color-hover: #00856A;
 }
 
 .vertical-center {
@@ -177,7 +186,7 @@ ion-checkbox {
 }
 
 #diningCheckbox {
-  --background-checked: #12db62;
+  --background-checked: #D5CB9F;
   --border-color-checked: #ffffff;
 }
 
@@ -250,7 +259,7 @@ ion-checkbox {
   text-align: center;
   margin-left: 14%;
   margin-top: 10pt;
-  color: #58c2a2;
+  color: #00856A;
   background-color: white;
   justify-content: center;
   align-content: center;
@@ -328,7 +337,7 @@ ion-checkbox {
   color: white;
   text-align: right;
   color: white;
-  background: #58c2a2;
+  background: #00856A;
   align-self: flex-end;
 }
 
@@ -391,7 +400,7 @@ ion-checkbox {
   text-align: center;
   margin-left: 14%;
   margin-top: 10pt;
-  color: #58c2a2;
+  color: #00856A;
   background-color: #2f2f2f;
   justify-content: center;
   align-content: center;
@@ -421,6 +430,14 @@ ion-checkbox {
   min-height: 35vh;
   min-height: 58.5vh;
   display: inline-block;
+}
+
+hr {
+  border: 0;
+  clear:both;
+  display:block;
+  background-color:#7c7c7c;
+  height: 1px;
 }
 
 .verticalLine {

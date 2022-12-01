@@ -285,6 +285,7 @@ function Maps() {
             cancelText="Cancel"
             mode="ios"
             value={markerFilter}
+            style={{fontSize : "0.8em", transform: "translateY(-25%)"}}
             placeholder="Filter: ALL"
             onIonChange={(e: any) => {
               setOverlayIndex(-1);

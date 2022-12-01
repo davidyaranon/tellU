@@ -2,7 +2,6 @@ import { IonFab, IonItem, IonSelect, IonSelectOption } from "@ionic/react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-
 type classInfo = {
   schoolName: string;
   postClassName: string | undefined;
@@ -11,6 +10,12 @@ type classInfo = {
   setPostClassName: any;
 }
 
+/**
+ * Component for selecting class and corresponding class number when making a post
+ * 
+ * @param {classInfo} props 
+ * @returns IonSelection interface 
+ */
 export const ClassSelections = (props: classInfo) => {
 
   const [selectOptions, setSelectOptions] = useState<any>({});

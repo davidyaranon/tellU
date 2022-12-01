@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -24,7 +24,6 @@ import {
 } from "@ionic/react";
 import FadeIn from "react-fade-in";
 import { v4 as uuidv4 } from "uuid";
-import "../App.css";
 import TimeAgo from "javascript-time-ago";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -50,6 +49,7 @@ import { Mention, MentionsInput, SuggestionDataItem } from 'react-mentions';
 import mentionInputStyles from "../mentionInputStyles";
 import mentionInputStylesLight from "../mentionInputStylesLight";
 import { useTabsContext } from "../my-context";
+import "../App.css";
 
 interface MatchUserPostParams {
   key: string;
@@ -79,6 +79,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const connectedRef = ref(db, ".info/connected");
 
   const [post, setPost] = useState<any | null>(null);
+  const [commentUsers, setCommentUsers] = useState<SuggestionDataItem[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
   const [likeAnimation, setLikeAnimation] = useState<number>(-1);
@@ -111,11 +112,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       setShowReportModal(true);
     }
   }
-
-  const handleChangeComment = (e: any) => {
-    let currComment = e.detail.value;
-    setComment(currComment);
-  };
 
   async function sendImage(blob: any, uniqueId: string) {
     const res = await uploadImage("commentImages", blob, uniqueId);
@@ -297,7 +293,6 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     return "just now";
   };
 
-  const [commentUsers, setCommentUsers] = useState<SuggestionDataItem[]>([]);
 
   const getPostComments = () => {
     setCommentsLoading(true);
@@ -635,7 +630,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             }
             <IonButtons style={{ marginLeft: "-2.5%" }}>
               <IonBackButton
-                style={{ marginLeft: "2.5%" }}
+                style={{ marginLeft: "2.5%", scale: "0.95" }}
                 color={
                   schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
                 }
@@ -696,7 +691,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               }}
             >
               <Mention
-                style={schoolColorToggled ? { backgroundColor: "#58c2a2" } : { backgroundColor: "#61dbfb" }}
+                style={schoolColorToggled ? { backgroundColor: "#00856A" } : { backgroundColor: "#61dbfb" }}
                 trigger='@'
                 displayTransform={changeTaggedString}
                 markup="@[__display__]"
@@ -717,7 +712,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               }}
             >
               <Mention
-                style={schoolColorToggled ? { backgroundColor: "#58c2a2" } : { backgroundColor: "#61dbfb" }}
+                style={schoolColorToggled ? { backgroundColor: "#00856A" } : { backgroundColor: "#61dbfb" }}
                 trigger='@'
                 displayTransform={changeTaggedString}
                 markup="@[__display__]"
@@ -1212,4 +1207,4 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   )
 }
 
-export default Post;
+export default memo(Post);

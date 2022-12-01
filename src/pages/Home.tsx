@@ -64,7 +64,6 @@ const locationOptions: GeolocationOptions = {
 };
 
 const Home = () => {
-
   const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
   const schoolName = useSelector((state: any) => state.user.school);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
@@ -998,7 +997,7 @@ const Home = () => {
                         setTimeout(() => setShowModal(false), 100)
                       }).catch((err) => {
                         setTimeout(() => setShowModal(false), 100)
-                      });;
+                      });
                     }}
                   >
                     Close
