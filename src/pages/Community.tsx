@@ -290,7 +290,7 @@ function Community() {
           isOpen={pollSubmitting}
         />
 
-        <IonModal backdropDismiss={false} isOpen={pollModalOpen}>
+        <IonModal backdropDismiss={false} isOpen={pollModalOpen} swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           <IonContent>
             <div>
               <div style={{ width: "100%" }}>
@@ -307,7 +307,7 @@ function Community() {
                         setPollText("");
                       }}
                     >
-                      <IonIcon icon={chevronBackOutline}></IonIcon> Back
+                      Back
                     </IonButton>
                   </IonButtons>
                 </IonToolbar>
@@ -392,9 +392,9 @@ function Community() {
               })}
             </Swiper>
           </FadeIn>
-        ) : <><FadeIn><br /><br /><br /><br /><br /><br /><br />
-          <div style={{ textAlign: "center", fontSize : "01em" }}><p>No polls within past week</p></div>
-          <br /><br /><br /><br /><br /><br /><br /></FadeIn></>}
+        ) : <><FadeIn><br /><br /><br /><br /><br /><br />
+          <div style={{ textAlign: "center", fontSize: "01em" }}><p>No polls within past week</p></div>
+          <br /><br /><br /><br /><br /><br /></FadeIn></>}
 
         {
           !polls ? (

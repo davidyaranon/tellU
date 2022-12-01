@@ -980,7 +980,7 @@ const Home = () => {
           </div>
         </IonModal>
 
-        <IonModal backdropDismiss={false} isOpen={showModal} animated mode='ios'>
+        <IonModal backdropDismiss={false} isOpen={showModal} animated mode='ios' swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           <IonContent ref={modalContentRef} scrollEvents={true}>
             <div style={{ width: "100%" }}>
               <IonToolbar mode="ios">
@@ -1072,9 +1072,9 @@ const Home = () => {
                 </IonFab>
               </IonRow>
 
-
               {photo && photo.length > 0 ? (
                 <>
+                  <br />
                   <FadeIn>
                     {photo.map((photo, index) => {
                       return (

@@ -229,7 +229,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} scrollEvents>
 
-        <IonModal isOpen={showReportModal} mode="ios">
+        <IonModal isOpen={showReportModal} mode="ios" handle={false} swipeToClose={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           {/* <IonHeader translucent> */}
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios">

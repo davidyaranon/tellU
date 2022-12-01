@@ -1008,6 +1008,7 @@ function User() {
         ></IonLoading>
 
         <IonModal
+          handle={false} breakpoints={[0, 1]} initialBreakpoint={1} swipeToClose={false}
           isOpen={spotifyModal}
           onDidDismiss={() => {
             Keyboard.hide();
@@ -1064,7 +1065,7 @@ function User() {
           </IonContent>
         </IonModal>
 
-        <IonModal backdropDismiss={false} isOpen={showAboutModal}>
+        <IonModal backdropDismiss={false} mode="ios" swipeToClose={false} isOpen={showAboutModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           <IonContent>
             <div slot="fixed" style={{ width: "100%" }}>
               <IonToolbar mode="ios" >
@@ -1097,7 +1098,7 @@ function User() {
 
                     }}
                   >
-                    <IonIcon icon={chevronBackOutline}></IonIcon> Back
+                    Back
                   </IonButton>
                 </IonButtons>
                 <IonButtons slot="end">
@@ -1266,196 +1267,206 @@ function User() {
           </IonContent>
         </IonModal>
 
-        <IonModal backdropDismiss={false} isOpen={showEditEmailModal}>
-          <div slot="fixed" style={{ width: "100%" }}>
-            <IonToolbar mode="ios" >
-              <IonButtons style={{ marginLeft: "-2.5%" }}>
+        <IonModal backdropDismiss={false} isOpen={showEditEmailModal} swipeToClose={false} mode="ios" handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+          <IonContent>
+            <div slot="fixed" style={{ width: "100%" }}>
+              <IonToolbar mode="ios" >
+                <IonButtons style={{ marginLeft: "-2.5%" }}>
+                  <IonButton
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                    mode="ios"
+                    onClick={() => {
+                      Keyboard.hide().then(() => {
+                        setTimeout(() => setShowEditEmailModal(false), 100);
+                      }).catch((err) => {
+                        setTimeout(() => setShowEditEmailModal(false), 100);
+                      });
+                      if (user && user.email) { setEditableEmail(user.email); }
+                    }}
+                  >
+                    Back
+                  </IonButton>
+                </IonButtons>
+                <IonButtons slot="end">
+                  <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </div>
+            <br /> <br /> <br />
+
+            <IonItem mode="ios">
+              <IonInput
+                mode="ios"
+                style={{ width: "75vw" }}
+                ref={inputRef}
+                readonly={false}
+                value={editableEmail}
+                onIonChange={(e) => {
+                  handleChangeEmailString(e);
+                }}
+              ></IonInput>
+            </IonItem>
+          </IonContent>
+        </IonModal>
+
+        <IonModal backdropDismiss={false} swipeToClose={false} isOpen={showEditUsernameModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+          <IonContent>
+            <div slot="fixed" style={{ width: "100%" }}>
+              <IonToolbar mode="ios" >
+                <IonButtons style={{ marginLeft: "-2.5%" }}>
+                  <IonButton
+                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                    mode="ios"
+                    onClick={() => {
+                      Keyboard.hide().then(() => {
+                        setTimeout(() => setShowEditUsernameModal(false), 100);
+                      }).catch((err) => {
+                        setTimeout(() => setShowEditUsernameModal(false), 100);
+                      });
+                      if (user && user.displayName) { setEditableUsername(user.displayName); }
+                    }}
+                  >
+                    Back
+                  </IonButton>
+                </IonButtons>
+                <IonButtons slot="end">
+                  <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
+                </IonButtons>
+              </IonToolbar>
+            </div>
+            <br /><br /><br />
+            <IonItem mode="ios">
+              <IonInput
+                mode="ios"
+                style={{ width: "75vw" }}
+                ref={inputUserRef}
+                readonly={false}
+                value={editableUsername}
+                onIonChange={(e) => {
+                  handleChangeUsernameString(e);
+                }}
+              ></IonInput>
+            </IonItem>
+          </IonContent>
+        </IonModal>
+
+        <IonModal backdropDismiss={false} swipeToClose={false} isOpen={credentialsModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+          <IonContent>
+            <div className="ion-modal">
+              <IonHeader mode="ios">
+                <IonTitle color="secondary" class="ion-title">
+                  {" "}
+                  <div>Email Change</div>{" "}
+                </IonTitle>
+              </IonHeader>
+              <div>
+                <br></br>
+              </div>
+              <IonList inset={true} mode="ios" className="sign-in-sign-up-list">
+                <IonItem key="singleton_item" mode="ios" class="ion-item-style">
+                  <IonInput
+                    color="transparent"
+                    mode="ios"
+                    clearOnEdit={false}
+                    value={passwordReAuth}
+                    type="password"
+                    placeholder="Enter your password again..."
+                    id="passwordSignIn"
+                    onIonChange={(e: any) => setPasswordReAuth(e.detail.value)}
+                  ></IonInput>
+                </IonItem>
+                <br />
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  color="danger"
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
-                      setTimeout(() => setShowEditEmailModal(false), 100);
+                      setTimeout(() => setCredentialsModal(false), 100);
                     }).catch((err) => {
-                      setTimeout(() => setShowEditEmailModal(false), 100);
+                      setTimeout(() => setCredentialsModal(false), 100);
                     });
-                    if (user && user.email) { setEditableEmail(user.email); }
+                    setEditableEmail(email);
                   }}
+                  fill="clear"
+                  id="cancelButton"
                 >
-                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
+                  Cancel
                 </IonButton>
-              </IonButtons>
-              <IonButtons slot="end">
-                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </div>
-          <br />
-          <IonItem mode="ios">
-            <IonInput
-              mode="ios"
-              style={{ width: "75vw" }}
-              ref={inputRef}
-              readonly={false}
-              value={editableEmail}
-              onIonChange={(e) => {
-                handleChangeEmailString(e);
-              }}
-            ></IonInput>
-          </IonItem>
-        </IonModal>
-
-        <IonModal backdropDismiss={false} isOpen={showEditUsernameModal}>
-          <div slot="fixed" style={{ width: "100%" }}>
-            <IonToolbar mode="ios" >
-              <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
                   color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
+                  onClick={handleEmailChange}
+                  fill="clear"
+                  id="signInButton"
+                >
+                  Authenticate
+                </IonButton>
+                <br />
+                <br />
+              </IonList>
+            </div>
+          </IonContent>
+        </IonModal>
+
+        <IonModal backdropDismiss={false} swipeToClose={false} isOpen={credentialsUserModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+          <IonContent>
+            <div className="ion-modal">
+              <IonHeader mode="ios">
+                <IonTitle color="secondary" class="ion-title">
+                  {" "}
+                  <div>Username Change</div>{" "}
+                </IonTitle>
+              </IonHeader>
+              <div>
+                <br></br>
+              </div>
+              <IonList inset={true} mode="ios" className="sign-in-sign-up-list">
+                <IonItem key="singleton_item_2" mode="ios" class="ion-item-style">
+                  <IonInput
+                    color="transparent"
+                    mode="ios"
+                    clearOnEdit={false}
+                    value={passwordReAuth}
+                    type="password"
+                    placeholder="Enter your password again..."
+                    id="passwordSignIn"
+                    onIonChange={(e: any) => setPasswordReAuth(e.detail.value)}
+                  ></IonInput>
+                </IonItem>
+                <br />
+                <IonButton
+                  color="danger"
+                  mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
-                      setTimeout(() => setShowEditUsernameModal(false), 100);
+                      setTimeout(() => setCredentialsUserModal(false), 100);
                     }).catch((err) => {
-                      setTimeout(() => setShowEditUsernameModal(false), 100);
+                      setTimeout(() => setCredentialsUserModal(false), 100);
                     });
-                    if (user && user.displayName) { setEditableUsername(user.displayName); }
+                    setEditableUsername(username);
+                    setPasswordReAuth("");
                   }}
+                  fill="clear"
+                  id="cancelButton"
                 >
-                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
+                  Cancel
                 </IonButton>
-              </IonButtons>
-              <IonButtons slot="end">
-                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </div>
-          <br />
-          <IonItem mode="ios">
-            <IonInput
-              mode="ios"
-              style={{ width: "75vw" }}
-              ref={inputUserRef}
-              readonly={false}
-              value={editableUsername}
-              onIonChange={(e) => {
-                handleChangeUsernameString(e);
-              }}
-            ></IonInput>
-          </IonItem>
+                <IonButton
+                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  mode="ios"
+                  fill="clear"
+                  onClick={handleUsernameChange}
+                  id="signInButton"
+                >
+                  Authenticate
+                </IonButton>
+                <br />
+                <br />
+              </IonList>
+            </div>
+          </IonContent>
         </IonModal>
 
-        <IonModal backdropDismiss={false} isOpen={credentialsModal}>
-          <div className="ion-modal">
-            <IonHeader mode="ios">
-              <IonTitle color="secondary" class="ion-title">
-                {" "}
-                <div>Email Change</div>{" "}
-              </IonTitle>
-            </IonHeader>
-            <div>
-              <br></br>
-            </div>
-            <IonList inset={true} mode="ios" className="sign-in-sign-up-list">
-              <IonItem key="singleton_item" mode="ios" class="ion-item-style">
-                <IonInput
-                  color="transparent"
-                  mode="ios"
-                  clearOnEdit={false}
-                  value={passwordReAuth}
-                  type="password"
-                  placeholder="Enter your password again..."
-                  id="passwordSignIn"
-                  onIonChange={(e: any) => setPasswordReAuth(e.detail.value)}
-                ></IonInput>
-              </IonItem>
-              <br />
-              <IonButton
-                color="danger"
-                mode="ios"
-                onClick={() => {
-                  Keyboard.hide().then(() => {
-                    setTimeout(() => setCredentialsModal(false), 100);
-                  }).catch((err) => {
-                    setTimeout(() => setCredentialsModal(false), 100);
-                  });
-                  setEditableEmail(email);
-                }}
-                fill="clear"
-                id="cancelButton"
-              >
-                Cancel
-              </IonButton>
-              <IonButton
-                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                mode="ios"
-                onClick={handleEmailChange}
-                fill="clear"
-                id="signInButton"
-              >
-                Authenticate
-              </IonButton>
-              <br />
-              <br />
-            </IonList>
-          </div>
-        </IonModal>
-
-        <IonModal backdropDismiss={false} isOpen={credentialsUserModal}>
-          <div className="ion-modal">
-            <IonHeader mode="ios">
-              <IonTitle color="secondary" class="ion-title">
-                {" "}
-                <div>Username Change</div>{" "}
-              </IonTitle>
-            </IonHeader>
-            <div>
-              <br></br>
-            </div>
-            <IonList inset={true} mode="ios" className="sign-in-sign-up-list">
-              <IonItem key="singleton_item_2" mode="ios" class="ion-item-style">
-                <IonInput
-                  color="transparent"
-                  mode="ios"
-                  clearOnEdit={false}
-                  value={passwordReAuth}
-                  type="password"
-                  placeholder="Enter your password again..."
-                  id="passwordSignIn"
-                  onIonChange={(e: any) => setPasswordReAuth(e.detail.value)}
-                ></IonInput>
-              </IonItem>
-              <br />
-              <IonButton
-                color="danger"
-                mode="ios"
-                onClick={() => {
-                  Keyboard.hide().then(() => {
-                    setTimeout(() => setCredentialsUserModal(false), 100);
-                  }).catch((err) => {
-                    setTimeout(() => setCredentialsUserModal(false), 100);
-                  });
-                  setEditableUsername(username);
-                  setPasswordReAuth("");
-                }}
-                fill="clear"
-                id="cancelButton"
-              >
-                Cancel
-              </IonButton>
-              <IonButton
-                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                mode="ios"
-                fill="clear"
-                onClick={handleUsernameChange}
-                id="signInButton"
-              >
-                Authenticate
-              </IonButton>
-              <br />
-              <br />
-            </IonList>
-          </div>
-        </IonModal>
         <Swiper
           pagination={{ dynamicBullets: true }}
           modules={[Pagination]}
@@ -1537,7 +1548,7 @@ function User() {
                 </IonRow>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <IonRow>
-                  <p style={{ fontSize: "0.9em" }}>{editableEmail}</p>
+                  <p style={{ fontSize: "0.85em" }}>{editableEmail}</p>
                 </IonRow>
                 {/* </IonGrid> */}
                 <IonButton
@@ -1560,7 +1571,7 @@ function User() {
                 </IonRow>
                 &nbsp;&nbsp;
                 <IonRow>
-                  <p style={{ fontSize: "0.9em" }}>{editableUsername}</p>
+                  <p style={{ fontSize: "0.85em" }}>{editableUsername}</p>
                 </IonRow>
                 {/* </IonGrid> */}
                 <IonButton
@@ -1583,7 +1594,7 @@ function User() {
                 </IonRow>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <IonRow>
-                  <p style={{ fontSize: "0.9em" }}>...</p>
+                  <p style={{ fontSize: "0.85em" }}>...</p>
                 </IonRow>
                 {/* </IonGrid> */}
                 <IonButton
@@ -1599,7 +1610,7 @@ function User() {
             {/* <IonCard mode="ios"> */}
             <IonList mode="ios" inset={true}>
               <IonItem mode="ios">
-                <p style={{ fontSize: "0.9em" }}> Dark mode </p>
+                <p style={{ fontSize: "0.85em" }}> Dark mode </p>
                 <IonIcon color="medium" icon={moon} slot="end" />
                 <IonToggle
                   color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
@@ -1611,7 +1622,7 @@ function User() {
               </IonItem>
               {schoolName === "Cal Poly Humboldt" &&
                 <IonItem mode="ios">
-                  <p style={{ fontSize: "0.9em" }}> School Color Palette </p>
+                  <p style={{ fontSize: "0.85em" }}> School Color Palette </p>
                   <IonIcon color="medium" icon={colorFill} slot="end" />
                   <IonToggle
                     color={schoolName === "Cal Poly Humboldt" ? "tertiary" : "primary"}
@@ -1623,7 +1634,7 @@ function User() {
                 </IonItem>
               }
               <IonItem mode="ios">
-                <p style={{ fontSize: "0.9em" }}> Hide Sensitive Content</p>
+                <p style={{ fontSize: "0.85em" }}> Hide Sensitive Content</p>
                 <IonIcon color="medium" icon={warningSharp} slot="end" />
                 <IonToggle
                   color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}

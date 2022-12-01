@@ -556,7 +556,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
         <IonLoading isOpen={deletingComment} duration={0} message={"Deleting post..."} />
 
-        <IonModal isOpen={showReportModal} mode="ios">
+        <IonModal isOpen={showReportModal} mode="ios"  swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           {/* <IonHeader translucent> */}
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios">

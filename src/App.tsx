@@ -365,6 +365,7 @@ const App: React.FunctionComponent = () => {
           Keyboard.setStyle(keyStyleOptionsDark);
           StatusBar.setStyle({ style: Style.Dark });
         }
+        SplashScreen.hide();
         const hasLoadedUser = promiseTimeout(30000, getCurrentUser());
         hasLoadedUser.then((user: any) => {
           if (user) {
