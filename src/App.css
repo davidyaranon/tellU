@@ -22,9 +22,9 @@ button,
 ion-toast,
 ion-loading,
 ion-card,
+ion-select
 ion-card-title,
 p,
-div,
 ion-note {
   font-family: 'Dosis', sans-serif;
   font-family: 'Noto Serif Khojki', serif;
@@ -43,6 +43,10 @@ textarea:focus-visible {
 
 textarea {
   border-color: #179b59;
+}
+
+.login-input {
+  font-size: 0.95em;
 }
 
 /* Action Sheet Interface: set color for the action sheet using its button CSS variables */

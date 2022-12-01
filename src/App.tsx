@@ -37,6 +37,7 @@ import AppUrlListener from "./pages/AppUrlListener";
 import ForgotPassword from "./pages/ForgotPassword";
 import DirectMessages from "./pages/DirectMessages";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import { Notifications } from "./pages/Notifications";
 import RedirectComponent from "./pages/RedirectComponent";
 
 /* Other Components */
@@ -201,6 +202,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/register" component={Register} exact={true} />
           <Route path="/forgot-password" component={ForgotPassword} exact={true} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
+          <Route path="/notifications" component={Notifications} />
           <Route path="/404" component={RedirectComponent} />
           <Route exact path="/" render={() => <Redirect to="/home" />} />
         </IonRouterOutlet>
@@ -365,7 +367,6 @@ const App: React.FunctionComponent = () => {
           Keyboard.setStyle(keyStyleOptionsDark);
           StatusBar.setStyle({ style: Style.Dark });
         }
-        SplashScreen.hide();
         const hasLoadedUser = promiseTimeout(30000, getCurrentUser());
         hasLoadedUser.then((user: any) => {
           if (user) {

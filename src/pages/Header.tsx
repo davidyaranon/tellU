@@ -241,21 +241,16 @@ class TellUHeader extends Component<any, any>{
           width: "100%",
         }}
         >
-          <div style={{
-          }}>
-            <IonHeader class="ion-no-border" style={{ textAlign: "center", top: "1vh" }}>
-              {/* <IconButton> */}
-              <img
-                draggable={false}
-                className='quantum_logo'
-                src={tellU}
-                alt="QUANTUM"
-                style={{ zoom: zoom }}
-              />
-              {/* </IconButton> */}
-              <p style={schoolStyle}>{this.props.schoolName}</p>
-            </IonHeader>
-          </div>
+          <IonHeader style={{ textAlign: "center", top: "1vh" }}>
+            <img
+              draggable={false}
+              className='quantum_logo'
+              src={tellU}
+              alt="QUANTUM"
+              style={{ zoom: zoom, height: "50px" }}
+            />
+            <p style={schoolStyle}>{this.props.schoolName}</p>
+          </IonHeader>
         </div>
       )
     }

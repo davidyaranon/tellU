@@ -7,12 +7,15 @@ import { setUserState } from '../redux/actions';
 
 /* Ionic/Capacitor */
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
-import { IonContent, IonHeader, IonButton, IonInput, IonItem, IonSpinner, IonList, IonPage, IonLoading, IonTitle, InputChangeEventDetail, IonLabel, useIonRouter, RouterDirection } from '@ionic/react';
+import {
+  IonContent, IonHeader, IonButton,
+  IonItem, IonSpinner, IonList, IonPage, IonLoading, IonLabel, useIonRouter, RouterDirection
+} from '@ionic/react';
 
 /* Firebase */
 import { doc, getDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { promiseTimeout, logInWithEmailAndPassword, db, updateNotificationsToken } from '../fbconfig';
+import auth, { promiseTimeout, logInWithEmailAndPassword, db } from '../fbconfig';
 
 /* CSS + Other components */
 import '../App.css';
@@ -21,7 +24,7 @@ import { useTabsContext } from '../my-context';
 import { useToast } from "@agney/ir-toast";
 
 /* global variables */
-const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Native }
+const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }
 
 const LandingPage: React.FC = () => {
 
@@ -45,30 +48,6 @@ const LandingPage: React.FC = () => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
-
-  const updateEmailSignIn = React.useCallback(
-    async (e: CustomEvent<InputChangeEventDetail>) => {
-      const ionInput = e.detail;
-      if (!ionInput) {
-        return;
-      }
-      const input = ionInput.value;
-      setEmailSignIn(input || "");
-    },
-    [],
-  );
-
-  const updatePassword = React.useCallback(
-    async (e: CustomEvent<InputChangeEventDetail>) => {
-      const ionInput = e.detail;
-      if (!ionInput) {
-        return;
-      }
-      const input = ionInput.value;
-      setPasswordSignIn(input || "");
-    },
-    [],
-  );
 
   /**
    * Uses Firebase Authentication to log user in based on
@@ -184,8 +163,6 @@ const LandingPage: React.FC = () => {
     setBusy(false);
   }
 
-
-
   useEffect(() => {
     setBusy(true);
     if (user) {
@@ -242,19 +219,19 @@ const LandingPage: React.FC = () => {
             isOpen={loggingIn}
           ></IonLoading>
         ) : (null)}
-        <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
+        <IonHeader style={{ padding: "5vh" }}>
           <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
-          <p style={{ textAlign: "center", fontSize: "1.25em" }}>Sign In</p>
+          <p style={{ textAlign: "center", fontSize: "1.1em" }}>Sign In</p>
         </IonHeader>
 
         <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
-          <IonItem mode='ios' >
+          <IonItem style={{height : "9%"}} mode='ios' >
             <IonLabel position="stacked">Email</IonLabel>
-            <input className="html-input" type="email" ref={emailRef} onChange={(e: any) => { if (e && e.target && e.target.value) setEmailSignIn(e.target.value) }}></input>
+            <input className='login-input' type="email" ref={emailRef} onChange={(e: any) => { if (e && e.target && e.target.value) setEmailSignIn(e.target.value) }}></input>
           </IonItem>
-          <IonItem mode='ios' >
+          <IonItem style={{height : "9%"}} mode='ios' >
             <IonLabel position="stacked">Password</IonLabel>
-            <input className="html-input" type="password" ref={passwordRef} onChange={(e: any) => { if (e && e.target && e.target.value) setPasswordSignIn(e.target.value) }}></input>
+            <input className='login-input' type="password" ref={passwordRef} onChange={(e: any) => { if (e && e.target && e.target.value) setPasswordSignIn(e.target.value) }}></input>
           </IonItem>
           <br />
           <IonButton color="transparent" mode='ios' onClick={() => { setLoggingIn(true); logIn(); }} shape="round" fill="outline" expand="block" id="signInButton" >Sign In</IonButton>

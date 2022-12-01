@@ -282,7 +282,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const Header = React.useCallback(() => {
     return (
       <>
-        <br /> <br />
+        <br />
         <FadeIn>
           <IonCard mode="ios">
             <IonCardContent>

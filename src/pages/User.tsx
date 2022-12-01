@@ -3,8 +3,8 @@ import {
   IonInput, IonFab, IonTextarea, IonImg, IonAvatar,
   IonTitle, IonToolbar, IonList, IonItem,
   IonIcon, IonLabel, IonModal, IonToggle,
-  IonText, IonCardContent, IonCard, IonSkeletonText,
-  IonNote, IonSpinner, IonButtons, IonCardTitle,
+  IonText, IonCardContent, IonCard,
+  IonNote, IonSpinner, IonButtons,
   IonPage, useIonViewDidEnter, IonRow, IonCol,
   IonSearchbar, useIonRouter, RouterDirection, IonBadge,
 } from "@ionic/react";
@@ -13,12 +13,10 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import {
   storage, logout, db, promiseTimeout,
   checkUsernameUniqueness, uploadImage,
-  getUserPosts, upVote, downVote, getNextBatchUserPosts,
-  removePost, getUserLikedPostsNextBatch, getUserLikedPosts,
-  getYourPolls, updateUserInfo, getCurrentUserData,
-  removePoll, getLikes, spotifySearch
+  removePost, getUserLikedPosts,
+  updateUserInfo, getCurrentUserData,
+  removePoll, spotifySearch
 } from "../fbconfig";
-import DeleteIcon from "@mui/icons-material/Delete";
 import auth from "../fbconfig";
 import {
   Camera,
@@ -41,8 +39,8 @@ import { useToast } from "@agney/ir-toast";
 import TimeAgo from "javascript-time-ago";
 import { useSelector } from "react-redux";
 import {
-  arrowForward, cameraReverseOutline, chatbubblesOutline, chevronBackOutline, colorFill,
-  logoInstagram, logoSnapchat, logoTiktok, moon, refreshOutline, warningSharp
+  cameraReverseOutline, chatbubblesOutline, colorFill,
+  logoInstagram, logoSnapchat, logoTiktok, moon, notificationsOutline, refreshOutline, warningSharp
 } from "ionicons/icons";
 import { updateEmail } from "firebase/auth";
 import { useDispatch } from "react-redux";
@@ -53,10 +51,7 @@ import { Pagination } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { informationCircleOutline } from "ionicons/icons";
-import ForumIcon from "@mui/icons-material/Forum";
 import {
   Keyboard,
   KeyboardStyle,
@@ -68,7 +63,6 @@ import { useTabsContext } from "../my-context";
 import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProfilePhoto from "./ProfilePhoto";
-import Linkify from "linkify-react";
 import "../App.css";
 
 const titleStyle = {
@@ -78,10 +72,6 @@ const titleStyle = {
 
 function User() {
   const timeAgo = new TimeAgo("en-US");
-  const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
-  const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
-  const [likeAnimation, setLikeAnimation] = useState<number>(-1);
-  const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const tabs = useTabsContext();
   const Toast = useToast();
   const dispatch = useDispatch();
@@ -101,13 +91,10 @@ function User() {
   const [passwordReAuth, setPasswordReAuth] = useState("");
   const [user, loading, error] = useAuthState(auth);
   const [credentialsModal, setCredentialsModal] = useState<boolean>(false);
-  const [lastKey, setLastKey] = useState<any>();
   const [lastLikesKey, setLastLikesKey] = useState<any>();
   const [disabledDeleteButton, setDisabledDeleteButton] = useState<boolean>(false);
-  const [noMoreLikes, setNoMoreLikes] = useState<boolean>(false);
   const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
   const [credentialsUserModal, setCredentialsUserModal] = useState<boolean>(false);
-  const [loadingUserPosts, setLoadingUserPosts] = useState<boolean>(false);
   const [yourPolls, setYourPolls] = useState<any[] | null>(null);
   const [profilePhoto, setProfilePhoto] = useState("");
   const [busy, setBusy] = useState<boolean>(false);
@@ -127,7 +114,6 @@ function User() {
   const [showEditEmailModal, setShowEditEmailModal] = useState<boolean>(false);
   const [userDataHasLoaded, setUserDataHasLoaded] = useState<boolean>(false);
   const [showEditUsernameModal, setShowEditUsernameModal] = useState<boolean>(false);
-  const [notifs, setNotifs] = useState<any[] | null>(null);
   const [spotifyTextSearch, setSpotifyTextSearch] = useState<string>("");
   const [spotifyModal, setSpotifyModal] = useState<boolean>(false);
   const [spotifyLoading, setSpotifyLoading] = useState<boolean>(false);
@@ -137,7 +123,7 @@ function User() {
   const [aboutEdit, setAboutEdit] = useState<boolean>(true);
   const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
   const router = useIonRouter();
-  const [loadedSlidesArr, setLoadedSlidesArr] = useState<boolean[]>([false, false, false, false, false, false])
+  const [loadedSlidesArr, setLoadedSlidesArr] = useState<boolean[]>([false, false])
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -198,7 +184,6 @@ function User() {
             setEditableUserSnapchat(res.snapchat);
             setEditableUserTiktok(res.tiktok);
             setEditableSpotifyUri(res.spotify);
-            setNotifs(res.notifs.slice(0, 15));
           } else {
             Toast.error("Trouble loading data");
             setAboutEdit(false);
@@ -597,57 +582,6 @@ function User() {
       setBusy(false);
     }
   }
-  const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(postKey, post);
-    if (val && (val === 1 || val === -1)) {
-      if (val === 1) {
-        Haptics.impact({ style: ImpactStyle.Light });
-      }
-      if (userPosts && user) {
-        let tempPosts: any[] = [...userPosts];
-        if (tempPosts[index].likes[user.uid]) {
-          delete tempPosts[index].likes[user.uid];
-        } else {
-          if (tempPosts[index].dislikes[user.uid]) {
-            delete tempPosts[index].dislikes[user.uid];
-          }
-          tempPosts[index].likes[user.uid] = true;
-        }
-        setUserPosts(tempPosts);
-        await timeout(100).then(() => {
-          setDisabledLikeButtons(-1);
-        });
-      }
-    } else {
-      Toast.error("Unable to like post :(");
-    }
-  };
-
-  const handleDownVote = async (postKey: string, index: number, post: any) => {
-    const val = await downVote(postKey);
-    if (val && (val === 1 || val === -1)) {
-      if (val === 1) {
-        Haptics.impact({ style: ImpactStyle.Light });
-      }
-      if (userPosts && user) {
-        let tempPosts: any[] = [...userPosts];
-        if (tempPosts[index].dislikes[user.uid]) {
-          delete tempPosts[index].dislikes[user.uid];
-        } else {
-          if (tempPosts[index].likes[user.uid]) {
-            delete tempPosts[index].likes[user.uid];
-          }
-          tempPosts[index].dislikes[user.uid] = true;
-        }
-        setUserPosts(tempPosts);
-        await timeout(100).then(() => {
-          setDisabledLikeButtons(-1);
-        });
-      }
-    } else {
-      Toast.error("Unable to dislike post :(");
-    }
-  };
 
   const getTimeLeft = (timestamp: any) => {
     const time = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
@@ -655,76 +589,6 @@ function User() {
     const ms = today.getTime() - time.getTime();
     return (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
   }
-
-  const fetchMorePosts = () => {
-    if (lastKey && user) {
-      setLoadingUserPosts(true);
-      getNextBatchUserPosts(schoolName, user.uid, lastKey)
-        .then(async (res: any) => {
-          setLastKey(res.lastKey);
-          for (let i = 0; i < res.userPosts.length; ++i) {
-            const data = await getLikes(res.userPosts[i].key);
-            if (data) {
-              res.userPosts[i].likes = data.likes;
-              res.userPosts[i].dislikes = data.dislikes;
-              res.userPosts[i].commentAmount = data.commentAmount;
-            } else {
-              res.userPosts[i].likes = {};
-              res.userPosts[i].dislikes = {};
-              res.userPosts[i].commentAmount = 0;
-            }
-          }
-          setUserPosts(userPosts?.concat(res.userPosts)!);
-          if (res.userPosts.length == 0) {
-            setNoMorePosts(true);
-          }
-          setLoadingUserPosts(false);
-        })
-        .catch((err: any) => {
-          Toast.error(err.message.toString());
-        });
-    } else {
-      setNoMorePosts(true);
-    }
-  };
-
-  const fetchMoreLikes = (event: any) => {
-    if (lastLikesKey && user) {
-      console.log("clicked");
-      console.log(lastLikesKey);
-      getUserLikedPostsNextBatch(user.uid, lastLikesKey).then(async (res: any) => {
-        console.log(res);
-        setLastLikesKey(res.lastKey);
-        setUserLikedPosts(userLikedPosts?.concat(res.userLikes)!);
-        if (res.userLikes.length == 0) {
-          setNoMoreLikes(true);
-        }
-        event.target.complete();
-      }).catch((err: any) => {
-        Toast.error(err.message.toString());
-        event.target.complete();
-      });
-    } else {
-      setNoMoreLikes(true);
-      event.target.complete();
-    }
-  }
-
-  const loadYourPolls = () => {
-    if (user && schoolName) {
-      const yourPollsLoaded = promiseTimeout(10000, getYourPolls(schoolName, user.uid));
-      yourPollsLoaded.then((res) => {
-        if (res) {
-          setYourPolls(res);
-        } else {
-          Toast.error("Something went wrong when loading your polls");
-        }
-      });
-      yourPollsLoaded.catch((err) => {
-        Toast.error(err + "\n Check your internet connection");
-      });
-    }
-  };
 
   async function loadLogout() {
     const { value } = await Dialog.confirm({
@@ -785,76 +649,6 @@ function User() {
         Toast.error(err);
       });
     }
-  };
-
-  const loadNotifications = () => {
-    if (user && user.uid) {
-      // if (!userDataHasLoaded) {
-      const gotUserData = promiseTimeout(7500, getCurrentUserData());
-      gotUserData.then((res: any) => {
-        if (res) {
-          setUserBio(res.bio);
-          setUserMajor(res.major);
-          setUserInstagram(res.instagram);
-          setUserSnapchat(res.snapchat);
-          setUserTiktok(res.tiktok);
-          setSpotifyUri(res.spotify);
-          setEditableUserBio(res.bio);
-          setEditableUserMajor(res.major);
-          setEditableUserInstagram(res.instagram);
-          setEditableUserSnapchat(res.snapchat);
-          setEditableUserTiktok(res.tiktok);
-          setEditableSpotifyUri(res.spotify);
-          res.notifs.sort(function (a: any, b: any) {
-            var keyA = new Date(a.date), keyB = new Date(b.date);
-            if (keyA < keyB) return -1;
-            if (keyA > keyB) return 1;
-            return 0;
-          });
-          setNotifs(res.notifs.slice(0, 15));
-        } else {
-          Toast.error("Trouble loading data");
-          setAboutEdit(false);
-        }
-        setUserDataHasLoaded(true);
-      });
-      gotUserData.catch((err) => {
-        Toast.error(err);
-      });
-    }
-  };
-
-  const loadUserPosts = () => {
-    setLoadingUserPosts(true);
-    if (schoolName && user) {
-      const hasLoaded = promiseTimeout(
-        5000,
-        getUserPosts(schoolName, user.uid)
-      );
-      hasLoaded.then(async (res) => {
-        if (res.userPosts.length > 0) {
-          for (let i = 0; i < res.userPosts.length; ++i) {
-            const data = await getLikes(res.userPosts[i].key);
-            if (data) {
-              res.userPosts[i].likes = data.likes;
-              res.userPosts[i].dislikes = data.dislikes;
-              res.userPosts[i].commentAmount = data.commentAmount;
-            } else {
-              res.userPosts[i].likes = {};
-              res.userPosts[i].dislikes = {};
-              res.userPosts[i].commentAmount = 0;
-            }
-          }
-          setUserPosts(res.userPosts);
-          setLastKey(res.lastKey);
-          setLoadingUserPosts(false);
-        }
-      });
-      hasLoaded.catch((err) => {
-        Toast.error(err);
-      });
-    }
-    setLoadingUserPosts(false);
   };
 
   const handleSpotifySearch = async () => {
@@ -937,12 +731,9 @@ function User() {
   return (
     <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} className="no-scroll-content" scrollY={false}>
-        {/* <IonHeader class="ion-no-border" style={{ textAlign: "center" }}> */}
         <IonToolbar mode="ios" style={{ height: "5vh" }}>
           <IonButtons slot="start">
             <IonButton
-              // style={{opacity: "40%"}}
-              // disabled
               onClick={loadLogout}
               color="danger"
               mode="ios"
@@ -966,8 +757,15 @@ function User() {
             <IonButton
               color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
               onClick={() => {
+                dynamicNavigate("notifications", "forward");
+              }}
+            >
+              <IonIcon icon={notificationsOutline}></IonIcon>
+            </IonButton>
+            <IonButton
+              color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+              onClick={() => {
                 dynamicNavigate("privacy-policy", "forward");
-                // history.push("/privacy-policy");
               }}
             >
               <IonIcon icon={informationCircleOutline}></IonIcon>
@@ -983,25 +781,13 @@ function User() {
               style={{ zIndex: "2", position: "absolute", margin: "auto", left: "54%", top: "0%" }}
             />
           </IonAvatar>
-          {/* <IonButton
-            style={{zIndex: "999", right: "10%"}}
-                    onClick={handleProfilePictureEdit}
-                    color="primary"
-                  >
-                    {" "}
-                    Edit{" "}
-                  </IonButton> */}
-          {/* </IonToolbar> */}
         </IonHeader>
         <FadeIn>
-          {/* <IonToolbar mode="ios"> */}
           <IonTitle size="small" style={titleStyle}>
             Hello
             <IonText color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} onClick={() => { dynamicNavigate('about/' + userUid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
           </IonTitle>
-          {/* </IonToolbar> */}
         </FadeIn>
-        {/* </IonHeader> */}
         <IonLoading
           message="Please wait..."
           duration={5000}
@@ -1208,17 +994,6 @@ function User() {
                     src={"https://embed.spotify.com/?uri=" + editableSpotifyUri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
                   </iframe>
                 }
-                {/* <IonTextarea
-                  style={{ fontWeight: "bold" }}
-                  mode="ios"
-                  id="bio"
-                  color="primary"
-                  maxlength={50}
-                  value={spotifyTextSearch}
-                  onIonChange={(e: any) => {
-                    handleSpotifyChange(e);
-                  }}
-                /> */}
                 {editableSpotifyUri && editableSpotifyUri.length > 0 ?
                   <IonRow>
                     <IonCol>
@@ -1482,31 +1257,7 @@ function User() {
                   let tempArr: boolean[] = loadedSlidesArr;
                   tempArr[1] = true;
                   setLoadedSlidesArr(tempArr);
-                  loadNotifications();
-                }
-                break;
-              case 2:
-                if (!loadedSlidesArr[2]) {
-                  let tempArr: boolean[] = loadedSlidesArr;
-                  tempArr[2] = true;
-                  setLoadedSlidesArr(tempArr);
-                  loadUserPosts();
-                }
-                break;
-              case 3:
-                if (!loadedSlidesArr[3]) {
-                  let tempArr: boolean[] = loadedSlidesArr;
-                  tempArr[3] = true;
-                  setLoadedSlidesArr(tempArr);
                   loadUserLikes();
-                }
-                break;
-              case 4:
-                if (!loadedSlidesArr[4]) {
-                  let tempArr: boolean[] = loadedSlidesArr;
-                  tempArr[4] = true;
-                  setLoadedSlidesArr(tempArr);
-                  loadYourPolls();
                 }
                 break;
               default:
@@ -1639,563 +1390,6 @@ function User() {
             {/* <br /> <br /><br /> <br /><br /> <br /> */}
             {/* </IonContent> */}
             {/* </IonCard> */}
-          </SwiperSlide>
-          <SwiperSlide>
-            <div style={{ height: "2vh" }} />
-            <IonHeader
-              class="ion-no-border"
-              style={{
-                textAlign: "center",
-                fontSize: "1em",
-                color: "#898989"
-              }}
-            >
-              Notifications
-              <IonFab horizontal="end">
-                <IonButton fill="clear" mode="ios" onClick={loadNotifications} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
-                  <IonIcon icon={refreshOutline} />
-                </IonButton>
-              </IonFab>
-            </IonHeader>
-            <IonCard className="user-card">
-              <IonContent>
-                <div>
-                  <>
-                    {!notifs ?
-                      <div style={{ textAlign: "center" }}>
-                        <IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} />
-                      </div>
-                      : notifs.length > 0 ?
-                        <>
-                          {notifs.slice(0).reverse().map((notif, index) => {
-                            if ("message" in notif && "chatroomString" in notif) {
-                              return (
-                                <FadeIn key={"notif_" + notif.postKey + index.toString()}>
-                                  <IonList inset={true} mode="ios">
-                                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate(notif.chatroomString, "forward"); }}>
-                                      <IonFab horizontal="end" vertical="top">
-                                        <IonNote style={{ fontSize: "0.75em" }}>
-                                          {" "}
-                                          {getDate(notif.date)}{" "}
-                                        </IonNote>
-                                      </IonFab>
-                                      <IonText>
-                                        <div style={{ height: "4vh" }}>{" "}</div>
-                                        <div style={{ fontWeight: "bold" }}>
-                                          {notif.userName + " sent a DM: "}
-                                        </div>
-                                        {notif.message}
-                                        <div style={{ height: "1vh" }}>{" "}</div>
-                                      </IonText>
-                                    </IonItem>
-                                  </IonList>
-                                </FadeIn>
-                              )
-                            } else {
-                              return (
-                                <FadeIn key={"notif_" + notif.postKey + index.toString()}>
-                                  <IonList inset={true} mode="ios">
-                                    <IonItem lines="none" mode="ios" onClick={() => { const key = notif.postKey.toString(); dynamicNavigate("post/" + key, "forward"); }}>
-                                      <IonFab horizontal="end" vertical="top">
-                                        <IonNote style={{ fontSize: "0.75em" }}>
-                                          {" "}
-                                          {getDate(notif.date)}{" "}
-                                        </IonNote>
-                                      </IonFab>
-                                      <IonText>
-                                        <div style={{ height: "4vh" }}>{" "}</div>
-                                        <div style={{ fontWeight: "bold" }}>
-                                          {notif.userName + " commented: "}
-                                        </div>
-                                        {notif.comment}
-                                        <div style={{ height: "1vh" }}>{" "}</div>
-                                      </IonText>
-                                    </IonItem>
-                                  </IonList>
-                                </FadeIn>
-                              )
-                            }
-                          })}
-                        </>
-                        : null
-                    }
-                  </>
-                </div>
-                <br /> <br /><br /> <br /><br /> <br />
-              </IonContent>
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <div style={{ height: "2vh" }} />
-            <IonHeader
-              class="ion-no-border"
-              style={{
-                textAlign: "center",
-                fontSize: "1em",
-                color: "#898989"
-              }}
-            >
-              Your Posts
-              <IonFab horizontal="end">
-                <IonButton mode="ios" fill="clear" onClick={loadUserPosts} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
-                  <IonIcon icon={refreshOutline} />
-                </IonButton>
-              </IonFab>
-            </IonHeader>
-            <IonCard className="user-card">
-              <IonContent>
-                <div>
-                  <>
-                    {userPosts && userPosts.length > 0
-                      ? userPosts.map((post: any, index: number) => {
-                        if (busy) {
-                          return (
-                            <FadeIn key={post.key}>
-                              <IonList inset={true} mode="ios">
-                                <IonItem lines="none" mode="ios">
-                                  <IonLabel>
-                                    <IonFab horizontal="end">
-                                      <IonSkeletonText
-                                        animated
-                                        style={{
-                                          fontSize: "0.75em",
-                                          width: "30vw",
-                                        }}
-                                      />
-                                    </IonFab>
-                                    <IonFab horizontal="start">
-                                      <p
-                                        style={{
-                                          fontWeight: "bold",
-                                          color: getColor(post.postType),
-                                        }}
-                                      >
-                                        <IonSkeletonText
-                                          style={{
-                                            width: "30vw",
-                                            height: "1.75em",
-                                          }}
-                                          animated
-                                        />
-                                      </p>
-                                    </IonFab>
-                                    <br></br>
-                                    <h3
-                                      className="h2-message"
-                                      style={{
-                                        marginLeft: "2%",
-                                        marginTop: "5%",
-                                      }}
-                                    >
-                                      {" "}
-                                      <IonSkeletonText animated />{" "}
-                                    </h3>
-
-                                    {post.imgSrc && post.imgSrc.length > 0 ? (
-                                      <div>
-                                        <br></br>
-                                        <br></br>
-                                        <IonSkeletonText
-                                          style={{ height: "50vw" }}
-                                          animated
-                                        />
-                                      </div>
-                                    ) : null}
-                                  </IonLabel>
-                                </IonItem>
-                              </IonList>
-                            </FadeIn>
-                          );
-                        }
-                        return (
-                          <FadeIn key={post.key}>
-                            <IonList inset={true} mode="ios">
-                              <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, "forward"); }}>
-                                <IonLabel>
-                                  <IonFab horizontal="end">
-                                    <IonNote style={{ fontSize: "0.75em" }}>
-                                      {" "}
-                                      {getDate(post.timestamp)}{" "}
-                                    </IonNote>
-                                  </IonFab>
-                                  <IonFab horizontal="start" style={{ marginLeft: '-1.5%' }}>
-                                    {post.postType != "general" ? (
-                                      <p
-                                        style={{
-                                          fontWeight: "bold",
-                                          color: getColor(post.postType),
-                                        }}
-                                      >
-                                        {post.postType.toUpperCase()}
-                                      </p>
-                                    ) : null}
-                                  </IonFab>
-                                  <br></br><br />
-                                  {"className" in post && "classNumber" in post && post.className.length > 0 ?
-                                    <Linkify tagName="h3" className="h2-message">
-                                      {post.message} <IonNote onClick={(e) => {
-                                        e.stopPropagation();
-                                        dynamicNavigate("class/" + post.className, 'forward');
-                                      }} color="medium" style={{ fontWeight: "400" }}> &nbsp; — {post.className}{post.classNumber}</IonNote>
-                                    </Linkify>
-                                    :
-                                    <Linkify tagName="h3" className="h2-message">
-                                      {post.message}
-                                    </Linkify>
-                                  }
-                                  {"imgSrc" in post && post.imgSrc &&
-                                    post.imgSrc.length == 1 &&
-                                    <>
-                                      <div style={{ height: "0.75vh" }}>{" "}</div>
-                                      <div
-                                        className="ion-img-container"
-                                        style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          const img: CapacitorImage = {
-                                            url: post.imgSrc[0],
-                                            title: `${post.userName}'s post`
-                                          };
-                                          CapacitorPhotoViewer.show({
-                                            images: [img],
-                                            mode: 'one',
-                                            options: {
-                                              title: true
-                                            }
-                                          }).catch((err) => {
-                                            Toast.error('Unable to open image on web version');
-                                          });
-                                        }}
-                                      >
-                                      </div>
-                                    </>
-                                  }
-                                  {"imgSrc" in post && post.imgSrc &&
-                                    post.imgSrc.length == 2 ? (
-                                    <>
-                                      <div style={{ height: "0.75vh" }}>{" "}</div>
-                                      <IonRow>
-                                        <IonCol>
-                                          <div
-                                            className="ion-img-container"
-                                            style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const img: CapacitorImage[] = [
-                                                {
-                                                  url: post.imgSrc[0],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                                {
-                                                  url: post.imgSrc[1],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                              ]
-                                              CapacitorPhotoViewer.show({
-                                                images: img,
-                                                mode: 'slider',
-                                                options: {
-                                                  title: true
-                                                },
-                                                startFrom: 0
-                                              }).catch((err) => {
-                                                Toast.error('Unable to open image on web version');
-                                              });
-                                            }}
-                                          >
-                                          </div>
-                                        </IonCol>
-                                        <IonCol>
-                                          <div
-                                            className="ion-img-container"
-                                            style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const img: CapacitorImage[] = [
-                                                {
-                                                  url: post.imgSrc[0],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                                {
-                                                  url: post.imgSrc[1],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                              ]
-                                              CapacitorPhotoViewer.show({
-                                                images: img,
-                                                mode: 'slider',
-                                                options: {
-                                                  title: true
-                                                },
-                                                startFrom: 1,
-                                              }).catch((err) => {
-                                                Toast.error('Unable to open image on web version');
-                                              });
-                                            }}
-                                          >
-                                          </div>
-                                        </IonCol>
-                                      </IonRow>
-                                    </>
-                                  ) : null}
-                                  {"imgSrc" in post && post.imgSrc &&
-                                    post.imgSrc.length >= 3 ? (
-                                    <>
-                                      <div style={{ height: "0.75vh" }}>{" "}</div>
-                                      <IonRow>
-                                        <IonCol>
-                                          <div
-                                            className="ion-img-container"
-                                            style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const img: CapacitorImage[] = [
-                                                {
-                                                  url: post.imgSrc[0],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                                {
-                                                  url: post.imgSrc[1],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                                {
-                                                  url: post.imgSrc[2],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                              ]
-                                              CapacitorPhotoViewer.show({
-                                                images: img,
-                                                mode: 'slider',
-                                                options: {
-                                                  title: true
-                                                },
-                                                startFrom: 0
-                                              }).catch((err) => {
-                                                Toast.error('Unable to open image on web version');
-                                              });
-                                            }}
-                                          >
-                                          </div>
-                                        </IonCol>
-                                        <IonCol>
-                                          <div
-                                            className="ion-img-container"
-                                            style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              const img: CapacitorImage[] = [
-                                                {
-                                                  url: post.imgSrc[0],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                                {
-                                                  url: post.imgSrc[1],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                                {
-                                                  url: post.imgSrc[2],
-                                                  title: `${post.userName}'s post`
-                                                },
-                                              ]
-                                              CapacitorPhotoViewer.show({
-                                                images: img,
-                                                mode: 'slider',
-                                                options: {
-                                                  title: true
-                                                },
-                                                startFrom: 1,
-                                              }).catch((err) => {
-                                                Toast.error('Unable to open image on web version');
-                                              });
-                                            }}
-                                          >
-                                          </div>
-                                        </IonCol>
-                                      </IonRow>
-                                      <>
-                                        <div
-                                          className="ion-img-container"
-                                          style={{ backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '10px' }}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            const img: CapacitorImage[] = [
-                                              {
-                                                url: post.imgSrc[0],
-                                                title: `${post.userName}'s post`
-                                              },
-                                              {
-                                                url: post.imgSrc[1],
-                                                title: `${post.userName}'s post`
-                                              },
-                                              {
-                                                url: post.imgSrc[2],
-                                                title: `${post.userName}'s post`
-                                              },
-                                            ]
-                                            CapacitorPhotoViewer.show({
-                                              images: img,
-                                              mode: 'slider',
-                                              options: {
-                                                title: true
-                                              },
-                                              startFrom: 2
-                                            }).catch((err) => {
-                                              Toast.error('Unable to open image on web version');
-                                            });
-                                          }}
-                                        >
-                                        </div>
-                                      </>
-                                    </>
-                                  ) : null}
-                                </IonLabel>
-                              </IonItem>
-                              <FadeIn>
-                                <IonItem lines="none" mode="ios">
-                                  <IonButton
-                                    onAnimationEnd={() => {
-                                      setLikeAnimation(-1);
-                                    }}
-                                    className={
-                                      likeAnimation === post.key
-                                        ? "likeAnimation"
-                                        : ""
-                                    }
-                                    disabled={disabledLikeButtons === index}
-                                    mode="ios"
-                                    fill="outline"
-                                    color={
-                                      userPosts &&
-                                        user &&
-                                        index >= 0 &&
-                                        index < userPosts.length &&
-                                        "likes" in userPosts[index] &&
-                                        userPosts[index].likes[user.uid] !== undefined &&
-                                        schoolName !== "Cal Poly Humboldt"
-                                        ? "primary"
-                                        : userPosts &&
-                                          user &&
-                                          index >= 0 &&
-                                          index < userPosts.length &&
-                                          "likes" in userPosts[index] &&
-                                          userPosts[index].likes[user.uid] !== undefined &&
-                                          schoolName === "Cal Poly Humboldt" && schoolColorToggled
-                                          ? "tertiary"
-                                          : userPosts &&
-                                            user &&
-                                            index >= 0 &&
-                                            index < userPosts.length &&
-                                            "likes" in userPosts[index] &&
-                                            userPosts[index].likes[user.uid] !== undefined &&
-                                            schoolName === "Cal Poly Humboldt" && !schoolColorToggled
-                                            ? "primary"
-                                            : "medium"
-                                    }
-                                    onClick={() => {
-                                      setLikeAnimation(post.key);
-                                      setDisabledLikeButtons(index);
-                                      handleUpVote(post.key, index, post);
-                                    }}
-                                  >
-                                    <KeyboardArrowUpIcon />
-                                    <p>{Object.keys(post.likes).length - 1} </p>
-                                  </IonButton>
-                                  <p>&nbsp;</p>
-                                  <IonButton
-                                    mode="ios"
-                                    color="medium"
-                                    onClick={() => {
-                                      dynamicNavigate("post/" + post.key, "forward");
-                                    }}
-                                  >
-                                    <ForumIcon />
-                                    <p>&nbsp; {post.commentAmount} </p>
-                                  </IonButton>
-                                  <IonButton
-                                    onAnimationEnd={() => {
-                                      setDislikeAnimation(-1);
-                                    }}
-                                    className={
-                                      dislikeAnimation === post.key
-                                        ? "likeAnimation"
-                                        : ""
-                                    }
-                                    disabled={disabledLikeButtons === index}
-                                    mode="ios"
-                                    fill="outline"
-                                    color={
-                                      userPosts &&
-                                        "dislikes" in userPosts[index] &&
-                                        user &&
-                                        userPosts[index].dislikes[user.uid] !==
-                                        undefined
-                                        ? "danger"
-                                        : "medium"
-                                    }
-                                    onClick={() => {
-                                      setDislikeAnimation(post.key);
-                                      setDisabledLikeButtons(index);
-                                      handleDownVote(post.key, index, post);
-                                    }}
-                                  >
-                                    <KeyboardArrowDownIcon />
-                                    <p>{Object.keys(post.dislikes).length - 1} </p>
-                                  </IonButton>
-                                  <IonFab horizontal="end">
-                                    <IonButton
-                                      disabled={disabledDeleteButton}
-                                      mode="ios"
-                                      fill="outline"
-                                      color="danger"
-                                      onClick={() => {
-                                        if ("url" in post && post.url && post.url.length > 0) {
-                                          deletePost(index, post.key, post.url);
-                                        } else {
-                                          deletePost(index, post.key, []);
-                                        }
-                                      }}
-                                    >
-                                      <DeleteIcon />
-                                    </IonButton>
-                                  </IonFab>
-                                </IonItem>
-                              </FadeIn>
-                            </IonList>
-                          </FadeIn>
-                        );
-                      })
-                      : <p style={{ fontWeight: "bold", textAlign: "center" }}>No posts yet!</p>
-                    }
-                  </>
-                  {loadingUserPosts ? (
-                    <div style={{ textAlign: "center" }}>
-                      <IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} />
-                    </div>
-                  ) : (
-                    null
-                  )}
-                  {userPosts && userPosts.length > 10 &&
-                    <FadeIn>
-                      <div style={{ display: "flex", justifyContent: "center" }}>
-                        <IonButton
-                          color="medium"
-                          mode="ios"
-                          fill="outline"
-                          expand="block"
-                          disabled={!userPosts || loadingUserPosts || noMorePosts}
-                          onClick={() => {
-                            fetchMorePosts();
-                          }}
-                        >
-                          LOAD MORE POSTS{" "}
-                        </IonButton>
-                      </div>
-                    </FadeIn>
-                  }
-                </div>
-                <br /> <br /><br /> <br /><br /> <br />
-              </IonContent>
-            </IonCard>
           </SwiperSlide>
           <SwiperSlide>
             <div style={{ height: "2vh" }} />
@@ -2487,101 +1681,9 @@ function User() {
                   {userLikedPosts && userLikedPosts.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
                   ) : (null)}
-                  {/* {userLikedPosts &&
-                    <IonInfiniteScroll
-                      position="bottom"
-                      threshold="0%"
-                      onIonInfinite={(e: any) => { fetchMoreLikes(e) }}
-                      disabled={noMoreLikes}
-                    >
-                      <IonInfiniteScrollContent
-                        loadingSpinner="circular"
-                        loadingText="Loading"
-                      ></IonInfiniteScrollContent>
-                    </IonInfiniteScroll>
-                  }
-                  {!noMoreLikes && userLikedPosts && userLikedPosts.length > 0  ?
-                    <div style={{ margin: "0 auto", textAlign: "center" }}>
-                      <IonSpinner style={{ margin: "0 auto" }} name="circular" color={schoolName == "Cal Poly Humboldt" ? "tertiary" : "primary"}  ></IonSpinner>
-                    </div>
-                    :
-                    <>
-                    <br /> <br /> <br /> <br/>
-                    </>
-                  } */}
                 </div>
                 <br /> <br /><br /> <br /><br /> <br />
 
-              </IonContent>
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <div style={{ height: "2vh" }} />
-            <IonHeader
-              class="ion-no-border"
-              style={{
-                textAlign: "center",
-                fontSize: "1em",
-                color: "#898989"
-              }}
-            >
-              Your Polls
-              <IonFab horizontal="end">
-                <IonButton mode="ios" fill="clear" onClick={loadYourPolls} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
-                  <IonIcon icon={refreshOutline} />
-                </IonButton>
-              </IonFab>
-            </IonHeader>
-            <IonCard className="user-card">
-              <IonContent>
-                <div>
-                  <div>
-                    {user && yourPolls ? (
-                      <FadeIn>
-                        {yourPolls.map((poll, index) => {
-                          return (
-                            <IonCard mode='ios' key={poll.key}>
-                              <IonCardContent style={{ minHeight: "52.5vh" }}>
-                                <p>{poll.userName}</p>
-                                <IonCardTitle style={{ fontSize: "1.5em" }}>{poll.question}</IonCardTitle>
-                                <br />
-                                <IonList lines="full" mode="ios">
-                                  {poll.options.map((option: any, index: number) => {
-                                    return (
-                                      <IonItem style={{ fontWeight: "bold" }} disabled={true} key={option.text + index.toString()} mode="ios" lines="full">
-                                        {option.text} <p slot="end">{!isNaN(Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) ? (Math.round(((poll.results[index] / poll.votes) * 100) * 10) / 10) + "%" : ('0') + "%"}</p>
-                                      </IonItem>
-                                    )
-                                  })}
-                                </IonList>
-                                <IonFab vertical="bottom" horizontal="start" style={{ marginBottom: "-1vh" }}>
-                                  <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                                </IonFab>
-                                <IonFab vertical='bottom' horizontal="end" style={{ marginBottom: "-1vh" }}>
-                                  <IonButton
-                                    size="small"
-                                    disabled={disabledDeleteButton}
-                                    mode="ios"
-                                    fill="outline"
-                                    color="danger"
-                                    onClick={() => {
-                                      deletePoll(index, poll.key)
-                                    }}
-                                  >
-                                    <DeleteIcon />
-                                  </IonButton>
-                                </IonFab>
-                              </IonCardContent>
-                            </IonCard>
-                          )
-                        })}
-                      </FadeIn>) : (<IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} className="ion-spinner" />)}
-                  </div>
-                  {yourPolls && yourPolls.length <= 0 ? (
-                    <p style={{ fontWeight: "bold", textAlign: "center" }}>No polls yet!</p>
-                  ) : (null)}
-                </div>
-                <br /> <br /><br /> <br /><br /> <br />
               </IonContent>
             </IonCard>
           </SwiperSlide>

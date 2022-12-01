@@ -10,6 +10,10 @@ import Header from "./Header";
 import { timeout } from "../shared/functions";
 import { sendPasswordReset } from "../fbconfig";
 import { useTabsContext } from "../my-context";
+import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
+
+const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }
+
 
 const ForgotPassword = () => {
   const Toast = useToast();
@@ -25,13 +29,13 @@ const ForgotPassword = () => {
 
   const handleResetPassword = () => {
     setButtonDisabled(true);
-    if(email.trim().length <= 0) {
+    if (email.trim().length <= 0) {
       Toast.error("Enter an email");
       setButtonDisabled(false);
       return;
     }
     sendPasswordReset(email).then((res) => {
-      if(res) {
+      if (res) {
         Toast.success("Email sent! (Check your spam folder)");
         setEmail("");
         timeout(1500).then(() => {
@@ -44,12 +48,24 @@ const ForgotPassword = () => {
     })
   };
 
+  /**
+ * Keyboard event listener useEffect
+ */
+  useEffect(() => {
+    Keyboard.addListener('keyboardWillShow', info => {
+      Keyboard.setResizeMode(defaultResizeOptions);
+    });
+    return () => {
+      Keyboard.removeAllListeners();
+    };
+  }, []);
+
   return (
     <IonPage className="ion-page-ios-notch">
       <IonContent>
 
-        <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header darkMode={darkModeToggled} schoolName="" zoom={1.2}/>
+        <IonHeader style={{ padding: "5%" }}>
+          <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
           <p style={{ textAlign: "center", fontSize: "1.25em" }}>Forgot Password</p>
         </IonHeader>
 
@@ -58,7 +74,7 @@ const ForgotPassword = () => {
             <IonInput clearInput={true} color="transparent" mode='ios' value={email} type="email" placeholder="Email" id="emailSignIn" debounce={250} onIonChange={(e: any) => { setEmail(e.detail.value); }} ></IonInput>
           </IonItem>
           <br />
-          <IonButton color="transparent" mode='ios' disabled={buttonDisabled} onClick={() => {handleResetPassword(); }} shape="round" fill="outline" expand="block" id="signInButton" >Send Password Reset</IonButton>
+          <IonButton color="transparent" mode='ios' disabled={buttonDisabled} onClick={() => { handleResetPassword(); }} shape="round" fill="outline" expand="block" id="signInButton" >Send Password Reset</IonButton>
           <br />
           <br />
           <p className="sign-in-sign-up-list">

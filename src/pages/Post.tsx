@@ -60,7 +60,7 @@ const resizeOptions: KeyboardResizeOptions = {
 }
 
 const defaultResizeOptions: KeyboardResizeOptions = {
-  mode: KeyboardResize.Native,
+  mode: KeyboardResize.Body,
 }
 
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
@@ -1174,22 +1174,10 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 : null}
             </FadeIn>
           )}
-
-          {kbHeight !== 0 || kbHeight > 0 ?
-            <>
-              <IonItem color="transparent" lines="none" mode="ios" disabled>
-              </IonItem>
-              <IonItem color="transparent" lines="none" mode="ios" disabled>
-              </IonItem>
-              <IonItem color="transparent" lines="none" mode="ios" disabled>
-              </IonItem>
-            </>
-            :
-            null}
         </div>
 
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 
 
         <IonInfiniteScroll
