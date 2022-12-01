@@ -1027,7 +1027,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </div>
           ) : (
             <FadeIn>
-              {/* <div> */}
+              {comments && comments.length > 0 &&
+                <IonNote style={{ display: "flex", justifyContent: "center" }} >Comments</IonNote>
+              }
               {comments && comments.length > 0
                 ? comments?.map((comment: any, index: number) => (
                   <IonList inset={true} key={index}>
@@ -1175,13 +1177,11 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
           {kbHeight !== 0 || kbHeight > 0 ?
             <>
-              <IonItem lines="none" mode="ios" disabled>
+              <IonItem color="transparent" lines="none" mode="ios" disabled>
               </IonItem>
-              <IonItem lines="none" mode="ios" disabled>
+              <IonItem color="transparent" lines="none" mode="ios" disabled>
               </IonItem>
-              <IonItem lines="none" mode="ios" disabled>
-              </IonItem>
-              <IonItem lines="none" mode="ios" disabled>
+              <IonItem color="transparent" lines="none" mode="ios" disabled>
               </IonItem>
             </>
             :
@@ -1189,6 +1189,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         </div>
 
         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+
 
         <IonInfiniteScroll
           onIonInfinite={(e: any) => { handleLoadCommentsNextBatch(e) }}

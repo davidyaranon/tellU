@@ -278,10 +278,11 @@ const Home = () => {
     }
   };
 
-  const handleLoadPostsNextBatch = (event: any) => {
+  const handleLoadPostsNextBatch = async (event: any) => {
     // setBusy(true);
     console.log('inf')
     if (lastKey && user) {
+      await timeout(500);
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
       tempPosts.then(async (res: any) => {
         if (res.allPosts) {
