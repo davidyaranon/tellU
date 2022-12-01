@@ -249,6 +249,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   };
 
   const handleLoadCommentsNextBatch = async (event: any) => {
+    console.log("inf")
     if (postKey && schoolName && lastKey) {
       const commentsLoaded = promiseTimeout(7500, loadCommentsNewNextBatch(postKey, schoolName, lastKey));
       commentsLoaded.then(async (res) => {
@@ -550,13 +551,15 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }, [user, schoolName, match.params.key]);
 
+
+  //TO-DO: Replace comments with Virtuoso component
   return (
     <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} scrollEvents>
 
         <IonLoading isOpen={deletingComment} duration={0} message={"Deleting post..."} />
 
-        <IonModal isOpen={showReportModal} mode="ios"  swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+        <IonModal isOpen={showReportModal} mode="ios" swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           {/* <IonHeader translucent> */}
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios">
@@ -1167,41 +1170,38 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </IonList>
                 ))
                 : null}
-              {kbHeight !== 0 || kbHeight > 0 ?
-                <>
-                  <IonItem lines="none" mode="ios" disabled>
-                  </IonItem>
-                  <IonItem lines="none" mode="ios" disabled>
-                  </IonItem>
-                  <IonItem lines="none" mode="ios" disabled>
-                  </IonItem>
-                  <IonItem lines="none" mode="ios" disabled>
-                  </IonItem>
-                </>
-                :
-                null}
-              {/* </div> */}
             </FadeIn>
           )}
-          <IonInfiniteScroll
-            onIonInfinite={(e: any) => { handleLoadCommentsNextBatch(e) }}
-            disabled={(lastKey.length == 0) || (commentsLoading) || (comments && comments.length < 20)}
-            position="bottom"
-          >
-            <IonInfiniteScrollContent
-              loadingSpinner="crescent"
-              loadingText="Loading"
-            ></IonInfiniteScrollContent>
-          </IonInfiniteScroll>
-          {post ? (
-            <FadeIn>
-              <div style={{ height: "25vh" }}>
-                <p style={{ textAlign: "center" }}>&#183; </p>
-              </div>
-            </FadeIn>
-          ) : (null)}
-          <br></br><br></br> <br />
+
+          {kbHeight !== 0 || kbHeight > 0 ?
+            <>
+              <IonItem lines="none" mode="ios" disabled>
+              </IonItem>
+              <IonItem lines="none" mode="ios" disabled>
+              </IonItem>
+              <IonItem lines="none" mode="ios" disabled>
+              </IonItem>
+              <IonItem lines="none" mode="ios" disabled>
+              </IonItem>
+            </>
+            :
+            null}
         </div>
+
+        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+
+        <IonInfiniteScroll
+          onIonInfinite={(e: any) => { handleLoadCommentsNextBatch(e) }}
+          disabled={(lastKey.length == 0) || (commentsLoading) || (comments && comments.length < 10)}
+          position="bottom"
+          threshold="10px"
+        >
+          <IonInfiniteScrollContent
+            style={{ transform: "translateY(-25vh)" }}
+            loadingSpinner="crescent"
+            loadingText="Loading">
+          </IonInfiniteScrollContent>
+        </IonInfiniteScroll>
       </IonContent>
     </IonPage >
   )

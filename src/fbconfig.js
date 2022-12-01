@@ -1765,7 +1765,7 @@ export const loadCommentsNew = async (postKey, schoolName) => {
         postKey,
         "comments"
       );
-      const q = query(commentsRef, orderBy("timestamp", "asc"), limit(20));
+      const q = query(commentsRef, orderBy("timestamp", "asc"), limit(10));
       const querySnapshot = await getDocs(q);
       let comments = [];
       let lastKey = "";
