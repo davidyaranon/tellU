@@ -964,7 +964,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   } else {
                                     Toast.error("Something went wrong when deleting post, try again")
                                   }
-                                  history.push("/about/" + post.uid);
+                                  history.push("/home");
                                   setDeletingComment(false);
                                 } else {
                                   console.log("deleting post without images");
@@ -978,7 +978,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   } else {
                                     Toast.error("Something went wrong when deleting post, try again")
                                   }
-                                  history.push("/about/" + post.uid);
+                                  history.push("/home");
                                   setDeletingComment(false);
                                 }
                               }}

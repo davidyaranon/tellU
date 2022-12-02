@@ -1392,6 +1392,11 @@ function User() {
             {/* </IonCard> */}
           </SwiperSlide>
           <SwiperSlide>
+            <IonFab horizontal="end">
+              <IonButton mode="ios" fill="clear" onClick={loadUserLikes} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
+                <IonIcon icon={refreshOutline} />
+              </IonButton>
+            </IonFab>
             <div style={{ height: "2vh" }} />
             <IonHeader
               class="ion-no-border"
@@ -1402,11 +1407,7 @@ function User() {
               }}
             >
               Liked Posts
-              <IonFab horizontal="end">
-                <IonButton mode="ios" fill="clear" onClick={loadUserLikes} color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}>
-                  <IonIcon icon={refreshOutline} />
-                </IonButton>
-              </IonFab>
+
             </IonHeader>
             <IonCard className="user-card">
               <IonContent>

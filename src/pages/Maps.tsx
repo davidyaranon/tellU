@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave
+  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave, useIonViewWillEnter
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 
@@ -19,7 +19,7 @@ import { collection, query, where, getDocs, orderBy, limit } from "firebase/fire
 /* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
-import { getColor, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../shared/functions";
+import { getColor, schoolInfo, timeout, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../shared/functions";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
 import { useTabsContext } from "../my-context";
@@ -40,6 +40,7 @@ function Maps() {
 
   /* State variables */
   const [user, loading, error] = useAuthState(auth);
+  const [className, setClassName] = useState<string>("");
   const [center, setCenter] = useState<[number, number]>([37.250458, -120.350249]);
   const [zoom, setZoom] = useState(6);
   const [defaultLat, setDefaultLat] = useState(0);
@@ -204,6 +205,10 @@ function Maps() {
     setMarkerFilter("ALL");
   });
 
+  useIonViewWillEnter(() => {
+    setClassName("");
+  })
+
 
   /**
    * Runs on page enter
@@ -263,7 +268,7 @@ function Maps() {
 
 
   return (
-    <IonPage>
+    <IonPage className={className}>
       <IonContent fullscreen={true} className="no-scroll-content">
         {pinsLoading &&
           <IonFab horizontal="start" vertical="top">
@@ -350,7 +355,7 @@ function Maps() {
               offset={[110, 25]}
             >
               <IonCard
-                onClick={() => { dynamicNavigate("post/" + markers[overlayIndex].key, "forward") }}
+                onClick={() => { setClassName("ion-page-ios-notch"); dynamicNavigate("post/" + markers[overlayIndex].key, "forward"); }}
                 style={{ width: "55vw", opacity: "90%" }}
                 mode="ios"
               >

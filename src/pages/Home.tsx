@@ -2,9 +2,9 @@ import "../App.css";
 import "../theme/variables.css";
 
 import {
-  IonAvatar, IonButton, IonButtons, IonCard, IonCheckbox, IonCol,
-  IonContent, IonFab, IonFabButton, IonFooter, IonHeader, IonIcon,
-  IonImg, IonItem, IonLabel, IonList,IonLoading, IonModal, IonNote, 
+  IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonCheckbox, IonCol,
+  IonContent, IonFab, IonFabButton, IonFabList, IonFooter, IonHeader, IonIcon,
+  IonImg, IonInput, IonItem, IonLabel, IonList, IonLoading, IonModal, IonNote,
   IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
   IonRow, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar,
 } from "@ionic/react";
@@ -13,8 +13,8 @@ import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-p
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import TellUHeader, { ionHeaderStyle } from "./Header";
 import { RefresherEventDetail } from "@ionic/core";
-import { add, cameraOutline, refreshCircleOutline } from "ionicons/icons";
-import { addMessage, downVote, getAllPosts, promiseTimeout, upVote } from "../fbconfig";
+import { add, cameraOutline, chatboxEllipsesOutline, refreshCircleOutline, statsChartOutline } from "ionicons/icons";
+import { addMessage, downVote, getAllPosts, pollVote, promiseTimeout, submitPollNew, upVote } from "../fbconfig";
 import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import { getColor, timeout } from '../shared/functions';
@@ -49,6 +49,10 @@ export interface UserPhoto {
   filepath: string;
   webviewPath?: string;
 }
+
+interface PollAnswer {
+  text: string,
+};
 
 defineCustomElements(window);
 
@@ -112,6 +116,29 @@ const Home = () => {
   const newDataRef = useRef<any>();
   newDataRef.current = newData;
   const virtuosoRef = useRef<any>(null);
+
+  const [pollModalOpen, setPollModalOpen] = useState<boolean>(false);
+  const [pollText, setPollText] = useState<string>("");
+  const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
+  const [pollOptions, setPollOptions] =
+    useState<PollAnswer[]>([
+      { text: "", },
+      { text: "", },
+      { text: "", },
+    ]); // start with three options, include more programatically
+
+  const getTimeLeft = (timestamp: any) => {
+    if (!timestamp) {
+      return '';
+    }
+    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
+      const time = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+      const today = new Date();
+      const ms = today.getTime() - time.getTime();
+      return (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
+    }
+    return "";
+  }
 
   const handleUpVote = async (postKey: string, index: number, post: any) => {
     const val = await upVote(postKey, post);
@@ -317,6 +344,104 @@ const Home = () => {
       setNoMorePosts(true);
     }
   };
+
+  const handlePollTextChange = (e: any) => {
+    let currComment = e.detail.value;
+    setPollText(currComment);
+  };
+
+  const handleChangePollOptions = (index: number, e: any) => {
+    let option = e.detail.value;
+    let tempOptionsArr: PollAnswer[] = [...pollOptions];
+    tempOptionsArr[index].text = option;
+    setPollOptions(tempOptionsArr);
+  }
+
+  const addPollAnswer = () => {
+    let tempPollArr: PollAnswer[] = [...pollOptions];
+    tempPollArr.push({ text: "" });
+    setPollOptions(tempPollArr);
+  }
+
+  const removePollAnswer = () => {
+    let tempPollArr: PollAnswer[] = [...pollOptions];
+    tempPollArr.pop();
+    setPollOptions(tempPollArr);
+  }
+
+  const submitPoll = async () => {
+    if (!user) {
+      Toast.error("Something went wrong, try signing out");
+      return;
+    }
+    if (pollText.trim().length <= 0) {
+      Toast.error("Enter poll question");
+      return;
+    }
+    for (let i = 0; i < pollOptions.length; ++i) {
+      if (pollOptions[i].text.trim().length <= 0) {
+        Toast.error("Enter text for option #" + (i + 1).toString());
+        return;
+      }
+    }
+    if (!schoolName) {
+      Toast.error("Something went wrong when finding school");
+      return;
+    }
+    setShowProgressBar(true);
+    Keyboard.hide().then(() => {
+      setPollText('');
+      setTimeout(() => setPollModalOpen(false), 100);
+    });
+    const pollSubmitted = promiseTimeout(10000, submitPollNew(pollText, pollOptions, schoolName, user.displayName, user.uid));
+    pollSubmitted.then((res) => {
+      if (!res) {
+        Toast.error("Something went wrong when submitting poll, please try again");
+      } else {
+        Toast.success("Poll submitted");
+      }
+      setShowProgressBar(false);
+    });
+    pollSubmitted.catch((err) => {
+      Toast.error(err + "\n Check your internet connection");
+      setShowProgressBar(false);
+    });
+  }
+
+  const handlePollVote = async (index: number, pollKey: string, postIndex: number) => {
+    if (user && schoolName) {
+      setVoteBeingCasted(true);
+      const castedVote = promiseTimeout(5000, pollVote(schoolName, index, pollKey, user.uid));
+      castedVote.then((res) => {
+        if (res) {
+          if (posts) {
+            let tempPosts: any[] = [...posts];
+            if ("results" in tempPosts[postIndex] &&
+              "voteMap" in tempPosts[postIndex] &&
+              "votes" in tempPosts[postIndex]) {
+              tempPosts[postIndex]["results"][index] += 1;
+              tempPosts[postIndex]["voteMap"][user.uid] = index;
+              tempPosts[postIndex]["votes"] += 1;
+              setPosts(tempPosts);
+            } else {
+              Toast.error("Something went wrong when updating, reload the app");
+            }
+          } else {
+            Toast.error("Something went wrong when updating, reload the app");
+          }
+          Toast.success("Vote cast!");
+          setVoteBeingCasted(false);
+        } else {
+          Toast.error("Something went wrong when casting vote");
+        }
+      });
+      castedVote.catch((err) => {
+        Toast.error(err + '\n Check your internet connection');
+      });
+    } else {
+      Toast.error("Something went wrong when casting a vote!");
+    }
+  }
 
   const handleLoadPosts = () => {
     // setBusy(true);
@@ -691,6 +816,50 @@ const Home = () => {
             itemContent={(item) => {
               let post = posts[item];
               let index = item;
+              if ("question" in post) {
+                let poll = post;
+                let postIndex = index;
+                return (
+                  <FadeIn key={postIndex}>
+                    <IonCard mode='ios'>
+                      <IonCardContent style={{ minHeight: "50vh" }}>
+                        <IonText color="medium">
+                          <IonAvatar
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              history.push("/about/" + poll.uid);
+                            }}
+                            class="posts-avatar"
+                          >
+                            <ProfilePhoto uid={post.uid}></ProfilePhoto>
+                          </IonAvatar>
+                          <p>
+                            {post.userName}
+                          </p>
+                        </IonText>
+                        <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
+                          poll.question}</IonCardTitle>
+                        <br />
+                        <IonList lines="full" mode="ios">
+                          {poll.options.map((option: any, pollIndex: number) => {
+                            return (
+                              <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => {
+                                handlePollVote(pollIndex, poll.key, postIndex)
+                              }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === pollIndex && schoolName !== "Cal Poly Humboldt" ? "primary" : poll.voteMap[user!.uid] === pollIndex && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : poll.voteMap[user!.uid] === pollIndex && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "primary" : ""} key={pollIndex} mode="ios" lines="full">
+                                <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[pollIndex] / poll.votes) * 100) * 10) / 10 + "%"}</p>
+                              </IonItem>
+                            )
+                          })}
+                        </IonList>
+                        <br />
+                        <IonFab vertical="bottom" horizontal="start">
+                          <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                        </IonFab>
+                      </IonCardContent>
+                    </IonCard>
+                  </FadeIn>
+                )
+              }
               return (
                 <FadeIn key={post.key}>
                   <IonList inset={true} mode="ios">
@@ -791,7 +960,6 @@ const Home = () => {
                 </FadeIn>
               )
             }}
-
             components={{ Footer, Header }} />
 
         </IonContent>
@@ -799,12 +967,17 @@ const Home = () => {
         <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{}}>
           <IonFabButton
             color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-            onClick={() => {
-              setShowModal(true);
-            }}
           >
             <IonIcon icon={add} />
           </IonFabButton>
+          <IonFabList side="top">
+            <IonFabButton onClick={() => { setPollModalOpen(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "light"}>
+              <IonIcon icon={statsChartOutline} />
+            </IonFabButton>
+            <IonFabButton onClick={() => { setShowModal(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "light"}>
+              <IonIcon icon={chatboxEllipsesOutline} />
+            </IonFabButton>
+          </IonFabList>
         </IonFab>
 
         <IonLoading
@@ -813,6 +986,66 @@ const Home = () => {
           duration={0}
           isOpen={gettingLocation}
         ></IonLoading>
+
+        <IonModal backdropDismiss={false} isOpen={pollModalOpen} swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+          <IonContent>
+            <div>
+              <div style={{ width: "100%" }}>
+                <IonToolbar mode="ios">
+                  <IonTitle>Poll</IonTitle>
+                  <IonButtons style={{ marginLeft: "-2.5%" }}>
+                    <IonButton
+                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                      onClick={() => {
+                        Keyboard.hide().then(() => {
+                          setTimeout(() => setPollModalOpen(false), 100);
+                        }).catch((err) => {
+                          setTimeout(() => setPollModalOpen(false), 100);
+                        });
+                        setPollText("");
+                      }}
+                    >
+                      Back
+                    </IonButton>
+                  </IonButtons>
+                </IonToolbar>
+              </div>
+
+              <IonInput
+                autoCorrect="on"
+                type="text"
+                style={{ width: "90vw", left: "5vw", fontWeight: "bold" }}
+                maxlength={100}
+                value={pollText}
+                placeholder="Ask a question*"
+                id="pollQuestion"
+                onIonChange={(e: any) => {
+                  handlePollTextChange(e);
+                }}
+              ></IonInput>
+              {pollOptions && pollOptions.length > 0 ? (
+                <IonList mode="ios" inset={true} lines="none">
+                  {pollOptions?.map((option, index) => {
+                    return (
+                      <IonItem key={index}><p style={{ alignSelf: "center" }} slot="start">{(index + 1).toString() + ". "}</p>
+                        <IonInput maxlength={50} value={pollModalOpen ? option.text : ""} onIonChange={(e: any) => { handleChangePollOptions(index, e) }} />
+                      </IonItem>
+                    )
+                  })}
+                </IonList>
+              ) : (null)}
+              <div style={{ textAlign: "center", }}>
+                <IonButton color="medium" fill="clear" disabled={pollOptions.length >= 6} onClick={addPollAnswer} mode="ios">Add Option</IonButton>
+                <IonButton fill="clear" color="danger" disabled={pollOptions.length <= 2} onClick={removePollAnswer} mode="ios">Remove Option</IonButton>
+                <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} onClick={submitPoll} fill="clear" mode="ios">Submit</IonButton>
+              </div>
+              <br />
+              <div style={{ textAlign: "center", }}>
+                <IonCardSubtitle>*Polls are up for 4 days</IonCardSubtitle>
+              </div>
+            </div>
+          </IonContent>
+        </IonModal>
 
         <IonModal
           isOpen={locationPinModal}

@@ -913,6 +913,31 @@ export const submitShowcase = async (schoolName, blob, uniqueId, showcaseText) =
   }
 }
 
+export const submitPollNew = async (pollText, pollOptions, schoolName, userName, userUid) => {
+  try {
+    if (auth && db) {
+      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      await addDoc(pollsRef, {
+        question: pollText,
+        options: pollOptions,
+        userName: userName,
+        timestamp: serverTimestamp(),
+        message : "* UPDATE tellU TO SEE POLL *",
+        votes: 0,
+        voteMap: {},
+        results: [0, 0, 0, 0, 0, 0],
+        uid: userUid,
+      }).catch((err) => {
+        console.log(err);
+        return false;
+      });
+      return true;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 export const submitPollFb = async (pollText, pollOptions, schoolName, userName, userUid) => {
   try {
     if (auth && db) {
@@ -1043,7 +1068,7 @@ export const pollVote = async (schoolName, index, postKey, userUid) => {
   try {
     if (auth && db) {
       let hasVoted = false;
-      const pollsDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls", postKey);
+      const pollsDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts", postKey);
       await runTransaction(db, async (transaction) => {
         const snap = await transaction.get(pollsDocRef);
         if (snap.exists()) {

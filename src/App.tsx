@@ -216,7 +216,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                     : { fontSize: "3.75vh" }}
             />
           </IonTabButton>
-          <IonTabButton tab="community" href="/community">
+          {/* <IonTabButton tab="community" href="/community">
             <LocalFireDepartmentIcon
               fontSize="medium"
               style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
@@ -224,7 +224,7 @@ const RoutingSystem: React.FunctionComponent = () => {
                   : selectedTab === 'community' ? { fontSize: "4.5vh" }
                     : { fontSize: "3.75vh" }}
             />
-          </IonTabButton>
+          </IonTabButton> */}
           <IonTabButton tab="maps" href="/maps">
             <MapIcon
               fontSize="medium"

@@ -6,9 +6,9 @@ const config: CapacitorConfig = {
   webDir: 'build',
   bundledWebRuntime: false,
   loggingBehavior: 'none',
-  server : {
-    url: 'http://137.150.220.24:3000',
-  },
+  // server : {
+  //   url: 'http://137.150.220.24:3000',
+  // },
   plugins: {
     "PushNotifications": {
       "presentationOptions": ["sound", "badge"]

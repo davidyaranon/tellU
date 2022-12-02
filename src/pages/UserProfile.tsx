@@ -7,11 +7,12 @@ import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
 import {
-  IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonCol,
-  IonContent, IonFab, IonIcon, IonImg, IonInfiniteScroll, IonInfiniteScrollContent,
+  IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonCardTitle, IonCol,
+  IonContent, IonFab, IonIcon, IonImg,
   IonItem, IonLabel, IonList, IonNote, IonPage, IonRow, IonSkeletonText,
   IonText, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
+import { Dialog } from '@capacitor/dialog';
 import {
   chatbubbleOutline,
   chevronBackOutline, logoInstagram,
@@ -22,7 +23,7 @@ import {
 import auth,
 {
   getLikes, getUserPosts, getNextBatchUserPosts,
-  getUserData, storage, upVote, downVote
+  getUserData, storage, upVote, downVote, removePost
 }
   from '../fbconfig';
 import { ref, getDownloadURL } from "firebase/storage";
@@ -33,6 +34,7 @@ import RoomIcon from '@mui/icons-material/Room';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ForumIcon from '@mui/icons-material/Forum';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 /* Capacitor */
 import { Share } from "@capacitor/share";
@@ -86,12 +88,26 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
+
   const navigateBack = () => {
     if (router.canGoBack()) {
       router.goBack();
     } else {
       dynamicNavigate('home', 'back');
     }
+  }
+
+  const getTimeLeft = (timestamp: any) => {
+    if (!timestamp) {
+      return '';
+    }
+    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
+      const time = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+      const today = new Date();
+      const ms = today.getTime() - time.getTime();
+      return (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
+    }
+    return "";
   }
 
   const sharePost = async () => {
@@ -596,6 +612,60 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
                 </FadeIn>
               );
             }
+            if ("question" in post) {
+              let poll = post;
+              let postIndex = index;
+              return (
+                <FadeIn key={postIndex}>
+                  <IonCard mode='ios'>
+                    <IonCardContent style={{ minHeight: "50vh" }}>
+                      <p style={{ fontSize: "1em" }}>{poll.userName}</p>
+                      <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
+                        poll.question}</IonCardTitle>
+                      <br />
+                      <IonList lines="full" mode="ios">
+                        {poll.options.map((option: any, pollIndex: number) => {
+                          return (
+                            <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => {
+                              // handleUpVote(pollIndex, poll.key, postIndex)
+                            }} disabled={true} color={poll.voteMap[user!.uid] === pollIndex && schoolName !== "Cal Poly Humboldt" ? "primary" : poll.voteMap[user!.uid] === pollIndex && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : poll.voteMap[user!.uid] === pollIndex && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "primary" : ""} key={pollIndex} mode="ios" lines="full">
+                              <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[pollIndex] / poll.votes) * 100) * 10) / 10 + "%"}</p>
+                            </IonItem>
+                          )
+                        })}
+                      </IonList>
+                      <br />
+                      <IonFab vertical="bottom" horizontal="start">
+                        <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
+                      </IonFab>
+                      <IonFab vertical="bottom" horizontal="end">
+                        <IonButton
+                          mode="ios"
+                          fill="outline"
+                          color="danger"
+                          size="small"
+                          onClick={async () => {
+                            const { value } = await Dialog.confirm({
+                              title: 'Delete Post',
+                              message: `Are you sure you'd like to delete your post?`,
+                              okButtonTitle: 'Delete'
+                            });
+                            if (!value) { return; }
+                            removePost(poll.key, schoolName, []).then(() => {
+                              Toast.success("Poll deleted, updating shortly...");
+                            }).catch((err) => {
+                              Toast.error("Something went wrong");
+                            });
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IonButton>
+                      </IonFab>
+                    </IonCardContent>
+                  </IonCard>
+                </FadeIn>
+              )
+            }
             return (
               <>
                 <FadeIn key={post.key}>
@@ -744,3 +814,4 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     </IonPage>
   );
 };
+
