@@ -392,8 +392,22 @@ export const addMessage = async (mess, blob, id, pos, school, notificationsToken
           }
         }
         if (pos) {
-          lat = pos.coords.latitude;
-          long = pos.coords.longitude;
+          const isPositiveOne = Math.random() >= 0.5;
+          const isPositiveTwo = Math.random() >= 0.5;
+          if(isPositiveOne) {
+            lat = pos.coords.latitude;
+            lat += Math.random() * 0.0003;
+          } else {
+            lat = pos.coords.latitude;
+            lat -= Math.random() * 0.0003;
+          }
+          if(isPositiveTwo) {
+            long = pos.coords.longitude;
+            long += Math.random() * 0.0003;
+          } else {
+            long = pos.coords.longitude;
+            long -= Math.random() * 0.0003;
+          }
           marker = true;
         }
         await set(rtdbRef(database, docId), {

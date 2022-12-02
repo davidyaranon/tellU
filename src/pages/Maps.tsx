@@ -192,16 +192,6 @@ function Maps() {
           key: doc.id,
         });
       }
-      for(const marker of tempMarkers){
-        const isPositive : boolean = Math.random() >= 0.5;
-        if(isPositive){
-          marker.location[0] += Math.random() * 0.00035;
-          marker.location[1] += Math.random() * 0.00035;
-        } else {
-          marker.location[0] -= Math.random() * 0.00035;
-          marker.location[1] -= Math.random() * 0.00035;
-        }
-      }
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
       setPinsLoading(false);
@@ -300,7 +290,7 @@ function Maps() {
             cancelText="Cancel"
             mode="ios"
             value={markerFilter}
-            style={{fontSize : "0.8em", transform: "translateY(-25%)"}}
+            style={{ fontSize: "0.8em", transform: "translateY(-25%)" }}
             placeholder="Filter: ALL"
             onIonChange={(e: any) => {
               setOverlayIndex(-1);
