@@ -27,6 +27,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>tellU needs access to your current location to add a pin to the map</string>
 	<key>NSCameraUsageDescription</key>
 	<string>tellU needs access to your camera if you would like to upload an image</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

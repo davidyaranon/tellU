@@ -971,10 +971,10 @@ const Home = () => {
             <IonIcon icon={add} />
           </IonFabButton>
           <IonFabList side="top">
-            <IonFabButton onClick={() => { setPollModalOpen(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "light"}>
+            <IonFabButton onClick={() => { setPollModalOpen(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
               <IonIcon icon={statsChartOutline} />
             </IonFabButton>
-            <IonFabButton onClick={() => { setShowModal(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "light"}>
+            <IonFabButton onClick={() => { setShowModal(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
               <IonIcon icon={chatboxEllipsesOutline} />
             </IonFabButton>
           </IonFabList>

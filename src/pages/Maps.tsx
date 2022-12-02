@@ -192,6 +192,16 @@ function Maps() {
           key: doc.id,
         });
       }
+      for(const marker of tempMarkers){
+        const isPositive : boolean = Math.random() >= 0.5;
+        if(isPositive){
+          marker.location[0] += Math.random() * 0.00035;
+          marker.location[1] += Math.random() * 0.00035;
+        } else {
+          marker.location[0] -= Math.random() * 0.00035;
+          marker.location[1] -= Math.random() * 0.00035;
+        }
+      }
       setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
       setPinsLoading(false);
