@@ -394,14 +394,14 @@ export const addMessage = async (mess, blob, id, pos, school, notificationsToken
         if (pos) {
           const isPositiveOne = Math.random() >= 0.5;
           const isPositiveTwo = Math.random() >= 0.5;
-          if(isPositiveOne) {
+          if (isPositiveOne) {
             lat = pos.coords.latitude;
             lat += Math.random() * 0.0003;
           } else {
             lat = pos.coords.latitude;
             lat -= Math.random() * 0.0003;
           }
-          if(isPositiveTwo) {
+          if (isPositiveTwo) {
             long = pos.coords.longitude;
             long += Math.random() * 0.0003;
           } else {
@@ -936,7 +936,7 @@ export const submitPollNew = async (pollText, pollOptions, schoolName, userName,
         options: pollOptions,
         userName: userName,
         timestamp: serverTimestamp(),
-        message : "* UPDATE tellU TO SEE POLL *",
+        message: "* UPDATE tellU TO SEE POLL *",
         votes: 0,
         voteMap: {},
         results: [0, 0, 0, 0, 0, 0],

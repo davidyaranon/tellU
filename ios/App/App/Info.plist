@@ -31,6 +31,12 @@
 	<string>tellU needs access to your current location to add a pin to the map</string>
 	<key>NSCameraUsageDescription</key>
 	<string>tellU needs access to your camera if you would like to upload an image</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>tellU would like to capture a video to turn into a GIF</string>
+	<key>NSFileProviderDomainUsageDescription</key>
+	<string>tellU would like to turn a file into a GIF to upload</string>
+	<key>NSFileProviderPresenceUsageDescription</key>
+	<string>tellU would like to turn a file into a GIF to upload</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>tellU needs access to your current location to add a pin to the map</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

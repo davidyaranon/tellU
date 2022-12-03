@@ -3,10 +3,10 @@ import "../theme/variables.css";
 
 import {
   IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonCheckbox, IonCol,
-  IonContent, IonFab, IonFabButton, IonFabList, IonFooter, IonHeader, IonIcon,
+  IonContent, IonFab, IonFabButton, IonFabList, IonFooter, IonGrid, IonHeader, IonIcon,
   IonImg, IonInput, IonItem, IonLabel, IonList, IonLoading, IonModal, IonNote,
   IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
-  IonRow, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar,
+  IonRow, IonSearchbar, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar, useIonViewWillEnter,
 } from "@ionic/react";
 import { Camera, GalleryPhoto } from "@capacitor/camera";
 import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-plugins/geolocation";
@@ -19,7 +19,7 @@ import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
 import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
 import { getColor, timeout } from '../shared/functions';
 import { getDownloadURL, ref } from "firebase/storage";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import FadeIn from "react-fade-in";
 import { Keyboard } from "@capacitor/keyboard";
 import Linkify from 'linkify-react';
@@ -41,6 +41,7 @@ import { Virtuoso } from 'react-virtuoso';
 import PostImages from "./PostImages";
 import { ClassSelections } from "./ClassSelections";
 import { LikeDislike } from "./LikeDislike";
+import GifIcon from '@mui/icons-material/Gif';
 
 TimeAgo.setDefaultLocale(en.locale);
 TimeAgo.addLocale(en);
@@ -79,10 +80,12 @@ const Home = () => {
   const history = useHistory();
 
   const timeAgo = new TimeAgo("en-US");
+  const gifSearchRef = useRef<HTMLIonSearchbarElement>(null);
   const inputRef = useRef<HTMLIonTextareaElement>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
   const [gettingLocation, setGettingLocation] = useState<boolean>(false);
+  const [gifModal, setGifModal] = useState<boolean>(false);
   const [photo, setPhoto] = useState<GalleryPhoto[] | null>([]);
   const [blob, setBlob] = useState<any | null>(null);
   const [posts, setPosts] = useState<any[] | null>(null);
@@ -113,6 +116,7 @@ const Home = () => {
   const [postClassNumber, setPostClassNumber] = useState<string>();
   const [noMorePosts, setNoMorePosts] = useState(false);
   const [newData, setNewData] = useState<any[] | null>(null);
+  const [gifs, setGifs] = useState<any[] | null>(null);
   const newDataRef = useRef<any>();
   newDataRef.current = newData;
   const virtuosoRef = useRef<any>(null);
@@ -193,9 +197,27 @@ const Home = () => {
     }
   };
 
+  const isEnterPressedGif = (key: string) => {
+    if (key === "Enter") {
+      Keyboard.hide();
+      if (gifSearchRef && gifSearchRef.current) {
+        const searchQuery: string | null | undefined = gifSearchRef.current.value;
+        if (!searchQuery) {
+          Toast.error("Enter a search term");
+          return;
+        }
+        grab_data(searchQuery, 30, tenorCallback_search);
+      } else {
+        Toast.error("Enter a search term");
+      }
+    }
+  };
+
   const handleSendMessage = async () => {
     setLocationPinModal(false);
     setShowModal(false);
+    setGifModal(false);
+    setGifs(null);
     messageAdd();
     setGeneralChecked(true);
   };
@@ -507,17 +529,56 @@ const Home = () => {
     }
   };
 
+  // url Async requesting function
+  function httpGetAsync(theUrl: string, callback: any) {
+    // create the request object
+    var xmlHttp = new XMLHttpRequest();
+    let test;
+    // set the state change callback to capture when the response comes in
+    xmlHttp.onreadystatechange = function () {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+        test = callback(xmlHttp.responseText);
+        console.log({ test });
+        return test;
+      }
+    }
+    // open as a GET call, pass in the url and set async = True
+    xmlHttp.open("GET", theUrl, true);
+    // call send with no params as they were passed in on the url string
+    xmlHttp.send(null);
+    return;
+  }
+
+  function tenorCallback_search(responsetext: string) {
+    // Parse the JSON response
+    var response_objects = JSON.parse(responsetext);
+    let gifs = response_objects["results"];
+    console.log({ gifs });
+    setGifs(gifs);
+  }
+
+  // function to call the trending and category endpoints
+  function grab_data(query: string, limit: number, tenorCallback_search: any) {
+    // set the apikey and limit
+    var apikey = "AIzaSyBWtMQlnmYHdeJJtzNKYGw26MfRRByZ43w";
+    var lmt = limit;
+    // test search term
+    var search_term = query;
+    // using default locale of en_US
+    var search_url = "https://tenor.googleapis.com/v2/search?q=" + search_term + "&key=" +
+      apikey + "&limit=" + lmt;
+    httpGetAsync(search_url, tenorCallback_search);
+    // data will be loaded by each call's callback
+    return;
+  }
+
   async function messageAdd() {
     const messageRefValue = inputRef.current;
     if (!messageRefValue) {
-      Toast.error("Input a message!");
+      Toast.error("Input a message");
       return;
     }
-    const message: string | null | undefined = messageRefValue.value;
-    if (!message) {
-      Toast.error("Input a message!");
-      return;
-    }
+    const message: string | null | undefined = messageRefValue.value || "";
     if (message.trim().length == 0 && (!blob || blob.length == 0) && (!photo || photo.length == 0)) {
       Toast.error("Input a message!");
     } else if (
@@ -618,6 +679,28 @@ const Home = () => {
       virtuosoRef && virtuosoRef.current && virtuosoRef.current.autoscrollToBottom();
     }
   };
+
+  useIonViewWillEnter(async () => {
+    if (postsRef && postsRef.current) {
+      let tempData = postsRef.current;
+      for (let i = 0; i < tempData.length; ++i) {
+        const likesData = await getLikes(tempData[i].key);
+        if (likesData) {
+          tempData[i].likes = likesData.likes;
+          tempData[i].dislikes = likesData.dislikes;
+          tempData[i].commentAmount = likesData.commentAmount;
+        }
+      }
+      setPosts(tempData);
+    }
+  });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      console.log(file);
+    }
+  }
 
   useEffect(() => { // run on app startup
     // setBusy(true);
@@ -746,7 +829,7 @@ const Home = () => {
   }, [user, schoolName]);
 
 
-  const Header = () => {
+  const Header = React.memo(() => {
     return (
       <>
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
@@ -761,7 +844,7 @@ const Home = () => {
         </IonHeader>
       </>
     )
-  };
+  });
 
   const Footer = () => {
     return (
@@ -775,6 +858,15 @@ const Home = () => {
         {!noMorePosts ? "Loading..." : ""}
       </div>
     )
+  }
+
+  function mapInSlices(array: any[], sliceSize: number, sliceFunc: any) {
+    const out = [];
+    for (var i = 0; i < array.length; i += sliceSize) {
+      const slice = array.slice(i, i + sliceSize);
+      out.push(sliceFunc(slice, i));
+    }
+    return out;
   }
 
   if (posts && posts.length > 0) {
@@ -974,6 +1066,9 @@ const Home = () => {
             <IonFabButton onClick={() => { setPollModalOpen(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
               <IonIcon icon={statsChartOutline} />
             </IonFabButton>
+            <IonFabButton onClick={() => { setGifModal(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
+              <GifIcon />
+            </IonFabButton>
             <IonFabButton onClick={() => { setShowModal(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
               <IonIcon icon={chatboxEllipsesOutline} />
             </IonFabButton>
@@ -986,6 +1081,78 @@ const Home = () => {
           duration={0}
           isOpen={gettingLocation}
         ></IonLoading>
+
+        <IonModal backdropDismiss={false} isOpen={gifModal} swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+          <IonContent>
+            <div style={{ width: "100%" }}>
+              <IonHeader>
+                <IonToolbar>
+                  <IonTitle>GIF Search</IonTitle>
+                  <IonButtons style={{ marginLeft: "-2.5%" }}>
+                    <IonButton
+                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                      onClick={() => {
+                        Keyboard.hide().then(() => {
+                          setTimeout(() => setGifModal(false), 100);
+                        }).catch((err) => {
+                          setTimeout(() => setGifModal(false), 100);
+                        });
+                        setGifs(null);
+                      }}
+                    >
+                      Back
+                    </IonButton>
+                  </IonButtons>
+                </IonToolbar>
+                <IonToolbar>
+                  <IonSearchbar color={darkModeToggled ? "" : "medium"} enterkeyhint="search" onKeyDown={e => isEnterPressedGif(e.key)} showCancelButton="focus" animated ref={gifSearchRef}></IonSearchbar>
+                </IonToolbar>
+              </IonHeader>
+            </div>
+
+            <input type="file" accept="video/*" onChange={(e) => { handleFileUpload(e) }} />
+
+            {gifs &&
+              <IonGrid>
+                {mapInSlices(gifs, 3, (slice: any[]) => {
+                  return (
+                    <FadeIn>
+                      <IonRow>
+                        {slice.map((gif: any, index: number) => {
+                          return (
+                            <IonCol key={index}>
+                              <img style={{ width: "200px", height: "125px" }} key={index.toString() + gif.id} src={gif.media_formats.tinygif.url}
+                                onClick={async () => {
+                                  try {
+                                    const p: GalleryPhoto[] = [];
+                                    const blobsArr: any[] = [];
+                                    p.push({ webPath: gif.media_formats.tinygif.url, format: "gif" });
+                                    setPhoto(p);
+                                    let res = await fetch(p[0].webPath!);
+                                    let blobRes = await res.blob();
+                                    blobsArr.push(blobRes);
+                                    setBlob(blobsArr);
+                                    setShowModal(true);
+                                    await timeout(100);
+                                    setGifModal(false);
+                                  } catch (err: any) {
+                                    console.log(err);
+                                    Toast.error(err.toString());
+                                  }
+                                }}
+                              />
+                            </IonCol>
+                          )
+                        })}
+                      </IonRow>
+                    </FadeIn>
+                  )
+                })}
+              </IonGrid>
+            }
+            <br /> <br />
+          </IonContent>
+        </IonModal>
 
         <IonModal backdropDismiss={false} isOpen={pollModalOpen} swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           <IonContent>
@@ -1227,6 +1394,8 @@ const Home = () => {
                       setBlob([]);
                       setPostClassName("");
                       setPostClassNumber("");
+                      setGifModal(false);
+                      setGifs(null);
                       Keyboard.hide().then(() => {
                         setTimeout(() => setShowModal(false), 100)
                       }).catch((err) => {
