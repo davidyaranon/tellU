@@ -49,8 +49,8 @@ const ForgotPassword = () => {
   };
 
   /**
- * Keyboard event listener useEffect
- */
+   * Keyboard event listener useEffect
+   */
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(defaultResizeOptions);
@@ -87,4 +87,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default React.memo(ForgotPassword);
+export default ForgotPassword;

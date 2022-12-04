@@ -1,40 +1,40 @@
-import React, { useEffect, useRef, useState } from "react";
+/* React + Ionic/Capacitor */
+import {
+  IonButton, IonButtons, IonCard, IonContent, IonFab,
+  IonFabButton, IonGrid, IonIcon, IonImg,
+  IonItem, IonModal, IonNote, IonPage, IonRow, IonSpinner, IonTextarea,
+  IonTitle, IonToolbar, RouterDirection, useIonRouter
+} from "@ionic/react";
+import FadeIn from "react-fade-in";
+import { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { v4 as uuidv4 } from "uuid";
-import { getDownloadURL, ref } from "firebase/storage";
-import auth,
-{
-  getUserData, sendDm, storage, updateDmList, uploadImage,
-} from '../fbconfig';
-import { db } from "../fbconfig";
+import { Dialog } from "@capacitor/dialog";
+import { cameraOutline, chevronBackOutline, alertCircleOutline, banOutline } from "ionicons/icons";
+import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
+import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
+
+/* Firebase */
 import {
-  addDoc, collection, 
+  addDoc, collection,
   limit, orderBy,
   query, serverTimestamp,
 } from "firebase/firestore";
-import { useToast } from "@agney/ir-toast";
-import RoomIcon from '@mui/icons-material/Room';
-import {
-  IonAvatar, IonButton, IonButtons, IonCard,
-  IonCardContent, IonCol, IonContent, IonFab,
-  IonFabButton, IonGrid, IonHeader, IonIcon,
-  IonImg,
-  IonItem, IonLabel, IonList, IonModal,
-  IonNote, IonPage, IonPopover, IonRow,
-  IonSpinner, IonText, IonTextarea,
-  IonTitle, IonToolbar, RouterDirection, useIonPopover, useIonRouter
-} from "@ionic/react";
-import FadeIn from "react-fade-in";
-import "../App.css";
-import TimeAgo from "javascript-time-ago";
-import { cameraOutline, chevronBackOutline, alertCircleOutline, banOutline } from "ionicons/icons";
-import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
+import auth, {
+  getUserData, db, sendDm, storage, updateDmList, uploadImage,
+} from '../fbconfig';
+import { getDownloadURL, ref } from "firebase/storage";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
-import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
-import { Dialog } from "@capacitor/dialog";
+
+/* CSS */
+import "../App.css";
+
+/* Other components */
+import { v4 as uuidv4 } from "uuid";
+import { useToast } from "@agney/ir-toast";
+
 
 interface MatchUserPostParams {
   collectionPath: string;
@@ -44,20 +44,28 @@ const resizeOptions: KeyboardResizeOptions = {
 }
 
 const defaultResizeOptions: KeyboardResizeOptions = {
-  mode: KeyboardResize.Native,
+  mode: KeyboardResize.Body,
 }
 
 const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const collectionPath = match.params.collectionPath;
-  const schoolName = useSelector((state: any) => state.user.school);
+
+  /* Hooks */
   const [user] = useAuthState(auth);
+  const router = useIonRouter();
+  const Toast = useToast();
+
+  /* Redux State */
+  const schoolName = useSelector((state: any) => state.user.school);
+  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+
+  /* Firebase Messages */
   const messagesRef = collection(db, 'messages', schoolName.replace(/\s+/g, ""), collectionPath);
   const q = query(messagesRef, orderBy("date", "asc"), limit(100));
   const [messages, loading] = useCollectionData(q);
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const router = useIonRouter();
-  const timeAgo = new TimeAgo("en-US");
+
+  /* State Variables */
   const [currMessage, setCurrMessage] = useState<string>("");
   const [kbHeight, setKbHeight] = useState<number>(0);
   const [photo, setPhoto] = useState<Photo | null>(null);
@@ -67,8 +75,10 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [reportMessage, setReportMessage] = useState<string>("");
   const [contactInfo, setContactInfo] = useState<any>();
   const [contactPhoto, setContactPhoto] = useState<string>("");
-  const Toast = useToast();
 
+  /**
+   * @description This function is used to select a photo from the user's photo gallery
+   */
   async function takePicture() {
     try {
       const image = await Camera.getPhoto({
@@ -77,7 +87,6 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         source: CameraSource.Prompt,
         resultType: CameraResultType.Uri,
       });
-      // console.log(image);
       const res = await fetch(image.webPath!);
       const blobRes = await res.blob();
       if (blobRes) {
@@ -96,6 +105,13 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
+  /**
+   * @description This function is used to send an image to the user through DMs
+   * The image is uploaded to Firestore storage at /dmImages/{userUid}
+   * 
+   * @param blob photo data
+   * @param uniqueId User ID of the user who sent the photo
+   */
   async function sendImage(blob: any, uniqueId: string) {
     const res = await uploadImage("dmImages", blob, uniqueId);
     if (res == false || photo == null || photo?.webPath == null) {
@@ -105,6 +121,10 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
+  /**
+   * @description This function is used to send a DM to the user
+   * The DM is uploaded to Firestore at /messages/{schoolName}/{userUid1_userUid2}
+   */
   const handleCommentSubmit = async () => {
     if (currMessage.trim().length == 0 && photo === null) {
       Keyboard.hide();
@@ -141,16 +161,29 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   };
 
+  /**
+   * @description This function is used to determine if a user prsses Enter (or Send on iOS)
+   * @param key the key a user presses
+   */
   const isEnterPressed = (key: any) => {
     if (key === "Enter") {
       handleCommentSubmit();
     }
   };
 
+  /**
+   * @description This function is used to navigate to a new page
+   * @param path url path
+   * @param direction pushing or popping history stack
+   */
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
+
+  /**
+   * @description This function is used to go back to the previous page
+   */
   const navigateBack = () => {
     if (router.canGoBack()) {
       router.goBack();
@@ -159,6 +192,9 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
+  /**
+   * @description This function is used to open the report modal
+   */
   const reportUser = async () => {
     const { value } = await Dialog.confirm({
       title: 'Report User',
@@ -170,6 +206,9 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }
 
+  /**
+   * @description Gets all user info for DM page
+   */
   useEffect(() => {
     if (collectionPath && user) {
       let i = 0;
@@ -184,17 +223,17 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         secondUid += collectionPath[j];
       }
       if (user.uid === firstUid) { // firstUid is current user, so set contactUid to secondUid
-        getUserData(secondUid).then(async (res : any) => {
+        getUserData(secondUid).then(async (res: any) => {
           setContactInfo(res);
           let url = "profilePictures/" + res.uid + "photoURL";
-          let imgSrc : string = await getDownloadURL(ref(storage, url));
+          let imgSrc: string = await getDownloadURL(ref(storage, url));
           setContactPhoto(imgSrc);
         });
       } else if (user.uid === secondUid) {
-        getUserData(firstUid).then(async (res : any) => {
+        getUserData(firstUid).then(async (res: any) => {
           setContactInfo(res);
           let url = "profilePictures/" + res.uid + "photoURL";
-          let imgSrc : string = await getDownloadURL(ref(storage, url));
+          let imgSrc: string = await getDownloadURL(ref(storage, url));
           setContactPhoto(imgSrc);
         })
       } else {
@@ -203,12 +242,18 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     }
   }, [collectionPath, user])
 
+  /**
+   * @description Scrolls to bottom of DM page on load
+   */
   useEffect(() => {
     if (messages) {
       contentRef.current && contentRef.current.scrollToBottom(1000);
     }
   }, [messages])
 
+  /**
+   * @description adds keyboard listener to hide keyboard when user clicks outside of keyboard
+   */
   useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(resizeOptions);
@@ -230,7 +275,6 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       <IonContent ref={contentRef} scrollEvents>
 
         <IonModal isOpen={showReportModal} mode="ios" handle={false} swipeToClose={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-          {/* <IonHeader translucent> */}
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios">
               <IonButtons slot="start">
@@ -254,14 +298,6 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                       Toast.error("Provide a reason why!");
                     } else {
                       setReportMessage("");
-                      // sendReportStatus(reportMessage, schoolName, postKey).then((reportStatus) => {
-                      //   if (reportStatus) {
-                      //     setShowReportModal(false);
-                      //     Toast.success("Post reported");
-                      //   } else {
-                      //     Toast.error("Something went wrong");
-                      //   }
-                      // });
                     }
                   }}
                 >
@@ -270,7 +306,6 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButtons>
             </IonToolbar>
           </div>
-          {/* </IonHeader> */}
 
           <IonContent>
             <IonCard mode="ios">
@@ -311,7 +346,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 <IonIcon icon={chevronBackOutline}></IonIcon> Back
               </IonButton>
               {contactInfo &&
-                <IonTitle style={{ marginLeft : "9%", width : "90vw"}} onClick={() => { if ("uid" in contactInfo && contactInfo.uid) dynamicNavigate('about/' + contactInfo.uid, 'forward') }}>{contactInfo.userName}</IonTitle>
+                <IonTitle style={{ marginLeft: "9%", width: "90vw" }} onClick={() => { if ("uid" in contactInfo && contactInfo.uid) dynamicNavigate('about/' + contactInfo.uid, 'forward') }}>{contactInfo.userName}</IonTitle>
               }
             </IonButtons>
             <IonButtons slot='end'>
@@ -371,7 +406,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               <>
                 {messages?.map((msg: any, index: number) => (
                   <FadeIn transitionDuration={500}>
-                    <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} photo={contactPhoto}/>
+                    <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} photo={contactPhoto} />
                   </FadeIn>
                 ))}
                 {kbHeight != 0 ?
@@ -429,33 +464,18 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   );
 };
 
+/**
+ * @param props {photo: string, message: string, school: string, toggled: boolean}
+ * @returns a chat bubble containing a message and possible image, colored based on the schoolColorToggled state
+ */
 function ChatMessage(props: any) {
   const { message, uid, imgSrc, photoURL, date } = props.msg;
   const photo = props.photo;
   const schoolName = props.school;
   const schoolColorToggled = props.toggled;
-  const timeAgo = new TimeAgo("en-US");
-  let messageClass = uid === auth?.currentUser?.uid ? 'sent' : 'received';
-  const getDate = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(
-        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-      );
-      return timeAgo.format(time);
-    } else {
-      return '';
-    }
-  };
-  const Popover = () => <IonContent className="ion-padding">{getDate(date)}</IonContent>;
-
-  const [present, dismiss] = useIonPopover(Popover, {
-    onDismiss: (data: any, role: string) => { },
-  });
-
   const router = useIonRouter();
+
+  let messageClass = uid === auth?.currentUser?.uid ? 'sent' : 'received';
 
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
@@ -501,10 +521,9 @@ function ChatMessage(props: any) {
         }
         {message && message.length > 0 &&
           <>
-            <p 
-            onClick={(e: any) =>
-              {}
-            } >{message}
+            <p
+              onClick={(e: any) => { }
+              } >{message}
             </p>
           </>
         }

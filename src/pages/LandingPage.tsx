@@ -50,7 +50,7 @@ const LandingPage: React.FC = () => {
   }
 
   /**
-   * Uses Firebase Authentication to log user in based on
+   * @description Uses Firebase Authentication to log user in based on
    * emailSignIn and passwordSignIn variables
    * 
    */
@@ -247,4 +247,4 @@ const LandingPage: React.FC = () => {
 
 }
 
-export default React.memo(LandingPage);
+export default LandingPage;

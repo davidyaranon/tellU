@@ -14,19 +14,29 @@ import { chevronBackOutline } from 'ionicons/icons';
 import { Virtuoso } from 'react-virtuoso';
 
 
+/**
+ * Notifications page containing a list of a user's past 30 notifications
+ * Contains DM and post notifications
+ */
 export const Notifications = () => {
 
-  const timeAgo = new TimeAgo("en-US");
-
+  /* Hooks */
   const history = useHistory();
   const router = useIonRouter();
   const [user, loading, error] = useAuthState(auth);
   const Toast = useToast();
 
+  /* State Variables */
+  const timeAgo = new TimeAgo("en-US");
   const [notifs, setNotifs] = useState<any[] | null>(null);
+
+  /* Redux State */
   const schoolName = useSelector((state: any) => state.user.school);
   const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
 
+  /**
+   * @description Loads user notifications from Firestore
+   */
   const loadNotifications = useCallback(() => {
     if (user && user.uid) {
       const gotUserData = promiseTimeout(7500, getCurrentUserData());
@@ -49,10 +59,12 @@ export const Notifications = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadNotifications();
-  }, [])
-
+  /**
+   * @description gets the formatted time since a notification was sent
+   * 
+   * @param {Date} timestamp 
+   * @returns how long ago the notification was received
+   */
   const getDate = (timestamp: any) => {
     if (!timestamp) {
       return '';
@@ -67,10 +79,23 @@ export const Notifications = () => {
     }
   };
 
+  /**
+   * @description navigates the user to a specified page
+   * 
+   * @param {string} path 
+   * @param {RouterDirection} direction 
+   */
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
     const action = direction === "forward" ? "push" : "pop";
     router.push(path, direction, action);
   }
+
+  /**
+   * Runs on page load
+   */
+  useEffect(() => {
+    loadNotifications();
+  }, [])
 
   if (notifs) {
     return (

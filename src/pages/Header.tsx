@@ -10,12 +10,14 @@ import tellU_humboldt_black from '../images/tellU_humboldt_black.png';
 import humboldtImage from '../images/humboldt_school.png'
 import berkeleyImage from '../images/berkeley_school.png'
 
-
 export const ionHeaderStyle = {
   textAlign: 'center',
   padding: "2.5vh",
 };
 
+/**
+ * tellU Header Component containing logo, school name, and (possible) background photo
+ */
 class TellUHeader extends Component<any, any>{
   render() {
     const dark: boolean = this.props.darkMode;

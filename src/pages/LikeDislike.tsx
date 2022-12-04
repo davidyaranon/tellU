@@ -7,7 +7,9 @@ import { useHistory } from "react-router";
 import { warningSharp } from "ionicons/icons";
 import { Dialog } from "@capacitor/dialog";
 
-
+/**
+ * Handles upvoting and downvoting of posts on Home page
+ */
 export const LikeDislike = memo((props: any) => {
 
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);

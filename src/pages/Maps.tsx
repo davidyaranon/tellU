@@ -55,7 +55,7 @@ function Maps() {
 
 
   /**
-   * routes to a given url and pushed it to the history stack
+   * @description routes to a given url and pushed it to the history stack
    * 
    * @param {string} path the url path being routed to 
    * @param {string} direction the type of animation being played during url navigation
@@ -66,7 +66,7 @@ function Maps() {
   }
 
   /**
-   * Sets the map to a default view based on school location
+   * @description Sets the map to a default view based on school location
    */
   const setDefaultCenter = () => {
     setCenter([defaultLat, defaultLong]);
@@ -74,7 +74,7 @@ function Maps() {
   };
 
   /**
-   * gets school latitude and longitude based
+   * @description gets school latitude and longitude based
    * on school name and sets map center/zoom
    * accordingly
    */
@@ -102,7 +102,7 @@ function Maps() {
 
 
   /**
-   * sets map view to only show
+   * @description sets map view to only show
    * certain markers based on a filter chosen by the user
    * 
    * @param {string} filter the type of marker being displayed (GENERAL, BUY/SELL, ALERTS, SIGHTINGS, etc.)
@@ -157,7 +157,7 @@ function Maps() {
 
 
   /**
-   * Pulls info about a school's markers
+   * @description Pulls info about a school's markers
    * from Firestore database, shows the most recent
    * 50 markers within the past 2 days
    */
@@ -208,7 +208,6 @@ function Maps() {
   useIonViewWillEnter(() => {
     setClassName("");
   })
-
 
   /**
    * Runs on page enter
@@ -410,4 +409,4 @@ function Maps() {
   );
 }
 
-export default React.memo(Maps);
+export default Maps;

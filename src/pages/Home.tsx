@@ -1110,8 +1110,6 @@ const Home = () => {
               </IonHeader>
             </div>
 
-            <input type="file" accept="video/*" onChange={(e) => { handleFileUpload(e) }} />
-
             {gifs &&
               <IonGrid>
                 {mapInSlices(gifs, 3, (slice: any[]) => {
