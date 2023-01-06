@@ -1,6 +1,6 @@
 import "firebase/compat/firestore";
 import {
-  addDoc, arrayRemove, arrayUnion, collection, deleteDoc,
+  addDoc, collection, deleteDoc,
   doc, getDoc, getDocs, getFirestore, increment, limit, orderBy,
   query, runTransaction, serverTimestamp, setDoc, startAfter,
   updateDoc, where, writeBatch,
@@ -8,7 +8,7 @@ import {
 import {
   createUserWithEmailAndPassword, getAuth, indexedDBLocalPersistence,
   initializeAuth, sendPasswordResetEmail, signInWithEmailAndPassword,
-  signOut, updateProfile, deleteUser
+  signOut, updateProfile, deleteUser,
 } from "firebase/auth";
 import {
   get, getDatabase,
@@ -20,27 +20,33 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 import { Capacitor } from '@capacitor/core';
-import SpotifyWebApi from 'spotify-web-api-js';
 import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import { ref as rtdbRef } from "firebase/database";
+
+import SpotifyWebApi from 'spotify-web-api-js';
 
 export const spotifyApi = new SpotifyWebApi();
 
-const firebaseConfig = {
-  apiKey: `${process.env.REACT_APP_FIREBASE_API_KEY}`,
-  authDomain: `${process.env.REACT_APP_FIREBASE_AUTH_DOMAIN}`,
-  databaseURL: `${process.env.REACT_APP_FIREBASE_DATABASE_URL}`,
-  projectId: `${process.env.REACT_APP_FIREBASE_PROJECT_ID}`,
-  storageBucket: `${process.env.REACT_APP_FIREBASE_STORAGE_BUCKET}`,
-  messagingSenderId: `${process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID}`,
-  appId: `${process.env.REACT_APP_FIREBASE_APP_ID}`,
-  measurementId: `${process.env.REACT_APP_FIREBASE_MEASUREMENT_ID}`,
-};
+const REACT_APP_SPOTIFY_CLIENT_ID='3651703bf3464d94b8c206c758d183f7';
+const REACT_APP_SPOTIFY_SECRET_ID='fc1c32f9e4c041a29c1ee1f24af0ee75';
 
-export const app = initializeApp(firebaseConfig);
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
+  databaseURL: "https://quantum-61b84-default-rtdb.firebaseio.com",
+  authDomain: "quantum-61b84.firebaseapp.com",
+  projectId: "quantum-61b84",
+  storageBucket: "quantum-61b84.appspot.com",
+  messagingSenderId: "461090594003",
+  appId: "1:461090594003:web:5cb1cac4a16e9031140826",
+  measurementId: "G-JRZ1RJ4P89",
+};
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const auth = Capacitor.isNativePlatform ?
   initializeAuth(app, {
-    persistence: indexedDBLocalPersistence
+    persistence: indexedDBLocalPersistence,
   }) :
   getAuth();
 export default auth;
@@ -58,145 +64,7 @@ export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNotification');
 export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
 
-/**
- * Returns news articles from Firestore database in location /schoolNews/{schoolName}
- * NOTE: News articles are updated every 6 hours by a cloud function
- * 
- * @param {string} schoolName name of school to recieve news
- * @returns map containing news articles
- * TODO: add more schools, only
- * UC Berkeley and Cal Poly Humboldt are supported
- */
-export const getNewsArticles = async (schoolName) => {
-  try {
-    if (db) {
-      const newsDocRef = doc(db, "schoolNews", schoolName.replace(/\s+/g, ""));
-      const snap = await getDoc(newsDocRef);
-      if (snap.exists()) {
-        return {
-          schoolArticles: snap.data().schoolArticles,
-          localArticles: snap.data().localArticles
-        }
-      } else {
-        console.log("News empty");
-      }
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
 
-/**
- * Retrieves Spotify tracks based on a search query
- * Uses Spotify Web API
- * 
- * @param {string} query query to search for
- * @returns Top 25 Spotify tracks that match the query
- */
-export const spotifySearch = async (query) => {
-  try {
-    const res = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
-      body: 'grant_type=client_credentials&client_id=' + `${process.env.REACT_APP_SPOTIFY_CLIENT_ID}` + '&client_secret=' + `${process.env.REACT_APP_SPOTIFY_SECRET_ID}`,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    }).catch((err) => {
-      console.log(err);
-    });
-    const data = await res.json().catch((err) => { console.log(err); });
-    const token = data.access_token;
-    spotifyApi.setAccessToken(token);
-    const searchResults = await spotifyApi.search(query, ["track"], { limit: 25 });
-    return searchResults.tracks.items;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-/**
- * Uploads an image to Firestore storage
- * 
- * @param {string} location path in Firestore storage where the image is being uploaded
- * @param {blob} blob bytes of the image
- * @param {string} url basename of location in Firestore storage
- * @returns 
- */
-export async function uploadImage(location, blob, url) {
-  try {
-    const currentUserUid = auth.currentUser.uid;
-    const storageRef = ref(
-      storage,
-      location + "/" + currentUserUid.toString() + url
-    );
-
-    const res = await uploadBytes(storageRef, blob)
-      .then((snapshot) => {
-        return true;
-      })
-      .catch((err) => {
-        console.log(err);
-        return false;
-      });
-  } catch (err) {
-    console.log(err.message);
-    return false;
-  }
-}
-
-/**
- * Function that logs in a user based on email and password
- * 
- * @param {string} email user email
- * @param {string} password user password
- * @returns UserCredential object
- */
-export async function logInWithEmailAndPassword(email, password) {
-  try {
-    const res = await signInWithEmailAndPassword(auth, email, password);
-    return res;
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-/**
- * Resets the notifications token of a device after logout
- * 
- * @param {string} userUid uid of user logging out
- */
-const updateNotificationsTokenAfterLogout = async (userUid) => {
-  if (!userUid || userUid.length <= 0) { return; }
-  const batch = writeBatch(db);
-  const userDocRef = doc(db, "userData", userUid);
-  batch.update(userDocRef, {
-    notificationsToken: ""
-  });
-  await batch.commit().catch((err) => console.log(err));
-}
-
-/**
- * Sets the notificationsToken field in Firestore userData/{uid}
- * Allows for unique push notifications to be sent to the user
- * 
- * @param {string} token notifications token from Google FCM
- */
-export const updateNotificationsToken = async (token) => {
-  try {
-    if (!token || token.length <= 0) { return; }
-    if (db && auth && auth.currentUser) {
-      const uid = auth.currentUser.uid;
-      const batch = writeBatch(db);
-      const userDocRef = doc(db, "userData", uid);
-      batch.update(userDocRef, {
-        notificationsToken: token
-      });
-      await batch.commit().catch((err) => console.log(err));
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
 
 /**
  * Registers user with Firestore auth based on email and password
@@ -247,51 +115,62 @@ export async function registerWithEmailAndPassword(name, email, password, school
 }
 
 /**
- * Sends password reset email in case user forgets password
+ * @description Signs in returning user using Firebase's 'logInWithEmailAndPassword()'
  * 
- * @param {string} email email to send paassword reset instructions to
- * @returns boolean if email was sent
+ * @param {string} email email address for returning user
+ * @param {string} password password for returning user
+ * @returns object containing the auth user email and auth user uid
  */
-export const sendPasswordReset = async (email) => {
+export async function logInWithEmailAndPassword(email, password) {
   try {
-    await sendPasswordResetEmail(auth, email);
-    return true;
+    const res = await signInWithEmailAndPassword(auth, email, password);
+    return { email: res.user.email, uid: res.user.uid }
   } catch (err) {
-    console.error(err);
+    console.log(err);
   }
-};
+}
 
 /**
- * Deletes all user data from Firestore database
+ * @description Adds user to Firestore database ("/userInfo/{uid}")
+ * 
+ * @param {string} uid uid of new user
+ * @param {string} email email address of new user
+ */
+export async function addUserToDb(uid, email) {
+  try {
+    const userDoc = doc(db, "userInfo", uid);
+    await setDoc(userDoc, {
+      email: email,
+      uid: uid,
+      createdAt: serverTimestamp()
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * @description Signs out authenticated user
+ * auth object is taken as parameter
+ */
+export async function logout() {
+  await signOut(auth).catch((err) => { console.log(err) });
+}
+
+/**
+ * @description Deletes user from Firebase Auth and all data from Firestore (/userInfo/{userUid})
+ * TO-DO: Delete all user data from all Firestore paths
  */
 export const deleteUserDataAndAccount = async () => {
   try {
     const user = auth.currentUser;
     const batch = writeBatch(db);
-    const userDoc = doc(db, "userData", user.uid);
-    const userMessagesCollection = collection(db, "userData", user.uid, "messages");
-    const userLikesCollection = collection(db, "userData", user.uid, "likes");
-
-    const docs = await getDocs(userMessagesCollection);
-    docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-    const likesDocs = await getDocs(userLikesCollection);
-    likesDocs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-
+    const userDoc = doc(db, "userInfo", user.uid);
     batch.delete(userDoc);
 
-    await batch.commit().catch((err) => {
-      console.log("Error deleting userDocs and/or DMs");
-    });
-
-    deleteUser(user).then(() => {
-      console.log("User Deleted");
-    }).catch((error) => {
-      console.log(error);
-    });
+    await deleteUser(user).catch((err) => { console.log(err); });
+    await batch.commit().catch((err) => { console.log(err); });
 
   } catch (err) {
     console.log(err);
@@ -299,51 +178,109 @@ export const deleteUserDataAndAccount = async () => {
 }
 
 /**
- * Logs user out of Firebase auth
- * Clears cookies and reloads window
+ * @description Acquires download URL from Firebase Cloud Storage with a given path
  * 
- * @returns boolean if user is logged out
+ * @param {string} path path of file in firebase storage
+ * @returns a url usable as src attribute for img or video players
  */
-export const logout = async () => {
-  try {
-    var cookies = document.cookie.split(";");
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = cookies[i];
-      var eqPos = cookie.indexOf("=");
-      var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
-    const userUid = auth.currentUser.uid || "";
-    updateNotificationsTokenAfterLogout(userUid);
-    await signOut(auth);
-    return true;
-  } catch (err) {
-    const theError = err.message.toString();
-    window.location.reload();
-    return theError;
-  }
-};
-
-/**
- * Retreives currently logged in user
- * 
- * @returns User object from Firebase auth
- */
-export function getCurrentUser() {
-  return new Promise((resolve, reject) => {
-    const unsubscribe = auth.onAuthStateChanged(function (user) {
-      if (user) {
-        resolve(user);
-      } else {
-        resolve(null);
-      }
-      unsubscribe();
-    });
+export const getStorageUrl = async (path) => {
+  const url = await getDownloadURL(ref(storage, path)).catch((err) => {
+    console.log(err);
   });
+  return url;
 }
 
 /**
- * Retreives data from Firebase RTDB for a specific post
+ * @description Gets the user's profile information from Firestore
+ * under the path /userData/{userUid}
+ * 
+ * @param {string} uid user uid we want to get the info for
+ */
+export const getUserInfo = async (uid) => {
+  try {
+    const userRef = doc(db, "userData", uid);
+    const userDoc = await getDoc(userRef);
+    if (userDoc.exists()) {
+      return userDoc.data();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * @description Gets the user's profile photo url from Firestore storage if they have one
+ * 
+ * @returns the url of the user's profile picture OR the default profile picture url
+ */
+export const getProfilePhoto = async (uid) => {
+  if (auth) {
+    getDownloadURL(ref(storage, "profilePictures/" + uid + "photoURL")).then((url) => {
+      return url;
+    }).catch((err) => {
+      console.error(err);
+    });
+  } else {
+    return "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd";
+  }
+}
+
+/**
+ * @description handles poll voting and updates corresponding Firestore document 
+ * 
+ * @param {string} schoolName 
+ * @param {number} index 
+ * @param {string} postKey 
+ * @param {string} userUid 
+ * @returns a boolean confirming the vote was successful
+ */
+export const pollVote = async (schoolName, index, postKey, userUid) => {
+  try {
+    if (auth && db) {
+      let hasVoted = false;
+      const pollsDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts", postKey);
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(pollsDocRef);
+        if (snap.exists()) {
+          if ("voteMap" in snap.data() && snap.data().voteMap[userUid] === undefined) {
+            let tempResults = [...snap.data().results];
+            tempResults[index] += 1;
+            transaction.update(pollsDocRef, {
+              [`voteMap.${userUid}`]: index,
+              votes: increment(1),
+              results: tempResults,
+            });
+            hasVoted = true;
+          }
+        }
+      });
+      return hasVoted;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * @description sets a timer for a function to resolve and cancels it if it takes too long
+ * 
+ * @param {number} ms 
+ * @param {Promise<any>} promise 
+ * @returns 
+ */
+export const promiseTimeout = function (ms, promise) {
+  let timeout = new Promise((resolve, reject) => {
+    let id = setTimeout(() => {
+      clearTimeout(id);
+      let rejectStr = "Request timed out (" + ms + " ms)";
+      reject(rejectStr);
+    }, ms);
+  });
+  return Promise.race([promise, timeout]);
+};
+
+/**
+ * @description Retreives data from Firebase RTDB for a specific post
  * 
  * @param {string} key uid of post
  * @returns object containing post data (likes, dislikes, comment amount)
@@ -359,9 +296,700 @@ export const getLikes = async (key) => {
 };
 
 /**
- * Adds message to Firestore database in location /schoolPosts/{schoolName}/allPosts/{docId}
- * Uploads images to Firebase storage if provided
- * Sets likes document in RTDB to null values
+ * @description upvotes a post and updates the user's like history in RTDB
+ * 
+ * @param {string} postKey the Firestore key of the post
+ * @param {object} post the post object containing the post's data
+ * @returns either +1 or -1 depending on the user's previous like/dislike value(s)
+ */
+export const upVote = async (postKey, post) => {
+  try {
+    if (db && database && auth && auth.currentUser) {
+      let inc = null;
+      const userUid = auth.currentUser.uid;
+      const userLikesDocRef = doc(
+        db,
+        "userData",
+        userUid,
+        "likes",
+        postKey
+      );
+      let deleteLike = false;
+      const likesRef = rtdbRef(database, postKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.likes[userUid]) { // if liked before
+            post.likes[userUid] = null;
+            deleteLike = true;
+            inc = -1;
+          } else {
+            if (!post.likes) {
+              post.likes = {};
+            }
+            if (post.dislikes[userUid]) { // if disliked before
+              post.dislikes[userUid] = null;
+            }
+            inc = 1;
+            post.likes[userUid] = true;
+          }
+        }
+        return post;
+      });
+      if (deleteLike) {
+        await deleteDoc(userLikesDocRef);
+      } else { // add to liked posts
+        await setDoc(userLikesDocRef, {
+          imgSrc: post.imgSrc,
+          message: post.message,
+          // photoURL: post.photoURL,
+          timestamp: post.timestamp,
+          likeTimestamp: serverTimestamp(),
+          uid: post.uid,
+          userName: post.userName,
+          postType: post.postType,
+        });
+      }
+      return inc;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/**
+ * @description downvotes a post and updates the user's like history in RTDB
+ * 
+ * @param {string} postKey the Firestore key of the post
+ * @returns either +1 or -1 depending on the user's previous like/dislike value(s)
+ */
+export const downVote = async (postKey) => {
+  try {
+    if (auth && auth.currentUser) {
+      let inc = null;
+      const userUid = auth.currentUser.uid;
+      const userLikesDocRef = doc(
+        db,
+        "userData",
+        userUid,
+        "likes",
+        postKey
+      );
+      let deleteLike = false;
+      const likesRef = rtdbRef(database, postKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.dislikes[userUid]) { // if disliked before
+            post.dislikes[userUid] = null;
+            inc = -1;
+          } else {
+            if (!post.dislikes) {
+              post.dislikes = {};
+            }
+            if (post.likes[userUid]) { // if liked before
+              post.likes[userUid] = null;
+              deleteLike = true;
+            }
+            inc = 1;
+            post.dislikes[userUid] = true;
+          }
+        }
+        return post;
+      });
+      if (deleteLike) {
+        await deleteDoc(userLikesDocRef);
+      }
+      return inc;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/**
+ * @description pulls the next 10 posts from Firestore
+ * 
+ * @param {string} schoolName the name of the university the user is attending
+ * @param {string} key the key of the post in Firestore to use for the timestamp of the last post in the previous batch
+ * @returns an array containing new posts and a new key for the next batch
+ */
+export async function getAllPostsNextBatch(schoolName, key) {
+  try {
+    if (auth.currentUser != null && db) {
+      const allPostsRef = collection(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts"
+      );
+      const q = query(allPostsRef, orderBy("timestamp", "desc"), startAfter(key), limit(10));
+      const querySnapshot = await getDocs(q);
+      const allPosts = [];
+      const docs = querySnapshot.docs;
+      let lastKey = "";
+      for (const doc of docs) {
+        allPosts.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+        lastKey = doc.data().timestamp;
+      }
+      return { allPosts, lastKey };
+    }
+  } catch (err) {
+    console.log(err);
+    let allPosts = [];
+    let lastKey = "";
+    return { allPosts, lastKey };
+  }
+}
+
+/**
+ * Resets the notifications token of a device after logout
+ * 
+ * @param {string} userUid uid of user logging out
+ */
+const updateNotificationsTokenAfterLogout = async (userUid) => {
+  if (!userUid || userUid.length <= 0) { return; }
+  const batch = writeBatch(db);
+  const userDocRef = doc(db, "userData", userUid);
+  batch.update(userDocRef, {
+    notificationsToken: ""
+  });
+  await batch.commit().catch((err) => console.log(err));
+}
+
+/**
+ * Sets the notificationsToken field in Firestore userData/{uid}
+ * Allows for unique push notifications to be sent to the user
+ * 
+ * @param {string} token notifications token from Google FCM
+ */
+export const updateNotificationsToken = async (token) => {
+  try {
+    if (!token || token.length <= 0) { return; }
+    if (db && auth && auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      const batch = writeBatch(db);
+      const userDocRef = doc(db, "userData", uid);
+      batch.update(userDocRef, {
+        notificationsToken: token
+      });
+      await batch.commit().catch((err) => console.log(err));
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/**
+ * Checks if a user name has been taken by another user
+ * 
+ * @param {string} userName userName to check
+ * @returns boolean value whether or not the username is taken
+ */
+export async function checkUsernameUniqueness(userName) {
+  try {
+    if (db) {
+      const usersRef = collection(db, "userData");
+      const q = query(usersRef, where("userName", "==", userName));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        return true;
+      }
+    } else {
+      console.log("auth not defined");
+    }
+    return false;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+/**
+ * Sends password reset email in case user forgets password
+ * 
+ * @param {string} email email to send paassword reset instructions to
+ * @returns boolean if email was sent
+ */
+export const sendPasswordReset = async (email) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return true;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+/**
+ * @description returns the single post data from Firestore using provided
+ * school name and post key
+ * 
+ * @param {string} postKey the key of the post in Firestore to retreive
+ * @param {string} schoolName the school the user is attending
+ * @returns 
+ */
+export const getOnePost = async (postKey, schoolName) => {
+  try {
+    if (db) {
+      const postDocRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts",
+        postKey
+      );
+      const snap = await getDoc(postDocRef);
+      if (snap.exists()) {
+        return snap.data();
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * @description uploads a new comment to Firestore
+ * 
+ * @param {string} postKey 
+ * @param {string} schoolName 
+ * @param {string} commentString 
+ * @param {any} blob 
+ * @param {string} id 
+ * @param {string} notificationsToken 
+ * @param {string} posterUid 
+ * @param {string} commenterNotificationToken 
+ * @param {string[]} attedUsersList 
+ * @returns newly added comment with corresponding info
+ */
+export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken, attedUsersList) => {
+  try {
+    if (auth && database && auth.currentUser && db) {
+      const uid = auth.currentUser.uid;
+      const userName = auth.currentUser.displayName;
+      const commentsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
+        "allPosts", postKey, "comments");
+      let url = "";
+      let imgSrc = "";
+      if (blob) {
+        url = "commentImages/" + auth.currentUser.uid.toString() + id;
+        imgSrc = await getDownloadURL(ref(storage, url));
+      }
+      const addedDoc = await addDoc(commentsRef, {
+        comment: commentString,
+        userName: userName,
+        uid: uid,
+        timestamp: serverTimestamp(),
+        url: url,
+        imgSrc: imgSrc
+      });
+      await set(rtdbRef(database, addedDoc.id), {
+        likes: {
+          'null': true
+        },
+        dislikes: {
+          'null': true
+        },
+      });
+      const likesRef = rtdbRef(database, postKey);
+      await update(likesRef, {
+        commentAmount: rtdbIncrement(1)
+      });
+
+      console.log({ postKey });
+      console.log({ posterUid });
+      console.log({ userName })
+      console.log({ notificationsToken });
+      console.log({ commentString });
+      console.log({ attedUsersList });
+      if (attedUsersList && attedUsersList.length > 0) {
+        for (let i = 0; i < attedUsersList.length; ++i) {
+          console.log(attedUsersList[i]);
+        }
+      }
+      // if (posterUid != uid) {
+      sendCommentsNotification({
+        isNotSameUser: (posterUid != uid),
+        postKey: postKey,
+        posterUid: posterUid,
+        userName: userName,
+        notificationsToken: notificationsToken,
+        comment: commentString,
+        taggedUsers: attedUsersList,
+        data: {
+          url: "/post/" + postKey
+        },
+        icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
+      });
+
+      return {
+        comment: commentString,
+        // photoURL: photoURL,
+        userName: userName,
+        uid: uid,
+        likes: {},
+        dislikes: {},
+        timestamp: serverTimestamp(),
+        key: addedDoc.id,
+        url: url,
+        imgSrc: imgSrc
+      };
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * @description downvotes a comment in RTDB
+ * 
+ * @param {string} commentKey the key of the comment doc in Firestore to upvote
+ * @returns either +1 or -1 depending on the user's previous like/dislike value(s)
+ */
+export const downVoteComment = async (commentKey) => {
+  try {
+    if (auth && auth.currentUser) {
+      let inc = null;
+      const userUid = auth.currentUser.uid;
+      let deleteLike = false;
+      const likesRef = rtdbRef(database, commentKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.dislikes[userUid]) { // if disliked before
+            post.dislikes[userUid] = null;
+            inc = -1;
+          } else {
+            if (!post.dislikes) {
+              post.dislikes = {};
+            }
+            if (post.likes[userUid]) { // if liked before
+              post.likes[userUid] = null;
+              deleteLike = true;
+            }
+            inc = 1;
+            post.dislikes[userUid] = true;
+          }
+        }
+        return post;
+      });
+      return inc;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * @description upvotes a comment in RTDB
+ * 
+ * @param {string} commentKey the key of the comment doc in Firestore to upvote
+ * @returns either +1 or -1 depending on the user's previous like/dislike value(s)
+ */
+export const upVoteComment = async (commentKey) => {
+  try {
+    if (db && database && auth && auth.currentUser) {
+      let inc = null;
+      const userUid = auth.currentUser.uid;
+      const likesRef = rtdbRef(database, commentKey);
+      await rtdbRunTransaction(likesRef, (post) => {
+        if (post && post.likes && post.dislikes) {
+          if (post.likes[userUid]) { // if liked before
+            post.likes[userUid] = null;
+            inc = -1;
+          } else {
+            if (!post.likes) {
+              post.likes = {};
+            }
+            if (post.dislikes[userUid]) { // if disliked before
+              post.dislikes[userUid] = null;
+            }
+            inc = 1;
+            post.likes[userUid] = true;
+          }
+        }
+        return post;
+      });
+      return inc;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * 
+ * @param {*} postKey 
+ * @param {*} schoolName 
+ * @returns 
+ */
+export const loadCommentsNew = async (postKey, schoolName) => {
+  try {
+    if (auth && auth.currentUser) {
+      const commentsRef = collection(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts",
+        postKey,
+        "comments"
+      );
+      const q = query(commentsRef, orderBy("timestamp", "asc"), limit(10));
+      const querySnapshot = await getDocs(q);
+      let comments = [];
+      let lastKey = "";
+      const docs = querySnapshot.docs;
+      for (const doc of docs) {
+        comments.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+        lastKey = doc.data().timestamp;
+      }
+      return { comments, lastKey };
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * 
+ * @param {*} postKey 
+ * @param {*} schoolName 
+ * @param {*} key 
+ * @returns 
+ */
+export const loadCommentsNewNextBatch = async (postKey, schoolName, key) => {
+  try {
+    if (auth && auth.currentUser) {
+      const commentsRef = collection(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts",
+        postKey,
+        "comments"
+      );
+      const q = query(commentsRef, orderBy("timestamp", "asc"), startAfter(key), limit(10));
+      const querySnapshot = await getDocs(q);
+      let comments = [];
+      let lastKey = "";
+      const docs = querySnapshot.docs;
+      for (const doc of docs) {
+        comments.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+        lastKey = doc.data().timestamp;
+      }
+      return { comments, lastKey };
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * 
+ * @param {*} postKey 
+ * @param {*} schoolName 
+ * @param {*} postUrl 
+ * @returns 
+ */
+export const removePost = async (postKey, schoolName, postUrl) => {
+  try {
+    console.log(postKey);
+    console.log(schoolName)
+    console.log(postUrl);
+    if (postUrl.length > 0) {
+      for (let i = 0; i < postUrl.length; ++i) {
+        deleteImage({ // cloud function to delete images attached to post
+          path: postUrl[i]
+        }).catch((err) => {
+          console.log(err);
+          console.log('uhh');
+        });
+      }
+    }
+    deleteLikesDocFromRtdb({ // cloud function to delete rtdb document containing likes information
+      key: postKey
+    });
+    deleteCommentsFromDeletedPost({ // cloud function to delete all comments made on post
+      key: postKey,
+      schoolName: schoolName.replace(/\s+/g, ""),
+    });
+
+    const postRef = doc(
+      db,
+      "schoolPosts",
+      schoolName.replace(/\s+/g, ""),
+      "allPosts",
+      postKey
+    );
+    await deleteDoc(postRef).catch((err) => { console.log(err); });
+    return true;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * 
+ * @param {*} message 
+ * @param {*} schoolName 
+ * @param {*} postKey 
+ * @returns 
+ */
+export const sendReportStatus = async (message, schoolName, postKey) => {
+  try {
+    if (auth && auth.currentUser) {
+      const userUid = auth.currentUser.uid;
+      const userEmail = auth.currentUser.email;
+      console.log({ message })
+      console.log({ schoolName })
+      console.log({ postKey })
+      let school = schoolName.replace(/\s+/g, "");
+      const postDocRef = doc(
+        db,
+        "schoolPosts",
+        school,
+        "allPosts",
+        postKey
+      );
+      await updateDoc(postDocRef, {
+        reports: increment(1)
+      }).catch((err) => {
+        console.log(err);
+      });
+
+      sendEmailOnReport({ // cloud function to send email to me when someone reports a post
+        key: postKey,
+        reporterUid: userUid,
+        reporterEmail: userEmail,
+        schoolName: school,
+        message: message
+      }).catch((err) => {
+        console.log(err);
+      });
+      return true;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * @description Uploads an image to Firestore storage.
+ * 
+ * @param {string} location path in Firestore storage where the image is being uploaded
+ * @param {blob} blob bytes of the image
+ * @param {string} url basename of location in Firestore storage
+ * @returns 
+ */
+export async function uploadImage(location, blob, url) {
+  try {
+    const currentUserUid = auth.currentUser.uid;
+    const storageRef = ref(
+      storage,
+      location + "/" + currentUserUid.toString() + url
+    );
+
+    const res = await uploadBytes(storageRef, blob)
+      .then((snapshot) => {
+        return true;
+      })
+      .catch((err) => {
+        console.log(err);
+        return false;
+      });
+  } catch (err) {
+    console.log(err.message);
+    return false;
+  }
+}
+
+/**
+ * 
+ * @param {*} comment 
+ * @param {*} schoolName 
+ * @param {*} postKey 
+ * @param {*} commentUrl 
+ * @returns 
+ */
+export const removeCommentNew = async (comment, schoolName, postKey, commentUrl) => {
+  try {
+    if (db) {
+      if (commentUrl.length > 0) {
+        deleteImage({
+          path: commentUrl
+        }).catch((err) => {
+          console.log(err);
+        })
+      }
+      deleteLikesDocFromRtdb({
+        key: comment.key,
+      });
+      const commentRef = doc(
+        db,
+        "schoolPosts",
+        schoolName.replace(/\s+/g, ""),
+        "allPosts",
+        postKey,
+        "comments",
+        comment.key,
+      );
+      await deleteDoc(commentRef).catch((err) => { console.log(err); });
+      const likesRef = rtdbRef(database, postKey);
+      update(likesRef, {
+        commentAmount: rtdbIncrement(-1)
+      });
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+/**
+ * 
+ * @param {*} pollText 
+ * @param {*} pollOptions 
+ * @param {*} schoolName 
+ * @param {*} userName 
+ * @param {*} userUid 
+ * @returns 
+ */
+export const submitPollNew = async (pollText, pollOptions, schoolName, userName, userUid) => {
+  try {
+    if (auth && db) {
+      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      await addDoc(pollsRef, {
+        question: pollText,
+        options: pollOptions,
+        userName: userName,
+        timestamp: serverTimestamp(),
+        message: "* UPDATE tellU TO SEE POLL *",
+        votes: 0,
+        voteMap: {},
+        results: [0, 0, 0, 0, 0, 0],
+        uid: userUid,
+      }).catch((err) => {
+        console.log(err);
+        return false;
+      });
+      return true;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * @description Adds message to Firestore database in location /schoolPosts/{schoolName}/allPosts/{docId}.
+ * Uploads images to Firebase storage if provided.
+ * Sets likes document in RTDB to null values.
  * 
  * @param {string} mess 
  * @param {blob} blob 
@@ -461,27 +1089,156 @@ export const addMessage = async (mess, blob, id, pos, school, notificationsToken
 };
 
 /**
- * Checks if a user name has been taken by another user
+ * @description Gets the user's posts from Firestore
  * 
- * @param {string} userName userName to check
- * @returns boolean value whether or not the username is taken
+ * @param {string} schoolName the school the user goes to
+ * @param {string} uid the user's uid 
+ * @returns an object with an array of the user's posts and the last key used for loading the next batch
  */
-export async function checkUsernameUniqueness(userName) {
+export const getUserPosts = async (schoolName, uid) => {
   try {
     if (db) {
-      const usersRef = collection(db, "userData");
-      const q = query(usersRef, where("userName", "==", userName));
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        return true;
+      const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(5));
+      const qSnap = await getDocs(q);
+      let userPosts = [];
+      let lastKey = "";
+      const docs = qSnap.docs;
+      for (const doc of docs) {
+        userPosts.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+        lastKey = doc.data().timestamp;
       }
-    } else {
-      console.log("auth not defined");
+      return { userPosts, lastKey };
     }
-    return false;
   } catch (err) {
     console.log(err);
-    return false;
+  }
+}
+
+/**
+ * @description Loads the next 5 user posts from Firestore
+ * 
+ * @param {string} schoolName 
+ * @param {string} uid 
+ * @param {string} key 
+ * @returns an object with an array of the user's posts and the last key used for loading the next batch
+ */
+export const getNextBatchUserPosts = async (schoolName, uid, key) => {
+  try {
+    if (db) {
+      const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(5));
+      const qSnap = await getDocs(q);
+      let userPosts = [];
+      let lastKey = "";
+      const docs = qSnap.docs;
+      for (const doc of docs) {
+        userPosts.push({
+          ...doc.data(),
+          key: doc.id,
+        });
+        lastKey = doc.data().timestamp;
+      }
+      return { userPosts, lastKey };
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * @description Gets the user's data from Firestore in /userData/{uid}
+ * Data includes displayName, email, photoURL, uid, school, and socials
+ * 
+ * @param {string} uid the user's uid used as the document id in Firestore
+ * @returns the user's data from Firestore
+ */
+export const getUserData = async (uid) => {
+  try {
+    if (auth && db) {
+      const usersRef = doc(db, "userData", uid.toString());
+      const res = await getDoc(usersRef);
+      if (res.exists()) {
+        return { ...res.data(), key: doc.id }
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/**
+ * Retrieves the last 50 posts that have and a class name of className
+ * 
+ * @param {string} className 
+ * @param {string} schoolName name of school to check for
+ * @returns 
+ */
+export const getClassPostsDb = async (className, schoolName) => {
+  try {
+    if (auth && db) {
+      console.log(schoolName)
+      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
+      const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(50))));
+      const qSnapshot = await getDocs(q);
+      let classPosts = [];
+      const docs = qSnapshot.docs;
+      for (const doc of docs) {
+        classPosts.push({
+          ...doc.data(),
+          key: doc.id
+        });
+      }
+      return classPosts;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/**
+ * @description loads the next 10 liked posts of a specific user from Firestore
+ * 
+ * @param {string} uid 
+ * @returns an object with an array of the user's liked posts and the last key used for loading the next batch
+ */
+export const getUserLikedPosts = async (uid) => {
+  try {
+    const userLikesRef = collection(db, "userData", uid, "likes");
+    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), limit(10));
+    const querySnapshot = await getDocs(q);
+    let userLikes = [];
+    let lastKey = "";
+    const docs = querySnapshot.docs;
+    for (const doc of docs) {
+      userLikes.push({
+        ...doc.data(),
+        key: doc.id,
+      });
+      lastKey = doc.data().likeTimestamp;
+    }
+    return { userLikes, lastKey };
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * @description locates profile photo of user location in Firebase storage.
+ * 
+ * @param {string} userUid 
+ * @returns url of the user's profile picture
+ */
+export const getUserPhotoUrl = async (userUid) => {
+  try {
+    const url = await getDownloadURL(ref(storage, "profilePictures/" + userUid + "photoURL"));
+    return url;
+  } catch (err) {
+    console.log(err);
+    return "";
   }
 }
 
@@ -514,278 +1271,10 @@ export const getPostTypeDb = async (postType, schoolName) => {
 }
 
 /**
- * Retrieves the last 50 posts that have and a class name of className
+ * @description pulls data from Firestore "/userData/{uid}}"
  * 
- * @param {string} className 
- * @param {string} schoolName name of school to check for
- * @returns 
+ * @returns the current user's data from Firestore
  */
-export const getClassPostsDb = async (className, schoolName) => {
-  try {
-    if (auth && db) {
-      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(allPostsRef, where("className", "==", className, orderBy("timestamp", "desc", limit(50))));
-      const qSnapshot = await getDocs(q);
-      let classPosts = [];
-      const docs = qSnapshot.docs;
-      for (const doc of docs) {
-        classPosts.push({
-          ...doc.data(),
-          key: doc.id
-        });
-      }
-      return classPosts;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-/**
- * Retrieves the last 10 polls posted by the user
- * 
- * @param {string} schoolName school user is attending
- * @param {*} userUid unique ID of user
- * @returns Array of polls
- */
-export const getYourPolls = async (schoolName, userUid) => {
-  try {
-    if (auth && db) {
-      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
-      const q = query(pollsRef, where("uid", "==", userUid), orderBy("timestamp", "desc"), limit(10));
-      const querySnapshot = await getDocs(q);
-      let yourPolls = [];
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        yourPolls.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-      }
-      return yourPolls;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-/**
- * 
- * @param {string} schoolName 
- * @param {string} key 
- * @returns 
- */
-export async function getAllPostsNextBatch(schoolName, key) {
-  try {
-    if (auth.currentUser != null && db) {
-      const allPostsRef = collection(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts"
-      );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), startAfter(key), limit(10));
-      const querySnapshot = await getDocs(q);
-      const allPosts = [];
-      const docs = querySnapshot.docs;
-      let lastKey = "";
-      for (const doc of docs) {
-        allPosts.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-        lastKey = doc.data().timestamp;
-      }
-      return { allPosts, lastKey };
-      // return tempArr;
-    }
-  } catch (err) {
-    console.log(err);
-    let allPosts = [];
-    let lastKey = "";
-    return { allPosts, lastKey };
-  }
-}
-
-export async function getAllPosts(schoolName) {
-  try {
-    if (auth.currentUser != null && db) {
-      const allPostsRef = collection(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts"
-      );
-      const q = query(allPostsRef, orderBy("timestamp", "desc"), limit(15));
-      const querySnapshot = await getDocs(q);
-      const allPosts = [];
-      const docs = querySnapshot.docs;
-      let lastKey = "";
-      for (const doc of docs) {
-        allPosts.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-        lastKey = doc.data().timestamp;
-      }
-      return { allPosts, lastKey };
-    }
-  } catch (err) {
-    console.log(err);
-    let allPosts = [];
-    let lastKey = "";
-    return { allPosts, lastKey };
-  }
-}
-
-export const promiseTimeout = function (ms, promise) {
-  let timeout = new Promise((resolve, reject) => {
-    let id = setTimeout(() => {
-      clearTimeout(id);
-      let rejectStr = "Request timed out (" + ms + " ms)";
-      reject(rejectStr);
-    }, ms);
-  });
-  return Promise.race([promise, timeout]);
-};
-
-export const getUserLikedPosts = async (uid) => {
-  try {
-    const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), limit(10));
-    const querySnapshot = await getDocs(q);
-    let userLikes = [];
-    let lastKey = "";
-    const docs = querySnapshot.docs;
-    for (const doc of docs) {
-      userLikes.push({
-        ...doc.data(),
-        key: doc.id,
-      });
-      lastKey = doc.data().likeTimestamp;
-    }
-    return { userLikes, lastKey };
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getUserLikedPostsNextBatch = async (uid, key) => {
-  try {
-    console.log("new");
-    const userLikesRef = collection(db, "userData", uid, "likes");
-    const q = query(userLikesRef, orderBy("likeTimestamp", "desc"), startAfter(key), limit(10));
-    const querySnapshot = await getDocs(q);
-    let userLikes = [];
-    let lastKey = "";
-    const docs = querySnapshot.docs;
-    for (const doc of docs) {
-      userLikes.push({
-        ...doc.data(),
-        key: doc.id,
-      });
-      lastKey = doc.data().likeTimestamp;
-    }
-    return { userLikes, lastKey };
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, spotifyUri) => {
-  try {
-    if (db && auth && auth.currentUser) {
-      const uid = auth.currentUser.uid;
-      const batch = writeBatch(db);
-      const userDocRef = doc(db, "userData", uid);
-      if (!bio) { bio = ""; }
-      if (!instagram) { instagram = ""; }
-      if (!major) { major = ""; }
-      if (!snapchat) { snapchat = ""; }
-      if (!tiktok) { tiktok = ""; }
-      if (!spotifyUri) { spotifyUri = "" }
-      batch.update(userDocRef, {
-        bio: bio,
-        instagram: instagram,
-        major: major,
-        snapchat: snapchat,
-        tiktok: tiktok,
-        spotify: spotifyUri,
-      });
-      await batch.commit().catch((err) => console.log(err));
-      return true;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getUserPosts = async (schoolName, uid) => {
-  try {
-    if (db) {
-      const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), limit(5));
-      const qSnap = await getDocs(q);
-      let userPosts = [];
-      let lastKey = "";
-      const docs = qSnap.docs;
-      for (const doc of docs) {
-        userPosts.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-        lastKey = doc.data().timestamp;
-      }
-      return { userPosts, lastKey };
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getNextBatchUserPosts = async (schoolName, uid, key) => {
-  try {
-    if (db) {
-      const userPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(userPostsRef, orderBy("timestamp", "desc"), where("uid", "==", uid), startAfter(key), limit(5));
-      const qSnap = await getDocs(q);
-      let userPosts = [];
-      let lastKey = "";
-      const docs = qSnap.docs;
-      for (const doc of docs) {
-        userPosts.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-        lastKey = doc.data().timestamp;
-      }
-      return { userPosts, lastKey };
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getOnePost = async (postKey, schoolName) => {
-  try {
-    if (db) {
-      const postDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey
-      );
-      const snap = await getDoc(postDocRef);
-      if (snap.exists()) {
-        return snap.data();
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
 export const getCurrentUserData = async () => {
   try {
     if (db && auth && auth.currentUser) {
@@ -801,497 +1290,13 @@ export const getCurrentUserData = async () => {
   }
 }
 
-export const getUserData = async (uid) => {
-  try {
-    if (auth && db) {
-      const usersRef = doc(db, "userData", uid.toString());
-      const res = await getDoc(usersRef);
-      if (res.exists()) {
-        return { ...res.data(), key: doc.id }
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export const getNextBatchUsers = async (key) => {
-  try {
-    if (auth && db) {
-      const usersRef = collection(db, "userData");
-      const q = query(
-        usersRef,
-        orderBy("userName", "asc"),
-        startAfter(key),
-        limit(2)
-      );
-      const querySnapshot = await getDocs(q);
-      let userList = [];
-      let lastKey = "";
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        console.log(doc);
-        userList.push({
-          key: doc.id,
-          data: doc.data(),
-        });
-        lastKey = doc.data().userName;
-      }
-      return { userList, lastKey };
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export const getOnePoll = async (schoolName, pollKey) => {
-  try {
-    if (db) {
-      const pollDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "polls",
-        pollKey
-      );
-      const snap = await getDoc(pollDocRef);
-      if (snap.exists()) {
-        return snap.data();
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export const getPolls = async (schoolName) => {
-  try {
-    if (auth && db) {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setHours(0, 0, 0, 0);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 4);
-      const tomorrow = new Date();
-      tomorrow.setHours(24, 0, 0, 0);
-      tomorrow.setDate(sevenDaysAgo.getDate() + 6);
-      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
-      const q = query(pollsRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"), limit(100));
-      const querySnapshot = await getDocs(q);
-      let polls = [];
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        polls.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-      }
-      return polls;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const submitShowcase = async (schoolName, blob, uniqueId, showcaseText) => {
-  try {
-    if (auth.currentUser != null) {
-      if (auth.currentUser.uid != null) {
-        var name = auth.currentUser.displayName;
-        var url = "";
-        let imgSrc = "";
-        if (blob) {
-          url = "images/" + auth.currentUser.uid.toString() + uniqueId;
-          imgSrc = await getDownloadURL(ref(storage, url));
-        }
-        await addDoc(
-          collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "showcase"),
-          {
-            userName: name,
-            timestamp: serverTimestamp(),
-            message: showcaseText,
-            url: url,
-            likes: {},
-            dislikes: {},
-            uid: auth.currentUser.uid,
-            commentAmount: 0,
-            upVotes: 0,
-            downVotes: 0,
-            // photoURL: auth.currentUser.photoURL,
-            imgSrc: imgSrc,
-          }
-        );
-        return true;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const submitPollNew = async (pollText, pollOptions, schoolName, userName, userUid) => {
-  try {
-    if (auth && db) {
-      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      await addDoc(pollsRef, {
-        question: pollText,
-        options: pollOptions,
-        userName: userName,
-        timestamp: serverTimestamp(),
-        message: "* UPDATE tellU TO SEE POLL *",
-        votes: 0,
-        voteMap: {},
-        results: [0, 0, 0, 0, 0, 0],
-        uid: userUid,
-      }).catch((err) => {
-        console.log(err);
-        return false;
-      });
-      return true;
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-export const submitPollFb = async (pollText, pollOptions, schoolName, userName, userUid) => {
-  try {
-    if (auth && db) {
-      const pollsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "polls");
-      await addDoc(pollsRef, {
-        question: pollText,
-        options: pollOptions,
-        userName: userName,
-        timestamp: serverTimestamp(),
-        votes: 0,
-        voteMap: {},
-        results: [0, 0, 0, 0, 0, 0],
-        uid: userUid,
-      }).catch((err) => {
-        console.log(err);
-        return false;
-      });
-      return true;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getShowcase = async (schoolName) => {
-  try {
-    if (auth && db) {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setHours(0, 0, 0, 0);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 2);
-      const tomorrow = new Date();
-      tomorrow.setHours(24, 0, 0, 0);
-      tomorrow.setDate(sevenDaysAgo.getDate() + 4);
-      const showcaseRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "showcase");
-      const q = query(showcaseRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-      let showcase = [];
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        showcase.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-      }
-      return showcase;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getTopWeeklyPosts = async (schoolName) => {
-  try {
-    if (auth && db) {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setHours(0, 0, 0, 0);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const tomorrow = new Date();
-      tomorrow.setHours(24, 0, 0, 0);
-      tomorrow.setDate(sevenDaysAgo.getDate() + 9);
-      const allPostsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts");
-      const q = query(allPostsRef, where("timestamp", ">", sevenDaysAgo), where("timestamp", "<", tomorrow), limit(15));
-      const querySnapshot = await getDocs(q);
-      let topWeeklyPosts = [];
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        topWeeklyPosts.push({
-          key: doc.id,
-          data: doc.data(),
-        });
-      }
-      return topWeeklyPosts;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getTopPostsWithinPastDay = async (schoolName) => {
-  try {
-    if (auth && db) {
-      const allPostsRef = collection(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts"
-      );
-      const q = query(allPostsRef, orderBy("upVotes", "desc"), limit(15));
-      const querySnapshot = await getDocs(q);
-      const topPosts = [];
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        topPosts.push({
-          key: doc.id,
-          data: doc.data(),
-        });
-      }
-      return topPosts;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export const getWeatherData = async (schoolName) => {
-  try {
-    if (db) {
-      const weatherDocRef = doc(db, "schoolWeather", schoolName.replace(/\s+/g, ""));
-      const snap = await getDoc(weatherDocRef);
-      if (snap.exists()) {
-        const weatherData = {};
-        weatherData.feelsLike = snap.data().feelsLike;
-        weatherData.humidity = snap.data().humidity;
-        weatherData.icon = snap.data().icon;
-        weatherData.index = snap.data().index;
-        weatherData.temp = snap.data().temp;
-        weatherData.text = snap.data().text;
-        weatherData.location = snap.data().location;
-        return weatherData;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const pollVote = async (schoolName, index, postKey, userUid) => {
-  try {
-    if (auth && db) {
-      let hasVoted = false;
-      const pollsDocRef = doc(db, "schoolPosts", schoolName.replace(/\s+/g, ""), "allPosts", postKey);
-      await runTransaction(db, async (transaction) => {
-        const snap = await transaction.get(pollsDocRef);
-        if (snap.exists()) {
-          if ("voteMap" in snap.data() && snap.data().voteMap[userUid] === undefined) {
-            let tempResults = [...snap.data().results];
-            tempResults[index] += 1;
-            transaction.update(pollsDocRef, {
-              [`voteMap.${userUid}`]: index,
-              votes: increment(1),
-              results: tempResults,
-            });
-            hasVoted = true;
-          }
-        }
-      });
-      return hasVoted;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const downVoteComment = async (commentKey) => {
-  try {
-    if (auth && auth.currentUser) {
-      let inc = null;
-      const userUid = auth.currentUser.uid;
-      let deleteLike = false;
-      const likesRef = rtdbRef(database, commentKey);
-      await rtdbRunTransaction(likesRef, (post) => {
-        if (post && post.likes && post.dislikes) {
-          if (post.dislikes[userUid]) { // if disliked before
-            post.dislikes[userUid] = null;
-            inc = -1;
-          } else {
-            if (!post.dislikes) {
-              post.dislikes = {};
-            }
-            if (post.likes[userUid]) { // if liked before
-              post.likes[userUid] = null;
-              deleteLike = true;
-            }
-            inc = 1;
-            post.dislikes[userUid] = true;
-          }
-        }
-        return post;
-      });
-      return inc;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const upVoteComment = async (commentKey) => {
-  try {
-    if (db && database && auth && auth.currentUser) {
-      let inc = null;
-      const userUid = auth.currentUser.uid;
-      const likesRef = rtdbRef(database, commentKey);
-      await rtdbRunTransaction(likesRef, (post) => {
-        if (post && post.likes && post.dislikes) {
-          if (post.likes[userUid]) { // if liked before
-            post.likes[userUid] = null;
-            inc = -1;
-          } else {
-            if (!post.likes) {
-              post.likes = {};
-            }
-            if (post.dislikes[userUid]) { // if disliked before
-              post.dislikes[userUid] = null;
-            }
-            inc = 1;
-            post.likes[userUid] = true;
-          }
-        }
-        return post;
-      });
-      return inc;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const makeReaction = async (postKey, post, reaction) => {
-  try {
-    if (db && database && auth && auth.currentUser) {
-      let inc = null;
-      const userUid = auth.currentUser.uid;
-      const likesRef = rtdbRef(database, postKey);
-      await rtdbRunTransaction(likesRef, (post) => {
-        if (post && post[reaction]) {
-          if (post[reaction][userUid]) { // if liked before
-            post[reaction][userUid] = null;
-            inc = -1;
-          } else {
-            post[reaction][userUid] = true;
-            inc = 1;
-          }
-        }
-        return post;
-      });
-      console.log(inc);
-      return inc;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const upVote = async (postKey, post) => {
-  try {
-    if (db && database && auth && auth.currentUser) {
-      let inc = null;
-      const userUid = auth.currentUser.uid;
-      const userLikesDocRef = doc(
-        db,
-        "userData",
-        userUid,
-        "likes",
-        postKey
-      );
-      let deleteLike = false;
-      const likesRef = rtdbRef(database, postKey);
-      await rtdbRunTransaction(likesRef, (post) => {
-        if (post && post.likes && post.dislikes) {
-          if (post.likes[userUid]) { // if liked before
-            post.likes[userUid] = null;
-            deleteLike = true;
-            inc = -1;
-          } else {
-            if (!post.likes) {
-              post.likes = {};
-            }
-            if (post.dislikes[userUid]) { // if disliked before
-              post.dislikes[userUid] = null;
-            }
-            inc = 1;
-            post.likes[userUid] = true;
-          }
-        }
-        return post;
-      });
-      if (deleteLike) {
-        await deleteDoc(userLikesDocRef);
-      } else { // add to liked posts
-        await setDoc(userLikesDocRef, {
-          imgSrc: post.imgSrc,
-          message: post.message,
-          // photoURL: post.photoURL,
-          timestamp: post.timestamp,
-          likeTimestamp: serverTimestamp(),
-          uid: post.uid,
-          userName: post.userName,
-          postType: post.postType,
-        });
-      }
-      return inc;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export const downVote = async (postKey) => {
-  try {
-    if (auth && auth.currentUser) {
-      let inc = null;
-      const userUid = auth.currentUser.uid;
-      const userLikesDocRef = doc(
-        db,
-        "userData",
-        userUid,
-        "likes",
-        postKey
-      );
-      let deleteLike = false;
-      const likesRef = rtdbRef(database, postKey);
-      await rtdbRunTransaction(likesRef, (post) => {
-        if (post && post.likes && post.dislikes) {
-          if (post.dislikes[userUid]) { // if disliked before
-            post.dislikes[userUid] = null;
-            inc = -1;
-          } else {
-            if (!post.dislikes) {
-              post.dislikes = {};
-            }
-            if (post.likes[userUid]) { // if liked before
-              post.likes[userUid] = null;
-              deleteLike = true;
-            }
-            inc = 1;
-            post.dislikes[userUid] = true;
-          }
-        }
-        return post;
-      });
-      if (deleteLike) {
-        await deleteDoc(userLikesDocRef);
-      }
-      return inc;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
+/**
+ * 
+ * @param {*} chatroomString 
+ * @param {*} notificationsToken 
+ * @param {*} message 
+ * @param {*} contactUid 
+ */
 export const sendDm = async (chatroomString, notificationsToken, message, contactUid) => {
   try {
     if (auth && db) {
@@ -1318,18 +1323,13 @@ export const sendDm = async (chatroomString, notificationsToken, message, contac
   }
 };
 
-export const getUserPhotoUrl = async (userUid) => {
-  try {
-    const url = await getDownloadURL(ref(storage, "profilePictures/" + userUid + "photoURL"));
-    return url;
-  } catch (err) {
-    console.log(err);
-    return "";
-  }
-}
-
+/**
+ * 
+ * @param {*} message 
+ * @param {*} contactUid 
+ * @param {*} contactUserName 
+ */
 export const updateDmList = async (message, contactUid, contactUserName) => {
-
   if (auth && db) {
     const uid = auth.currentUser.uid;
     const userName = auth.currentUser.displayName;
@@ -1456,535 +1456,85 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
   }
 };
 
-export const getUserUid = async (userName) => {
+/**
+ * 
+ * @param {*} bio 
+ * @param {*} instagram 
+ * @param {*} major 
+ * @param {*} snapchat 
+ * @param {*} tiktok 
+ * @param {*} spotifyUri 
+ * @returns 
+ */
+export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, spotifyUri) => {
   try {
-    if (db) {
-      const usersRef = collection(db, "userData");
-      const q = query(usersRef, where("userName", "==", userName));
-      const snap = await getDocs(q);
-      for (let i = 0; i < snap.docs.length; ++i) {
-        let userUid = snap.docs[i].id;
-        if (userUid) {
-          return userUid.toString();
-        }
-      }
-    } else {
-      return "/home";
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const addCommentToPoll = async (postKey, schoolName, commentString, notificationsToken, posterUid) => {
-  try {
-    if (auth && database && auth.currentUser && db) {
+    if (db && auth && auth.currentUser) {
       const uid = auth.currentUser.uid;
-      const userName = auth.currentUser.displayName;
-      const commentsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
-        "polls", postKey, "comments");
-      const addedDoc = await addDoc(commentsRef, {
-        comment: commentString,
-        userName: userName,
-        uid: uid,
-        timestamp: serverTimestamp(),
+      const batch = writeBatch(db);
+      const userDocRef = doc(db, "userData", uid);
+      if (!bio) { bio = ""; }
+      if (!instagram) { instagram = ""; }
+      if (!major) { major = ""; }
+      if (!snapchat) { snapchat = ""; }
+      if (!tiktok) { tiktok = ""; }
+      if (!spotifyUri) { spotifyUri = "" }
+      batch.update(userDocRef, {
+        bio: bio,
+        instagram: instagram,
+        major: major,
+        snapchat: snapchat,
+        tiktok: tiktok,
+        spotify: spotifyUri,
       });
-      await set(rtdbRef(database, addedDoc.id), {
-        likes: {
-          'null': true
-        },
-        dislikes: {
-          'null': true
-        },
-      });
-      if (posterUid != uid) {
-        // sendPollNotification({
-        //   postKey: postKey,
-        //   posterUid: posterUid,
-        //   userName: userName,
-        //   notificationsToken: notificationsToken,
-        //   comment: commentString,
-        //   data: {
-        //     url: "/community"
-        //   },
-        //   icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
-        // });
-      }
+      await batch.commit().catch((err) => console.log(err));
+      return true;
     }
   } catch (err) {
     console.log(err);
   }
 }
 
-export const addCommentNew = async (postKey, schoolName, commentString, blob, id, notificationsToken, posterUid, commenterNotificationToken, attedUsersList) => {
+/**
+ * Retrieves Spotify tracks based on a search query
+ * Uses Spotify Web API
+ * 
+ * @param {string} query query to search for
+ * @returns Top 25 Spotify tracks that match the query
+ */
+export const spotifySearch = async (query) => {
   try {
-    if (auth && database && auth.currentUser && db) {
-      const uid = auth.currentUser.uid;
-      const userName = auth.currentUser.displayName;
-      const commentsRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
-        "allPosts", postKey, "comments");
-      // const notificationsTokensRef = collection(db, "schoolPosts", schoolName.replace(/\s+/g, ""),
-      //   "allPosts", postKey, "notificationsTokens");
-      let url = "";
-      let imgSrc = "";
-      if (blob) {
-        url = "commentImages/" + auth.currentUser.uid.toString() + id;
-        imgSrc = await getDownloadURL(ref(storage, url));
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      body: 'grant_type=client_credentials&client_id=' + REACT_APP_SPOTIFY_CLIENT_ID + '&client_secret=' + REACT_APP_SPOTIFY_SECRET_ID,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
-      const addedDoc = await addDoc(commentsRef, {
-        comment: commentString,
-        userName: userName,
-        uid: uid,
-        timestamp: serverTimestamp(),
-        url: url,
-        imgSrc: imgSrc
-      });
-      await set(rtdbRef(database, addedDoc.id), {
-        likes: {
-          'null': true
-        },
-        dislikes: {
-          'null': true
-        },
-      });
-      const likesRef = rtdbRef(database, postKey);
-      await update(likesRef, {
-        commentAmount: rtdbIncrement(1)
-      });
-
-      console.log({ postKey });
-      console.log({ posterUid });
-      console.log({ userName })
-      console.log({ notificationsToken });
-      console.log({ commentString });
-      console.log({ attedUsersList });
-      if (attedUsersList && attedUsersList.length > 0) {
-        for (let i = 0; i < attedUsersList.length; ++i) {
-          console.log(attedUsersList[i]);
-        }
-      }
-      // if (posterUid != uid) {
-      sendCommentsNotification({
-        isNotSameUser: (posterUid != uid),
-        postKey: postKey,
-        posterUid: posterUid,
-        userName: userName,
-        notificationsToken: notificationsToken,
-        comment: commentString,
-        taggedUsers: attedUsersList,
-        data: {
-          url: "/post/" + postKey
-        },
-        icon: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/FCMImages%2FtellU_hat_logo.png?alt=media&token=827e8b14-3c58-4f48-a852-7a22899416c9"
-      });
-      // }
-      // nodeFetch('https://fcm.googleapis.com/fcm/send', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': 'key=AAAAa1skHNM:APA91bFyQscFwRAN4en0Jkt5IYZ4iwUQC6DhOIPCKNeoQJ7rO5BAEUlH1iB0da18o1Jq0gqfx19e_UrBvSyCTRzY1jjKnPXvAAi5KDYKJFd-e2QsioP4E_uC5XY6flVUnfX0JYhTiEy6',
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: '{\n"notification": {\n"title": "tellU,\n"body": `${userName} commented: ${commentString}`,\n},\n"to": `${notificationsToken}`\n"data": {\n  "url" : `/post/${postKey}`\n}\n}'
-      // });
-      // const response = await axios.post(
-      //   'https://fcm.googleapis.com/fcm/send',
-      //   '{\n"notification": {\n"title": "First notif",\n"body": "Hello world",\n},\n"to": "eYWoLPNLOEj0t6JmOoUQ6g:APA91bG0oBTCU3jFyaPy_ddVK9WpkQniljsZaz_7CCYx2BTOHh7q35maM9IoWf5u-gMVZVCmsMqUw4mlGOsgVHIfl3LUk9W95EBmJhipumxT529VvuHmigNXma8omxjwpUl3wDuy3Q18"\n"data": {\n  "url" : ""\n}\n}',
-      //   {
-      //     headers: {
-      //       'Authorization': 'key=AAAAa1skHNM:APA91bFyQscFwRAN4en0Jkt5IYZ4iwUQC6DhOIPCKNeoQJ7rO5BAEUlH1iB0da18o1Jq0gqfx19e_UrBvSyCTRzY1jjKnPXvAAi5KDYKJFd-e2QsioP4E_uC5XY6flVUnfX0JYhTiEy6',
-      //       'Content-Type': 'application/json'
-      //     }
-      //   }
-      // );
-      return {
-        comment: commentString,
-        // photoURL: photoURL,
-        userName: userName,
-        uid: uid,
-        likes: {},
-        dislikes: {},
-        timestamp: serverTimestamp(),
-        key: addedDoc.id,
-        url: url,
-        imgSrc: imgSrc
-      };
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const addComment = async (postKey, schoolName, commentString) => {
-  try {
-    if (auth && auth.currentUser) {
-      const userUid = auth.currentUser.uid;
-      const userName = auth.currentUser.displayName;
-      const photoURL = auth.currentUser.photoURL;
-      const postRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey
-      );
-      const postDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "comments",
-        postKey
-      );
-      const commentSnap = await getDoc(postDocRef);
-      if (commentSnap.exists() && commentSnap.data().commentsArr) {
-        await updateDoc(postDocRef, {
-          commentsArr: arrayUnion({
-            comment: commentString,
-            // photoURL: photoURL,
-            userName: userName,
-            upVotes: 0,
-            downVotes: 0,
-            uid: userUid,
-          })
-        });
-        const postSnap = await getDoc(postRef);
-        if (postSnap.exists()) {
-          await updateDoc(postRef, {
-            commentAmount: increment(1),
-          });
-          return true;
-        } else {
-          console.log(postSnap.data());
-        }
-      }
-    }
+    }).catch((err) => {
+      console.log(err);
+    });
+    const data = await res.json().catch((err) => { console.log(err); });
+    const token = data.access_token;
+    spotifyApi.setAccessToken(token);
+    const searchResults = await spotifyApi.search(query, ["track"], { limit: 25 });
+    return searchResults.tracks.items;
   } catch (err) {
     console.log(err);
   }
 };
 
-export const removePoll = async (postKey, schoolName) => {
-  try {
-    // await deletePoll({
-    //   schoolName: schoolName.replace(/\s+/g, ""),
-    //   postKey: postKey,
-    // }).catch((err) => console.log(err));
-    // return true;
-    const postRef = doc(
-      db,
-      "schoolPosts",
-      schoolName.replace(/\s+/g, ""),
-      "polls",
-      postKey
-    );
-    const batch = writeBatch(db);
-    batch.delete(postRef);
-    await batch.commit().catch((err) => console.log(err));
-    return true;
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const removePost = async (postKey, schoolName, postUrl) => {
-  try {
-    console.log(postKey);
-    console.log(schoolName)
-    console.log(postUrl);
-    if (postUrl.length > 0) {
-      for (let i = 0; i < postUrl.length; ++i) {
-        deleteImage({ // cloud function to delete images attached to post
-          path: postUrl[i]
-        }).catch((err) => {
-          console.log(err);
-          console.log('uhh');
-        });
-      }
-    }
-    deleteLikesDocFromRtdb({ // cloud function to delete rtdb document containing likes information
-      key: postKey
-    });
-    deleteCommentsFromDeletedPost({ // cloud function to delete all comments made on post
-      key: postKey,
-      schoolName: schoolName.replace(/\s+/g, ""),
-    });
-
-    const postRef = doc(
-      db,
-      "schoolPosts",
-      schoolName.replace(/\s+/g, ""),
-      "allPosts",
-      postKey
-    );
-    await deleteDoc(postRef).catch((err) => { console.log(err); });
-    return true;
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const removeCommentNew = async (comment, schoolName, postKey, commentUrl) => {
-  try {
-    if (db) {
-      if (commentUrl.length > 0) {
-        deleteImage({
-          path: commentUrl
-        }).catch((err) => {
-          console.log(err);
-        })
-      }
-      deleteLikesDocFromRtdb({
-        key: comment.key,
-      });
-      const commentRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey,
-        "comments",
-        comment.key,
-      );
-      await deleteDoc(commentRef).catch((err) => { console.log(err); });
-      const likesRef = rtdbRef(database, postKey);
-      update(likesRef, {
-        commentAmount: rtdbIncrement(-1)
-      });
-      return true;
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const removeComment = async (comment, schoolName, postKey) => {
-  try {
-    const postRef = doc(
-      db,
-      "schoolPosts",
-      schoolName.replace(/\s+/g, ""),
-      "allPosts",
-      postKey
-    );
-    const postDocRef = doc(
-      db,
-      "schoolPosts",
-      schoolName.replace(/\s+/g, ""),
-      "comments",
-      postKey
-    );
-    const commentSnap = await getDoc(postDocRef);
-    if (commentSnap.exists) {
-      await updateDoc(postDocRef, {
-        commentsArr: arrayRemove(comment)
-      });
-      const postSnap = await getDoc(postRef);
-      if (postSnap.exists) {
-        await updateDoc(postRef, {
-          commentAmount: increment(-1),
-        });
-        return true;
-      } else {
-        console.log(postSnap.data());
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-
-}
-
-export const loadCommentsNew = async (postKey, schoolName) => {
-  try {
-    if (auth && auth.currentUser) {
-      const commentsRef = collection(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey,
-        "comments"
-      );
-      const q = query(commentsRef, orderBy("timestamp", "asc"), limit(10));
-      const querySnapshot = await getDocs(q);
-      let comments = [];
-      let lastKey = "";
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        comments.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-        lastKey = doc.data().timestamp;
-      }
-      return { comments, lastKey };
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const loadCommentsNewNextBatch = async (postKey, schoolName, key) => {
-  try {
-    if (auth && auth.currentUser) {
-      const commentsRef = collection(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey,
-        "comments"
-      );
-      const q = query(commentsRef, orderBy("timestamp", "asc"), startAfter(key), limit(10));
-      const querySnapshot = await getDocs(q);
-      let comments = [];
-      let lastKey = "";
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        comments.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-        lastKey = doc.data().timestamp;
-      }
-      return { comments, lastKey };
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const loadComments = async (postKey, schoolName) => {
-  try {
-    if (auth && auth.currentUser) {
-      const postDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "comments",
-        postKey
-      );
-      const snap = await getDoc(postDocRef);
-      if (snap.exists()) {
-        if (snap.data()) return snap.data().commentsArr;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const getCommunityWidgets = async (schoolName) => {
-  try {
-    if (auth && auth.currentUser) {
-      const widgetsRef = doc(db, "schoolWidgets", schoolName.replace(/\s+/g, ""));
-      const snap = await getDoc(widgetsRef);
-      if (snap.exists) {
-        return snap.data().widgets;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-export const sendReportStatus = async (message, schoolName, postKey) => {
-  try {
-    if (auth && auth.currentUser) {
-      const userUid = auth.currentUser.uid;
-      const userEmail = auth.currentUser.email;
-      const postDocRef = doc(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts",
-        postKey
-      );
-      await updateDoc(postDocRef, {
-        reports: increment(1)
-      }).catch((err) => {
-        console.log(err);
-      });
-      sendEmailOnReport({ // cloud function to send email to me when someone reports a post
-        key: postKey,
-        reporterUid: userUid,
-        reporterEmail: userEmail,
-        schoolName: schoolName,
-        message: message
-      }).catch((err) => {
-        console.log(err);
-      });
-      return true;
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-
 /**
- * Admin function to add post to every school from tellU account
- * @param {string} message 
- * @param {string} postType 
+ * @description Gets the current app version number from Firestore
  */
-export const addPostToAllSchools = async (message, postType) => {
-  try {
-    if (db) {
-      const schools = [
-        "CSU Channel Islands", "CSU Dominguez Hills", "CSU Bakersfield",
-        "CSUN", "Sac State", "Stanislaus State", "Sonoma State", "San Diego State", "Fresno State",
-        "Chico State", "San Jose State", "SF State", "Cal State Long Beach", "Cal State San Bernardino",
-        "Cal Maritime", "CSU Monterey Bay", "Cal Poly Humboldt", "Cal Poly San Luis Obispo", "Cal Poly Pomona",
-        "UC Merced", "UC Berkeley", "UC Davis", "UC Irvine", "UCLA", "UC San Diego", "UC Santa Barbara", "UC Santa Cruz",
-        "UC Riverside", "UCSF"
-      ];
-      for (let i = 0; i < schools.length; ++i) {
-        let docName = schools[i].replace(/\s+/g, "");
-        const docId = await addDoc(collection(db, "schoolPosts", docName, "allPosts"), {
-          timestamp: serverTimestamp(),
-          message: message,
-          userName: "tellU🎓",
-          url: "",
-          uid: auth.currentUser.uid,
-          location: [0, 0],
-          postType: postType,
-          imgSrc: [],
-          marker: false,
-          notificationsToken: "",
-          className: "",
-          classNumber: "",
-          reports: 0,
-        });
-        await set(rtdbRef(database, docId.id), {
-          likes: {
-            'null': true
-          },
-          dislikes: {
-            'null': true
-          },
-          commentAmount: 0,
-        }).catch((err) => {
-          console.log(err);
-        });
-      }
-    }
-  } catch (err) {
-    console.log(err);
+export const getAppVersionNum = async () => {
+  if(!db || !auth) {
+    console.log("WHAT")
+    return null;
   }
+  console.log("OK")
+  const versionDoc = await getDoc(doc(db, "appVersion", "versionNum"));
+  if ("version" in versionDoc.data()) {
+    return versionDoc.data().version;
+  }
+  return '';
 }
 
-/**
- * Temporary function to test retreival of news articles
- */
-export const testNewsUpdates = async () => {
-  const apiKey = '8b14944f22e147c8a9f16104c71461e9';
-  const option = {
-    mode: "cors",
-    headers: {
-      "Ocp-Apim-Subscription-Key": apiKey
-    }
-  };
-  const berkNews = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
-  const berk = await berkNews.json();
-  console.log(berk);
-
-}

@@ -5,15 +5,18 @@ const config: CapacitorConfig = {
   appName: 'tellU',
   webDir: 'build',
   bundledWebRuntime: false,
-  server : {
-    url: 'http://137.150.220.24:3000',
-  },
   plugins: {
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId: '552925208169-4aekc3uk4totonlccmv4j1ilvcmeo4um.apps.googleusercontent.com',
+      forceCodeForRefreshToken: true,
+    },
     "PushNotifications": {
       "presentationOptions": ["sound", "badge"]
     },
     "SplashScreen": {
-      "launchAutoHide": false
+      "launchAutoHide": false,
+      "showDuration": 500
     }
   }
 };

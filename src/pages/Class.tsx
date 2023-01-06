@@ -1,78 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { RouteComponentProps } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth,
-{
-  getClassPostsDb
-} from '../fbconfig';
-import { promiseTimeout } from "../fbconfig";
+import auth, { getClassPostsDb, promiseTimeout } from '../fbConfig';
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonButton, IonButtons, IonCol, IonContent, IonFab,
-  IonIcon,
-  IonItem, IonLabel, IonList,
+  IonAvatar, IonBackButton, IonButtons, IonCol, IonContent, IonFab,
+  IonHeader, IonItem, IonLabel, IonList,
   IonNote, IonPage, IonRow, IonSelect, IonSelectOption,
-  IonSpinner, IonText,
-  IonTitle, IonToolbar, RouterDirection, useIonRouter
+  IonSpinner, IonText, IonTitle, IonToolbar,
 } from "@ionic/react";
-import FadeIn from "react-fade-in";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import "../App.css";
-import TimeAgo from "javascript-time-ago";
+
 import { chevronBackOutline } from "ionicons/icons";
-import { getColor } from '../shared/functions';
+
 import Linkify from 'linkify-react';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
-import ProfilePhoto from "./ProfilePhoto";
+import ProfilePhoto from "../components/Shared/ProfilePhoto";
 import { Virtuoso } from "react-virtuoso";
+import { useContext } from "../my-context";
+import { getColor } from "../helpers/getColor";
+import { getDate } from "../helpers/timeago";
 
 interface MatchUserPostParams {
   className: string;
+  schoolName: string;
 }
 
 
 const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postClassName = match.params.className;
-  console.log(postClassName)
+  const schoolName = match.params.schoolName;
+  const history = useHistory();
+  const context = useContext();
   const [user] = useAuthState(auth);
   const Toast = useToast();
-  const router = useIonRouter();
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
-  const schoolName = useSelector((state: any) => state.user.school);
-  const timeAgo = new TimeAgo("en-US");
   const [classPosts, setClassPosts] = useState<any[]>();
   const [classPostsCopy, setClassPostsCopy] = useState<any[]>();
   const [emoji, setEmoji] = useState<any>("");
   const [classNumberFilter, setClassNumberFilter] = useState<string>();
   const [selectOptions, setSelectOptions] = useState<any>({});
-
-  const getDate = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(
-        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-      );
-      return timeAgo.format(time);
-    } else {
-      return '';
-    }
-  };
-
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      dynamicNavigate('home', 'back');
-    }
-  }
-
+    
   const getClassPosts = async () => {
     if (postClassName) {
       if (postClassName === 'CS') {
@@ -132,7 +101,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       } else if (postClassName === 'WLDF' || postClassName === 'ZOOL') {
         setEmoji('🦁');
       } else {
-        //
+        setEmoji('📚');
       }
       const classPosts = promiseTimeout(15000, getClassPostsDb(postClassName, schoolName));
       classPosts.then((posts) => {
@@ -140,11 +109,13 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           setClassPosts(posts);
           setClassPostsCopy(posts);
         } else {
-          Toast.error("Something went wrong within this class");
+          const toast = Toast.create({ message: 'Something went wrong within this class', duration: 2000, color: 'toast-error' });
+          toast.present();
         }
       });
       classPosts.catch((err) => {
-        Toast.error(err);
+        const toast = Toast.create({ message: err || "", duration: 2000, color: 'toast-error' });
+        toast.present();
       });
     }
   }
@@ -165,12 +136,13 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       console.log(newPosts);
       setClassPosts(newPosts);
     } else {
-      Toast.error("Unable to filter");
+      const toast = Toast.create({ message: 'Unable to filter', duration: 2000, color: 'toast-error' });
+      toast.present();
     }
   }
 
   useEffect(() => {
-    if (schoolName === "Cal Poly Humboldt" && schoolColorToggled) {
+    if (context.schoolColorToggled) {
       setSelectOptions({
         cssClass: 'my-custom-interface',
         header: 'Class Number',
@@ -182,7 +154,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         subHeader: 'Select which class number to see posts for'
       })
     }
-  }, [schoolColorToggled])
+  }, [context.schoolColorToggled])
 
   useEffect(() => {
     if (user && schoolName) {
@@ -206,25 +178,22 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   return (
-    <IonPage className="ion-page-ios-notch">
-      <IonContent fullscreen scrollY={false}>
-
-        <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios">
+    <IonPage >
+      <>
+        <IonHeader>
+          <IonToolbar >
             {postClassName &&
               <IonTitle>All {postClassName} Posts {emoji}</IonTitle>
             }
             <IonButtons style={{ marginLeft: "-2.5%" }}>
-              <IonButton
-                color={
-                  schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
-                }
-                onClick={() => {
-                  navigateBack();
-                }}
+              <IonBackButton
+                defaultHref="/home"
+                className="back-button"
+                icon={chevronBackOutline}
+                text={"Back"}
+                color={context.schoolColorToggled ? "tertiary" : "primary"}
               >
-                <IonIcon icon={chevronBackOutline}></IonIcon> Back
-              </IonButton>
+              </IonBackButton>
             </IonButtons>
             <IonButtons slot='end'>
               <IonSelect
@@ -1079,9 +1048,17 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonSelect>
             </IonButtons>
           </IonToolbar>
-        </div>
+        </IonHeader>
+      </>
 
-        <br /> <br />
+      <IonContent fullscreen scrollY={false}>
+
+        {classPosts && classPosts.length == 0 &&
+          <div className="ion-spinner">
+            <p style={{ textAlign: "center", width : "75vw", fontSize : "0.85em" }}>No posts matching section number</p>
+            <p style={{ textAlign: "center", fontWeight: "bold", fontSize : "0.9em"}}> Be the first to post about this class!</p>
+          </div>
+        }
 
         <Virtuoso
           className="ion-content-scroll-host"
@@ -1093,14 +1070,14 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               return (
                 <FadeIn key={post.key}>
                   <IonList inset={true} mode="ios">
-                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward'); }}>
+                    <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
                       <IonLabel class="ion-text-wrap">
                         <IonText color="medium">
                           <FadeIn>
                             <IonAvatar
                               onClick={(e) => {
                                 e.stopPropagation();
-                                dynamicNavigate('about/' + post.uid, 'forward');
+                                history.push('/about/' + schoolName + "/" + post.uid);
                               }}
                               class="posts-avatar"
                             >
@@ -1129,7 +1106,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                       e.stopPropagation();
                                       localStorage.setItem("lat", (post.location[0].toString()));
                                       localStorage.setItem("long", (post.location[1].toString()));
-                                      dynamicNavigate("maps", 'forward');
+                                      history.push("maps");
                                     }}
                                   />
                                 ) : null}
@@ -1147,7 +1124,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                     e.stopPropagation();
                                     localStorage.setItem("lat", (post.location[0].toString()));
                                     localStorage.setItem("long", (post.location[1].toString()));
-                                    dynamicNavigate("maps", 'forward');
+                                    history.push("maps");
                                   }}
                                     style={{ fontSize: "1em" }} />) : null}
                               </p>
@@ -1172,7 +1149,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               color="medium"
                               style={{ fontWeight: "400" }}
                             >
-                              &nbsp; — {post.className}{post.classNumber}
+                              &nbsp; — {post.className} {post.classNumber}
                             </IonNote>
                           </Linkify>
                           :
@@ -1201,7 +1178,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                     title: true
                                   }
                                 }).catch((err) => {
-                                  Toast.error('Unable to open image on web version');
+                                  const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                  toast.present();
                                 });
                               }}
                             >
@@ -1237,7 +1215,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                       },
                                       startFrom: 0,
                                     }).catch((err) => {
-                                      Toast.error('Unable to open image on web version');
+                                      const toast = Toast.create({ message: 'Unable to open image on wen version', duration: 2000, color: 'toast-error' });
+                                      toast.present();
                                     });
                                   }}
                                 >
@@ -1267,7 +1246,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                       },
                                       startFrom: 1,
                                     }).catch((err) => {
-                                      Toast.error('Unable to open image on web version');
+                                      const toast = Toast.create({ message: 'Unable to open image on web version', duration: 2000, color: 'toast-error' });
+                                      toast.present();
                                     });
                                   }}
                                 >
@@ -1309,7 +1289,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                       },
                                       startFrom: 0,
                                     }).catch((err) => {
-                                      Toast.error('Unable to open image on web version');
+                                      const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                      toast.present();
                                     });
                                   }}
                                 >
@@ -1343,7 +1324,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                       },
                                       startFrom: 1,
                                     }).catch((err) => {
-                                      Toast.error('Unable to open image on web version');
+                                      const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                      toast.present();
                                     });
                                   }}
                                 >
@@ -1379,7 +1361,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                     },
                                     startFrom: 2,
                                   }).catch((err) => {
-                                    Toast.error('Unable to open image on web version');
+                                    const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                    toast.present();
                                   });
                                 }}
                               >
@@ -1392,20 +1375,13 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </IonList>
                 </FadeIn>
               )
-            } else if (classPosts && classPosts.length == 0) {
-              console.log("HI")
-              return (
-                <div className="ion-spinner">
-                  <p style={{ textAlign: "center", }}>No posts matching section number</p>
-                </div>
-              )
             }
             return (
               <div className="ion-spinner">
                 <IonSpinner
                   color={
                     schoolName === "Cal Poly Humboldt"
-                      && schoolColorToggled
+                      && context.schoolColorToggled
                       ? "tertiary"
                       : "primary"
                   }

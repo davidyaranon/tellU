@@ -1,17 +1,17 @@
 import {
   IonContent, IonSpinner, IonNote,
-  IonFab, IonList, IonItem, IonText, IonPage, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, RouterDirection, useIonRouter
+  IonFab, IonList, IonItem, IonText, IonPage
 } from '@ionic/react';
 import { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import FadeIn from "react-fade-in";
-import TimeAgo from "javascript-time-ago";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import { useHistory } from 'react-router';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import auth, { getCurrentUserData, promiseTimeout } from '../fbconfig';
+import auth, { getCurrentUserData, promiseTimeout } from '../fbConfig';
 import { useToast } from '@agney/ir-toast';
-import { chevronBackOutline } from 'ionicons/icons';
 import { Virtuoso } from 'react-virtuoso';
+import { Toolbar } from '../components/Shared/Toolbar';
+import { getDate } from '../helpers/timeago';
+import { useContext } from '../my-context';
 
 
 /**
@@ -22,17 +22,12 @@ export const Notifications = () => {
 
   /* Hooks */
   const history = useHistory();
-  const router = useIonRouter();
   const [user, loading, error] = useAuthState(auth);
   const Toast = useToast();
+  const context = useContext();
 
   /* State Variables */
-  const timeAgo = new TimeAgo("en-US");
   const [notifs, setNotifs] = useState<any[] | null>(null);
-
-  /* Redux State */
-  const schoolName = useSelector((state: any) => state.user.school);
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
 
   /**
    * @description Loads user notifications from Firestore
@@ -50,7 +45,8 @@ export const Notifications = () => {
           });
           setNotifs(res.notifs);
         } else {
-          Toast.error("Trouble loading data");
+          const toast = Toast.create({ message: 'Trouble getting data', duration: 2000, color: 'toast-error' });
+          toast.present();
         }
       });
       gotUserData.catch((err) => {
@@ -58,37 +54,6 @@ export const Notifications = () => {
       });
     }
   }, []);
-
-  /**
-   * @description gets the formatted time since a notification was sent
-   * 
-   * @param {Date} timestamp 
-   * @returns how long ago the notification was received
-   */
-  const getDate = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(
-        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-      );
-      return timeAgo.format(time);
-    } else {
-      return '';
-    }
-  };
-
-  /**
-   * @description navigates the user to a specified page
-   * 
-   * @param {string} path 
-   * @param {RouterDirection} direction 
-   */
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
 
   /**
    * Runs on page load
@@ -99,26 +64,9 @@ export const Notifications = () => {
 
   if (notifs) {
     return (
-      <IonPage className="ion-page-ios-notch">
+      <IonPage>
+        <Toolbar title="Notifications" />
         <IonContent fullscreen scrollY={false}>
-          <div slot="fixed" style={{ width: "100%" }}>
-            <IonToolbar mode="ios">
-              <IonTitle>Notifications</IonTitle>
-              <IonButtons style={{ marginLeft: "-2.5%" }}>
-                <IonButton
-                  color={
-                    schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
-                  }
-                  onClick={() => {
-                    dynamicNavigate("user", "back");
-                  }}
-                >
-                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </div>
-          <br /><br />
           <Virtuoso
             data={notifs.slice(0).reverse()}
             style={{ height: "100%" }}
@@ -127,7 +75,7 @@ export const Notifications = () => {
               let index = item;
               if ("message" in notif && "chatroomString" in notif) {
                 return (
-                  <FadeIn key={"notif_" + notif.postKey + index.toString()}>
+                  <FadeIn key={"chatnotif_" + notif.postKey + index.toString()}>
                     <IonList inset={true} mode="ios">
                       <IonItem lines="none" mode="ios" onClick={() => { history.push(notif.chatroomString); }}>
                         <IonFab horizontal="end" vertical="top">
@@ -150,7 +98,7 @@ export const Notifications = () => {
                 )
               } else {
                 return (
-                  <FadeIn key={"notif_" + notif.postKey + index.toString()}>
+                  <FadeIn key={"postnotif_" + notif.postKey + index.toString()}>
                     <IonList inset={true} mode="ios">
                       <IonItem lines="none" mode="ios" onClick={() => { const key = notif.postKey.toString(); history.push("post/" + key); }}>
                         <IonFab horizontal="end" vertical="top">
@@ -179,28 +127,12 @@ export const Notifications = () => {
   } else {
     return (
       <IonPage className="ion-page-ios-notch">
+        <Toolbar title="Notifications" />
         <IonContent fullscreen scrollY={false}>
-          <div slot="fixed" style={{ width: "100%" }}>
-            <IonToolbar mode="ios">
-              <IonTitle>Notifications</IonTitle>
-              <IonButtons style={{ marginLeft: "-2.5%" }}>
-                <IonButton
-                  color={
-                    schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
-                  }
-                  onClick={() => {
-                    dynamicNavigate("user", "back");
-                  }}
-                >
-                  <IonIcon icon={chevronBackOutline}></IonIcon> Back
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </div>
 
           <br /> <br /> <br />
           <div style={{ textAlign: "center" }}>
-            <IonSpinner color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} />
+            <IonSpinner color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </div>
         </IonContent>
       </IonPage>

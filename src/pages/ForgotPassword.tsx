@@ -1,48 +1,47 @@
-import React from "react";
 import { useEffect, useState } from "react";
-import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonList, IonPage } from "@ionic/react";
+import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonPage, IonText } from "@ionic/react";
 
-import { useSelector } from "react-redux"
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useToast } from "@agney/ir-toast";
 
-import Header from "./Header";
-import { timeout } from "../shared/functions";
-import { sendPasswordReset } from "../fbconfig";
-import { useTabsContext } from "../my-context";
+import Header from "../components/Shared/Header";
+import { timeout } from "../helpers/timeout";
+import { sendPasswordReset } from "../fbConfig";
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
+import { useContext } from "../my-context";
+import { Toolbar } from "../components/Shared/Toolbar";
 
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }
 
-
 const ForgotPassword = () => {
+
   const Toast = useToast();
-  const tabs = useTabsContext();
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+  const context = useContext();
+  const history = useHistory();
 
   const [email, setEmail] = useState<string>("");
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
 
-  useEffect(() => {
-    tabs.setShowTabs(false);
-  })
-
   const handleResetPassword = () => {
     setButtonDisabled(true);
     if (email.trim().length <= 0) {
-      Toast.error("Enter an email");
+      const toast = Toast.create({ message: 'Enter an email', duration: 2000, color: 'toast-error' });
+      toast.present();
       setButtonDisabled(false);
       return;
     }
     sendPasswordReset(email).then((res) => {
       if (res) {
-        Toast.success("Email sent! (Check your spam folder)");
+        const toast = Toast.create({ message: 'Email sent! (Check your spam folder)', duration: 2000, color: 'toast-success' });
+        toast.present();
+        toast.dismiss();
         setEmail("");
         timeout(1500).then(() => {
           setButtonDisabled(false);
         });
       } else {
-        Toast.error("Email not found, try again");
+        const toast = Toast.create({ message: 'Email not found, try again', duration: 2000, color: 'toast-error' });
+        toast.present();
         setButtonDisabled(false);
       }
     })
@@ -62,26 +61,22 @@ const ForgotPassword = () => {
 
   return (
     <IonPage className="ion-page-ios-notch">
+      <Toolbar color="primary" text="Sign Inb " />
+
       <IonContent>
 
-        <IonHeader style={{ padding: "5%" }}>
-          <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
-          <p style={{ textAlign: "center", fontSize: "1.25em" }}>Forgot Password</p>
+        <IonHeader style={{ padding: "5vh" }}>
+          <Header darkMode={context.darkMode} schoolName="" zoom={1.2} />
+          <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'sans-serif' }}>Forgot Password</p>
         </IonHeader>
 
-        <IonList inset={true} mode='ios' className='sign-in-sign-up-list'>
-          <IonItem mode='ios' >
-            <IonInput clearInput={true} color="transparent" mode='ios' value={email} type="email" placeholder="Email" id="emailSignIn" debounce={250} onIonChange={(e: any) => { setEmail(e.detail.value); }} ></IonInput>
-          </IonItem>
-          <br />
-          <IonButton color="transparent" mode='ios' disabled={buttonDisabled} onClick={() => { handleResetPassword(); }} shape="round" fill="outline" expand="block" id="signInButton" >Send Password Reset</IonButton>
-          <br />
-          <br />
-          <p className="sign-in-sign-up-list">
-            {" "}
-            or <Link to="/landing-page">sign in</Link> to an exising account
-          </p>
-        </IonList>
+        <IonLabel color="primary" className="login-label">Email</IonLabel>
+        <IonItem className='login-input'>
+          <IonInput type="email" value={email} placeholder="Email" onIonChange={(e) => { setEmail(e.detail.value!); }} />
+        </IonItem>
+        <br />
+        <IonButton className="login-button" disabled={buttonDisabled} onClick={() => { handleResetPassword(); }} fill="clear" expand="block" id="signInButton" >Send Password Reset</IonButton>
+
       </IonContent>
     </IonPage>
   );

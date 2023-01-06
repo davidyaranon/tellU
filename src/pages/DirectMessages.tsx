@@ -1,32 +1,28 @@
-import { RouteComponentProps } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getUserPhotoUrl } from '../fbconfig';
-import { db } from "../fbconfig";
+import auth, { db,  getUserPhotoUrl } from "../fbConfig";
 import { collection, limit, orderBy, query } from "firebase/firestore";
 import { useToast } from "@agney/ir-toast";
-import {
-  IonButton, IonButtons, IonCol, IonContent, IonIcon, IonPage,
-  IonSpinner,
-  IonTitle, IonToolbar, RouterDirection, useIonRouter, useIonViewWillEnter
-} from "@ionic/react";
-import FadeIn from "react-fade-in";
+import { IonCol, IonContent, IonPage, IonSpinner } from "@ionic/react";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import "../App.css";
 import TimeAgo from "javascript-time-ago";
-import { chevronBackOutline } from "ionicons/icons";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { setNotif } from "../redux/actions";
 import { useCallback, useEffect, useState } from "react";
+import { useContext } from "../my-context";
+import { Toolbar } from "../components/Shared/Toolbar";
+import { getDate } from "../helpers/timeago";
 
 interface MatchUserPostParams {
   directMessageId: string;
+  schoolName : string;
 }
 
 const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const userUid = match.params.directMessageId;
-  const schoolName = useSelector((state: any) => state.user.school);
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
-  const router = useIonRouter();
+  const schoolName = match.params.schoolName;
+  const context = useContext();
+  const history = useHistory();
   const [user] = useAuthState(auth);
   const messagesRef = collection(db, 'userData', user?.uid || "", 'messages');
   const q = query(messagesRef, orderBy("date", "desc"), limit(100));
@@ -34,37 +30,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   const [contactPhotoUrls, setContactPhotoUrls] = useState<string[]>([]);
   const timeAgo = new TimeAgo("en-US");
   const Toast = useToast();
-  const dispatch = useDispatch();
 
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      dynamicNavigate('home', 'back');
-    }
-  }
-
-  const getDate = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(
-        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-      );
-      return timeAgo.format(time);
-    } else {
-      return '';
-    }
-  };
-
-  useIonViewWillEnter(() => {
-    dispatch(setNotif(false));
-  })
 
   const handlePhotoUrls = useCallback(async () => {
     if (messages && messages.length > 0) {
@@ -92,36 +58,17 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   }, [loading, messages])
 
   return (
-    <IonPage className="ion-page-ios-notch">
+    <IonPage>
+      <Toolbar title={"DMs"} schoolName={schoolName} />
       <IonContent scrollEvents>
 
-        <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios">
-            <IonTitle>DMs</IonTitle>
-            <IonButtons style={{ marginLeft: "-2.5%" }}>
-              <IonButton
-                color={
-                  schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
-                }
-                onClick={() => {
-                  navigateBack();
-                }}
-              >
-                <IonIcon icon={chevronBackOutline}></IonIcon> Back
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </div>
-
-        <div className='ion-modal'>
-          <br /><br />
-
+        <div >
           {loading &&
             <div className="ion-spinner">
               <IonSpinner
                 color={
                   schoolName === "Cal Poly Humboldt"
-                    && schoolColorToggled
+                    && context.schoolColorToggled
                     ? "tertiary"
                     : "primary"
                 }
@@ -145,9 +92,10 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                       }
                       // console.log(elements[0] + '_' + elements[1]);
                     } else {
-                      Toast.error("Unable to open DMs");
+                      const toast = Toast.create({ message: 'Unable to open DMs', duration: 2000, color: 'toast-error' });
+                      toast.present();
                     }
-                    dynamicNavigate("/chatroom/" + elements[0] + '_' + elements[1], 'forward')
+                    history.push("/chatroom/" + schoolName + "/" + elements[0] + '_' + elements[1])
                   }
                   }>
                     <IonCol size="2">

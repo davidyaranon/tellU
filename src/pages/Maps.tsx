@@ -1,45 +1,47 @@
 /* React imports */
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
-import { useSelector } from "react-redux";
 
 /* Ionic/Capacitor */
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonRouter, IonSpinner, useIonViewDidLeave, useIonViewWillEnter
+  RouterDirection, IonSpinner, useIonViewDidLeave, useIonViewWillEnter
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
+import { StatusBar, Style } from "@capacitor/status-bar";
 
 /* Firebase */
-import auth, { db } from "../fbconfig";
+import auth, { db } from "../fbConfig";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 
 /* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
-import { getColor, schoolInfo, timeout, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../shared/functions";
+import { mapTiler, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../helpers/maps-config";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
-import { useTabsContext } from "../my-context";
+import { useContext } from "../my-context";
+import { Preferences } from "@capacitor/preferences";
+import { getColor } from "../helpers/getColor";
 
+const keyStyleOptionsDark: KeyboardStyleOptions = {
+  style: KeyboardStyle.Dark
+}
 
 function Maps() {
-
   /* Hooks */
   const Toast = useToast();
   const history = useHistory();
-  const router = useIonRouter();
-  const tabsContext = useTabsContext();
+  // const router = useIonRouter();
+  const context = useContext();
 
-  /* Global state (redux) */
-  const schoolName = useSelector((state: any) => state.user.school);
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
 
   /* State variables */
   const [user, loading, error] = useAuthState(auth);
+  const [schoolName, setSchoolName] = useState<string>("");
   const [className, setClassName] = useState<string>("");
   const [center, setCenter] = useState<[number, number]>([37.250458, -120.350249]);
   const [zoom, setZoom] = useState(6);
@@ -61,8 +63,7 @@ function Maps() {
    * @param {string} direction the type of animation being played during url navigation
    */
   const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
+    history.push(path);
   }
 
   /**
@@ -122,7 +123,8 @@ function Maps() {
           }
           setMarkers(tempMarkers);
         } else {
-          Toast.error("Unable to filter :(");
+          const toast = Toast.create({ message: 'Unable to filter', duration: 2000, color: 'toast-error' });
+          toast.present();
         }
       } else {
         if (filter === "BUY/SELL") {
@@ -149,7 +151,8 @@ function Maps() {
           }
           setMarkers(tempMarkers);
         } else {
-          Toast.error("Unable to filter :(");
+          const toast = Toast.create({ message: 'Unable to filter', duration: 2000, color: 'toast-error' });
+          toast.present();
         }
       }
     }
@@ -210,15 +213,41 @@ function Maps() {
   })
 
   /**
+   * Loads school from local storage (Preferences API)
+   */
+  const setSchool = useCallback(async () => {
+    const school = await Preferences.get({ key: 'school' });
+    if (school && school.value) {
+      setSchoolName(school.value);
+    } else {
+      const toast = Toast.create({ message: 'Something went wrong', duration: 2000, color: 'toast-error' });
+      toast.present();
+    }
+  }, []);
+
+  useEffect(() => {
+    context.setDarkMode(true);
+    document.body.classList.toggle("dark");
+    context.setDarkMode(true);
+    Keyboard.setStyle(keyStyleOptionsDark);
+    StatusBar.setStyle({ style: Style.Dark });
+  }, [context]);
+
+
+  useEffect(() => {
+    setSchool();
+  }, [])
+
+  /**
    * Runs on page enter
    * 
    * Sets center based on if pin was clicked on different page
    */
   useIonViewDidEnter(() => {
-    if (!user) {
+    if (!loading && !user) {
       history.replace("/landing-page");
-    } else {
-      tabsContext.setShowTabs(true);
+    } else if (schoolName.length > 0) {
+      context.setShowTabs(true);
       let lat: string = localStorage.getItem("lat") || "";
       let long: string = localStorage.getItem("long") || "";
       if (lat !== "" && long !== "") {
@@ -229,7 +258,7 @@ function Maps() {
       }
       getMapMarkers();
     }
-  }, [user, schoolName]);
+  }, [user, loading, schoolName]);
 
 
   /**
@@ -237,7 +266,7 @@ function Maps() {
    * Sets styles for filter select options depending on schoolColorToggled
    */
   useEffect(() => {
-    if (schoolName === "Cal Poly Humboldt" && schoolColorToggled) {
+    if (schoolName === "Cal Poly Humboldt" && context.schoolColorToggled) {
       setSelectOptions({
         cssClass: 'my-custom-interface',
         header: 'Pin Filters',
@@ -249,22 +278,23 @@ function Maps() {
         subHeader: 'Select which type of pin to display on the map'
       })
     }
-  }, [schoolColorToggled])
+  }, [schoolName, context.schoolColorToggled])
 
   /**
    * Runs on initial load
    * Grabs school location based on redux storage
    */
   useEffect(() => {
-    if (!user) {
-      history.replace("/landing-page");
-    } else {
+    if (schoolName.length > 0) {
       setPinsLoading(true);
       getSchoolLocation();
+      getMapMarkers();
     }
-  }, [user, schoolName]);
+  }, [schoolName]);
 
-
+  useEffect(() => {
+    context.setShowTabs(true);
+  }, []);
 
   return (
     <IonPage className={className}>
@@ -275,13 +305,13 @@ function Maps() {
           </IonFab>
         }
         <div className={
-          darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearchDark"
-            : darkModeToggled && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "overlaySearchDarkNotHumboldt"
-              : darkModeToggled && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
-                : !darkModeToggled && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "overlaySearch"
+          context.darkMode && schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "overlaySearchDark"
+            : context.darkMode && schoolName === "Cal Poly Humboldt" && !context.schoolColorToggled ? "overlaySearchDarkNotHumboldt"
+              : context.darkMode && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
+                : !context.darkMode && schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "overlaySearch"
                   : "overlaySearchNotHumboldt"
         }>
-          <IonLabel color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}> FILTER: </IonLabel>
+          <IonLabel color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>{""}</IonLabel>
           <IonSelect
             interface="action-sheet"
             interfaceOptions={selectOptions}
@@ -289,7 +319,7 @@ function Maps() {
             cancelText="Cancel"
             mode="ios"
             value={markerFilter}
-            style={{ fontSize: "0.8em", transform: "translateY(-25%)" }}
+            style={{ fontSize: "1.1em", transform: "translateY(15%)" }}
             placeholder="Filter: ALL"
             onIonChange={(e: any) => {
               setOverlayIndex(-1);
@@ -311,9 +341,11 @@ function Maps() {
 
 
         <Map
+          provider={mapTiler}
           center={center}
           zoom={zoom}
           animate={true}
+          zoomSnap={false}
           attributionPrefix={false}
           onBoundsChanged={({ center, zoom }) => {
             setCenter(center);
@@ -323,7 +355,7 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={darkModeToggled ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
+          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={context.darkMode ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
           {markers ? markers.map((marker, index) => {
             return (
               <Marker
@@ -354,7 +386,7 @@ function Maps() {
               offset={[110, 25]}
             >
               <IonCard
-                onClick={() => { setClassName("ion-page-ios-notch"); dynamicNavigate("post/" + markers[overlayIndex].key, "forward"); }}
+                onClick={() => { setClassName("ion-page-ios-notch"); dynamicNavigate("post/" + schoolName + "/" + markers[overlayIndex].userName + "/" + markers[overlayIndex].key, "forward"); }}
                 style={{ width: "55vw", opacity: "90%" }}
                 mode="ios"
               >
@@ -388,15 +420,15 @@ function Maps() {
             </Overlay>
           ) : null}
           <IonFab horizontal="start" vertical="bottom" >
-            <p style={schoolName === 'Cal Poly Humboldt' ? {
-              fontSize: "1em", color: "#006F4D", fontWeight: "bold",
-              textShadow: "#000 0px 0px 0.5px"
-            } :
-              { fontSize: "1em", color: "black", fontWeight: "bold" }}>{schoolName}</p>
+            <p style={schoolName === 'Cal Poly Humboldt' ?
+              { fontSize: "1em", color: "#0D1117", fontWeight: "bold" } :
+              { fontSize: "1em", color: "#0D1117", fontWeight: "bold"}}>
+              {schoolName}
+            </p>
           </IonFab>
           <IonFab horizontal="end" vertical="bottom">
-            <IonButton color={darkModeToggled ? "dark" : "light"} onClick={setDefaultCenter} mode="ios">
-              {darkModeToggled ?
+            <IonButton color="light-item" onClick={setDefaultCenter} mode="ios">
+              {context.darkMode ?
                 <img style={{ width: "20px" }} src={schoolOutlineWhite} />
                 :
                 <IonIcon icon={schoolOutline} />

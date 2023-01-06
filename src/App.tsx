@@ -1,95 +1,74 @@
-/* Ionic/React + Capacitor */
-import React, { useState, useEffect, useCallback } from "react";
+// Pages
+import Home from './pages/Home';
+import LandingPage from './pages/LandingPage';
+import Settings from './pages/Settings';
+import Maps from './pages/Maps';
+import LoadingPage from './pages/LoadingPage';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import Post from './pages/Post';
+import DirectMessages from './pages/DirectMessages';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import Posttypes from './pages/Posttypes';
+import { Notifications } from './pages/Notifications';
+import ChatRoom from './pages/ChatRoom';
+import { SignIn } from './pages/SignIn';
+import Class from './pages/Class';
+
+
+// Ionic/Capacitor + React
+import React from 'react';
+import { Route, useHistory } from 'react-router-dom';
 import {
-  IonApp, IonTabs,
-  IonRouterOutlet, IonSpinner,
-  setupIonicReact, IonTabBar,
-  IonTabButton, IonBadge,
-  useIonToast,
-} from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
-import { Route, Redirect } from "react-router-dom";
-import { useHistory } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { FCM } from "@capacitor-community/fcm";
-import { createBrowserHistory } from "history";
-import { Network } from '@capacitor/network';
-import { setDarkMode } from "./redux/actions";
+  IonApp, IonIcon, IonRouterOutlet, IonTabBar,
+  IonTabButton, IonTabs, setupIonicReact, useIonToast,
+} from '@ionic/react';
+import { useEffect } from 'react';
+import { IonReactRouter } from '@ionic/react-router';
+import { homeOutline, mapOutline, personOutline } from 'ionicons/icons';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { Preferences } from '@capacitor/preferences';
+import { Capacitor } from '@capacitor/core';
+import { ActionPerformed, PushNotifications, PushNotificationSchema } from '@capacitor/push-notifications';
+import {
+  Keyboard, KeyboardStyle,
+  KeyboardStyleOptions,
+} from "@capacitor/keyboard";
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { Keyboard, KeyboardStyle, KeyboardStyleOptions, } from "@capacitor/keyboard";
-import { setNotif, setSchoolColorPallete, setSensitiveContent, setUserState } from "./redux/actions";
-import { ActionPerformed, PushNotifications, PushNotificationSchema } from "@capacitor/push-notifications";
 
-/* Pages */
-import Home from "./pages/Home";
-import Post from "./pages/Post";
-import Maps from "./pages/Maps";
-import User from "./pages/User";
-import Class from "./pages/Class";
-import ChatRoom from "./pages/ChatRoom";
-import Register from "./pages/Register";
-import Community from "./pages/Community";
-import Posttypes from "./pages/Posttypes";
-import LandingPage from "./pages/LandingPage";
-import { UserProfile } from "./pages/UserProfile";
-import AppUrlListener from "./pages/AppUrlListener";
-import ForgotPassword from "./pages/ForgotPassword";
-import DirectMessages from "./pages/DirectMessages";
-import { PrivacyPolicy } from "./pages/PrivacyPolicy";
-import { Notifications } from "./pages/Notifications";
-import RedirectComponent from "./pages/RedirectComponent";
-
-/* Other Components */
-import { ToastProvider, useToast } from "@agney/ir-toast";
-import { TabsContextProvider, useTabsContext } from "./my-context";
-
-/* Icons */
-import MapIcon from "@mui/icons-material/Map";
-import HomeIcon from '@mui/icons-material/Home';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
-
-/* Firestore/Google */
-import auth, { db, getCurrentUser, promiseTimeout } from "./fbconfig";
-import { doc, getDoc } from "firebase/firestore";
-
-
-/* Core CSS required for Ionic components to work properly */
-import "@ionic/react/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
-import "@ionic/react/css/normalize.css";
-import "@ionic/react/css/structure.css";
-import "@ionic/react/css/typography.css";
-
-/* Optional CSS utils that can be commented out */
-import "@ionic/react/css/padding.css";
-import "@ionic/react/css/float-elements.css";
-import "@ionic/react/css/text-alignment.css";
-import "@ionic/react/css/text-transformation.css";
-import "@ionic/react/css/flex-utils.css";
-import "@ionic/react/css/display.css";
-
-/* Theme variables */
+// CSS
 import "./App.css";
-import "./theme/variables.css";
+import './theme/variables.css';
+import './theme/custom-tab-bar.css';
+import '@ionic/react/css/core.css';
+import '@ionic/react/css/normalize.css';
+import '@ionic/react/css/structure.css';
+import '@ionic/react/css/typography.css';
+import '@ionic/react/css/padding.css';
+import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/text-alignment.css';
+import '@ionic/react/css/text-transformation.css';
+import '@ionic/react/css/flex-utils.css';
+import '@ionic/react/css/display.css';
 
+// Firebase/Google
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
+// Other imports
+import { createBrowserHistory } from "history";
+import { ToastProvider } from "@agney/ir-toast";
+import { useContext } from "./my-context";
+import { UserProfile } from './pages/UserProfile';
+import { FCM } from '@capacitor-community/fcm';
 
-/* Globals */
-setupIonicReact({
-  swipeBackEnabled: false
-});
-
+// Global variables
+setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
+const historyInstance = createBrowserHistory();
 SplashScreen.show({
-  showDuration: 500,
-  autoHide: true,
+  autoHide: false,
   fadeInDuration: 300,
   fadeOutDuration: 300
 });
-
-const historyInstance = createBrowserHistory();
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
 }
@@ -99,25 +78,18 @@ const keyStyleOptionsLight: KeyboardStyleOptions = {
 
 
 /**
- * Main app tabs and routing logic
+ * Handles routing in app
+ * Includes tab bar routing and all page components
  */
 const RoutingSystem: React.FunctionComponent = () => {
-
-  /* Hooks */
-  const tabs = useTabsContext();
-  const dispatch = useDispatch();
+  console.log("Routing")
+  /* hooks */
+  const context = useContext();
   const history = useHistory();
   const [present] = useIonToast();
 
-  /* State variables */
-  const [selectedTab, setSelectedTab] = useState<string>("home");
-
-  /* Global state (redux/context) */
-  let tabBarStyle = tabs?.showTabs ? undefined : { display: "none" };
-  const schoolName = useSelector((state: any) => state.user.school) || "";
-  const schoolColorPallete = useSelector((state: any) => state.schoolColorPallete.colorToggled) || false;
-  const notif = useSelector((state: any) => state.notifSet.set) || false;
-
+  /* state variables */
+  let tabBarStyle = context.showTabs;
 
   /**
    * A function that presents an in-app toast notification
@@ -128,7 +100,6 @@ const RoutingSystem: React.FunctionComponent = () => {
    * @param {string} position where the toast will be displayed on the screen (top, middle, bottom)
    */
   const presentToast = (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
-    dispatch(setNotif(true));
     message = message.replace(' sent a DM', "");
     present({
       message: message,
@@ -138,7 +109,7 @@ const RoutingSystem: React.FunctionComponent = () => {
         {
           text: 'Open',
           role: 'info',
-          handler: () => { history.push(url); dispatch(setNotif(false)); }
+          handler: () => { history.push(url); }
         },
         {
           text: 'Dismiss',
@@ -175,7 +146,6 @@ const RoutingSystem: React.FunctionComponent = () => {
         let noBackSlashes = urlJSON.toString().replaceAll('\\', '');
         let removedUrl = noBackSlashes.substring(7, noBackSlashes.length);
         let finalUrl = removedUrl.slice(1, removedUrl.length - 2);
-        dispatch(setNotif(false));
         history.push(finalUrl);
       },
     ).then(() => {
@@ -185,95 +155,115 @@ const RoutingSystem: React.FunctionComponent = () => {
 
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-      <AppUrlListener></AppUrlListener>
-      <IonTabs onIonTabsWillChange={(e: any) => { setSelectedTab(e.detail.tab); }}>
+      <IonTabs>
+
         <IonRouterOutlet>
-          <Route path="/:tab(home)" exact={true}> <Home /> </Route>
-          <Route path="/:tab(community)" exact={true} component={Community} />
-          <Route path="/:tab(maps)" exact={true} component={Maps} />
-          <Route path="/:tab(user)" exact={true}> <User /> </Route>
-          <Route path="/landing-page" exact={true}> <LandingPage /> </Route>
-          <Route path="/post/:key" component={Post} />
-          <Route path="/about/:uid" component={UserProfile} />
-          <Route path="/class/:className" component={Class} />
-          <Route path="/type/:type" component={Posttypes} />
-          <Route path="/chatroom/:collectionPath" component={ChatRoom} />
-          <Route path="/direct/:directMessageId" component={DirectMessages} />
-          <Route path="/register" component={Register} exact={true} />
-          <Route path="/forgot-password" component={ForgotPassword} exact={true} />
-          <Route path="/privacy-policy" component={PrivacyPolicy} />
-          <Route path="/notifications" component={Notifications} />
-          <Route path="/404" component={RedirectComponent} />
-          <Route exact path="/" render={() => <Redirect to="/home" />} />
+          <Route path="/" exact component={LoadingPage} />
+          <Route path="/loadingPage" exact component={LoadingPage} />
+          <Route path="/landing-page" exact component={LandingPage} />
+          <Route path="/sign-in" exact component={SignIn} />
+          <Route path="/forgot-password" exact component={ForgotPassword} />
+          <Route path="/register" exact component={Register} />
+          <Route path="/:tab(home)" exact component={Home} />
+          <Route path="/:tab(maps)" exact component={Maps} />
+          <Route path="/:tab(settings)" exact component={Settings} />
+          <Route path="/about/:school/:uid" component={UserProfile} />
+          <Route path="/post/:school/:userName/:key" component={Post} />
+          <Route path="/direct/:schoolName/:directMessageId" component={DirectMessages} />
+          <Route path="/chatroom/:schoolName/:collectionPath" component={ChatRoom} />
+          <Route path="/privacy-policy" exact component={PrivacyPolicy} />
+          <Route path="/notifications" exact component={Notifications} />
+          <Route path="/class/:schoolName/:className" component={Class} />
+          <Route path="/type/:schoolName/:type" exact component={Posttypes} />
         </IonRouterOutlet>
-        <IonTabBar slot="bottom" style={tabBarStyle}>
-          <IonTabButton tab="home" href="/home">
-            <HomeIcon
-              fontSize="medium"
-              style={selectedTab === 'home' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
-                : selectedTab === 'home' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
-                  : selectedTab === 'home' ? { fontSize: "4.5vh" }
-                    : { fontSize: "3.75vh" }}
-            />
+
+        <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
+          <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
+            <IonIcon style={{ bottom: "-20px" }} icon={homeOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
-          {/* <IonTabButton tab="community" href="/community">
-            <LocalFireDepartmentIcon
-              fontSize="medium"
-              style={selectedTab === 'community' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
-                : selectedTab === 'community' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
-                  : selectedTab === 'community' ? { fontSize: "4.5vh" }
-                    : { fontSize: "3.75vh" }}
-            />
-          </IonTabButton> */}
-          <IonTabButton tab="maps" href="/maps">
-            <MapIcon
-              fontSize="medium"
-              style={selectedTab === 'maps' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
-                : selectedTab === 'maps' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
-                  : selectedTab === 'maps' ? { fontSize: "4.5vh" }
-                    : { fontSize: "3.75vh" }}
-            />
+
+          <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
+            <IonIcon icon={mapOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
-          <IonTabButton tab="user" href="/user">
-            <AccountCircleIcon
-              fontSize="medium"
-              style={selectedTab === 'user' && schoolName === "Cal Poly Humboldt" && schoolColorPallete ? { fontSize: "4.5vh", color: '#00856A' }
-                : selectedTab === 'user' && schoolName !== "Cal Poly Humboldt" ? { fontSize: "4.5vh" }
-                  : selectedTab === 'user' ? { fontSize: "4.5vh" }
-                    : { fontSize: "3.75vh" }}
-            />
-            {notif &&
-              < IonBadge color="danger">{'!'}</IonBadge>
-            }
+
+          <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="settings" href="/settings">
+            <IonIcon icon={personOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
         </IonTabBar>
+
       </IonTabs>
-    </ToastProvider >
-  );
+    </ToastProvider>
+  )
 };
 
-const App: React.FunctionComponent = () => {
 
-  /* Hooks */
-  const Toast = useToast();
-  const dispatch = useDispatch();
+/**
+ * Main App starting point
+ * Provides context wrapper for setting dark mode, tabs, etc.
+ * @returns Rendered application
+ */
+const App: React.FC = () => {
+  console.log('app');
 
-  /* State variables */
-  const condition = navigator.onLine;
-  const [busy, setBusy] = useState<boolean>(true);
-
-  /* Global state (redux/context) */
-  const darkMode = localStorage.getItem("darkMode") || "false";
-  const sensitiveContentToggled = localStorage.getItem("sensitiveContent") || "false";
-  const schoolColorToggled = localStorage.getItem("schoolColorPallete") || "false";
-  const schoolName = useSelector((state: any) => state.user.school) || "";
+  // hooks
+  const context = useContext();
 
   /**
-   * A function that will check permissions for push notifications on iOS
+   * @description Runs on app startup.
+   * Enables dark mode if it had been enabled previously.
+   * Dark mode is enabled by default on iOS devices.
+   */
+  const handleDarkMode = React.useCallback(async () => {
+    // const isChecked = await Preferences.get({ key: "darkMode" });
+    // console.log(isChecked);
+    // if (isChecked.value === "false") {
+    //   context.setDarkMode(false);
+    //   if (Capacitor.getPlatform() === 'ios') {
+    //     Keyboard.setStyle(keyStyleOptionsLight);
+    //     StatusBar.setStyle({ style: Style.Light });
+    //   }
+    // } else if (!isChecked || !isChecked.value) {
+      document.body.classList.toggle("dark");
+      context.setDarkMode(true);
+      if (Capacitor.getPlatform() === 'ios') {
+        Keyboard.setStyle(keyStyleOptionsDark);
+        StatusBar.setStyle({ style: Style.Dark });
+      }
+    // }
+  }, []);
+
+  /**
+   * @description Runs on app startup.
+   * Enables school color toggle if it had been enabled previously
+   */
+  const handleSchoolColorToggle = React.useCallback(async () => {
+    // const isChecked = await Preferences.get({ key: "schoolColorToggled" });
+    // if (isChecked.value === "false" || !isChecked.value) {
+    //   context.setSchoolColorToggled(false);
+    // } else {
+    //   context.setSchoolColorToggled(true);
+    // }
+    context.setSchoolColorToggled(false);
+  }, []);
+
+  /**
+   * @description Runs on app startup.
+   * Enables post sensitivity if it had been enabled previously
+   */
+  const handleSensitityToggle = React.useCallback(async () => {
+    const isChecked = await Preferences.get({ key: "sensitivityToggled" });
+    if (isChecked.value === "false") {
+      context.setSensitivityToggled(false);
+    } else {
+      context.setSensitivityToggled(true);
+    }
+  }, []);
+
+  /**
+   * @description A function that will check permissions for push notifications on iOS.
    * If accepted, user will be registered to receive push notifications
-   * and will be assigned a unique token to identify them 
-   * 
-   * Uses Google FCM to send push notifications
+   * and will be assigned a unique token to identify them . 
+   * Uses Google FCM to send push notifications.
    */
   const registerNotifications = async () => {
     let permStatus = await PushNotifications.checkPermissions();
@@ -295,142 +285,39 @@ const App: React.FunctionComponent = () => {
   };
 
   /**
-   * Coupled with below useEffect, this function will check if the user is logged in
-   * When coming back to app after sometime in background
-   */
-  const onDeviceReady = useCallback(() => {
-    console.log("device ready")
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        console.log("user reloading");
-        user.reload();
-      }
-    })
-  }, [auth]);
-
-  /**
-   * Adds listener to check if user is logged in when app is brought back to foreground
+   * Dark mode use effect
    */
   useEffect(() => {
-    document.addEventListener("deviceready", onDeviceReady);
-    return () => {
-      document.removeEventListener("deviceready", onDeviceReady);
-    }
-  }, [auth]);
-
-
-  /**
-   * Checks if user has any new notifications and sets the notif state variable
-   */
-  useEffect(() => {
-    PushNotifications.getDeliveredNotifications().then((notifs) => {
-      if (notifs.notifications.length > 0) {
-        dispatch(setNotif(true));
-      } else {
-        dispatch(setNotif(false));
-      }
-    });
-  }, [])
-
+    handleDarkMode().catch((err) => { console.log(err); })
+    handleSchoolColorToggle().catch((err) => { console.log(err); })
+    handleSensitityToggle().catch((err) => { console.log(err); })
+    registerNotifications();
+  }, []);
 
   /**
-   * Runs on app startup
-   * Checks if user is logged in and sets the busy state variable
-   * Sets dark mode if user has it toggled on
-   * Redirects to Home page if user is logged in
-   * Redirects to Login page if user is not logged in
+   * Google Sign In initialization use effect
    */
   useEffect(() => {
-    if (condition) {
-      registerNotifications();
-      fetch('https://www.google.com/', {
-        mode: 'no-cors',
-      }).then(() => {
-        console.log('online');
-        if (schoolColorToggled == "false") {
-          dispatch(setSchoolColorPallete(false));
-        } else {
-          dispatch(setSchoolColorPallete(true));
-        }
-        if (sensitiveContentToggled == "false") {
-          dispatch(setSensitiveContent(false));
-        } else {
-          dispatch(setSensitiveContent(true));
-        }
-        if (darkMode == "false") {
-          dispatch(setDarkMode(false));
-          Keyboard.setStyle(keyStyleOptionsLight);
-          StatusBar.setStyle({ style: Style.Light });
-        } else {
-          document.body.classList.toggle("dark");
-          dispatch(setDarkMode(true));
-          Keyboard.setStyle(keyStyleOptionsDark);
-          StatusBar.setStyle({ style: Style.Dark });
-        }
-        const hasLoadedUser = promiseTimeout(30000, getCurrentUser());
-        hasLoadedUser.then((user: any) => {
-          if (user) {
-            let school = localStorage.getItem("userSchoolName") || "";
-            if (school == "") { // first time loading school...
-              console.log('first login');
-              const userRef = doc(db, "userData", user.uid);
-              const docLoaded = promiseTimeout(30000, getDoc(userRef));
-              docLoaded.then((userSnap) => {
-                if (userSnap.exists()) {
-                  school = userSnap.data().school;
-                }
-                localStorage.setItem("userSchoolName", school.toString());
-                dispatch(setUserState(user.displayName, user.email, false, school));
-                setBusy(false);
-                window.history.replaceState({}, "", "/home");
-              });
-              docLoaded.catch((err) => {
-                console.log(err);
-                Toast.error('Check your internet connection');
-              });
-            } else {
-              dispatch(setUserState(user.displayName, user.email, false, school));
-              setBusy(false);
-              window.history.replaceState({}, "", "/home");
-            }
-          } else {
-            setBusy(false);
-            window.history.replaceState({}, "", "/landing-page");
-          }
-          return () => { Network.removeAllListeners() }
-        });
-        hasLoadedUser.catch((err: any) => {
-          console.log(err);
-          Toast.error(err);
-          setBusy(false);
-          window.history.replaceState({}, "", "/landing-page");
-        });
-      }).catch(() => {
-        console.log('offline');
-        Toast.error("Check your internet connection");
-        setBusy(true);
+    if (Capacitor.getPlatform() === 'ios') {
+      GoogleAuth.initialize({
+        clientId: '461090594003-0tamr6ksiqhibofup8tfvmet7mbihi50.apps.googleusercontent.com',
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
       });
-    } else {
-      console.log('offline');
-      Toast.error("Check your internet connection");
-      setBusy(true);
     }
   }, []);
-  
 
+  /**
+   * Main App
+   */
   return (
     <IonApp>
-      {busy ? (
-        <IonSpinner class="ion-spinner" name="dots" color={schoolName == "Cal Poly Humboldt" ? "tertiary" : "primary"} />
-      ) : (
-        <TabsContextProvider>
-          <IonReactRouter history={historyInstance}>
-            <RoutingSystem />
-          </IonReactRouter>
-        </TabsContextProvider>
-      )}
+      <IonReactRouter history={historyInstance}>
+        <RoutingSystem />
+      </IonReactRouter>
     </IonApp>
-  );
+  )
 };
 
 export default App;
+

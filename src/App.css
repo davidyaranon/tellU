@@ -1,4 +1,9 @@
+/**
+  Custom CSS 
+*/
+
 @import url('https://fonts.googleapis.com/css2?family=Dosis&family=Noto+Serif+Khojki&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dosis&family=Noto+Serif+Khojki&family=Tinos:wght@700&display=swap');
 
 ion-button,
 ion-back-button,
@@ -19,22 +24,104 @@ html,
 body,
 label,
 button,
-ion-toast,
 ion-loading,
 ion-card,
-ion-select
+ion-select, 
 ion-card-title,
+ion-alert,
+button,
+ion-button,
 p,
 ion-note {
   font-family: 'Dosis', sans-serif;
+  font-family: 'Noto Serif Khojki', serif;font-family: 'Dosis', sans-serif;
   font-family: 'Noto Serif Khojki', serif;
 }
+
+ion-toast {
+  font-family: 'Tinos', serif;
+  font-size: medium;
+}
+
+ion-input {
+  --ion-font-family: 'Dosis', sans-serif;
+  --ion-font-family: 'Noto Serif Khojki', serif;
+}
+
+.ignore-css {
+  all: unset;
+}
+
+.ion-toolbar-trans {
+  --background: transparent;
+  --ion-color-base: transparent !important;
+}
+
+.back-button {
+  background-color: transparent;
+  border-radius: 5px;
+  padding-left: 0.75rem;
+  font-size: 1.1em;
+}
+
+.test-ion-toolbar {
+  --border-style: none;
+  --border-color: transparent;
+  --background: #000000;
+  height: 12.5vh;
+}
+
+.transparent-ion-toolbar {
+  --background: transparent;
+  --ion-color-base: transparent !important;
+}
+
+.top-level-card {
+  width: 100%;
+  height: 250px;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+}
+
+.overlay {
+  width: 100%;
+  position: absolute;
+  z-index: 99;
+  transform: translateY(-550px);
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.ion-page-ios-notch {
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
+}
+
+.ion-content-scroll-host {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
+
 
 .ion-spinner {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -25%);
 }
 
 textarea:focus-visible {
@@ -45,10 +132,148 @@ textarea {
   border-color: #179b59;
 }
 
-.login-input {
-  font-size: 0.95em;
+.login-label {
+  padding-left: 10%;
+  color: var(--ion-color-primary);
 }
 
+.l-input {
+  border-radius:10px;
+}
+.custom-alert .alert-wrapper {
+  width: 65vw; 
+}
+
+.custom-alert {
+  font-family: 'Dosis', sans-serif;
+  font-family: 'Noto Serif Khojki', serif;
+}
+
+.custom-alert .alert-button-group {
+  max-width: 400px !important;
+}
+
+button.alert-button.alert-button-confirm {
+  color: var(--ion-color-splash-screen-background);
+}
+
+.md button.alert-button.alert-button-confirm {
+  border-radius: 4px;
+}
+
+.ios .custom-alert button.alert-button {
+  color: var(--ion-color-primary);
+}
+
+.ios button.alert-button.alert-button-cancel {
+  /* border-right: 0;
+  border-bottom-left-radius: 50px;
+  border-top-left-radius: 50px; */
+}
+
+.ios button.alert-button.alert-button-confirm {
+  /* border-bottom-right-radius: 50px;
+  border-top-right-radius: 13px; */
+}
+
+ion-select {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+}
+
+ion-item.class-name-selection {
+  --border-radius: 15px;
+  width : 30vw;
+}
+
+ion-item.class-number-selection {
+  --border-radius: 15px;
+  width : 25vw;
+}
+
+
+ion-item.register-input-select {
+  width: 85%;
+  margin: auto;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  height: 50px;
+  --border-radius: 15px;
+}
+
+ion-item.register-input {
+  width: 85%;
+  margin: auto;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  height: 50px;
+  --border-radius: 15px;
+}
+
+ion-item.login-input {
+  width: 85%;
+  margin: auto;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  margin-bottom: 16px;
+  height: 50px;
+  --border-radius: 15px;
+}
+
+.login-container {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.login-line {
+  flex: 1;
+  border: 0;
+  height: 1px;
+  background-color: #ccc;
+}
+
+.login-text {
+  font-size: 14px;
+  color: #ccc;
+  margin: 0 10px;
+}
+
+.curved-div {
+  background: #c3f3ff;
+  color: #FFF;
+  text-align: center;
+}
+.curved-div svg {
+  display : block;
+}
+
+.post-button {
+  width: 20vw;
+  margin: auto;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  height: 85px;
+  color: white;
+  font-size: large;
+  border-radius: 15px;
+  background: rgb(0,191,255);
+  background: linear-gradient(90deg, rgba(0,191,255,1) 0%, rgba(97,219,251,1) 75%, rgba(28,198,255,1) 100%);
+}
+
+.login-button {
+  width: 85%;
+  margin: auto;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  height: 65px;
+  color: white;
+  font-size: large;
+  border-radius: 15px;
+  background: rgb(0,191,255);
+  background: linear-gradient(90deg, rgba(0,191,255,1) 0%, rgba(97,219,251,1) 75%, rgba(28,198,255,1) 100%);
+}
 /* Action Sheet Interface: set color for the action sheet using its button CSS variables */
 .my-custom-interface .select-interface-option {
   --button-color-selected: #00856A;
@@ -157,17 +382,20 @@ ion-skeleton-text {
   }
 }
 
+
 .likeAnimation {
   animation: like-animation 0.5s both
 }
 
-ion-tab-button {
-  --background-focused: #61dbfb;
-  --color-selected: #61dbfb;
-}
+
 
 ion-checkbox {
   --background: #ffffff;
+}
+
+ion-checkbox::part(container) {
+  border-radius: 6px;
+  border: 2px solid #ffffff;
 }
 
 #generalCheckbox {
@@ -263,15 +491,128 @@ ion-checkbox {
   margin: 1vw;
 }
 
+/* ion-tab-bar {
+  bottom: 2px;
+  position: relative;
+  border-bottom: 50px solid #555;
+  width: 98%;
+  margin: 0 auto;
+  height : 40px;
+} */
+
+.container {
+  background: #0A2463;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.shape-blob {
+  background: #ED1250;
+  height: 200px;
+  width: 200px;
+  border-radius: 30% 50% 20% 40%;
+  animation:
+    transform 20s ease-in-out infinite both alternate,
+    movement_one 40s ease-in-out infinite both;
+  opacity: .7;
+  position: absolute;
+  left: 70%;
+  top: 50%;
+}
+
+.shape-blob.one {
+  height: 500px;
+  width: 500px;
+  left: -200px;
+  top: -150px;
+  transform: rotate(-180deg);
+  animation: transform 30s ease-in-out infinite both alternate, movement_two 60s ease-in-out infinite both;
+}
+
+.shape-blob.two {
+  height: 350px;
+  width: 350px;
+  left: 500px;
+  top: -150px;
+  transform: rotate(-180deg);
+  animation: transform 30s ease-in-out infinite both alternate, movement_two 60s ease-in-out infinite both;
+}
+
+@keyframes transform {
+
+  0%,
+  100% {
+    border-radius: 33% 67% 70% 30% / 30% 30% 70% 70%;
+  }
+
+  20% {
+    border-radius: 37% 63% 51% 49% / 37% 65% 35% 63%;
+  }
+
+  40% {
+    border-radius: 36% 64% 64% 36% / 64% 48% 52% 36%;
+  }
+
+  60% {
+    border-radius: 37% 63% 51% 49% / 30% 30% 70% 70%;
+  }
+
+  80% {
+    border-radius: 40% 60% 42% 58% / 41% 51% 49% 59%;
+  }
+}
+
+
+@keyframes movement_one {
+
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: translate(50%, 20%) rotateY(10deg) scale(1.2);
+  }
+}
+
+@keyframes movement_two {
+
+  0%,
+  500% {
+    transform: none;
+  }
+
+  50% {
+    transform: translate(50%, 20%) rotate(-200deg) scale(1.2);
+  }
+}
+
+ion-tab-button {
+  height: 150px;
+}
+
+ion-tab-button[aria-selected=true].tab-dark {
+  background-color: #0D1117;
+}
+
+ion-tab-button[aria-selected=true].tab-light {
+  background-color: rgb(236, 236, 236);
+}
+
 .overlaySearchNotHumboldt {
   position: absolute;
   z-index: 2;
   width: 70%;
   height: 3rem;
-  transform: translateY(75%);
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
   text-align: center;
   margin-left: 14%;
-  margin-top: 10pt;
   color: #61DBFB;
   background-color: white;
   justify-content: center;
@@ -282,19 +623,19 @@ ion-checkbox {
 
 .overlaySearch {
   position: absolute;
-  transform: translateY(75%);
   z-index: 2;
   width: 70%;
   height: 3rem;
   text-align: center;
   margin-left: 14%;
-  margin-top: 10pt;
   color: #00856A;
   background-color: white;
   justify-content: center;
   align-content: center;
   align-items: center;
   border-radius: 15px;
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
 }
 
 .overlayClassSelectionLight {
@@ -309,6 +650,24 @@ ion-checkbox {
   align-items: center;
   border-radius: 15px;
 }
+
+ion-radio {
+  --border-radius: 4px;
+  --inner-border-radius: 4px;
+
+  --color: #ddd;
+  --color-checked: #6815ec;
+}
+
+ion-radio.ios {
+  width: 25px;
+  height: 25px;
+
+  border: 2px solid #ddd;
+  border-radius: 4px;
+}
+
+.radio-checked.ios {}
 
 .overlayClassSelectionDark {
   position: absolute;
@@ -406,36 +765,36 @@ ion-checkbox {
 
 .overlaySearchDarkNotHumboldt {
   position: absolute;
-  transform: translateY(75%);
   z-index: 2;
   width: 70%;
   height: 3rem;
   text-align: center;
   margin-left: 14%;
-  margin-top: 10pt;
   color: #61DBFB;
   background-color: #2f2f2f;
   justify-content: center;
   align-content: center;
   align-items: center;
   border-radius: 15px;
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
 }
 
 .overlaySearchDark {
   position: absolute;
-  transform: translateY(75%);
   z-index: 2;
   width: 70%;
   height: 3rem;
   text-align: center;
   margin-left: 14%;
-  margin-top: 10pt;
   color: #00856A;
   background-color: #2f2f2f;
   justify-content: center;
   align-content: center;
   align-items: center;
   border-radius: 15px;
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
 }
 
 .user-avatar {
@@ -850,7 +1209,7 @@ img.chat_avatar {
   padding: 2px 5px;
   font-size: 11px;
   border-radius: 2px;
-  color: #cf3c4f;
+  color: #fb6961;
 }
 
 .chat_status {

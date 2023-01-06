@@ -2,102 +2,63 @@ import React, { useState } from "react";
 import {
   IonButton, IonButtons, IonCard, IonCardContent,
   IonCardTitle, IonContent, IonIcon, IonLoading, IonPage, IonToolbar,
-  RouterDirection, useIonRouter
+  RouterDirection, useIonLoading, useIonRouter
 } from "@ionic/react";
 import { chevronBackOutline } from "ionicons/icons";
-import { useSelector } from "react-redux";
 import { Dialog } from "@capacitor/dialog";
-import { deleteUserDataAndAccount } from "../fbconfig";
+import { deleteUserDataAndAccount } from "../fbConfig";
 import { useToast } from "@agney/ir-toast";
+import { useHistory } from "react-router";
+import { useContext } from "../my-context";
+import { Toolbar } from "../components/Shared/Toolbar";
 
 export const PrivacyPolicy = () => {
-  const router = useIonRouter();
-  const schoolName = useSelector((state: any) => state.user.school);
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
+
+  const history = useHistory();
+  const context = useContext();
   const Toast = useToast();
+  const [present, dismiss] = useIonLoading();
 
-  const [deletingAccount, setDeletingAccount] = useState<boolean>(false);
 
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      dynamicNavigate("user", "back");
-    }
-  }
-
-  const areYouSure = async () => {
-    const { value } = await Dialog.confirm({
-      title: 'Are you sure?',
-      message: 'Your entire account record will be deleted along with posts, messages, and other data. Are you sure you want to continue?',
-      okButtonTitle: 'Yes, delete my account'
-    });
-    return value;
-  }
-
-  const deleteAccount = async () => {
+  /**
+   * @description Deletes authenticated user from Firestore auth and from Firestore db
+   * Toasts success and redirects to Register page upon success
+   */
+  const handleDeleteUser = async () => {
     const { value } = await Dialog.confirm({
       title: 'Delete Account',
       message: `Are you sure you want to delete your account?`,
       okButtonTitle: 'Delete my account'
     });
     if (!value) { return; }
+    const areYouSure = await Dialog.confirm({
+      title: 'Delete Account',
+      message: `Are you REALLY sure you want to delete your account?`,
+      okButtonTitle: 'Delete my account'
+    });
+    if (!areYouSure.value) { return; }
+    present({
+      duration: 0,
+      message: "Please wait..."
+    });
+    deleteUserDataAndAccount().then(() => {
+      dismiss();
+      history.replace('/register');
+      const toast = Toast.create({ message: 'Account deleted', duration: 2000, color: 'toast-success' });
+      toast.present();
+      toast.dismiss();
+    }).catch((err) => {
+      const toast = Toast.create({ message: 'Something went wrong...', duration: 2000, color: 'toast-error' });
+      toast.present();
+      console.log(err);
+    })
+  };
 
-    const deleteMe = await areYouSure();
-
-    if (!deleteMe) { return; }
-
-    setDeletingAccount(true);
-
-    await deleteUserDataAndAccount().then(() => {
-      setDeletingAccount(false);
-    }).catch((err) => {console.log(err); Toast.error("Something went wrong!"); setDeletingAccount(false);});
-    window.localStorage.clear();
-    localStorage.clear();
-    setDeletingAccount(false);
-  }
 
   return (
-    <IonPage className="ion-page-ios-notch">
+    <IonPage>
+      <Toolbar deleteButton={true} deleteAccount={handleDeleteUser} />
       <IonContent>
-
-        <IonLoading
-          spinner="dots"
-          message="Deleting Account..."
-          duration={0}
-          isOpen={deletingAccount}
-        ></IonLoading>
-
-        <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios">
-            <IonButtons style={{ marginLeft: "-2.5%" }}>
-              <IonButton
-                color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                onClick={() => {
-                  navigateBack();
-                }}
-              >
-                <IonIcon icon={chevronBackOutline} ></IonIcon> Back
-              </IonButton>
-            </IonButtons>
-            <IonButtons slot="end">
-              <IonButton
-                onClick={() => { deleteAccount() }}
-                color="danger"
-                mode="ios"
-                fill="clear"
-                id="deleteAccount"
-              >
-                Delete Account
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </div>
-        <br />
         <IonCard>
           <IonCardContent>
             <IonCardTitle>

@@ -1,59 +1,78 @@
 /* React imports */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { setUserState } from "../redux/actions";
+import { useHistory } from "react-router-dom";
 
 /* Ionic/Capacitor */
 import {
-  IonContent, IonHeader, IonButton, IonLoading, IonInput, IonButtons,
-  IonCard, IonItem, IonLabel, IonList, IonSelect, IonSelectOption, IonModal,
-  IonToolbar, IonTitle, IonPage, useIonViewDidEnter, useIonRouter, RouterDirection
+  IonContent, IonHeader, IonButton, IonLoading, IonInput,
+  IonItem, IonLabel, IonSelect, IonSelectOption, IonPage, useIonRouter, IonText, IonIcon, AlertOptions
 } from "@ionic/react";
+import { eyeOffOutline, eyeOutline } from "ionicons/icons";
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { FCM } from "@capacitor-community/fcm";
 
 
 /* Firebase */
-import auth, { updateNotificationsToken } from '../fbconfig';
-import { registerWithEmailAndPassword, checkUsernameUniqueness, db } from "../fbconfig";
+import auth, { updateNotificationsToken } from '../fbConfig';
+import { registerWithEmailAndPassword, checkUsernameUniqueness, db } from "../fbConfig";
 import { doc, getDoc } from "firebase/firestore";
 
 /* CSS + Other components */
 import "../App.css";
-import Header from "./Header";
-import { useTabsContext } from "../my-context";
+import Header from "../components/Shared/Header";
 import { useToast } from "@agney/ir-toast";
 import { Dialog } from "@capacitor/dialog";
+import { Preferences } from "@capacitor/preferences";
+import { dynamicNavigate } from "../components/Shared/Navigation";
+import { useContext } from "../my-context";
+import FadeIn from "react-fade-in/lib/FadeIn";
+import { Toolbar } from "../components/Shared/Toolbar";
 
 /* Global variables */
 const emojis = /(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|\ud83c[\ude32-\ude3a]|\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])/g;
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }
+const inputNote: React.CSSProperties = {
+  fontSize: "0.85em",
+  textAlign: "right",
+  color: "var(--ion-color-primary)",
+  fontFamily: "Arial",
+  marginTop: "-1vh",
+  height: "0.5vh",
+  marginRight: "10vw"
+};
+const inputNoteError: React.CSSProperties = {
+  fontSize: "0.85em",
+  textAlign: "right",
+  color: "var(--ion-color-toast-error)",
+  fontFamily: "Arial",
+  marginTop: "-1vh",
+  height: "0.5vh",
+  marginRight: "10vw"
+};
+const selectInterfaceOptions : AlertOptions = {
+  header: "University",
+  subHeader : "Select your university",
+  cssClass: 'custom-alert',
+
+}
 
 const Register: React.FC = () => {
 
   // state variables
-  const [emailSignUp, setEmailSignUp] = useState("");
-  const [userNameSignUp, setUserNameSignUp] = useState("");
-  const [passwordSignUp, setPasswordSignUp] = useState("");
-  const [passwordSignUpCopy, setPasswordSignUpCopy] = useState("");
-  const [schoolName, setSchoolName] = useState("");
-  const [schoolEmailEnding, setSchoolEmailEnding] = useState("");
+  const [emailSignUp, setEmailSignUp] = React.useState("");
+  const [userNameSignUp, setUserNameSignUp] = React.useState("");
+  const [passwordSignUp, setPasswordSignUp] = React.useState("");
+  const [schoolName, setSchoolName] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const [schoolEmailEnding, setSchoolEmailEnding] = React.useState("");
   const [user, loading] = useAuthState(auth);
-  const [busy, setBusy] = useState<boolean>(false);
-  const [passwordModal, setPasswordModal] = useState<boolean>(false);
+  const [busy, setBusy] = React.useState<boolean>(false);
 
   const Toast = useToast();
-  const dispatch = useDispatch();
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const tabs = useTabsContext();
   const router = useIonRouter();
-
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
+  const history = useHistory();
+  const context = useContext();
 
   /**
    * Uses Firebase Auth to register using 
@@ -67,7 +86,8 @@ const Register: React.FC = () => {
       var idx = emailSignUp.lastIndexOf('@');
       if (idx > -1 && (emailSignUp.slice(idx + 1)).toLowerCase() === schoolEmailEnding) {
       } else {
-        Toast.error('Use your university\'s email address!');
+        const toast = Toast.create({ message: 'Use your University\'s email address', duration: 2000, color: 'toast-error' });
+        toast.present();
         setBusy(false);
         return;
       }
@@ -77,32 +97,37 @@ const Register: React.FC = () => {
       passwordSignUp.trim() === "" ||
       emailSignUp.trim() === ""
     ) {
-      Toast.error("Enter a value in each field");
+      const toast = Toast.create({ message: 'Enter a value in each field', duration: 2000, color: 'toast-error' });
+      toast.present();
     } else if (schoolName.length == 0) {
-      Toast.error("Select a university!");
+      const toast = Toast.create({ message: "Select a University", duration: 2000, color: 'toast-error' });
+      toast.present();
     } else if (((emailSignUp.trim() || '').match(emojis) || []).length > 0) {
-      Toast.error("Email cannot contain emojis ");
+      const toast = Toast.create({ message: 'Email cannot contain emojis', duration: 2000, color: 'toast-error' });
+      toast.present();
     } else if (((userNameSignUp.trim() || '').match(emojis) || []).length > 0) {
-      Toast.error("Username cannot contain emojis!");
+      const toast = Toast.create({ message: 'Username cannot contain emojis', duration: 2000, color: 'toast-error' });
+      toast.present();
     } else if (userNameSignUp.trim().length > 15) {
-      Toast.error("Username must be no more than 15 characters!");
-    } else if (passwordSignUp !== passwordSignUpCopy) {
-      Toast.error("Passwords do not match!");
+      const toast = Toast.create({ message: 'Username cannot be more than 15 characters', duration: 2000, color: 'toast-error' });
+      toast.present();
     } else if (passwordSignUp.length < 8) {
-      Toast.error("Password must be 8 or more characters!");
+      const toast = Toast.create({ message: 'Password must be 8 or more characters', duration: 2000, color: 'toast-error' });
+      toast.present();
     } else if (userNameSignUp.includes(" ")) {
-      Toast.error("Username cannot contain spaces!");
-    } else if (passwordSignUp.includes(" ")) {
-      Toast.error("Password cannot contain spaces!");
+      const toast = Toast.create({ message: 'Username cannot contain spaces', duration: 2000, color: 'toast-error' });
+      toast.present();
     } else {
       const isUnique = await checkUsernameUniqueness(userNameSignUp.trim());
       if (!isUnique) {
-        Toast.error("Username has been taken!");
+        const toast = Toast.create({ message: 'Username has been taken!', duration: 2000, color: 'toast-error' });
+        toast.present();
       } else {
         await Dialog.alert({
           title: "Agree to Terms and Conditions",
           message: 'Don\'t post anything offensive, obscene, or harmful! Be nice... more at https://tellu-website.web.app/page/terms-and-conditions',
         });
+        // check old registration
         const res = await registerWithEmailAndPassword(
           userNameSignUp.trim(),
           emailSignUp.trim(),
@@ -112,64 +137,65 @@ const Register: React.FC = () => {
         if (typeof res === "string") {
           Toast.error(res);
         } else {
-          let notifcationsToken = localStorage.getItem("notificationsToken") || "";
-          if (notifcationsToken.length <= 0) {
+          await setSchool(schoolName);
+          const notificationsToken = localStorage.getItem("notificationsToken") || "";
+          if (notificationsToken.length <= 0) {
             FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
             FCM.getToken().then((token) => {
               localStorage.setItem("notificationsToken", token.token);
               updateNotificationsToken(token.token);
             });
           } else {
-            updateNotificationsToken(notifcationsToken);
+            updateNotificationsToken(notificationsToken);
           }
-          dispatch(
-            setUserState(
-              res!.user.displayName,
-              res!.user.email,
-              false,
-              schoolName
-            )
-          );
-          Toast.success("Registered Successfully");
+          const toast = Toast.create({ message: 'Registered Successfully', duration: 2000, color: 'toast-success' });
+          toast.present();
+          toast.dismiss();
         }
       }
     }
     setBusy(false);
   }
 
-  /**
-   * Run when page is loaded into view
-   */
-  useIonViewDidEnter(() => {
+  const setSchool = React.useCallback(async (school: string) => {
+    await Preferences.set({ key: "school", value: school });
+  }, []);
+
+  React.useEffect(() => {
     setBusy(true);
     if (user) {
-      let school = "";
-      const userRef = doc(db, "userData", user.uid);
-      getDoc(userRef)
-        .then((userSnap) => {
-          if (userSnap.exists()) {
-            school = userSnap.data().school;
-          }
-          dispatch(setUserState(user.displayName, user.email, false, school));
+      Preferences.get({ key: "school" }).then((res) => {
+        if (res.value) {
+          console.log(res.value);
           setBusy(false);
-          dynamicNavigate('home', 'root');
-        })
-        .catch((err) => {
-          console.log(err);
-          dispatch(setUserState(user.displayName, user.email, false, ""));
-          setBusy(false);
-          dynamicNavigate('home', 'root');
-        });
+          dynamicNavigate(router, 'home', 'root');
+        } else {
+          let school = "";
+          const userRef = doc(db, "userData", user.uid);
+          getDoc(userRef).then((userSnap) => {
+            if (userSnap.exists()) {
+              school = userSnap.data().school;
+              console.log(school);
+              setSchool(school);
+            }
+            setBusy(false);
+            dynamicNavigate(router, 'home', 'root');
+          });
+        }
+      }).catch((err) => {
+        console.log(err);
+        setBusy(false);
+        history.replace("/home");
+      });
     }
-    tabs.setShowTabs(false);
     setBusy(false);
     return () => {
-      tabs.setShowTabs(true);
-    };
+      setBusy(false);
+    }
   }, [user, loading]);
 
 
-  useEffect(() => {
+  React.useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(defaultResizeOptions);
     });
@@ -178,25 +204,172 @@ const Register: React.FC = () => {
     };
   }, []);
 
-
-  const openPasswordRequirements = () => {
-    setPasswordModal(true);
-  };
-
-  const closeModal = () => {
-    setPasswordModal(false);
-  };
-
   const handleUsernameInput = (e: any) => {
     setUserNameSignUp(e.detail.value);
   }
 
   return (
-    <IonPage className="ion-page-ios-notch">
+    <IonPage>
+      <Toolbar color="primary"/>
       <IonContent>
-        <IonHeader class="ion-no-border" style={{ padding: "5vh" }}>
-          <Header darkMode={darkModeToggled} schoolName="" zoom={1.2} />
+        <IonHeader class="ion-no-border" style={{ paddingBottom : "5vh" }}>
+          <Header darkMode={context.darkMode} schoolName="" zoom={1.1} />
+          <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'Arial' }}>Register</p>
         </IonHeader>
+
+        <IonLabel className="login-label">University</IonLabel>
+        <IonItem className='register-input-select'>
+          <IonSelect
+            value={schoolName}
+            interfaceOptions={selectInterfaceOptions}
+            placeholder="University of California"
+            onIonChange={(e: any) => {
+              setSchoolName(e.detail.value);
+              if (e.detail.value == 'Cal Poly Humboldt') {
+                setSchoolEmailEnding('humboldt.edu');
+              } else if (e.detail.value == 'UC Berkeley') {
+                setSchoolEmailEnding('berkeley.edu');
+              } else if (e.detail.value == 'UC Davis') {
+                setSchoolEmailEnding('ucdavis.edu');
+              } else if (e.detail.value == 'UC Irvine') {
+                setSchoolEmailEnding('uci.edu');
+              } else if (e.detail.value == 'UCLA') {
+                setSchoolEmailEnding('ucla.edu');
+              } else if (e.detail.value == 'UC Merced') {
+                setSchoolEmailEnding('ucmerced.edu');
+              } else if (e.detail.value == 'UC Riverside') {
+                setSchoolEmailEnding('ucr.edu');
+              } else if (e.detail.value == 'UC San Diego') {
+                setSchoolEmailEnding('ucsd.edu');
+              } else if (e.detail.value == 'UCSF') {
+                setSchoolEmailEnding('ucsf.edu');
+              } else if (e.detail.value == 'UC Santa Barbara') {
+                setSchoolEmailEnding('ucsb.edu');
+              } else if (e.detail.value == 'UC Santa Cruz') {
+                setSchoolEmailEnding('ucsc.edu');
+              } else if (e.detail.value == 'Cal Poly Pomona') {
+                setSchoolEmailEnding('cpp.edu');
+              } else if (e.detail.value == 'Cal Poly San Luis Obispo') {
+                setSchoolEmailEnding('calpoly.edu');
+              } else if (e.detail.value == "Cal State Fullerton") {
+                setSchoolEmailEnding('fullerton.edu');
+              } else if (e.detail.value == "Cal State East Bay") {
+                setSchoolEmailEnding('csueastbay.edu');
+              } else if (e.detail.value == "Cal State LA") {
+                setSchoolEmailEnding('calstatela.edu');
+              } else if (e.detail.value == "Cal Maritime") {
+                setSchoolEmailEnding('csum.edu');
+              } else if (e.detail.value == "Cal State San Bernardino") {
+                setSchoolEmailEnding('csusb.edu');
+              } else if (e.detail.value == "Cal State Long Beach") {
+                setSchoolEmailEnding('csulb.edu');
+              } else if (e.detail.value == "SF State") {
+                setSchoolEmailEnding('sfsu.edu');
+              } else if (e.detail.value == "San Jose State") {
+                setSchoolEmailEnding('sjsu.edu');
+              } else if (e.detail.value == "Chico State") {
+                setSchoolEmailEnding('csuchico.edu');
+              } else if (e.detail.value == "Fresno State") {
+                setSchoolEmailEnding('csufresno.edu');
+              } else if (e.detail.value == "Stanislaus State") {
+                setSchoolEmailEnding('csustan.edu');
+              } else if (e.detail.value == "Sac State") {
+                setSchoolEmailEnding('csus.edu');
+              } else if (e.detail.value == "CSUN") {
+                setSchoolEmailEnding('csun.edu');
+              } else if (e.detail.value == "CSU Bakersfield") {
+                setSchoolEmailEnding('csub.edu');
+              } else if (e.detail.value == "CSU Dominguez Hills") {
+                setSchoolEmailEnding('csudh.edu');
+              } else if (e.detail.value == "CSU Dominguez Hills") {
+                setSchoolEmailEnding('csudh.edu');
+              } else if (e.detail.value == "CSU Channel Islands") {
+                setSchoolEmailEnding('csuci.edu');
+              } else if (e.detail.value == "CSU Monterey Bay") {
+                setSchoolEmailEnding('csumb.edu');
+              }
+            }}
+          >
+            <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
+            <IonSelectOption value="Cal Poly Pomona">Cal Poly Pomona</IonSelectOption>
+            <IonSelectOption value="Cal Poly San Luis Obispo">Cal Poly San Luis Obispo</IonSelectOption>
+            <IonSelectOption value="Cal State Fullerton">Cal State Fullerton</IonSelectOption>
+            <IonSelectOption value="Cal State East Bay">Cal State East Bay</IonSelectOption>
+            <IonSelectOption value="Cal State LA">Cal State LA</IonSelectOption>
+            <IonSelectOption value="Cal Maritime">Cal Maritime</IonSelectOption>
+            <IonSelectOption value="Cal State San Bernardino">Cal State San Bernardino</IonSelectOption>
+            <IonSelectOption value="Cal State Long Beach">Cal State Long Beach</IonSelectOption>
+            <IonSelectOption value="SF State">SF State</IonSelectOption>
+            <IonSelectOption value="San Jose State">San Jose State</IonSelectOption>
+            <IonSelectOption value="Chico State">Chico State</IonSelectOption>
+            <IonSelectOption value="Fresno State">Fresno State</IonSelectOption>
+            <IonSelectOption value="San Diego State">San Diego State</IonSelectOption>
+            <IonSelectOption value="Sonoma State">Sonoma State</IonSelectOption>
+            <IonSelectOption value="Stanislaus State">Stanislaus State</IonSelectOption>
+            <IonSelectOption value="Sac State">Sac State</IonSelectOption>
+            <IonSelectOption value="CSUN">CSUN</IonSelectOption>
+            <IonSelectOption value="CSU Bakersfield">CSU Bakersfield</IonSelectOption>
+            <IonSelectOption value="CSU Dominguez Hills">CSU Dominguez Hills</IonSelectOption>
+            <IonSelectOption value="CSU Channel Islands">CSU Channel Islands</IonSelectOption>
+            <IonSelectOption value="CSU Monterey Bay">CSU Monterey Bay</IonSelectOption>
+            <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
+            <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
+            <IonSelectOption value="UC Irvine">UC Irvine</IonSelectOption>
+            <IonSelectOption value="UCLA">UCLA</IonSelectOption>
+            <IonSelectOption value="UC Merced">UC Merced</IonSelectOption>
+            <IonSelectOption value="UC Riverside">UC Riverside</IonSelectOption>
+            <IonSelectOption value="UC San Diego">UC San Diego</IonSelectOption>
+            <IonSelectOption value="UCSF">UCSF</IonSelectOption>
+            <IonSelectOption value="UC Santa Barbara">UC Santa Barbara</IonSelectOption>
+            <IonSelectOption value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
+            <IonSelectOption disabled={true} value="More schools to come!...">More schools to come!...</IonSelectOption>
+          </IonSelect>
+        </IonItem>
+
+        <IonLabel className="login-label">School Email</IonLabel>
+        <IonItem className='register-input'>
+          <IonInput clearInput value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} />
+        </IonItem>
+        {emailSignUp.length > 0 && schoolName.length <= 0 ?
+          <FadeIn>
+            <p style={inputNoteError}>Select a University</p>
+          </FadeIn>
+          :
+          emailSignUp.lastIndexOf('@') > -1 && (emailSignUp.slice(emailSignUp.lastIndexOf('@') + 1)).toLowerCase() !== schoolEmailEnding ?
+            <FadeIn>
+              <p style={inputNoteError}>Use your University's email</p>
+            </FadeIn>
+            :
+            <p style={inputNoteError}>{" "}</p>
+        }
+
+        <IonLabel className="login-label">Username</IonLabel>
+        <IonItem className='register-input'>
+          <IonInput maxlength={15} clearInput value={userNameSignUp} type="text" placeholder="userName1234" id="userNameSignUp" onIonChange={(e: any) => { handleUsernameInput(e) }} />
+        </IonItem>
+        <p style={inputNote}> {userNameSignUp.length} / 15 </p>
+
+        <IonLabel className="login-label">Password</IonLabel>
+        <IonItem className='register-input'>
+          <IonInput value={passwordSignUp} clearInput clearOnEdit={false} type={showPassword ? "text" : "password"} placeholder="••••••••" id="passwordSignUp" onIonChange={(e: any) => setPasswordSignUp(e.detail.value)} />
+          <IonButton slot="end" fill="clear" onClick={() => { setShowPassword(!showPassword) }}>
+            <IonIcon color="medium" icon={showPassword ? eyeOutline : eyeOffOutline} />
+          </IonButton>
+        </IonItem>
+        {passwordSignUp.length > 0 && passwordSignUp.length < 8 ?
+          <FadeIn>
+            <p style={inputNoteError}> {passwordSignUp.length > 0 && passwordSignUp.length < 8 ? "Password must be at least 8 characters" : ""} </p>
+          </FadeIn>
+          :
+          <p style={inputNoteError}> {passwordSignUp.length > 0 && passwordSignUp.length < 8 ? "Password must be at least 8 characters" : ""} </p>
+        }
+        <div style={{ height: "1%" }} />
+
+
+        <IonButton className="login-button" onClick={() => { register(); }} fill="clear" expand="block" id="signInButton" >Register</IonButton>
+        <div style={{ height: "1%" }} />
+
+        {/* <p className="sign-in-sign-up-list"> or <IonText color="primary" onClick={() => { dynamicNavigate(router, '/landing-page', 'back') }}>Sign In</IonText> to an exising account</p> */}
 
         <IonLoading
           message="Please wait..."
@@ -204,233 +377,8 @@ const Register: React.FC = () => {
           isOpen={busy}
         ></IonLoading>
 
-        <IonModal
-          showBackdrop={true}
-          isOpen={passwordModal}
-          onDidDismiss={closeModal}
-          breakpoints={[0, 0.75, 0.95]}
-          initialBreakpoint={0.75}
-          backdropBreakpoint={0.2}
-        >
-          <IonContent>
-            <IonHeader translucent>
-              <IonToolbar mode="ios">
-                <IonButtons slot="end">
-                  <IonButton mode="ios" onClick={closeModal}>
-                    Close
-                  </IonButton>
-                </IonButtons>
-              </IonToolbar>
-            </IonHeader>
-            <br></br>
-            <IonHeader mode="ios">
-              <IonTitle>Username</IonTitle>
-            </IonHeader>
-            <br></br>
-            <IonCard>
-              <IonItem lines="none" class="ion-item-style">
-                - Must be no more than 15 charaters
-              </IonItem>
-              <IonItem lines="none" class="ion-item-style">
-                - Cannot contain emojis
-              </IonItem>
-            </IonCard>
-            <br></br>
-            <IonHeader mode="ios">
-              <IonTitle>Password</IonTitle>
-            </IonHeader>
-            <br></br>
-            <IonCard>
-              <IonItem lines="none" class="ion-item-style">
-                - Must be at least 8 charaters
-              </IonItem>
-              <IonItem lines="none" class="ion-item-style">
-                - No spaces <br></br>
-                <wbr></wbr>
-              </IonItem>
-            </IonCard>
-          </IonContent>
-        </IonModal>
-
-        <IonList mode="ios" inset={true} className="sign-in-sign-up-list">
-          <IonItem class="ion-item-style">
-            <IonLabel position="stacked">University</IonLabel>
-            <IonSelect
-              value={schoolName}
-              placeholder="University of California"
-              onIonChange={(e: any) => {
-                setSchoolName(e.detail.value);
-                if (e.detail.value == 'Cal Poly Humboldt') {
-                  setSchoolEmailEnding('humboldt.edu');
-                } else if (e.detail.value == 'UC Berkeley') {
-                  setSchoolEmailEnding('berkeley.edu');
-                } else if (e.detail.value == 'UC Davis') {
-                  setSchoolEmailEnding('ucdavis.edu');
-                } else if (e.detail.value == 'UC Irvine') {
-                  setSchoolEmailEnding('uci.edu');
-                } else if (e.detail.value == 'UCLA') {
-                  setSchoolEmailEnding('ucla.edu');
-                } else if (e.detail.value == 'UC Merced') {
-                  setSchoolEmailEnding('ucmerced.edu');
-                } else if (e.detail.value == 'UC Riverside') {
-                  setSchoolEmailEnding('ucr.edu');
-                } else if (e.detail.value == 'UC San Diego') {
-                  setSchoolEmailEnding('ucsd.edu');
-                } else if (e.detail.value == 'UCSF') {
-                  setSchoolEmailEnding('ucsf.edu');
-                } else if (e.detail.value == 'UC Santa Barbara') {
-                  setSchoolEmailEnding('ucsb.edu');
-                } else if (e.detail.value == 'UC Santa Cruz') {
-                  setSchoolEmailEnding('ucsc.edu');
-                } else if (e.detail.value == 'Cal Poly Pomona') {
-                  setSchoolEmailEnding('cpp.edu');
-                } else if (e.detail.value == 'Cal Poly San Luis Obispo') {
-                  setSchoolEmailEnding('calpoly.edu');
-                } else if (e.detail.value == "Cal State Fullerton"){
-                  setSchoolEmailEnding('fullerton.edu');
-                } else if (e.detail.value == "Cal State East Bay"){
-                  setSchoolEmailEnding('csueastbay.edu');
-                } else if (e.detail.value == "Cal State LA") {
-                  setSchoolEmailEnding('calstatela.edu');
-                } else if (e.detail.value == "Cal Maritime") {
-                  setSchoolEmailEnding('csum.edu');
-                } else if (e.detail.value == "Cal State San Bernardino") {
-                  setSchoolEmailEnding('csusb.edu');
-                } else if (e.detail.value == "Cal State Long Beach") {
-                  setSchoolEmailEnding('csulb.edu');
-                } else if (e.detail.value == "SF State") {
-                  setSchoolEmailEnding('sfsu.edu');
-                } else if (e.detail.value == "San Jose State") {
-                  setSchoolEmailEnding('sjsu.edu');
-                } else if (e.detail.value == "Chico State") {
-                  setSchoolEmailEnding('csuchico.edu');
-                } else if (e.detail.value == "Fresno State") {
-                  setSchoolEmailEnding('csufresno.edu');
-                } else if (e.detail.value == "Stanislaus State") {
-                  setSchoolEmailEnding('csustan.edu');
-                } else if (e.detail.value == "Sac State") {
-                  setSchoolEmailEnding('csus.edu');
-                } else if (e.detail.value == "CSUN") {
-                  setSchoolEmailEnding('csun.edu');
-                } else if (e.detail.value == "CSU Bakersfield") {
-                  setSchoolEmailEnding('csub.edu');
-                } else if (e.detail.value == "CSU Dominguez Hills") {
-                  setSchoolEmailEnding('csudh.edu');
-                } else if (e.detail.value == "CSU Dominguez Hills") {
-                  setSchoolEmailEnding('csudh.edu');
-                } else if (e.detail.value == "CSU Channel Islands") {
-                  setSchoolEmailEnding('csuci.edu');
-                } else if (e.detail.value == "CSU Monterey Bay") {
-                  setSchoolEmailEnding('csumb.edu');
-                } 
-              }}
-            >
-              <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
-              <IonSelectOption value="Cal Poly Pomona">Cal Poly Pomona</IonSelectOption>
-              <IonSelectOption value="Cal Poly San Luis Obispo">Cal Poly San Luis Obispo</IonSelectOption>
-              <IonSelectOption value="Cal State Fullerton">Cal State Fullerton</IonSelectOption>
-              <IonSelectOption value="Cal State East Bay">Cal State East Bay</IonSelectOption>
-              <IonSelectOption value="Cal State LA">Cal State LA</IonSelectOption>
-              <IonSelectOption value="Cal Maritime">Cal Maritime</IonSelectOption>
-              <IonSelectOption value="Cal State San Bernardino">Cal State San Bernardino</IonSelectOption>
-              <IonSelectOption value="Cal State Long Beach">Cal State Long Beach</IonSelectOption>
-              <IonSelectOption value="SF State">SF State</IonSelectOption>
-              <IonSelectOption value="San Jose State">San Jose State</IonSelectOption>
-              <IonSelectOption value="Chico State">Chico State</IonSelectOption>
-              <IonSelectOption value="Fresno State">Fresno State</IonSelectOption>
-              <IonSelectOption value="San Diego State">San Diego State</IonSelectOption>
-              <IonSelectOption value="Sonoma State">Sonoma State</IonSelectOption>
-              <IonSelectOption value="Stanislaus State">Stanislaus State</IonSelectOption>
-              <IonSelectOption value="Sac State">Sac State</IonSelectOption>
-              <IonSelectOption value="CSUN">CSUN</IonSelectOption>
-              <IonSelectOption value="CSU Bakersfield">CSU Bakersfield</IonSelectOption>
-              <IonSelectOption value="CSU Dominguez Hills">CSU Dominguez Hills</IonSelectOption>
-              <IonSelectOption value="CSU Channel Islands">CSU Channel Islands</IonSelectOption>
-              <IonSelectOption value="CSU Monterey Bay">CSU Monterey Bay</IonSelectOption>
-              <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
-              <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
-              <IonSelectOption value="UC Irvine">UC Irvine</IonSelectOption>
-              <IonSelectOption value="UCLA">UCLA</IonSelectOption>
-              <IonSelectOption value="UC Merced">UC Merced</IonSelectOption>
-              <IonSelectOption value="UC Riverside">UC Riverside</IonSelectOption>
-              <IonSelectOption value="UC San Diego">UC San Diego</IonSelectOption>
-              <IonSelectOption value="UCSF">UCSF</IonSelectOption>
-              <IonSelectOption value="UC Santa Barbara">UC Santa Barbara</IonSelectOption>
-              <IonSelectOption value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
-              <IonSelectOption disabled={true} value="More schools to come!...">More schools to come!...</IonSelectOption>
-            </IonSelect>
-          </IonItem>
-          <IonItem class="ion-item-style">
-            <IonLabel position="stacked">School Email</IonLabel>
-            <IonInput
-              clearInput={true}
-              value={emailSignUp}
-              type="email"
-              placeholder="email@email.com"
-              id="emailSignUp"
-              onIonChange={(e: any) => setEmailSignUp(e.detail.value)}
-            ></IonInput>
-          </IonItem>
-          <IonItem class="ion-item-style">
-            <IonLabel position="stacked">Username</IonLabel>
-            <IonInput
-              maxlength={15}
-              clearInput={true}
-              value={userNameSignUp}
-              type="text"
-              placeholder="userName1234"
-              id="userNameSignUp"
-              onIonChange={(e: any) => { handleUsernameInput(e) }}
-            ></IonInput>
-          </IonItem>
-          <IonItem class="ion-item-style">
-            <IonLabel position="stacked">Password</IonLabel>
-            <IonInput
-              value={passwordSignUp}
-              clearOnEdit={false}
-              type="password"
-              placeholder="••••••••"
-              id="passwordSignUp"
-              onIonChange={(e: any) => setPasswordSignUp(e.detail.value)}
-            ></IonInput>
-          </IonItem>
-          <IonItem class="ion-item-style">
-            <IonLabel position="stacked">Enter password again</IonLabel>
-            <IonInput
-              value={passwordSignUpCopy}
-              clearOnEdit={false}
-              type="password"
-              placeholder="••••••••"
-              id="passwordSignUpCopy"
-              onIonChange={(e: any) => setPasswordSignUpCopy(e.detail.value)}
-            ></IonInput>
-          </IonItem>
-          <br />
-          <IonButton
-            onClick={register}
-            color="transparent"
-            mode="ios"
-            shape="round"
-            fill="outline"
-            expand="block"
-            id="signUpButton"
-          >
-            Sign Up
-          </IonButton>
-          <p className="sign-in-sign-up-list">
-            {" "}
-            See credentials requirements{" "}
-            <Link to="#" onClick={openPasswordRequirements}>
-              here
-            </Link>{" "}
-          </p>
-          <p className="sign-in-sign-up-list">
-            {" "}
-            or <Link to="/landing-page">sign in</Link> to an exising account
-          </p>
-        </IonList>
       </IonContent>
-    </IonPage>
+    </IonPage >
   );
 };
 

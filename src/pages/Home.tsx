@@ -1,336 +1,99 @@
-import "../App.css";
-import "../theme/variables.css";
+// Ionic/Capacitor + React
+import React from 'react';
+import { IonContent, IonHeader, IonPage, IonSpinner, useIonRouter, useIonViewWillEnter } from '@ionic/react';
+import { Preferences } from '@capacitor/preferences';
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
+import { StatusBar, Style } from "@capacitor/status-bar";
 
-import {
-  IonAvatar, IonButton, IonButtons, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonCheckbox, IonCol,
-  IonContent, IonFab, IonFabButton, IonFabList, IonFooter, IonGrid, IonHeader, IonIcon,
-  IonImg, IonInput, IonItem, IonLabel, IonList, IonLoading, IonModal, IonNote,
-  IonPage, IonProgressBar, IonRefresher, IonRefresherContent,
-  IonRow, IonSearchbar, IonSpinner, IonText, IonTextarea, IonTitle, IonToolbar, useIonViewWillEnter,
-} from "@ionic/react";
-import { Camera, GalleryPhoto } from "@capacitor/camera";
-import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-plugins/geolocation";
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import TellUHeader, { ionHeaderStyle } from "./Header";
-import { RefresherEventDetail } from "@ionic/core";
-import { add, cameraOutline, chatboxEllipsesOutline, refreshCircleOutline, statsChartOutline } from "ionicons/icons";
-import { addMessage, downVote, getAllPosts, pollVote, promiseTimeout, submitPollNew, upVote } from "../fbconfig";
-import auth, { getAllPostsNextBatch, getLikes, storage } from "../fbconfig";
-import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestore";
-import { getColor, timeout } from '../shared/functions';
-import { getDownloadURL, ref } from "firebase/storage";
-import React, { useEffect, useRef, useState } from "react";
-import FadeIn from "react-fade-in";
-import { Keyboard } from "@capacitor/keyboard";
-import Linkify from 'linkify-react';
-import Map from "@mui/icons-material/Map";
-import ProfilePhoto from "./ProfilePhoto";
-import RoomIcon from '@mui/icons-material/Room';
-import TimeAgo from "javascript-time-ago";
-import { useTabsContext } from "../my-context";
-import { db } from '../fbconfig';
-import { defineCustomElements } from "@ionic/pwa-elements/loader";
-import en from "javascript-time-ago/locale/en.json";
-import { uploadBytes } from "firebase/storage";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { useHistory } from "react-router";
-import { useSelector } from "react-redux";
-import { useToast } from "@agney/ir-toast";
-import { v4 as uuidv4 } from "uuid";
+// Firebase/Google
+import auth, { db, getAllPostsNextBatch, getAppVersionNum, getLikes, promiseTimeout, storage } from '../fbConfig';
+import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
+
+// Other imports/components
 import { Virtuoso } from 'react-virtuoso';
-import PostImages from "./PostImages";
-import { ClassSelections } from "./ClassSelections";
-import { LikeDislike } from "./LikeDislike";
-import GifIcon from '@mui/icons-material/Gif';
+import { useToast } from '@agney/ir-toast';
+import { useContext } from '../my-context';
+import { timeout } from '../helpers/timeout';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { HomePagePost } from '../components/Home/HomePagePost';
+import { HomePagePoll } from '../components/Home/HomePagePoll';
+import TellUHeader, { ionHeaderStyle } from "../components/Shared/Header";
 
-TimeAgo.setDefaultLocale(en.locale);
-TimeAgo.addLocale(en);
+// CSS
+import '../App.css';
+import '../theme/variables.css';
+import '../theme/custom-tab-bar.css';
+import '@ionic/react/css/core.css';
+import '@ionic/react/css/normalize.css';
+import '@ionic/react/css/structure.css';
+import '@ionic/react/css/typography.css';
+import '@ionic/react/css/padding.css';
+import '@ionic/react/css/float-elements.css';
+import '@ionic/react/css/text-alignment.css';
+import '@ionic/react/css/text-transformation.css';
+import '@ionic/react/css/flex-utils.css';
+import '@ionic/react/css/display.css';
+import { MakePost } from '../components/Home/MakePost';
+import { NewPostsButton } from '../components/Home/NewPostsButton';
+import { ProgressBar } from '../components/Home/ProgressBar';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { dynamicNavigate } from '../components/Shared/Navigation';
+import FadeIn from 'react-fade-in/lib/FadeIn';
+import { useHistory } from 'react-router';
+import { Dialog } from '@capacitor/dialog';
 
-export interface UserPhoto {
-  filepath: string;
-  webviewPath?: string;
+const versionNum: string = '2.3.0';
+const keyStyleOptionsDark: KeyboardStyleOptions = {
+  style: KeyboardStyle.Dark
 }
 
-interface PollAnswer {
-  text: string,
-};
+const Home: React.FC = () => {
+  console.log('home');
 
-defineCustomElements(window);
-
-const ionInputStyle = {
-  height: "12.5vh",
-  width: "95vw",
-  marginLeft: "2.5vw",
-};
-
-const locationOptions: GeolocationOptions = {
-  enableHighAccuracy: true,
-  timeout: 5000,
-};
-
-const Home = () => {
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
-  const schoolName = useSelector((state: any) => state.user.school);
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
-  const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
-
+  // hooks
   const Toast = useToast();
-  const tabs = useTabsContext();
-  const [user] = useAuthState(auth);
+  const context = useContext();
+  const router = useIonRouter();
   const history = useHistory();
+  const virtuosoRef = React.useRef<any>(null);
+  const [user, loading, error] = useAuthState(auth);
 
-  const timeAgo = new TimeAgo("en-US");
-  const gifSearchRef = useRef<HTMLIonSearchbarElement>(null);
-  const inputRef = useRef<HTMLIonTextareaElement>(null);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [showReloadMessage, setShowReloadMessage] = useState<boolean>(false);
-  const [gettingLocation, setGettingLocation] = useState<boolean>(false);
-  const [gifModal, setGifModal] = useState<boolean>(false);
-  const [photo, setPhoto] = useState<GalleryPhoto[] | null>([]);
-  const [blob, setBlob] = useState<any | null>(null);
-  const [posts, setPosts] = useState<any[] | null>(null);
-  const postsRef = useRef<any>();
+  // state variables
+  const [schoolName, setSchoolName] = React.useState<string | null>(null);
+  const [profilePhoto, setProfilePhoto] = React.useState<string | null>(null);
+  const [lastKey, setLastKey] = React.useState<string>("");
+  const [noMorePosts, setNoMorePosts] = React.useState(false);
+  const [showProgressBar, setShowProgressBar] = React.useState<boolean>(false);
+
+  const [posts, setPosts] = React.useState<any[] | null>(null);
+  const [newPostsLoaded, setNewPostsLoaded] = React.useState<boolean>(false);
+  const postsRef = React.useRef<any>();
   postsRef.current = posts;
-  const [generalChecked, setGeneralChecked] = useState<boolean>(true);
-  const [locationChecked, setLocationChecked] = useState<boolean>(false);
-  const [buySellChecked, setBuySellChecked] = useState<boolean>(false);
-  const [alertChecked, setAlertChecked] = useState<boolean>(false);
-  const [sightingChecked, setSightingChecked] = useState<boolean>(false);
-  const [eventsChecked, setEventsChecked] = useState<boolean>(false);
-  const [researchChecked, setResearchChecked] = useState<boolean>(false);
-  const [housingChecked, setHousingChecked] = useState<boolean>(false);
-  const [diningChecked, setDiningChecked] = useState<boolean>(false);
-  const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
-  const [locationPinModal, setLocationPinModal] = useState<boolean>(false);
-  const [lastKey, setLastKey] = useState<string>("");
-  const [position, setPosition] = useState<Geoposition | null>();
-  const modalContentRef = useRef<HTMLIonContentElement | null>(null);
-  const [newPostsLoaded, setNewPostsLoaded] = useState<boolean>(false);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const [originalLastKey, setOriginalLastKey] = useState<string>("");
-  const originalLastKeyRef = useRef<any>();
-  originalLastKeyRef.current = originalLastKey;
-  const [showProgressBar, setShowProgressBar] = useState<boolean>(false);
-  const [prevPostUploading, setPrevPostUploading] = useState<boolean>(false);
-  const [postClassName, setPostClassName] = useState<string>()
-  const [postClassNumber, setPostClassNumber] = useState<string>();
-  const [noMorePosts, setNoMorePosts] = useState(false);
-  const [newData, setNewData] = useState<any[] | null>(null);
-  const [gifs, setGifs] = useState<any[] | null>(null);
-  const newDataRef = useRef<any>();
+  const [newData, setNewData] = React.useState<any[] | null>(null);
+  const newDataRef = React.useRef<any>();
   newDataRef.current = newData;
-  const virtuosoRef = useRef<any>(null);
 
-  const [pollModalOpen, setPollModalOpen] = useState<boolean>(false);
-  const [pollText, setPollText] = useState<string>("");
-  const [voteBeingCasted, setVoteBeingCasted] = useState<boolean>(false);
-  const [pollOptions, setPollOptions] =
-    useState<PollAnswer[]>([
-      { text: "", },
-      { text: "", },
-      { text: "", },
-    ]); // start with three options, include more programatically
+  /**
+   * @description runs when the New Posts button is clicked
+   * Sets posts state to the new posts and scrolls to the top
+   */
+  const handleNewPostsButtonClicked = React.useCallback(() => {
+    setPosts([...newDataRef.current, ...postsRef.current]);
+    virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
+    setNewPostsLoaded(false);
+    setNewData([]);
+  }, []);
 
-  const getTimeLeft = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-      const today = new Date();
-      const ms = today.getTime() - time.getTime();
-      return (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))) > 0 ? (4 - (Math.floor(ms / (1000 * 60 * 60 * 24)))).toString() : '0';
-    }
-    return "";
-  }
-
-  const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(postKey, post);
-    if (val && (val === 1 || val === -1)) {
-      if (val === 1) {
-        Haptics.impact({ style: ImpactStyle.Light });
-      }
-      if (posts && user) {
-        let tempPosts: any[] = [...posts];
-        tempPosts[index].upVotes += val;
-        if (tempPosts[index].likes[user.uid]) {
-          delete tempPosts[index].likes[user.uid];
-        } else {
-          if (tempPosts[index].dislikes[user.uid]) {
-            delete tempPosts[index].dislikes[user.uid];
-            tempPosts[index].downVotes -= 1;
-          }
-          tempPosts[index].likes[user.uid] = true;
-        }
-        setPosts(tempPosts);
-        await timeout(100);
-      }
-    } else {
-      Toast.error("Unable to like post :(");
-      // setDisabledLikeButtons(-1);
-    }
-  };
-
-  const handleDownVote = async (postKey: string, index: number, post: any) => {
-    const val = await downVote(postKey);
-    if (val && (val === 1 || val === -1)) {
-      if (val === 1) {
-        Haptics.impact({ style: ImpactStyle.Light });
-      }
-      if (posts && user) {
-        let tempPosts: any[] = [...posts];
-        tempPosts[index].downVotes += val;
-        if (tempPosts[index].dislikes[user.uid]) {
-          delete tempPosts[index].dislikes[user.uid];
-        } else {
-          if (tempPosts[index].likes[user.uid]) {
-            delete tempPosts[index].likes[user.uid];
-            tempPosts[index].upVotes -= 1;
-          }
-          tempPosts[index].dislikes[user.uid] = true;
-        }
-        setPosts(tempPosts);
-        await timeout(100);
-      }
-    } else {
-      Toast.error("Unable to dislike post :(");
-    }
-  };
-
-  const isEnterPressedGif = (key: string) => {
-    if (key === "Enter") {
-      Keyboard.hide();
-      if (gifSearchRef && gifSearchRef.current) {
-        const searchQuery: string | null | undefined = gifSearchRef.current.value;
-        if (!searchQuery) {
-          Toast.error("Enter a search term");
-          return;
-        }
-        grab_data(searchQuery, 30, tenorCallback_search);
-      } else {
-        Toast.error("Enter a search term");
-      }
-    }
-  };
-
-  const handleSendMessage = async () => {
-    setLocationPinModal(false);
-    setShowModal(false);
-    setGifModal(false);
-    setGifs(null);
-    messageAdd();
-    setGeneralChecked(true);
-  };
-
-  const getDate = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(
-        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-      );
-      return timeAgo.format(time);
-    } else {
-      return '';
-    }
-  };
-
-  const handleCheckboxChange = (checkbox: string) => {
-    switch (checkbox) {
-      case "general":
-        setAlertChecked(false);
-        setBuySellChecked(false);
-        setEventsChecked(false);
-        setSightingChecked(false);
-        setResearchChecked(false);
-        setHousingChecked(false);
-        setDiningChecked(false);
-        break;
-      case "alert":
-        setGeneralChecked(false);
-        setBuySellChecked(false);
-        setEventsChecked(false);
-        setSightingChecked(false);
-        setResearchChecked(false);
-        setHousingChecked(false);
-        setDiningChecked(false);
-        break;
-      case "buySell":
-        setAlertChecked(false);
-        setGeneralChecked(false);
-        setEventsChecked(false);
-        setSightingChecked(false);
-        setResearchChecked(false);
-        setHousingChecked(false);
-        setDiningChecked(false);
-        break;
-      case "event":
-        setAlertChecked(false);
-        setBuySellChecked(false);
-        setGeneralChecked(false);
-        setSightingChecked(false);
-        setResearchChecked(false);
-        setHousingChecked(false);
-        setDiningChecked(false);
-        break;
-      case "sighting":
-        setAlertChecked(false);
-        setBuySellChecked(false);
-        setEventsChecked(false);
-        setGeneralChecked(false);
-        setResearchChecked(false);
-        setHousingChecked(false);
-        setDiningChecked(false);
-        break;
-      case "research":
-        setAlertChecked(false);
-        setBuySellChecked(false);
-        setEventsChecked(false);
-        setGeneralChecked(false);
-        setSightingChecked(false);
-        setHousingChecked(false);
-        setDiningChecked(false);
-        break;
-      case "housing":
-        setAlertChecked(false);
-        setBuySellChecked(false);
-        setEventsChecked(false);
-        setGeneralChecked(false);
-        setSightingChecked(false);
-        setResearchChecked(false);
-        setDiningChecked(false);
-        break;
-      case "dining":
-        setAlertChecked(false);
-        setBuySellChecked(false);
-        setEventsChecked(false);
-        setGeneralChecked(false);
-        setSightingChecked(false);
-        setResearchChecked(false);
-        setHousingChecked(false);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const getLocation = async () => {
-    setGettingLocation(true);
-    try {
-      const pos = await Geolocation.getCurrentPosition(locationOptions);
-      setPosition(pos);
-      setGettingLocation(false);
-    } catch (e: any) {
-      Toast.error("Location access denied by user, adjust in iOS Settings");
-      setGettingLocation(false);
-    }
-  };
-
+  /**
+   * @description loads the next 15 posts from Firestore
+   * 
+   * @param event IonInfiniteScroll event
+   */
   const handleLoadPostsNextBatch = async (event: any) => {
     // setBusy(true);
     console.log('inf')
-    if (lastKey && user) {
+    if (lastKey && user && schoolName) {
       await timeout(500);
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
       tempPosts.then(async (res: any) => {
@@ -352,371 +115,158 @@ const Home = () => {
           if (event)
             event.target.complete();
         } else {
-          Toast.error("Unable to load posts");
+          const toast = Toast.create({ message: 'Unable to load posts', duration: 2000, color: 'toast-error' });
+          toast.present();
         }
         // setBusy(false);
       });
       tempPosts.catch((err: any) => {
-        Toast.error(err);
+        const toast = Toast.create({ message: err || "", duration: 2000, color: 'toast-error' });
+        toast.present();
         // setBusy(false);
         setPosts(null);
-        setShowReloadMessage(true);
       });
     } else {
       setNoMorePosts(true);
     }
   };
 
-  const handlePollTextChange = (e: any) => {
-    let currComment = e.detail.value;
-    setPollText(currComment);
-  };
-
-  const handleChangePollOptions = (index: number, e: any) => {
-    let option = e.detail.value;
-    let tempOptionsArr: PollAnswer[] = [...pollOptions];
-    tempOptionsArr[index].text = option;
-    setPollOptions(tempOptionsArr);
+  /**
+   * @description shows progress bar when uploading a new post/poll
+   * 
+   * @param val boolean value to set showProgressBar state
+   */
+  const handleSetShowProgressBar = (val: boolean) => {
+    setShowProgressBar(val)
   }
 
-  const addPollAnswer = () => {
-    let tempPollArr: PollAnswer[] = [...pollOptions];
-    tempPollArr.push({ text: "" });
-    setPollOptions(tempPollArr);
-  }
-
-  const removePollAnswer = () => {
-    let tempPollArr: PollAnswer[] = [...pollOptions];
-    tempPollArr.pop();
-    setPollOptions(tempPollArr);
-  }
-
-  const submitPoll = async () => {
-    if (!user) {
-      Toast.error("Something went wrong, try signing out");
-      return;
-    }
-    if (pollText.trim().length <= 0) {
-      Toast.error("Enter poll question");
-      return;
-    }
-    for (let i = 0; i < pollOptions.length; ++i) {
-      if (pollOptions[i].text.trim().length <= 0) {
-        Toast.error("Enter text for option #" + (i + 1).toString());
-        return;
-      }
-    }
-    if (!schoolName) {
-      Toast.error("Something went wrong when finding school");
-      return;
-    }
-    setShowProgressBar(true);
-    Keyboard.hide().then(() => {
-      setPollText('');
-      setTimeout(() => setPollModalOpen(false), 100);
-    });
-    const pollSubmitted = promiseTimeout(10000, submitPollNew(pollText, pollOptions, schoolName, user.displayName, user.uid));
-    pollSubmitted.then((res) => {
-      if (!res) {
-        Toast.error("Something went wrong when submitting poll, please try again");
-      } else {
-        Toast.success("Poll submitted");
-      }
-      setShowProgressBar(false);
-    });
-    pollSubmitted.catch((err) => {
-      Toast.error(err + "\n Check your internet connection");
-      setShowProgressBar(false);
-    });
-  }
-
-  const handlePollVote = async (index: number, pollKey: string, postIndex: number) => {
-    if (user && schoolName) {
-      setVoteBeingCasted(true);
-      const castedVote = promiseTimeout(5000, pollVote(schoolName, index, pollKey, user.uid));
-      castedVote.then((res) => {
-        if (res) {
-          if (posts) {
-            let tempPosts: any[] = [...posts];
-            if ("results" in tempPosts[postIndex] &&
-              "voteMap" in tempPosts[postIndex] &&
-              "votes" in tempPosts[postIndex]) {
-              tempPosts[postIndex]["results"][index] += 1;
-              tempPosts[postIndex]["voteMap"][user.uid] = index;
-              tempPosts[postIndex]["votes"] += 1;
-              setPosts(tempPosts);
-            } else {
-              Toast.error("Something went wrong when updating, reload the app");
-            }
-          } else {
-            Toast.error("Something went wrong when updating, reload the app");
-          }
-          Toast.success("Vote cast!");
-          setVoteBeingCasted(false);
-        } else {
-          Toast.error("Something went wrong when casting vote");
-        }
-      });
-      castedVote.catch((err) => {
-        Toast.error(err + '\n Check your internet connection');
-      });
+  /**
+   * @description handles state update of posts array from child components
+   * 
+   * @param {any} newPost the post being added / updated in posts array
+   * @param {number} index the index of the post in the posts array
+   */
+  const updatePosts = (newPost: any, index: number) => {
+    if (posts) {
+      let tempPosts: any[] = [...posts];
+      tempPosts[index] = newPost;
+      setPosts(tempPosts);
     } else {
-      Toast.error("Something went wrong when casting a vote!");
+      const toast = Toast.create({ message: 'Something went wrong when updating posts', duration: 2000, color: 'toast-error' });
+      toast.present();
     }
   }
 
-  const handleLoadPosts = () => {
-    // setBusy(true);
-    let tempPosts = promiseTimeout(20000, getAllPosts(schoolName));
-    tempPosts.then(async (res: any) => {
-      if (res.allPosts) {
-        for (let i = 0; i < res.allPosts.length; ++i) {
-          const data = await getLikes(res.allPosts[i].key);
-          if (data) {
-            res.allPosts[i].likes = data.likes;
-            res.allPosts[i].dislikes = data.dislikes;
-            res.allPosts[i].commentAmount = data.commentAmount;
-          } else {
-            res.allPosts[i].likes = {};
-            res.allPosts[i].dislikes = {};
-            res.allPosts[i].commentAmount = 0;
-          }
-        }
-        setPosts(res.allPosts);
-        setLastKey(res.lastKey);
-        // console.log(res.lastKey);
-        setOriginalLastKey(res.lastKey);
-      } else {
-        Toast.error("Unable to load posts");
-      }
-      // setBusy(false);
-    });
-    tempPosts.catch((err: any) => {
-      Toast.error(err);
-      // setBusy(false);
-      setPosts(null);
-      setShowReloadMessage(true);
-    });
-  };
+  /**
+   * tellU logo header
+   */
+  const Header = React.memo(() => {
+    return (
+      <>
+        <IonHeader style={ionHeaderStyle} >
+          <TellUHeader darkMode={context.darkMode} colorPallete={context.schoolColorToggled} schoolName={schoolName} zoom={1} />
+        </IonHeader>
+      </>
+    )
+  });
 
-  async function doRefresh(event: CustomEvent<RefresherEventDetail>) {
-    setNewPostsLoaded(false);
-    setLastKey(originalLastKey);
-    handleLoadPosts();
-    setTimeout(() => {
-      event.detail.complete();
-    }, 250);
-  };
-
-  async function takePicture() {
-    try {
-      const images = await Camera.pickImages({
-        quality: 50,
-        limit: 3,
-      });
-      let blobsArr: any[] = [];
-      let photoArr: GalleryPhoto[] = [];
-      for (let i = 0; i < images.photos.length; ++i) {
-        let res = await fetch(images.photos[i].webPath!);
-        let blobRes = await res.blob();
-        blobsArr.push(blobRes);
-        photoArr.push(images.photos[i]);
-      }
-      setPhoto(photoArr);
-      setBlob(blobsArr);
-    } catch (err: any) {
-      // Toast.error(err.message.toString());
-    }
-  };
-
-  // url Async requesting function
-  function httpGetAsync(theUrl: string, callback: any) {
-    // create the request object
-    var xmlHttp = new XMLHttpRequest();
-    let test;
-    // set the state change callback to capture when the response comes in
-    xmlHttp.onreadystatechange = function () {
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-        test = callback(xmlHttp.responseText);
-        console.log({ test });
-        return test;
-      }
-    }
-    // open as a GET call, pass in the url and set async = True
-    xmlHttp.open("GET", theUrl, true);
-    // call send with no params as they were passed in on the url string
-    xmlHttp.send(null);
-    return;
+  /**
+   * The infinite loading footer compontent
+   * 
+   * @returns a string that says "Loading..." if there are more posts to load, otherwise an empty string
+   */
+  const Footer = () => {
+    return (
+      <FadeIn delay={500}>
+        <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center' }} >
+          {!noMorePosts ? "Loading..." : ""}
+        </div>
+      </FadeIn>
+    )
   }
 
-  function tenorCallback_search(responsetext: string) {
-    // Parse the JSON response
-    var response_objects = JSON.parse(responsetext);
-    let gifs = response_objects["results"];
-    console.log({ gifs });
-    setGifs(gifs);
-  }
-
-  // function to call the trending and category endpoints
-  function grab_data(query: string, limit: number, tenorCallback_search: any) {
-    // set the apikey and limit
-    var apikey = "AIzaSyBWtMQlnmYHdeJJtzNKYGw26MfRRByZ43w";
-    var lmt = limit;
-    // test search term
-    var search_term = query;
-    // using default locale of en_US
-    var search_url = "https://tenor.googleapis.com/v2/search?q=" + search_term + "&key=" +
-      apikey + "&limit=" + lmt;
-    httpGetAsync(search_url, tenorCallback_search);
-    // data will be loaded by each call's callback
-    return;
-  }
-
-  async function messageAdd() {
-    const messageRefValue = inputRef.current;
-    if (!messageRefValue) {
-      Toast.error("Input a message");
-      return;
-    }
-    const message: string | null | undefined = messageRefValue.value || "";
-    if (message.trim().length == 0 && (!blob || blob.length == 0) && (!photo || photo.length == 0)) {
-      Toast.error("Input a message!");
-    } else if (
-      !eventsChecked &&
-      !buySellChecked &&
-      !alertChecked &&
-      !sightingChecked &&
-      !generalChecked &&
-      !researchChecked &&
-      !housingChecked &&
-      !diningChecked
-    ) {
-      Toast.error("Select a post type");
+  /**
+   * Loads school from local storage (Preferences API)
+   */
+  const setSchool = React.useCallback(async () => {
+    const school = await Preferences.get({ key: 'school' });
+    if (school && school.value) {
+      setSchoolName(school.value);
     } else {
-      setPrevPostUploading(true);
-      setShowProgressBar(true);
-      let uniqueId = uuidv4();
-      let docId = uuidv4();
-      if (blob && photo) {
-        setPhoto([]);
-        if (user) {
-          const promises = [];
-          const currentUserUid = user.uid;
-          for (var i = 0; i < blob.length; i++) {
-            const file = blob[i];
-            let storageRef = ref(storage, "images/" + currentUserUid.toString() + uniqueId + i.toString());
-            promises.push(uploadBytes(storageRef, file).then(uploadResult => { return getDownloadURL(uploadResult.ref) }))
-          }
-          const photos = await Promise.all(promises);
-          const notificationsToken = localStorage.getItem("notificationsToken") || "";
-          const res = await addMessage(
-            message,
-            photos,
-            uniqueId.toString(),
-            position,
-            schoolName,
-            notificationsToken,
-            checkboxSelection,
-            postClassName,
-            postClassNumber,
-            docId,
-          );
-          setBlob([]);
-          if (!res) {
-            Toast.error("Unable to process message, check internet connection :(");
-            setShowProgressBar(false);
-          } else {
-            Toast.success("Uploaded!");
-            setLocationChecked(false);
-            if (inputRef && inputRef.current) { inputRef.current.value = ""; }
-            setPostClassName("");
-            setPostClassNumber("");
-            setPrevPostUploading(false);
-            setShowProgressBar(false);
-            // scrollToTop();
-          }
-          // setBusy(false);
-        }
-      } else {
-        const notificationsToken = localStorage.getItem("notificationsToken") || "";
-        const res = await addMessage(
-          message,
-          blob,
-          uniqueId.toString(),
-          position,
-          schoolName,
-          notificationsToken,
-          checkboxSelection,
-          postClassName,
-          postClassNumber,
-          docId,
-        );
-        if (!res) {
-          Toast.error("Unable to process message, check internet connection :(");
-          setShowProgressBar(false);
-          setPrevPostUploading(false);
-        } else {
-          // setProgressPercentage('100');
-          Toast.success("Uploaded!");
-          setLocationChecked(false);
-          if (inputRef && inputRef.current) { inputRef.current.value = ""; }
-          setPostClassName("");
-          setPostClassNumber("");
-          // handleLoadPosts();
-          // scrollToTop();
-          setShowProgressBar(false);
-          setPrevPostUploading(false);
-        }
-        // setBusy(false);
-      }
+      const toast = Toast.create({ message: 'Something went wrong when retrieving posts', duration: 2000, color: 'toast-error' });
+      toast.present();
+      dynamicNavigate(router, '/landing-page', 'root');
     }
-    console.log("message added");
-  };
+  }, []);
 
-  const handleImgLoad = (didLoad: boolean) => {
-    if (didLoad) {
-      console.log("img loaded");
-      virtuosoRef && virtuosoRef.current && virtuosoRef.current.autoscrollToBottom();
-    }
-  };
+  React.useEffect(() => {
+    context.setDarkMode(true);
+    document.body.classList.toggle("dark");
+    context.setDarkMode(true);
+    Keyboard.setStyle(keyStyleOptionsDark);
+    StatusBar.setStyle({ style: Style.Dark });
+  }, [context]);
 
-  useIonViewWillEnter(async () => {
-    if (postsRef && postsRef.current) {
-      let tempData = postsRef.current;
-      for (let i = 0; i < tempData.length; ++i) {
-        const likesData = await getLikes(tempData[i].key);
-        if (likesData) {
-          tempData[i].likes = likesData.likes;
-          tempData[i].dislikes = likesData.dislikes;
-          tempData[i].commentAmount = likesData.commentAmount;
-        }
-      }
-      setPosts(tempData);
+  const hideSplashScreen = React.useCallback(async () => {
+    await timeout(250);
+    SplashScreen.hide();
+  }, []);
+
+  /**
+   * Hides splash screen on mount
+   */
+  React.useEffect(() => {
+    hideSplashScreen();
+  }, []);
+
+  /**
+   * Calls setSchool on mount
+   */
+  React.useEffect(() => {
+    setSchool();
+  }, [setSchool]);
+
+  /**
+   * Sets the showTabs variable in the context to true
+   */
+  useIonViewWillEnter(() => {
+    if (context.showTabs === false) {
+      context.setShowTabs(true);
     }
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      console.log(file);
+  const handleGetVersion = React.useCallback(async () => {
+    console.log("getting version")
+    const serverVersion: null | string = await getAppVersionNum();
+    if (serverVersion !== versionNum) {
+      await Dialog.alert({
+        title: "App Update Available",
+        message: 'Consider updating to the latest version of tellU!',
+      });
     }
-  }
+  }, [])
 
-  useEffect(() => { // run on app startup
-    // setBusy(true);
-    if (!user) {
-      // setBusy(false);
-      history.replace("/landing-page");
-      setProfilePhoto(null);
-      setPosts([]);
-      tabs.setShowTabs(false);
-    } else if (schoolName && !profilePhoto) {
-      getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL"))
-        .then((url: string) => {
-          setProfilePhoto(url);
-        }).catch((err) => {
-          console.log(err);
+  React.useEffect(() => {
+    handleGetVersion();
+  }, [])
+
+  /**
+   * Firestore listener for new posts, loads 15 posts at a time
+   */
+  React.useEffect(() => {
+    if (!loading && !user) {
+      dynamicNavigate(router, '/landing-page', 'root');
+      history.replace('/landing-page');
+    } else {
+      if (user && "uid" in user && user.uid && user.uid.length > 0) {
+        getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL")).then((res) => {
+          console.log(res);
+          setProfilePhoto(res);
+        }).catch(() => {
+          setProfilePhoto("https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd",
+          )
         });
+      }
     }
     let school = "blank";
     if (schoolName) {
@@ -727,19 +277,15 @@ const Home = () => {
       const data: any = [];
       for (let i = 0; i < snapshot.docChanges().length; ++i) {
         let change = snapshot.docChanges()[i];
-        // console.log(change.type);
-        // console.log(change.doc.data());
         if (auth && auth.currentUser && auth.currentUser.uid) {
           if ((change.type === "added") && change.doc.data().uid === auth.currentUser.uid && snapshot.docChanges().length === 2) {
             let datasCopy = newDataRef.current || [];
-            // console.log(datasCopy);
             let justAdded: any[] = [];
             for (let i = 0; i < datasCopy.length; ++i) {
               datasCopy[i].likes = { 'null': true };
               datasCopy[i].dislikes = { 'null': true };
               datasCopy[i].commentAmount = 0;
             }
-            // console.log(datasCopy);
             justAdded.push({
               ...change.doc.data(),
               key: change.doc.id
@@ -747,36 +293,26 @@ const Home = () => {
             justAdded[0].likes = { 'null': true };
             justAdded[0].dislikes = { 'null': true };
             justAdded[0].commentAmount = 0;
-            // console.log(justAdded);
             const finalData: any[] = justAdded.concat(datasCopy);
-            // console.log(finalData);
             await timeout(500);
             setPosts([...finalData, ...postsRef.current]);
             virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
             setNewPostsLoaded(false);
             setNewData([]);
-            break; // needed?
-          } else {
-            // console.log("long if check failed")
-            // console.log(change.type === "added");
-            // console.log(change.doc.data().uid === auth.currentUser.uid);
-            // console.log(snapshot.docChanges().length);
+            break;
           }
-        } else {
-          // console.log("something wrong with auth")
         }
+
         if (change.type === "added") {
           data.push({
             ...change.doc.data(),
             key: change.doc.id,
           });
         }
+
       }
-      // console.log("after for each");
       if (data.length > 0) {
-        // console.log("data length > 0");
         if (postsRef.current) {
-          // console.log("post ref current");
           for (let i = 0; i < data.length; ++i) {
             const likesData = await getLikes(data[i].key);
             if (likesData) {
@@ -789,23 +325,13 @@ const Home = () => {
               data[i].commentAmount = 0;
             }
           }
-          // console.log(newData);
-          // console.log(newDataRef.current);
-          // console.log("after data for loop");
-          // console.log(data);
           if (newDataRef.current) {
-            // console.log("more than 1 new post");
             setNewData([...data, ...newDataRef.current])
           } else {
-            // console.log("Only one new post");
             setNewData(data);
           }
-          // console.log("after set data");
           setNewPostsLoaded(true);
-          // console.log("after set true");
-        } else { // on init
-          // console.log("init");
-          // setLatestTimestamp(data[0].timestamp);
+        } else { // on initial load
           for (let i = 0; i < data.length; ++i) {
             const likesData = await getLikes(data[i].key);
             if (likesData) {
@@ -820,714 +346,66 @@ const Home = () => {
           }
           setPosts(data);
           setLastKey(data[data.length - 1].timestamp);
-          setOriginalLastKey(data[data.length - 1].timestamp);
-          tabs.setShowTabs(true);
+          // tabs.setShowTabs(true);
         }
       }
     });
     return () => { unsubscribe(); };
-  }, [user, schoolName]);
+  }, [user, loading, schoolName]);
 
-
-  const Header = React.memo(() => {
-    return (
-      <>
-        <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-          <IonRefresherContent
-            pullingText="Pull to refresh"
-            refreshingSpinner="crescent"
-            refreshingText="Refreshing..."
-          ></IonRefresherContent>
-        </IonRefresher>
-        <IonHeader class="ion-no-border" style={ionHeaderStyle} >
-          <TellUHeader darkMode={darkModeToggled} colorPallete={schoolColorToggled} schoolName={schoolName} zoom={1} />
-        </IonHeader>
-      </>
-    )
-  });
-
-  const Footer = () => {
-    return (
-      <div
-        style={{
-          padding: '2rem',
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
-        {!noMorePosts ? "Loading..." : ""}
-      </div>
-    )
-  }
-
-  function mapInSlices(array: any[], sliceSize: number, sliceFunc: any) {
-    const out = [];
-    for (var i = 0; i < array.length; i += sliceSize) {
-      const slice = array.slice(i, i + sliceSize);
-      out.push(sliceFunc(slice, i));
-    }
-    return out;
-  }
-
-  if (posts && posts.length > 0) {
+  /**
+   * Main page
+   */
+  if (posts && posts.length > 0 && schoolName) {
     return (
       <IonPage className="ion-page-ios-notch">
-
         <div>
-          {newPostsLoaded && (
-            <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
-              <IonFabButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} className="load-new-posts" mode="ios" onClick={() => {
-                setPosts([...newDataRef.current, ...postsRef.current]);
-                virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
-                setNewPostsLoaded(false);
-                setNewData([]);
-              }
-              }>New Posts <IonIcon icon={refreshCircleOutline} /> </IonFabButton>
-            </IonFab>
-          )}
-          {
-            showProgressBar &&
-            <FadeIn>
-              <IonFooter mode='ios' slot="bottom">
-                <IonProgressBar type="indeterminate" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} style={{ height: "0.5vh" }}></IonProgressBar>
-              </IonFooter>
-            </FadeIn>
-          }
+          {newPostsLoaded && <NewPostsButton schoolName={schoolName} handleNewPostsButtonClicked={handleNewPostsButtonClicked} />}
+          {showProgressBar && <ProgressBar schoolName={schoolName} />}
         </div>
 
         <IonContent fullscreen scrollY={false}>
-
           <Virtuoso
             ref={virtuosoRef}
             overscan={1000}
-            defaultItemHeight={400}
             endReached={handleLoadPostsNextBatch}
             className="ion-content-scroll-host"
-            data={posts}
-            style={{ height: "100%" }}
+            totalCount={posts.length}
             itemContent={(item) => {
-              let post = posts[item];
               let index = item;
+              let post = posts[index];
               if ("question" in post) {
-                let poll = post;
-                let postIndex = index;
                 return (
-                  <FadeIn key={postIndex}>
-                    <IonCard mode='ios'>
-                      <IonCardContent style={{ minHeight: "50vh" }}>
-                        <IonText color="medium">
-                          <IonAvatar
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              history.push("/about/" + poll.uid);
-                            }}
-                            class="posts-avatar"
-                          >
-                            <ProfilePhoto uid={post.uid}></ProfilePhoto>
-                          </IonAvatar>
-                          <p>
-                            {post.userName}
-                          </p>
-                        </IonText>
-                        <IonCardTitle style={{ fontSize: "1.35em", width: "95%", marginLeft: "0%" }}>{
-                          poll.question}</IonCardTitle>
-                        <br />
-                        <IonList lines="full" mode="ios">
-                          {poll.options.map((option: any, pollIndex: number) => {
-                            return (
-                              <IonItem style={{ fontWeight: "bold", fontSize: "0.95em" }} onClick={() => {
-                                handlePollVote(pollIndex, poll.key, postIndex)
-                              }} disabled={poll.voteMap[user!.uid] !== undefined || voteBeingCasted} color={poll.voteMap[user!.uid] === pollIndex && schoolName !== "Cal Poly Humboldt" ? "primary" : poll.voteMap[user!.uid] === pollIndex && schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : poll.voteMap[user!.uid] === pollIndex && schoolName === "Cal Poly Humboldt" && !schoolColorToggled ? "primary" : ""} key={pollIndex} mode="ios" lines="full">
-                                <div style={{ width: "100%" }}>{option.text}</div> <p hidden={poll.voteMap[user!.uid] === undefined} slot="end">{Math.round(((poll.results[pollIndex] / poll.votes) * 100) * 10) / 10 + "%"}</p>
-                              </IonItem>
-                            )
-                          })}
-                        </IonList>
-                        <br />
-                        <IonFab vertical="bottom" horizontal="start">
-                          <p>{poll.votes} Votes &#183; {getTimeLeft(poll.timestamp)} days left</p>
-                        </IonFab>
-                      </IonCardContent>
-                    </IonCard>
-                  </FadeIn>
+                  <HomePagePoll updatePosts={updatePosts} postIndex={index} post={post} user={user} schoolName={schoolName} />
                 )
               }
               return (
-                <FadeIn key={post.key}>
-                  <IonList inset={true} mode="ios">
-                    <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + post.key); }}>
-                      <IonLabel class="ion-text-wrap">
-                        <IonText color="medium">
-                          <IonAvatar
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              history.push("/about/" + post.uid);
-                            }}
-                            class="posts-avatar"
-                          >
-                            <ProfilePhoto uid={post.uid}></ProfilePhoto>
-                          </IonAvatar>
-                          <p>
-                            {post.userName}
-                          </p>
-                        </IonText>
-                        {post.postType ? (
-                          <IonFab vertical="top" horizontal="end" onClick={(e) => {
-                            if (post.postType !== "general") {
-                              e.stopPropagation();
-                              history.push("/type/" + post.postType);
-                            }
-                          }}>
-                            {post.postType !== "general" ?
-                              <p style={{ fontWeight: "bold", color: getColor(post.postType) }} >
-                                {post.postType.toUpperCase()}
-                                &nbsp;
-                                {post.marker ? (
-                                  <RoomIcon
-                                    style={{ fontSize: "1em" }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      localStorage.setItem("lat", (post.location[0].toString()));
-                                      localStorage.setItem("long", (post.location[1].toString()));
-                                      history.push("/maps");
-                                    }}
-                                  />
-                                ) : null}
-                              </p>
-                              :
-                              <p style={{ fontWeight: "bold", color: getColor(post.postType), marginLeft: "75%" }} >
-                                {post.marker ? (
-                                  <RoomIcon onClick={(e) => {
-                                    e.stopPropagation();
-                                    localStorage.setItem("lat", (post.location[0].toString()));
-                                    localStorage.setItem("long", (post.location[1].toString()));
-                                    history.push("/maps");
-                                  }}
-                                    style={{ fontSize: "1em" }} />) : null}
-                              </p>
-                            }
-                            <IonNote style={{ fontSize: "0.85em" }}>
-                              {getDate(post.timestamp)}
-                            </IonNote>
-                          </IonFab>
-                        ) :
-                          (
-                            <IonFab vertical="top" horizontal="end">
-                              <IonNote style={{ fontSize: "0.85em" }}>
-                                {getDate(post.timestamp)}
-                              </IonNote>
-                            </IonFab>
-                          )}
-
-                        <div style={{ height: "0.75vh", }}>{" "}</div>
-
-                        {"className" in post && "classNumber" in post && post.className.length > 0 ?
-                          <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
-                            {post.message}
-                            <IonNote
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                history.push("/class/" + post.className);
-                              }}
-                              color="medium"
-                              style={{ fontWeight: "400" }}
-                            >
-                              &nbsp; — {post.className}{post.classNumber}
-                            </IonNote>
-                          </Linkify>
-                          :
-                          <Linkify style={sensitiveToggled && "reports" in post && post.reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
-                            {post.message}
-                          </Linkify>
-                        }
-
-                        <PostImages isSensitive={sensitiveToggled} post={post} imgLoad={handleImgLoad} />
-
-                      </IonLabel>
-                    </IonItem>
-
-                    <LikeDislike handleUpVote={handleUpVote} handleDownVote={handleDownVote} user={user} schoolName={schoolName} schoolColorToggled={schoolColorToggled} post={post} index={index} />
-
-                  </IonList>
-                </FadeIn>
-              )
+                <HomePagePost schoolName={schoolName} user={user} index={index} post={post} />
+              );
             }}
-            components={{ Footer, Header }} />
-
+            style={{ height: "100%" }}
+            components={{ Header, Footer }}
+          />
         </IonContent>
 
-        <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{}}>
-          <IonFabButton
-            color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-          >
-            <IonIcon icon={add} />
-          </IonFabButton>
-          <IonFabList side="top">
-            <IonFabButton onClick={() => { setPollModalOpen(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
-              <IonIcon icon={statsChartOutline} />
-            </IonFabButton>
-            <IonFabButton onClick={() => { setGifModal(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
-              <GifIcon />
-            </IonFabButton>
-            <IonFabButton onClick={() => { setShowModal(true) }} color={schoolColorToggled ? "secondary" : darkModeToggled ? "" : "medium"}>
-              <IonIcon icon={chatboxEllipsesOutline} />
-            </IonFabButton>
-          </IonFabList>
-        </IonFab>
+        <MakePost user={user} schoolName={schoolName} profilePhoto={profilePhoto} handleSetShowProgressBar={handleSetShowProgressBar} />
 
-        <IonLoading
-          spinner="dots"
-          message="Getting Location..."
-          duration={0}
-          isOpen={gettingLocation}
-        ></IonLoading>
-
-        <IonModal backdropDismiss={false} isOpen={gifModal} swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-          <IonContent>
-            <div style={{ width: "100%" }}>
-              <IonHeader>
-                <IonToolbar>
-                  <IonTitle>GIF Search</IonTitle>
-                  <IonButtons style={{ marginLeft: "-2.5%" }}>
-                    <IonButton
-                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                      onClick={() => {
-                        Keyboard.hide().then(() => {
-                          setTimeout(() => setGifModal(false), 100);
-                        }).catch((err) => {
-                          setTimeout(() => setGifModal(false), 100);
-                        });
-                        setGifs(null);
-                      }}
-                    >
-                      Back
-                    </IonButton>
-                  </IonButtons>
-                </IonToolbar>
-                <IonToolbar>
-                  <IonSearchbar color={darkModeToggled ? "" : "medium"} enterkeyhint="search" onKeyDown={e => isEnterPressedGif(e.key)} showCancelButton="focus" animated ref={gifSearchRef}></IonSearchbar>
-                </IonToolbar>
-              </IonHeader>
-            </div>
-
-            {gifs &&
-              <IonGrid>
-                {mapInSlices(gifs, 3, (slice: any[]) => {
-                  return (
-                    <FadeIn>
-                      <IonRow>
-                        {slice.map((gif: any, index: number) => {
-                          return (
-                            <IonCol key={index}>
-                              <img style={{ width: "200px", height: "125px" }} key={index.toString() + gif.id} src={gif.media_formats.tinygif.url}
-                                onClick={async () => {
-                                  try {
-                                    const p: GalleryPhoto[] = [];
-                                    const blobsArr: any[] = [];
-                                    p.push({ webPath: gif.media_formats.tinygif.url, format: "gif" });
-                                    setPhoto(p);
-                                    let res = await fetch(p[0].webPath!);
-                                    let blobRes = await res.blob();
-                                    blobsArr.push(blobRes);
-                                    setBlob(blobsArr);
-                                    setShowModal(true);
-                                    await timeout(100);
-                                    setGifModal(false);
-                                  } catch (err: any) {
-                                    console.log(err);
-                                    Toast.error(err.toString());
-                                  }
-                                }}
-                              />
-                            </IonCol>
-                          )
-                        })}
-                      </IonRow>
-                    </FadeIn>
-                  )
-                })}
-              </IonGrid>
-            }
-            <br /> <br />
-          </IonContent>
-        </IonModal>
-
-        <IonModal backdropDismiss={false} isOpen={pollModalOpen} swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-          <IonContent>
-            <div>
-              <div style={{ width: "100%" }}>
-                <IonToolbar mode="ios">
-                  <IonTitle>Poll</IonTitle>
-                  <IonButtons style={{ marginLeft: "-2.5%" }}>
-                    <IonButton
-                      color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                      onClick={() => {
-                        Keyboard.hide().then(() => {
-                          setTimeout(() => setPollModalOpen(false), 100);
-                        }).catch((err) => {
-                          setTimeout(() => setPollModalOpen(false), 100);
-                        });
-                        setPollText("");
-                      }}
-                    >
-                      Back
-                    </IonButton>
-                  </IonButtons>
-                </IonToolbar>
-              </div>
-
-              <IonInput
-                autoCorrect="on"
-                type="text"
-                style={{ width: "90vw", left: "5vw", fontWeight: "bold" }}
-                maxlength={100}
-                value={pollText}
-                placeholder="Ask a question*"
-                id="pollQuestion"
-                onIonChange={(e: any) => {
-                  handlePollTextChange(e);
-                }}
-              ></IonInput>
-              {pollOptions && pollOptions.length > 0 ? (
-                <IonList mode="ios" inset={true} lines="none">
-                  {pollOptions?.map((option, index) => {
-                    return (
-                      <IonItem key={index}><p style={{ alignSelf: "center" }} slot="start">{(index + 1).toString() + ". "}</p>
-                        <IonInput maxlength={50} value={pollModalOpen ? option.text : ""} onIonChange={(e: any) => { handleChangePollOptions(index, e) }} />
-                      </IonItem>
-                    )
-                  })}
-                </IonList>
-              ) : (null)}
-              <div style={{ textAlign: "center", }}>
-                <IonButton color="medium" fill="clear" disabled={pollOptions.length >= 6} onClick={addPollAnswer} mode="ios">Add Option</IonButton>
-                <IonButton fill="clear" color="danger" disabled={pollOptions.length <= 2} onClick={removePollAnswer} mode="ios">Remove Option</IonButton>
-                <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} onClick={submitPoll} fill="clear" mode="ios">Submit</IonButton>
-              </div>
-              <br />
-              <div style={{ textAlign: "center", }}>
-                <IonCardSubtitle>*Polls are up for 4 days</IonCardSubtitle>
-              </div>
-            </div>
-          </IonContent>
-        </IonModal>
-
-        <IonModal
-          isOpen={locationPinModal}
-          onDidDismiss={() => {
-            setLocationPinModal(false);
-            handleCheckboxChange("general");
-          }}
-          breakpoints={[0, 0.99]}
-          initialBreakpoint={0.99}
-          handle={false}
-        >
-          <IonHeader translucent>
-            <IonToolbar mode="ios">
-              <IonTitle>Post</IonTitle>
-              <IonButtons slot="start">
-                <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                  mode="ios"
-                  onClick={() => {
-                    setLocationPinModal(false);
-                  }}
-                >
-                  Back
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-          </IonHeader>
-          <IonList inset={true} mode="ios">
-            <IonItem lines="none" mode="ios">
-              <IonLabel>General</IonLabel>
-              <IonCheckbox
-                id="generalCheckbox"
-                checked={generalChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("general");
-                  setGeneralChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("general");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-            <IonItem lines="none" mode="ios">
-              <IonLabel>Alert</IonLabel>
-              <IonCheckbox
-                id="alertCheckbox"
-                checked={alertChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("alert");
-                  setAlertChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("alert");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-            <IonItem lines="none" mode="ios">
-              <IonLabel>Buy/Sell</IonLabel>
-              <IonCheckbox
-                id="buySellCheckbox"
-                checked={buySellChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("buySell");
-                  setBuySellChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("buy/Sell");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-            <IonItem lines="none" mode="ios">
-              <IonLabel>Sighting</IonLabel>
-              <IonCheckbox
-                id="sightingCheckbox"
-                checked={sightingChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("sighting");
-                  setSightingChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("sighting");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-            <IonItem lines="none" mode="ios">
-              <IonLabel>Event</IonLabel>
-              <IonCheckbox
-                id="eventCheckbox"
-                checked={eventsChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("event");
-                  setEventsChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("event");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-            <IonItem lines="none" mode="ios">
-              <IonLabel>Research</IonLabel>
-              <IonCheckbox
-                id="researchCheckbox"
-                checked={researchChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("research");
-                  setResearchChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("research");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-            <IonItem lines="none" mode="ios">
-              <IonLabel>Housing</IonLabel>
-              <IonCheckbox
-                id="housingCheckbox"
-                checked={housingChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("housing");
-                  setHousingChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("housing");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-            <IonItem lines="none" mode="ios">
-              <IonLabel>Dining</IonLabel>
-              <IonCheckbox
-                id="diningCheckbox"
-                checked={diningChecked}
-                slot="start"
-                onIonChange={(e) => {
-                  handleCheckboxChange("dining");
-                  setDiningChecked(e.detail.checked);
-                  if (e.detail.checked) setCheckboxSelection("dining");
-                }}
-              ></IonCheckbox>
-            </IonItem>
-          </IonList>
-          <IonList inset={true} mode="ios">
-            <IonItem mode="ios" lines="none">
-              <IonLabel> Add pin to map?*</IonLabel><Map />
-              <IonCheckbox
-                slot="start"
-                checked={locationChecked}
-                onIonChange={(e) => {
-                  setLocationChecked(e.detail.checked);
-                  if (e.detail.checked) getLocation();
-                  else setPosition(null);
-                }}
-              />
-            </IonItem>
-          </IonList>
-
-          <IonNote style={{ textAlign: "center" }}>*Location pin stays on map for up to two days</IonNote>
-          <br />
-          <div className="ion-button-container">
-            <IonButton
-              onClick={() => {
-                handleSendMessage();
-              }}
-              expand="block"
-              color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-              mode="ios"
-              shape="round"
-              fill="outline"
-              id="message"
-              style={{ width: "75vw" }}
-            >
-              Post
-            </IonButton>
-          </div>
-        </IonModal>
-
-        <IonModal backdropDismiss={false} isOpen={showModal} animated mode='ios' swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-          <IonContent ref={modalContentRef} scrollEvents={true}>
-            <div style={{ width: "100%" }}>
-              <IonToolbar mode="ios">
-                <IonButtons slot="start">
-                  <IonButton
-                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                    mode="ios"
-                    onClick={() => {
-                      setPhoto([]);
-                      setBlob([]);
-                      setPostClassName("");
-                      setPostClassNumber("");
-                      setGifModal(false);
-                      setGifs(null);
-                      Keyboard.hide().then(() => {
-                        setTimeout(() => setShowModal(false), 100)
-                      }).catch((err) => {
-                        setTimeout(() => setShowModal(false), 100)
-                      });
-                    }}
-                  >
-                    Close
-                  </IonButton>
-                </IonButtons>
-              </IonToolbar>
-            </div>
-            <IonCard >
-              <IonRow class="ion-padding-top">
-                {profilePhoto ? (
-                  <>
-                    <IonCol size="2">
-                      <IonAvatar>
-                        <img
-                          src={profilePhoto} />
-                      </IonAvatar>
-                    </IonCol>
-                    <IonCol>
-                      <IonTextarea
-                        spellcheck={true}
-                        ref={inputRef}
-                        rows={4}
-                        maxlength={500}
-                        disabled={prevPostUploading}
-                        placeholder="Start typing..."
-                        id="message"
-                      ></IonTextarea>
-                    </IonCol>
-                  </>
-                )
-                  : (
-                    <>
-                      <IonTextarea
-                        spellcheck={true}
-                        ref={inputRef}
-                        rows={4}
-                        color="secondary"
-                        maxlength={500}
-                        style={ionInputStyle}
-                        disabled={prevPostUploading}
-                        placeholder="Start typing..."
-                        id="message"
-                      ></IonTextarea>
-                    </>
-                  )}
-              </IonRow>
-              <br /> <br /> <br />
-              <IonRow>
-
-                <ClassSelections setPostClassName={setPostClassName} setPostClassNumber={setPostClassNumber} schoolName={schoolName} postClassNumber={postClassNumber} postClassName={postClassName} />
-
-                <IonFab horizontal="end" style={{
-                  textAlign: "center", alignItems: "center",
-                  alignSelf: "center", display: "flex", paddingTop: ""
-                }}>
-                  <IonButton onClick={takePicture} mode="ios" color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} fill='clear' disabled={prevPostUploading}>
-                    <IonIcon icon={cameraOutline} />
-                  </IonButton>
-                  <IonButton
-                    color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
-                    onClick={() => {
-                      setLocationPinModal(true);
-                    }}
-                    mode="ios"
-                    shape="round"
-                    fill="clear"
-                    id="message"
-                    disabled={prevPostUploading}
-                  >
-                    Post
-                  </IonButton>
-                </IonFab>
-              </IonRow>
-
-              {photo && photo.length > 0 ? (
-                <>
-                  <br />
-                  <FadeIn>
-                    {photo.map((photo, index) => {
-                      return (
-                        <IonCard key={"photo_" + index.toString()}>
-                          <IonImg src={photo?.webPath} />
-                        </IonCard>
-                      )
-                    })}
-                  </FadeIn>
-                </>
-              ) : <> <br></br><br></br> </>}
-
-            </IonCard>
-            {prevPostUploading &&
-              <p style={{ textAlign: "center" }}>Wait until previous post has <br />uploaded to post again</p>}
-          </IonContent>
-        </IonModal>
-
-      </IonPage >
-    )
-  } else if (showReloadMessage) {
-    return (
-      <IonPage>
-        <IonContent>
-
-          <IonHeader class="ion-no-border" style={ionHeaderStyle}>
-            <TellUHeader />
-          </IonHeader>
-
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-            <div style={{ textAlign: "center" }}>
-              <p>Check your internet connection and try again</p>
-            </div>
-          </div>
-
-        </IonContent>
       </IonPage>
     );
-  } else {
-    return (
-      <div className="ion-spinner">
-        <IonSpinner
-          color={
-            schoolName === "Cal Poly Humboldt"
-              && schoolColorToggled
-              ? "tertiary"
-              : "primary"
-          }
-        />
-      </div>
-    )
   }
+
+  /**
+   * Loading spinner
+   */
+  return (
+    <IonPage>
+      <div className="ion-spinner">
+        <IonSpinner color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} />
+      </div>
+    </IonPage>
+  );
+
 };
 
 export default Home;
+

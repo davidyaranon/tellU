@@ -1,68 +1,43 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getPostTypeDb } from '../fbconfig';
-import { promiseTimeout } from "../fbconfig";
+import auth, { promiseTimeout, getPostTypeDb } from '../fbConfig';
 import { useToast } from "@agney/ir-toast";
 import RoomIcon from '@mui/icons-material/Room';
 import {
-  IonAvatar, IonButton, IonButtons,
-  IonContent, IonFab, IonIcon,
+  IonAvatar,
+  IonCol,
+  IonContent, IonFab,
   IonItem, IonLabel, IonList,
-  IonNote, IonPage, 
-  IonSpinner, IonText,
-  IonTitle, IonToolbar, RouterDirection, useIonRouter
+  IonNote, IonPage,
+  IonRow,
+  IonSpinner, IonText, useIonRouter
 } from "@ionic/react";
-import FadeIn from "react-fade-in";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import "../App.css";
-import TimeAgo from "javascript-time-ago";
-import { chevronBackOutline } from "ionicons/icons";
-import { getColor } from '../shared/functions';
 import Linkify from 'linkify-react';
-import ProfilePhoto from "./ProfilePhoto";
 import { Virtuoso } from "react-virtuoso";
-import PostImages from "./PostImages";
+import { useContext } from "../my-context";
+import ProfilePhoto from "../components/Shared/ProfilePhoto";
+import { getColor } from "../helpers/getColor";
+import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
+import { getDate } from "../helpers/timeago";
+import { Toolbar } from "../components/Shared/Toolbar";
+import { dynamicNavigate } from "../components/Shared/Navigation";
 
 interface MatchUserPostParams {
   type: string;
+  schoolName: string;
 }
 
 const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postType = match.params.type;
+  const schoolName = match.params.schoolName;
+  const context = useContext();
   const [user] = useAuthState(auth);
   const Toast = useToast();
-  const router = useIonRouter();
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
-  const schoolName = useSelector((state: any) => state.user.school);
   const [posts, setPosts] = useState<any[]>();
-  const sensitiveToggled = useSelector((state: any) => state.sensitive.sensitiveContent);
-  const timeAgo = new TimeAgo("en-US");
-  
-  const getDate = (timestamp: any) => {
-    if (!timestamp) {
-      return '';
-    }
-    if ("seconds" in timestamp && "nanoseconds" in timestamp) {
-      const time = new Date(
-        timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-      );
-      return timeAgo.format(time);
-    } else {
-      return '';
-    }
-  };
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      dynamicNavigate('home', 'back');
-    }
-  }
+  const router = useIonRouter();
 
   const getPosts = async () => {
     if (postType) {
@@ -75,7 +50,8 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         if (posts) {
           setPosts(posts);
         } else {
-          Toast.error("Something went wrong within this class");
+          const toast = Toast.create({ message: 'Something went wrong within this class', duration: 2000, color: 'toast-error' });
+          toast.present();
         }
       });
       classPosts.catch((err) => {
@@ -106,38 +82,9 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }
 
   return (
-    <IonPage className="ion-page-ios-notch">
+    <IonPage>
+      <Toolbar title={postType === "buy" ? "BUY/SELL POSTS" : postType.toUpperCase() + " POSTS"} />
       <IonContent fullscreen scrollY={false}>
-
-        <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios">
-            {postType && postType === "buy" &&
-              <IonTitle>Last 50 {postType.toUpperCase()}/SELLS</IonTitle>
-            }
-            {postType && postType !== "research" && postType !== "buy" &&
-              <IonTitle>Last 50 {postType.toUpperCase()}S</IonTitle>
-            }
-            {postType && postType === "research" &&
-              <IonTitle>Last 50 {postType.toUpperCase()} Posts</IonTitle>
-            }
-            <IonButtons style={{ marginLeft: "-2.5%" }}>
-              <IonButton
-                color={
-                  schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
-                }
-                onClick={() => {
-                  navigateBack();
-                }}
-              >
-                <IonIcon icon={chevronBackOutline}></IonIcon> Back
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </div>
-
-        <br /> <br />
-
-
         <Virtuoso
           className="ion-content-scroll-host"
           data={posts}
@@ -146,16 +93,16 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             if (posts && posts.length > 0) {
               let post = posts[item];
               return (
-                <FadeIn key={post.key}>
+                <FadeIn key={post}>
                   <IonList inset={true} mode="ios">
-                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate("post/" + post.key, 'forward'); }}>
+                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate(router, "/post/" + schoolName + "/" + post.userName + "/" + post.key, 'forward') }}>
                       <IonLabel class="ion-text-wrap">
                         <IonText color="medium">
                           <FadeIn>
                             <IonAvatar
                               onClick={(e) => {
                                 e.stopPropagation();
-                                dynamicNavigate('about/' + post.uid, 'forward');
+                                dynamicNavigate(router, '/about/' + schoolName + "/" + post.uid, 'forward');
                               }}
                               class="posts-avatar"
                             >
@@ -184,7 +131,7 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                       e.stopPropagation();
                                       localStorage.setItem("lat", (post.location[0].toString()));
                                       localStorage.setItem("long", (post.location[1].toString()));
-                                      dynamicNavigate("maps", 'forward');
+                                      dynamicNavigate(router, "/maps", 'forward');
                                     }}
                                   />
                                 ) : null}
@@ -202,7 +149,7 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                     e.stopPropagation();
                                     localStorage.setItem("lat", (post.location[0].toString()));
                                     localStorage.setItem("long", (post.location[1].toString()));
-                                    dynamicNavigate("maps", 'forward');
+                                    dynamicNavigate(router, "/maps", 'forward');
                                   }}
                                     style={{ fontSize: "1em" }} />) : null}
                               </p>
@@ -236,7 +183,218 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           </Linkify>
                         }
 
-                        <PostImages post={post} isSensitive={sensitiveToggled} />
+                        {"imgSrc" in post && post.imgSrc &&
+                          post.imgSrc.length == 1 &&
+                          <>
+                            <div style={{ height: "0.75vh" }}>{" "}</div>
+                            <div
+                              className="ion-img-container"
+                              style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const img: CapacitorImage = {
+                                  url: post.imgSrc[0],
+                                  title: `${post.userName}'s post`
+                                };
+                                CapacitorPhotoViewer.show({
+                                  images: [img],
+                                  mode: 'one',
+                                  options: {
+                                    title: true
+                                  }
+                                }).catch((err) => {
+                                  const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                  toast.present();
+                                });
+                              }}
+                            >
+                            </div>
+                          </>
+                        }
+                        {"imgSrc" in post && post.imgSrc &&
+                          post.imgSrc.length == 2 ? (
+                          <>
+                            <div style={{ height: "0.75vh" }}>{" "}</div>
+                            <IonRow>
+                              <IonCol>
+                                <div
+                                  className="ion-img-container"
+                                  style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const img: CapacitorImage[] = [
+                                      {
+                                        url: post.imgSrc[0],
+                                        title: `${post.userName}'s post`
+                                      },
+                                      {
+                                        url: post.imgSrc[1],
+                                        title: `${post.userName}'s post`
+                                      },
+                                    ]
+                                    CapacitorPhotoViewer.show({
+                                      images: img,
+                                      mode: 'slider',
+                                      options: {
+                                        title: true,
+                                      },
+                                      startFrom: 0,
+                                    }).catch((err) => {
+                                      const toast = Toast.create({ message: 'Unable to open image on wen version', duration: 2000, color: 'toast-error' });
+                                      toast.present();
+                                    });
+                                  }}
+                                >
+                                </div>
+                              </IonCol>
+                              <IonCol>
+                                <div
+                                  className="ion-img-container"
+                                  style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const img: CapacitorImage[] = [
+                                      {
+                                        url: post.imgSrc[0],
+                                        title: `${post.userName}'s post`
+                                      },
+                                      {
+                                        url: post.imgSrc[1],
+                                        title: `${post.userName}'s post`
+                                      },
+                                    ]
+                                    CapacitorPhotoViewer.show({
+                                      images: img,
+                                      mode: 'slider',
+                                      options: {
+                                        title: true
+                                      },
+                                      startFrom: 1,
+                                    }).catch((err) => {
+                                      const toast = Toast.create({ message: 'Unable to open image on web version', duration: 2000, color: 'toast-error' });
+                                      toast.present();
+                                    });
+                                  }}
+                                >
+                                </div>
+                              </IonCol>
+                            </IonRow>
+                          </>
+                        ) : null}
+                        {"imgSrc" in post && post.imgSrc &&
+                          post.imgSrc.length >= 3 ? (
+                          <>
+                            <div style={{ height: "0.75vh" }}>{" "}</div>
+                            <IonRow>
+                              <IonCol>
+                                <div
+                                  className="ion-img-container"
+                                  style={{ backgroundImage: `url(${post.imgSrc[0]})`, borderRadius: '10px' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const img: CapacitorImage[] = [
+                                      {
+                                        url: post.imgSrc[0],
+                                        title: `${post.userName}'s post`
+                                      },
+                                      {
+                                        url: post.imgSrc[1],
+                                        title: `${post.userName}'s post`
+                                      },
+                                      {
+                                        url: post.imgSrc[2],
+                                        title: `${post.userName}'s post`
+                                      },
+                                    ]
+                                    CapacitorPhotoViewer.show({
+                                      images: img,
+                                      mode: 'slider',
+                                      options: {
+                                        title: true
+                                      },
+                                      startFrom: 0,
+                                    }).catch((err) => {
+                                      const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                      toast.present();
+                                    });
+                                  }}
+                                >
+                                </div>
+                              </IonCol>
+                              <IonCol>
+                                <div
+                                  className="ion-img-container"
+                                  style={{ backgroundImage: `url(${post.imgSrc[1]})`, borderRadius: '10px' }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const img: CapacitorImage[] = [
+                                      {
+                                        url: post.imgSrc[0],
+                                        title: `${post.userName}'s post`
+                                      },
+                                      {
+                                        url: post.imgSrc[1],
+                                        title: `${post.userName}'s post`
+                                      },
+                                      {
+                                        url: post.imgSrc[2],
+                                        title: `${post.userName}'s post`
+                                      },
+                                    ]
+                                    CapacitorPhotoViewer.show({
+                                      images: img,
+                                      mode: 'slider',
+                                      options: {
+                                        title: true
+                                      },
+                                      startFrom: 1,
+                                    }).catch((err) => {
+                                      const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                      toast.present();
+                                    });
+                                  }}
+                                >
+                                </div>
+                              </IonCol>
+                            </IonRow>
+                            <>
+                              <div style={{ height: "0.75vh" }}>{" "}</div>
+                              <div
+                                className="ion-img-container"
+                                style={{ backgroundImage: `url(${post.imgSrc[2]})`, borderRadius: '20px' }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const img: CapacitorImage[] = [
+                                    {
+                                      url: post.imgSrc[0],
+                                      title: `${post.userName}'s post`
+                                    },
+                                    {
+                                      url: post.imgSrc[1],
+                                      title: `${post.userName}'s post`
+                                    },
+                                    {
+                                      url: post.imgSrc[2],
+                                      title: `${post.userName}'s post`
+                                    },
+                                  ]
+                                  CapacitorPhotoViewer.show({
+                                    images: img,
+                                    mode: 'slider',
+                                    options: {
+                                      title: true
+                                    },
+                                    startFrom: 2,
+                                  }).catch((err) => {
+                                    const toast = Toast.create({ message: 'Unable to open image', duration: 2000, color: 'toast-error' });
+                                    toast.present();
+                                  });
+                                }}
+                              >
+                              </div>
+                            </>
+                          </>
+                        ) : null}
 
                       </IonLabel>
                     </IonItem>
@@ -255,7 +413,7 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 <IonSpinner
                   color={
                     schoolName === "Cal Poly Humboldt"
-                      && schoolColorToggled
+                      && context.schoolColorToggled
                       ? "tertiary"
                       : "primary"
                   }

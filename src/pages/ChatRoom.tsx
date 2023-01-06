@@ -1,14 +1,14 @@
 /* React + Ionic/Capacitor */
 import {
+  IonBackButton,
   IonButton, IonButtons, IonCard, IonContent, IonFab,
-  IonFabButton, IonGrid, IonIcon, IonImg,
+  IonFabButton, IonGrid, IonHeader, IonIcon, IonImg,
   IonItem, IonModal, IonNote, IonPage, IonRow, IonSpinner, IonTextarea,
   IonTitle, IonToolbar, RouterDirection, useIonRouter
 } from "@ionic/react";
-import FadeIn from "react-fade-in";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { Dialog } from "@capacitor/dialog";
 import { cameraOutline, chevronBackOutline, alertCircleOutline, banOutline } from "ionicons/icons";
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
@@ -23,7 +23,7 @@ import {
 } from "firebase/firestore";
 import auth, {
   getUserData, db, sendDm, storage, updateDmList, uploadImage,
-} from '../fbconfig';
+} from '../fbConfig';
 import { getDownloadURL, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
@@ -34,10 +34,13 @@ import "../App.css";
 /* Other components */
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@agney/ir-toast";
+import { useContext } from "../my-context";
+import { dynamicNavigate } from "../components/Shared/Navigation";
 
 
 interface MatchUserPostParams {
   collectionPath: string;
+  schoolName: string;
 }
 const resizeOptions: KeyboardResizeOptions = {
   mode: KeyboardResize.None,
@@ -49,16 +52,13 @@ const defaultResizeOptions: KeyboardResizeOptions = {
 
 const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const collectionPath = match.params.collectionPath;
+  const schoolName = match.params.schoolName;
 
   /* Hooks */
   const [user] = useAuthState(auth);
   const router = useIonRouter();
   const Toast = useToast();
-
-  /* Redux State */
-  const schoolName = useSelector((state: any) => state.user.school);
-  const schoolColorToggled = useSelector((state: any) => state.schoolColorPallete.colorToggled);
-  const darkModeToggled = useSelector((state: any) => state.darkMode.toggled);
+  const context = useContext();
 
   /* Firebase Messages */
   const messagesRef = collection(db, 'messages', schoolName.replace(/\s+/g, ""), collectionPath);
@@ -92,13 +92,15 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       if (blobRes) {
         if (blobRes.size > 5_000_000) {
           // 5MB
-          Toast.error("Image too large");
+          const toast = Toast.create({ message: 'Image size too large', duration: 2000, color: 'toast-error' });
+          toast.present();
         } else {
           setBlob(blobRes);
           setPhoto(image);
         }
       } else {
-        Toast.error("Image not supported");
+        const toast = Toast.create({ message: 'Image not supported', duration: 2000, color: 'toast-error' });
+        toast.present();
       }
     } catch (err: any) {
       // Toast.error(err.message.toString());
@@ -115,7 +117,8 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   async function sendImage(blob: any, uniqueId: string) {
     const res = await uploadImage("dmImages", blob, uniqueId);
     if (res == false || photo == null || photo?.webPath == null) {
-      Toast.error("unable to select photo");
+      const toast = Toast.create({ message: 'Unable to select photo', duration: 2000, color: 'toast-error' });
+      toast.present();
     } else {
       // Toast.success("photo uploaded successfully");
     }
@@ -152,7 +155,8 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         photoURL
       });
       await updateDmList(tempComment, contactInfo.uid, contactInfo.userName).catch((err) => {
-        Toast.error("DM List not updated, messages will stil be stored");
+        const toast = Toast.create({ message: 'DM List not updated, messages will stil be stored', duration: 2000, color: 'toast-error' });
+        toast.present();
       });
       if (contactInfo && "notificationsToken" in contactInfo && schoolName) {
         console.log('sending dm to: ', contactInfo.notificationsToken);
@@ -170,27 +174,6 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       handleCommentSubmit();
     }
   };
-
-  /**
-   * @description This function is used to navigate to a new page
-   * @param path url path
-   * @param direction pushing or popping history stack
-   */
-  const dynamicNavigate = (path: string, direction: RouterDirection) => {
-    const action = direction === "forward" ? "push" : "pop";
-    router.push(path, direction, action);
-  }
-
-  /**
-   * @description This function is used to go back to the previous page
-   */
-  const navigateBack = () => {
-    if (router.canGoBack()) {
-      router.goBack();
-    } else {
-      dynamicNavigate('home', 'back');
-    }
-  }
 
   /**
    * @description This function is used to open the report modal
@@ -237,7 +220,8 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           setContactPhoto(imgSrc);
         })
       } else {
-        Toast.error("Something went wrong getting contact info")
+        const toast = Toast.create({ message: 'Something went wrong getting contact info', duration: 2000, color: 'toast-error' });
+        toast.present();
       }
     }
   }, [collectionPath, user])
@@ -271,7 +255,29 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   }, [user, collectionPath, messages, schoolName])
 
   return (
-    <IonPage className="ion-page-ios-notch">
+    <IonPage>
+      <IonHeader>
+        <IonToolbar onClick={() => { console.log("HI"); if ("uid" in contactInfo && contactInfo.uid) dynamicNavigate(router, '/about/' + schoolName + "/" + contactInfo.uid, 'forward') }}>
+          {contactInfo &&
+            <IonTitle style={{ marginLeft: "9%", width: "90vw" }}>{contactInfo.userName}</IonTitle>
+          }
+          <IonButtons style={{ marginLeft: "-2.5%" }}>
+            <IonBackButton
+              defaultHref="/home"
+              className="back-button"
+              icon={chevronBackOutline}
+              text={"Back"}
+              color={context.schoolColorToggled ? "tertiary" : "primary"}
+            >
+            </IonBackButton>
+          </IonButtons>
+          <IonButtons slot='end'>
+            <IonButton color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={(e: any) => { e.stopPropagation(); reportUser() }}>
+              <IonIcon icon={alertCircleOutline} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
       <IonContent ref={contentRef} scrollEvents>
 
         <IonModal isOpen={showReportModal} mode="ios" handle={false} swipeToClose={false} breakpoints={[0, 1]} initialBreakpoint={1}>
@@ -279,7 +285,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             <IonToolbar mode="ios">
               <IonButtons slot="start">
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     setShowReportModal(false);
@@ -290,12 +296,13 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButtons>
               <IonButtons slot="end">
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   slot="end"
                   onClick={() => {
                     if (reportMessage.length <= 0) {
-                      Toast.error("Provide a reason why!");
+                      const toast = Toast.create({ message: 'Provide a reason why!', duration: 2000, color: 'toast-error' });
+                      toast.present();
                     } else {
                       setReportMessage("");
                     }
@@ -331,42 +338,16 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           </IonContent>
         </IonModal>
 
-        <div slot="fixed" style={{ width: "100%" }}>
-          <IonToolbar mode="ios">
-            <IonButtons style={{ marginLeft: "-2.5%" }}>
-              <IonButton
-                color={
-                  schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"
-                }
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigateBack();
-                }}
-              >
-                <IonIcon icon={chevronBackOutline}></IonIcon> Back
-              </IonButton>
-              {contactInfo &&
-                <IonTitle style={{ marginLeft: "9%", width: "90vw" }} onClick={() => { if ("uid" in contactInfo && contactInfo.uid) dynamicNavigate('about/' + contactInfo.uid, 'forward') }}>{contactInfo.userName}</IonTitle>
-              }
-            </IonButtons>
-            <IonButtons slot='end'>
-              <IonButton color={schoolName === "Cal Poly Humboldt" && schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={(e: any) => { e.stopPropagation(); reportUser() }}>
-                <IonIcon icon={alertCircleOutline} />
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </div>
-
-        <IonFab style={darkModeToggled ? { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
+        <IonFab style={context.darkMode ? { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
           : { bottom: `${kbHeight}px`, height: "115px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
-          className={darkModeToggled ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
+          className={context.darkMode ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
           <IonTextarea
             mode="ios"
             enterkeyhint="send"
             rows={3}
             style={photo === null ? { width: "80vw", marginLeft: "2.5vw" }
               : { width: "69vw", marginLeft: "2.5vw" }}
-            color={schoolColorToggled ? "tertiary" : "primary"}
+            color="light"
             spellcheck={true}
             maxlength={300}
             value={currMessage}
@@ -377,7 +358,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             onIonChange={(e: any) => {
               setCurrMessage(e.detail.value);
             }}
-            className={darkModeToggled ? "text-area-dark" : "text-area-light"}
+            className={context.darkMode ? "text-area-dark" : "text-area-light"}
           ></IonTextarea>
           <IonFab vertical="top" horizontal="end">
             <IonGrid>
@@ -405,8 +386,8 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               ?
               <>
                 {messages?.map((msg: any, index: number) => (
-                  <FadeIn transitionDuration={500}>
-                    <ChatMessage key={msg.uid + '_' + index.toString()} msg={msg} school={schoolName} toggled={schoolColorToggled} photo={contactPhoto} />
+                  <FadeIn key={msg.uid + '_' + index.toString()} transitionDuration={500}>
+                    <ChatMessage msg={msg} school={schoolName} toggled={context.schoolColorToggled} photo={contactPhoto} />
                   </FadeIn>
                 ))}
                 {kbHeight != 0 ?
@@ -425,7 +406,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                     <IonSpinner
                       color={
                         schoolName === "Cal Poly Humboldt"
-                          && schoolColorToggled
+                          && context.schoolColorToggled
                           ? "tertiary"
                           : "primary"
                       }
@@ -458,7 +439,6 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               null}
           </div>
         </FadeIn>
-
       </IonContent>
     </IonPage >
   );
@@ -490,7 +470,7 @@ function ChatMessage(props: any) {
       <div className={`message ${messageClass}`}>
         <div style={{ textAlign: "right", borderRadius: "10px" }}>
           {messageClass === 'received' && imgSrc && imgSrc.length > 0 &&
-            <img onClick={() => { dynamicNavigate("about/" + uid, 'forward'); }} className='dm-img' src={photo || photoURL} />
+            <img onClick={() => { dynamicNavigate("/about/" + schoolName + "/" + uid, 'forward'); }} className='dm-img' src={photo || photoURL} />
           }
           {imgSrc && imgSrc.length > 0 &&
             <img style={{ width: "50vw", borderRadius: "10px", marginRight: "10px" }} src={imgSrc}
@@ -517,7 +497,7 @@ function ChatMessage(props: any) {
 
       <div className={`message ${messageClass}`}>
         {messageClass === 'received' && message && message.length > 0 &&
-          <img onClick={() => { dynamicNavigate("about/" + uid, 'forward'); }} className='dm-img' src={photo || photoURL} />
+          <img onClick={() => { dynamicNavigate("/about/" + schoolName + "/" + uid, 'forward'); }} className='dm-img' src={photo || photoURL} />
         }
         {message && message.length > 0 &&
           <>
