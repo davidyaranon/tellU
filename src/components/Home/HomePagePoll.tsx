@@ -17,6 +17,7 @@ export const HomePagePoll = (props: any) => {
   const poll = props.post;
   const user = props.user;
   const schoolName = props.schoolName;
+  const profileClickable = props.profileClickable;
 
   // hooks
   const history = useHistory();
@@ -83,7 +84,8 @@ export const HomePagePoll = (props: any) => {
               class="posts-avatar"
               onClick={(e) => {
                 e.stopPropagation();
-                history.push("/about/" + poll.uid);
+                if(profileClickable !== false)
+                  history.push("/about/" +schoolName + "/" + poll.uid);
               }}
             >
               <ProfilePhoto uid={post.uid}></ProfilePhoto>

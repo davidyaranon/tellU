@@ -6,6 +6,8 @@ import {
   IonPage, IonRow, IonSearchbar, IonSpinner, IonText, IonTextarea, IonTitle, IonToggle, IonToolbar, useIonLoading,
 } from '@ionic/react';
 import { Capacitor } from '@capacitor/core';
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from '@capacitor/keyboard';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { Dialog } from '@capacitor/dialog';
 import { Preferences } from '@capacitor/preferences';
 
@@ -29,13 +31,12 @@ import { PostType } from '../components/Shared/PostType';
 import ProfilePhoto from '../components/Shared/ProfilePhoto';
 import { PostMessage } from '../components/Home/PostMessage';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { colorFill, logoInstagram, logoSnapchat, logoTiktok, moon, refreshOutline, warningSharp } from 'ionicons/icons';
-import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from '@capacitor/keyboard';
-import { StatusBar, Style } from '@capacitor/status-bar';
+import { colorFill, logoInstagram, logoSnapchat, logoTiktok, refreshOutline, warningSharp } from 'ionicons/icons';
 import FadeIn from 'react-fade-in/lib/FadeIn';
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { timeout } from '../helpers/timeout';
+import Spotify from 'react-spotify-embed';
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
@@ -138,11 +139,11 @@ const Settings: React.FC = () => {
     setSpotifyLoading(true);
     spotifySearch(spotifyTextSearch).then((res: any) => {
       setSpotifyResults(res);
-      console.log.apply(res);
       if (res && res.length == 0) {
         const toast = Toast.create({ message: 'No results', duration: 2000, color: 'toast-error' });
         toast.present();
       }
+      console.log({res});
       setSpotifyLoading(false);
     }).catch((err) => {
       console.log(err);
@@ -767,6 +768,7 @@ const Settings: React.FC = () => {
             </IonButtons>
             <IonTitle>Spotify Search</IonTitle>
           </IonToolbar>
+          <br />
           <IonToolbar mode="ios" >
             <IonSearchbar color={context.darkMode ? "" : "light"} debounce={0} value={spotifyTextSearch} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} onIonChange={e => setSpotifyTextSearch(e.detail.value!)} showCancelButton="focus" animated={true}></IonSearchbar>
           </IonToolbar>
@@ -779,10 +781,9 @@ const Settings: React.FC = () => {
               <IonList style={{ "--background": "#0D1117" }} mode="ios">
                 {spotifyResults.map((track, index) => {
                   return (
-                    <FadeIn delay={1000} transitionDuration={750}>
-                      <IonItem style={{ "--background": "#0D1117" }} key={track.id + index.toString()} mode="ios" lines="none">
-                        <iframe id={"iframe_" + index.toString()} style={{ width: "75vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
-                          src={"https://embed.spotify.com/?uri=" + track.uri + "?autoplay=1"} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                    <FadeIn key={track.id + index.toString()} delay={1000} transitionDuration={750}>
+                      <IonItem className="spotify-emb" mode="ios" lines="none">
+                      <Spotify style={{backgroundColor : "black"}} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)}/>
                         <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}>Select</IonButton>
                       </IonItem>
                       <div style={{ height: "20px", backgroundColor: "#0D1117" }}> </div>
@@ -845,7 +846,7 @@ const Settings: React.FC = () => {
           <IonLoading isOpen={!userDataHasLoaded} spinner="dots" />
           <br /> <br /> < br />
           <div style={{ textAlign: "center" }}>
-            <IonNote style={{ textAlign: "center" }}>Click on your Username in the Settings menu to see your user profile!</IonNote>
+            <IonNote style={{ textAlign: "center" }}>Click on your Username in the <br />Settings menu to see your user profile!</IonNote>
           </div>
           <IonCard mode="ios">
             <IonCardContent>

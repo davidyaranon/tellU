@@ -1,10 +1,10 @@
 import React from "react";
-import { Keyboard } from "@capacitor/keyboard";
-import { useToast } from "@agney/ir-toast";
 import {
   IonButton, IonButtons, IonCol, IonContent, IonGrid,
   IonHeader, IonIcon, IonModal, IonRow, IonSearchbar, IonSpinner, IonTitle, IonToolbar
 } from "@ionic/react";
+import { Keyboard } from "@capacitor/keyboard";
+import { useToast } from "@agney/ir-toast";
 import { useContext } from "../../my-context";
 import { GalleryPhoto } from "@capacitor/camera";
 import { timeout } from "../../helpers/timeout";
@@ -42,7 +42,6 @@ export const GifModal = (props: any) => {
     xmlHttp.onreadystatechange = function () {
       if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
         test = callback(xmlHttp.responseText);
-        console.log({ test });
         return test;
       }
     }

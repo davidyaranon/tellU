@@ -28,8 +28,8 @@ import SpotifyWebApi from 'spotify-web-api-js';
 
 export const spotifyApi = new SpotifyWebApi();
 
-const REACT_APP_SPOTIFY_CLIENT_ID='3651703bf3464d94b8c206c758d183f7';
-const REACT_APP_SPOTIFY_SECRET_ID='fc1c32f9e4c041a29c1ee1f24af0ee75';
+const REACT_APP_SPOTIFY_CLIENT_ID='1df10089b0b3490db93c23353b0cdc35';
+const REACT_APP_SPOTIFY_SECRET_ID='118bf77d75eb4ef98c3dbc1a2443929f';
 
 
 const firebaseConfig = {
@@ -1503,6 +1503,7 @@ export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, sp
  */
 export const spotifySearch = async (query) => {
   try {
+    console.log(query);
     const res = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       body: 'grant_type=client_credentials&client_id=' + REACT_APP_SPOTIFY_CLIENT_ID + '&client_secret=' + REACT_APP_SPOTIFY_SECRET_ID,
@@ -1512,12 +1513,18 @@ export const spotifySearch = async (query) => {
     }).catch((err) => {
       console.log(err);
     });
+    console.log({res});
     const data = await res.json().catch((err) => { console.log(err); });
     const token = data.access_token;
     spotifyApi.setAccessToken(token);
-    const searchResults = await spotifyApi.search(query, ["track"], { limit: 25 });
+    console.log(spotifyApi.getAccessToken());
+    console.log({token});
+    console.log({data});
+    const searchResults = await spotifyApi.search(query, ["track"], { limit: 20 });
+    console.log({searchResults});
     return searchResults.tracks.items;
   } catch (err) {
+    console.error("UH OH");
     console.log(err);
   }
 };

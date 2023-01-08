@@ -132,11 +132,11 @@ export const PostPageLikeDislike = memo((props: any) => {
         color={
           user &&
             likes[user.uid] !== undefined && schoolName !== "Cal Poly Humboldt"
-            ? "primary"
+            ? "toast-success"
             : user && likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt" && schoolColorToggled
               ? "tertiary"
               : user && likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt" && !schoolColorToggled
-                ? "primary"
+                ? "toast-success"
                 : "medium"
         }
         onClick={() => {

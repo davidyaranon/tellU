@@ -263,7 +263,7 @@ export const PostComment = (props: any) => {
                   comment.likes[user.uid] !==
                   undefined &&
                   schoolName === "Cal Poly Humboldt" && !context.schoolColorToggled ?
-                  "primary"
+                  "toast-success"
                   : "medium"
             }
             onClick={() => {

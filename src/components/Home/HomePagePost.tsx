@@ -6,17 +6,19 @@ import { PostMessage } from "./PostMessage";
 import PostImages from "../Shared/PostImages";
 import { useContext } from "../../my-context";
 import { LikeDislike } from "../Shared/LikeDislike";
-import '../../App.css';
 import { useCallback, useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { useToast } from "@agney/ir-toast";
 import FadeIn from "react-fade-in/lib/FadeIn";
 
+import '../../App.css';
+
 export const HomePagePost = (props: any) => {
   const post = props.post;
   const index = props.index;
   const user = props.user;
-  const hideLikeDislike = props.hideLikeDislike;
+  const profileClickable = props.profileClickable;
+
   let schoolName = props.schoolName;
 
   // hooks
@@ -49,7 +51,7 @@ export const HomePagePost = (props: any) => {
         <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
           <IonLabel>
             <IonText color="medium">
-              <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); history.push("/about/" + schoolName + "/" + post.uid); }} >
+              <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation();  if(profileClickable !== false) history.push("/about/" + schoolName + "/" + post.uid); }} >
                 <ProfilePhoto uid={post.uid} />
               </IonAvatar>
               <p> {post.userName} </p>

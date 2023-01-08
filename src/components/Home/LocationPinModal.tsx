@@ -277,7 +277,7 @@ export const LocationPinModal = (props: any) => {
           }}
           className="login-button" fill="clear" expand="block"
           id="message"
-          style={{ width: "75vw" }}
+          style={{ width: "75vw", fontSize : "1.25em" }}
         >
           Post
         </IonButton>

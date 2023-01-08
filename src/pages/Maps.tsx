@@ -35,7 +35,6 @@ function Maps() {
   /* Hooks */
   const Toast = useToast();
   const history = useHistory();
-  // const router = useIonRouter();
   const context = useContext();
 
 
@@ -44,7 +43,7 @@ function Maps() {
   const [schoolName, setSchoolName] = useState<string>("");
   const [className, setClassName] = useState<string>("");
   const [center, setCenter] = useState<[number, number]>([37.250458, -120.350249]);
-  const [zoom, setZoom] = useState(6);
+  const [mapZoom, setZoom] = useState(6);
   const [defaultLat, setDefaultLat] = useState(0);
   const [defaultLong, setDefaultLong] = useState(0);
   const [defaultZoom, setDefaultZoom] = useState(0);
@@ -54,6 +53,8 @@ function Maps() {
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
   const [pinsLoading, setPinsLoading] = useState<boolean>(false);
   const [selectOptions, setSelectOptions] = useState<any>({});
+  const [overlayHeight, setOverlayHeight] = useState<number>(150);
+  const [overlayWidth, setOverlayWidth] = useState<number>(150);
 
 
   /**
@@ -225,6 +226,7 @@ function Maps() {
     }
   }, []);
 
+
   useEffect(() => {
     context.setDarkMode(true);
     document.body.classList.toggle("dark");
@@ -255,6 +257,8 @@ function Maps() {
         localStorage.removeItem("long");
         localStorage.removeItem("lat");
         setZoom(18.5);
+        setOverlayHeight(150);
+        setOverlayWidth(150);
       }
       getMapMarkers();
     }
@@ -311,7 +315,7 @@ function Maps() {
                 : !context.darkMode && schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "overlaySearch"
                   : "overlaySearchNotHumboldt"
         }>
-          <IonLabel color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>{""}</IonLabel>
+          <IonLabel color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>{"Filter:"}</IonLabel>
           <IonSelect
             interface="action-sheet"
             interfaceOptions={selectOptions}
@@ -319,7 +323,7 @@ function Maps() {
             cancelText="Cancel"
             mode="ios"
             value={markerFilter}
-            style={{ fontSize: "1.1em", transform: "translateY(15%)" }}
+            style={{ fontSize: "0.9em", transform: "translateY(-35%)" }}
             placeholder="Filter: ALL"
             onIonChange={(e: any) => {
               setOverlayIndex(-1);
@@ -343,7 +347,7 @@ function Maps() {
         <Map
           provider={mapTiler}
           center={center}
-          zoom={zoom}
+          zoom={mapZoom}
           animate={true}
           zoomSnap={false}
           attributionPrefix={false}
@@ -355,11 +359,12 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
+          {/* -0.00104692771 */}
           <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={context.darkMode ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
           {markers ? markers.map((marker, index) => {
             return (
               <Marker
-                style={zoom > 17 ? { opacity: "80%" } : { opacity: "75%" }}
+                style={mapZoom > 17 ? { opacity: "80%" } : { opacity: "75%" }}
                 color={getColor(marker.postType)}
                 key={marker.key}
                 anchor={[marker.location[0], marker.location[1]]}
@@ -422,7 +427,7 @@ function Maps() {
           <IonFab horizontal="start" vertical="bottom" >
             <p style={schoolName === 'Cal Poly Humboldt' ?
               { fontSize: "1em", color: "#0D1117", fontWeight: "bold" } :
-              { fontSize: "1em", color: "#0D1117", fontWeight: "bold"}}>
+              { fontSize: "1em", color: "#0D1117", fontWeight: "bold" }}>
               {schoolName}
             </p>
           </IonFab>

@@ -200,11 +200,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             let index = item;
             if ("question" in post) {
               return (
-                <HomePagePoll postIndex={index} post={post} user={user} schoolName={schoolName} />
+                <HomePagePoll profileClickable={false} postIndex={index} post={post} user={user} schoolName={schoolName} />
               )
             }
             return (
-              <HomePagePost schoolName={schoolName} user={user} index={index} post={post} />
+              <HomePagePost profileClickable={false} schoolName={schoolName} user={user} index={index} post={post} />
             );
           }}
           components={{ Footer, Header }} />

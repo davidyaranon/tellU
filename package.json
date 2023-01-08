@@ -53,6 +53,7 @@
     "react-mentions": "^4.4.7",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
+    "react-spotify-embed": "^1.0.4",
     "react-virtuoso": "^3.1.5",
     "rxjs": "^7.8.0",
     "rxjs-compat": "^6.6.7",

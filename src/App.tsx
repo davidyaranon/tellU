@@ -76,7 +76,6 @@ const keyStyleOptionsLight: KeyboardStyleOptions = {
   style: KeyboardStyle.Light
 }
 
-
 /**
  * Handles routing in app
  * Includes tab bar routing and all page components
@@ -223,12 +222,12 @@ const App: React.FC = () => {
     //     StatusBar.setStyle({ style: Style.Light });
     //   }
     // } else if (!isChecked || !isChecked.value) {
-      document.body.classList.toggle("dark");
-      context.setDarkMode(true);
-      if (Capacitor.getPlatform() === 'ios') {
-        Keyboard.setStyle(keyStyleOptionsDark);
-        StatusBar.setStyle({ style: Style.Dark });
-      }
+    document.body.classList.toggle("dark");
+    context.setDarkMode(true);
+    if (Capacitor.getPlatform() === 'ios') {
+      Keyboard.setStyle(keyStyleOptionsDark);
+      StatusBar.setStyle({ style: Style.Dark });
+    }
     // }
   }, []);
 
@@ -306,6 +305,13 @@ const App: React.FC = () => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://open.spotify.com/embed-podcast/iframe-api/v1";
+    script.async = true;
+    document.body.appendChild(script);
+  }, [])
 
   /**
    * Main App
