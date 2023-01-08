@@ -236,13 +236,13 @@ const App: React.FC = () => {
    * Enables school color toggle if it had been enabled previously
    */
   const handleSchoolColorToggle = React.useCallback(async () => {
-    // const isChecked = await Preferences.get({ key: "schoolColorToggled" });
-    // if (isChecked.value === "false" || !isChecked.value) {
-    //   context.setSchoolColorToggled(false);
-    // } else {
-    //   context.setSchoolColorToggled(true);
-    // }
-    context.setSchoolColorToggled(false);
+    const isChecked = await Preferences.get({ key: "schoolColorToggled" });
+    if (isChecked.value === "false" || !isChecked.value) {
+      context.setSchoolColorToggled(false);
+    } else {
+      context.setSchoolColorToggled(true);
+    }
+    // context.setSchoolColorToggled(false);
   }, []);
 
   /**
@@ -305,13 +305,6 @@ const App: React.FC = () => {
       });
     }
   }, []);
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://open.spotify.com/embed-podcast/iframe-api/v1";
-    script.async = true;
-    document.body.appendChild(script);
-  }, [])
 
   /**
    * Main App

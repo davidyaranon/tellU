@@ -76,7 +76,7 @@ const Settings: React.FC = () => {
   const [editableEmail, setEditableEmail] = React.useState<string>("");
   const [userName, setUserName] = React.useState<string>("");
   const [editableUserName, setEditableUserName] = React.useState<string>("");
-  const [spotifyTextSearch, setSpotifyTextSearch] = React.useState<string>("");
+  const spotifyTextSearch = React.useRef<HTMLIonSearchbarElement>(null);
   const [spotifyModal, setSpotifyModal] = React.useState<boolean>(false);
   const [spotifyLoading, setSpotifyLoading] = React.useState<boolean>(false);
   const [spotifyResults, setSpotifyResults] = React.useState<any[]>([]);
@@ -130,27 +130,33 @@ const Settings: React.FC = () => {
 
   const handleSpotifySearch = async () => {
     await timeout(100);
-    if (spotifyTextSearch.trim().length <= 0) {
-      const toast = Toast.create({ message: 'Enter a search query', duration: 2000, color: 'toast-error' });
-      toast.present();
-      return;
-    }
-    setSpotifyTextSearch("");
-    setSpotifyLoading(true);
-    spotifySearch(spotifyTextSearch).then((res: any) => {
-      setSpotifyResults(res);
-      if (res && res.length == 0) {
-        const toast = Toast.create({ message: 'No results', duration: 2000, color: 'toast-error' });
-        toast.present();
+    if (spotifyTextSearch && spotifyTextSearch.current) {
+      if (spotifyTextSearch.current.value) {
+        const text: string = spotifyTextSearch.current.value;
+        console.log(text);
+        if (text.length <= 0) {
+          const toast = Toast.create({ message: 'Enter a search query', duration: 2000, color: 'toast-error' });
+          toast.present();
+          return;
+        }
+        spotifyTextSearch.current.value = "";
+        setSpotifyLoading(true);
+        spotifySearch(text).then((res: any) => {
+          setSpotifyResults(res);
+          if (res && res.length == 0) {
+            const toast = Toast.create({ message: 'No results', duration: 2000, color: 'toast-error' });
+            toast.present();
+          }
+          console.log({ res });
+          setSpotifyLoading(false);
+        }).catch((err) => {
+          console.log(err);
+          const toast = Toast.create({ message: 'Unable to get results', duration: 2000, color: 'toast-error' });
+          toast.present();
+          setSpotifyLoading(false);
+        });
       }
-      console.log({res});
-      setSpotifyLoading(false);
-    }).catch((err) => {
-      console.log(err);
-      const toast = Toast.create({ message: 'Unable to get results', duration: 2000, color: 'toast-error' });
-      toast.present();
-      setSpotifyLoading(false);
-    });
+    }
   };
 
   const isEnterPressed = (key: string) => {
@@ -754,11 +760,15 @@ const Settings: React.FC = () => {
                 onClick={() => {
                   Keyboard.hide().then(() => {
                     setSpotifyModal(false);
-                    setSpotifyTextSearch("");
+                    if (spotifyTextSearch && spotifyTextSearch.current) {
+                      spotifyTextSearch.current.value = "";
+                    }
                     setSpotifyResults([]);
                   }).catch((err) => {
                     setSpotifyModal(false);
-                    setSpotifyTextSearch("");
+                    if (spotifyTextSearch && spotifyTextSearch.current) {
+                      spotifyTextSearch.current.value = "";
+                    }
                     setSpotifyResults([]);
                   });
                 }}
@@ -770,7 +780,7 @@ const Settings: React.FC = () => {
           </IonToolbar>
           <br />
           <IonToolbar mode="ios" >
-            <IonSearchbar color={context.darkMode ? "" : "light"} debounce={0} value={spotifyTextSearch} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} onIonChange={e => setSpotifyTextSearch(e.detail.value!)} showCancelButton="focus" animated={true}></IonSearchbar>
+            <IonSearchbar color={context.darkMode ? "" : "light"} debounce={0} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} ref={spotifyTextSearch} showCancelButton="focus" animated={true}></IonSearchbar>
           </IonToolbar>
           <hr style={{ opacity: "50%", width: "85vw" }}></hr>
           {spotifyLoading &&
@@ -783,8 +793,8 @@ const Settings: React.FC = () => {
                   return (
                     <FadeIn key={track.id + index.toString()} delay={1000} transitionDuration={750}>
                       <IonItem className="spotify-emb" mode="ios" lines="none">
-                      <Spotify style={{backgroundColor : "black"}} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)}/>
-                        <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); setSpotifyTextSearch(""); setSpotifyResults([]); }}>Select</IonButton>
+                        <Spotify style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)} />
+                        <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); if (spotifyTextSearch && spotifyTextSearch.current) { spotifyTextSearch.current.value = ""; } setSpotifyResults([]); }}>Select</IonButton>
                       </IonItem>
                       <div style={{ height: "20px", backgroundColor: "#0D1117" }}> </div>
                     </FadeIn>

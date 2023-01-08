@@ -112,8 +112,8 @@ const Home: React.FC = () => {
           }
           setPosts(posts?.concat(res.allPosts)!);
           setLastKey(res.lastKey);
-          if (event)
-            event.target.complete();
+          // if (event)
+          //   event.target.complete();
         } else {
           const toast = Toast.create({ message: 'Unable to load posts', duration: 2000, color: 'toast-error' });
           toast.present();

@@ -26,7 +26,7 @@ label,
 button,
 ion-loading,
 ion-card,
-ion-select, 
+ion-select,
 ion-card-title,
 ion-alert,
 button,
@@ -34,7 +34,8 @@ ion-button,
 p,
 ion-note {
   font-family: 'Dosis', sans-serif;
-  font-family: 'Noto Serif Khojki', serif;font-family: 'Dosis', sans-serif;
+  font-family: 'Noto Serif Khojki', serif;
+  font-family: 'Dosis', sans-serif;
   font-family: 'Noto Serif Khojki', serif;
 }
 
@@ -138,10 +139,11 @@ textarea {
 }
 
 .l-input {
-  border-radius:10px;
+  border-radius: 10px;
 }
+
 .custom-alert .alert-wrapper {
-  width: 65vw; 
+  width: 65vw;
 }
 
 .custom-alert {
@@ -184,12 +186,12 @@ ion-select {
 
 ion-item.class-name-selection {
   --border-radius: 15px;
-  width : 30vw;
+  width: 30vw;
 }
 
 ion-item.class-number-selection {
   --border-radius: 15px;
-  width : 25vw;
+  width: 25vw;
 }
 
 
@@ -245,8 +247,22 @@ ion-item.login-input {
   color: #FFF;
   text-align: center;
 }
+
 .curved-div svg {
-  display : block;
+  display: block;
+}
+
+.post-button-humboldt {
+  width: 20vw;
+  margin: auto;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  height: 85px;
+  color: white;
+  font-size: large;
+  border-radius: 15px;
+  background: rgb(0, 76, 70);
+  background: linear-gradient(90deg, rgba(0, 76, 70, 1) 0%, rgba(0, 133, 106, 1) 30%, rgba(0, 133, 106, 1) 50%, rgba(0, 133, 106, 1) 70%, rgba(0, 76, 70, 1) 100%);
 }
 
 .post-button {
@@ -258,8 +274,21 @@ ion-item.login-input {
   color: white;
   font-size: large;
   border-radius: 15px;
-  background: rgb(0,191,255);
-  background: linear-gradient(90deg, rgba(0,191,255,1) 0%, rgba(97,219,251,1) 75%, rgba(28,198,255,1) 100%);
+  background: rgb(0, 191, 255);
+  background: linear-gradient(90deg, rgba(0, 191, 255, 1) 0%, rgba(97, 219, 251, 1) 75%, rgba(28, 198, 255, 1) 100%);
+}
+
+.location-post-button-humboldt {
+  width: 85%;
+  margin: auto;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  height: 65px;
+  color: white;
+  font-size: large;
+  border-radius: 15px;
+  background: rgb(0, 76, 70);
+  background: linear-gradient(90deg, rgba(0, 76, 70, 1) 0%, rgba(0, 133, 106, 1) 30%, rgba(0, 133, 106, 1) 50%, rgba(0, 133, 106, 1) 70%, rgba(0, 76, 70, 1) 100%);
 }
 
 .login-button {
@@ -271,9 +300,10 @@ ion-item.login-input {
   color: white;
   font-size: large;
   border-radius: 15px;
-  background: rgb(0,191,255);
-  background: linear-gradient(90deg, rgba(0,191,255,1) 0%, rgba(97,219,251,1) 75%, rgba(28,198,255,1) 100%);
+  background: rgb(0, 191, 255);
+  background: linear-gradient(90deg, rgba(0, 191, 255, 1) 0%, rgba(97, 219, 251, 1) 75%, rgba(28, 198, 255, 1) 100%);
 }
+
 /* Action Sheet Interface: set color for the action sheet using its button CSS variables */
 .my-custom-interface .select-interface-option {
   --button-color-selected: #00856A;

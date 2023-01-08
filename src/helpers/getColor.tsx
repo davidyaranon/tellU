@@ -1,17 +1,17 @@
 export const getColor = (postType: string) => {
   switch (postType) {
     case "general":
-      return "#61DBFB";
+      return "#2FD0FA";
     case "alert":
       return "#fb6961";
     case "buy/Sell":
       return "#179b59";
     case "event":
-      return "#fc4ad3";
+      return "#FB61DB";
     case "sighting":
-      return "#eed202";
+      return "#DBFB61";
     case "research" :
-      return "#743dff";
+      return "#CE61FB";
     case "housing" :
       return "#ffaf2e";
     case "dining" :

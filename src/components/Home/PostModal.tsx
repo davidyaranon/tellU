@@ -90,7 +90,7 @@ export const PostModal = (props: any) => {
                 onClick={() => {
                   setLocationPinModal(true);
                 }}
-                className="post-button"
+                className={context.schoolColorToggled ? "post-button-humboldt" : "post-button"}
                 fill="clear" 
                 expand="block"
                 id="message"

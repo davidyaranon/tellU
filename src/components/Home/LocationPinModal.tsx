@@ -219,8 +219,8 @@ export const LocationPinModal = (props: any) => {
       <IonList inset lines="none">
         <IonRadioGroup value={checkboxSelection.charAt(0).toUpperCase() + checkboxSelection.slice(1)}>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="primary">General</IonLabel>
-            <IonRadio slot="end" value="General" color="primary" onIonFocus={() => setCheckboxSelection("general")}></IonRadio>
+            <IonLabel style={{ fontSize: "1.1em" }} color="general">General</IonLabel>
+            <IonRadio slot="end" value="General" color="general" onIonFocus={() => setCheckboxSelection("general")}></IonRadio>
           </IonItem>
           <IonItem>
             <IonLabel style={{ fontSize: "1.1em" }} color="alert">Alert</IonLabel>
@@ -275,7 +275,7 @@ export const LocationPinModal = (props: any) => {
           onClick={() => {
             handleSendMessage();
           }}
-          className="login-button" fill="clear" expand="block"
+          className={context.schoolColorToggled ? "location-post-button-humboldt" : "login-button"} fill="clear" expand="block"
           id="message"
           style={{ width: "75vw", fontSize : "1.25em" }}
         >
