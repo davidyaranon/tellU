@@ -3,6 +3,7 @@ import Capacitor
 import Firebase
 
 @UIApplicationMain
+ter
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?

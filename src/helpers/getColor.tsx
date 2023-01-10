@@ -5,7 +5,7 @@ export const getColor = (postType: string) => {
     case "alert":
       return "#fb6961";
     case "buy/Sell":
-      return "#179b59";
+      return "#8efb61";
     case "event":
       return "#FB61DB";
     case "sighting":

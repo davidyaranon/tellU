@@ -7,7 +7,7 @@ import { useHistory } from "react-router";
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, IonSpinner, useIonViewDidLeave, useIonViewWillEnter
+  RouterDirection, IonSpinner, useIonViewDidLeave, useIonViewWillEnter, IonText
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
@@ -20,12 +20,13 @@ import { collection, query, where, getDocs, orderBy, limit } from "firebase/fire
 /* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
-import { mapTiler, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../helpers/maps-config";
+import { mapTiler, markers, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../helpers/maps-config";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
 import { useContext } from "../my-context";
 import { Preferences } from "@capacitor/preferences";
 import { getColor } from "../helpers/getColor";
+import { Capacitor } from "@capacitor/core";
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
@@ -47,7 +48,7 @@ function Maps() {
   const [defaultLat, setDefaultLat] = useState(0);
   const [defaultLong, setDefaultLong] = useState(0);
   const [defaultZoom, setDefaultZoom] = useState(0);
-  const [markers, setMarkers] = useState<any[] | null>(null);
+  // const [markers, setMarkers] = useState<any[] | null>(null);
   const [markersCopy, setMarkersCopy] = useState<any[] | null>(null);
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
@@ -112,7 +113,7 @@ function Maps() {
   const updateMarkers = (filter: string) => {
     setMarkerFilter(filter);
     if (filter === "ALL") {
-      setMarkers(markersCopy);
+      // setMarkers(markersCopy);
     } else {
       if (filter == "YOURS") {
         let tempMarkers: any[] = [];
@@ -122,7 +123,7 @@ function Maps() {
               tempMarkers.push(marker);
             }
           }
-          setMarkers(tempMarkers);
+          // setMarkers(tempMarkers);
         } else {
           const toast = Toast.create({ message: 'Unable to filter', duration: 2000, color: 'toast-error' });
           toast.present();
@@ -150,7 +151,7 @@ function Maps() {
               tempMarkers.push(marker);
             }
           }
-          setMarkers(tempMarkers);
+          // setMarkers(tempMarkers);
         } else {
           const toast = Toast.create({ message: 'Unable to filter', duration: 2000, color: 'toast-error' });
           toast.present();
@@ -196,7 +197,7 @@ function Maps() {
           key: doc.id,
         });
       }
-      setMarkers(tempMarkers);
+      // setMarkers(tempMarkers);
       setMarkersCopy(tempMarkers);
       setPinsLoading(false);
     }
@@ -231,8 +232,10 @@ function Maps() {
     context.setDarkMode(true);
     document.body.classList.toggle("dark");
     context.setDarkMode(true);
-    Keyboard.setStyle(keyStyleOptionsDark);
-    StatusBar.setStyle({ style: Style.Dark });
+    if (Capacitor.getPlatform() === "ios") {
+      Keyboard.setStyle(keyStyleOptionsDark);
+      StatusBar.setStyle({ style: Style.Dark });
+    }
   }, [context]);
 
 
@@ -359,19 +362,19 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          {/* -0.00104692771 */}
           <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={context.darkMode ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
+
           {markers ? markers.map((marker, index) => {
             return (
               <Marker
-                style={mapZoom > 17 ? { opacity: "80%" } : { opacity: "75%" }}
-                color={getColor(marker.postType)}
-                key={marker.key}
+                // color={getColor(marker.postType)}
+                style={{ opacity: "75%" }}
+                key={marker.title}
                 anchor={[marker.location[0], marker.location[1]]}
-                width={50}
+                width={40}
                 onClick={() => {
                   setCenter([
-                    marker.location[0] - 0.0005,
+                    marker.location[0] - 0.00225,
                     marker.location[1],
                   ]);
                   setOverlayIndex(-1);
@@ -391,31 +394,30 @@ function Maps() {
               offset={[110, 25]}
             >
               <IonCard
-                onClick={() => { setClassName("ion-page-ios-notch"); dynamicNavigate("post/" + schoolName + "/" + markers[overlayIndex].userName + "/" + markers[overlayIndex].key, "forward"); }}
+                onClick={() => { setClassName("ion-page-ios-notch"); dynamicNavigate("markerInfo/" + schoolName + "/" + markers[overlayIndex].title, "forward"); }}
                 style={{ width: "55vw", opacity: "90%" }}
                 mode="ios"
               >
                 <IonCardContent>
                   <IonCardTitle style={{ fontSize: "medium" }} mode="ios">
-                    {markers[overlayIndex].userName}
+                    {markers[overlayIndex].title}
                   </IonCardTitle>
                   <IonFab horizontal="end" vertical="top">
-                    <p style={{ fontWeight: "bold", fontSize: "2.5vw", color: getColor(markers[overlayIndex].postType) }}>
-                      {markers[overlayIndex].postType.toUpperCase()}
+                    <p style={{ fontWeight: "bold", fontSize: "2.5vw", /* color: getColor(markers[overlayIndex].postType)*/ }}>
+                      Housing
                     </p>
                   </IonFab>
+                  <div style={{ height: "1vh" }} />
                   <p>
-                    {markers[overlayIndex].message.length > 120
-                      ? markers[overlayIndex].message.substring(0, 120) + "..."
-                      : markers[overlayIndex].message}
+                    {markers[overlayIndex].description.substring(0, 110) + " ... "} <IonText color="primary">(more)</IonText>
                   </p>
                   {markers[overlayIndex].imgSrc &&
                     markers[overlayIndex].imgSrc.length > 0 ? (
                     <>
-                      <br></br>
+                      <div style={{ height: "1vh" }} />
                       <div
                         className="ion-img-container"
-                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc[0]})`, borderRadius: '10px' }}
+                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc})`, borderRadius: '10px' }}
                       >
                       </div>
                     </>

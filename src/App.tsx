@@ -60,6 +60,7 @@ import { ToastProvider } from "@agney/ir-toast";
 import { useContext } from "./my-context";
 import { UserProfile } from './pages/UserProfile';
 import { FCM } from '@capacitor-community/fcm';
+import { MapMarkerInfo } from './pages/MapMarkerInfo';
 
 // Global variables
 setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
@@ -166,6 +167,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/:tab(home)" exact component={Home} />
           <Route path="/:tab(maps)" exact component={Maps} />
           <Route path="/:tab(settings)" exact component={Settings} />
+          <Route path="/markerInfo/:school/:title" component={MapMarkerInfo} />
           <Route path="/about/:school/:uid" component={UserProfile} />
           <Route path="/post/:school/:userName/:key" component={Post} />
           <Route path="/direct/:schoolName/:directMessageId" component={DirectMessages} />

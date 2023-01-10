@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 import Map from "@mui/icons-material/Map";
 import { useToast } from "@agney/ir-toast";
 import { useContext } from "../../my-context";
-import { Preferences } from "@capacitor/preferences";
+import { humboldtPOIs } from "../../helpers/maps-config";
 
 /* options for getting user's location using {@awesome-cordova-plugins/geolocation} */
 const locationOptions: GeolocationOptions = {
@@ -52,6 +52,7 @@ export const LocationPinModal = (props: any) => {
   /* state variables */
   const [locationChecked, setLocationChecked] = useState<boolean>(false);
   const [position, setPosition] = useState<Geoposition | null>();
+  const [POI, setPOI] = useState<string>("");
   const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
 
   /**
@@ -167,6 +168,33 @@ export const LocationPinModal = (props: any) => {
     messageAdd();
   };
 
+  function area(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): number {
+    return Math.abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
+  }
+
+  /**
+   * @description sees if the user is currently in a POI based on their location
+   * 
+   * @param {number} lat the latitude of the user's current position
+   * @param {number} long the longitude of the user's current position
+   */
+  const checkPOI = (lat: number, long: number) => {
+    for (const [key, value] of Object.entries(humboldtPOIs)) {
+      const arr: number[] = value;
+      const A = area(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]) +
+        area(arr[0], arr[1], arr[6], arr[7], arr[4], arr[5]);
+      const A1 = area(lat, long, arr[0], arr[1], arr[2], arr[3]);
+      const A2 = area(lat, long, arr[2], arr[3], arr[4], arr[5]);
+      const A3 = area(lat, long, arr[4], arr[5], arr[6], arr[7]);
+      const A4 = area(lat, long, arr[0], arr[1], arr[6], arr[7]);
+      if (Math.abs(A - (A1 + A2 + A3 + A4)) < 0.0000000000000001 ) {
+        console.log("Post is in POI: " + key);
+        return key;
+      }
+    }
+    return "";
+  };
+
   /**
    * @description Get the current location of the user
    */
@@ -177,8 +205,16 @@ export const LocationPinModal = (props: any) => {
     });
     try {
       const pos = await Geolocation.getCurrentPosition(locationOptions);
+      const poi: string = checkPOI(pos.coords.latitude, pos.coords.longitude);
+      if ((poi === "") || (!poi) || (poi.length < 0)) {
+        const toast = Toast.create({ message: 'Location not in a POI', duration: 2000, color: 'toast-error' });
+        toast.present();
+        dismiss();
+        return;
+      }
+      setPOI(poi)
       setPosition(pos);
-      const toast = Toast.create({ message: 'Location added to post', duration: 2000, color: 'toast-success' });
+      const toast = Toast.create({ message: 'POI: ' + poi + ' added!', duration: 2000, color: 'toast-success' });
       toast.present();
       toast.dismiss();
       dismiss();
@@ -255,7 +291,12 @@ export const LocationPinModal = (props: any) => {
 
       <IonList inset={true} mode="ios">
         <IonItem mode="ios" lines="none">
-          <IonLabel> Add pin to map?*</IonLabel><Map />
+          {POI.length > 0 ?
+            <IonLabel> Add post to map? </IonLabel>
+            :
+            <IonLabel> Add post to map?*</IonLabel>
+          }
+          <Map />
           <IonCheckbox
             slot="end"
             checked={locationChecked}
@@ -268,7 +309,12 @@ export const LocationPinModal = (props: any) => {
         </IonItem>
       </IonList>
 
-      <IonNote style={{ textAlign: "center" }}>*Location pin stays on map for up to two days</IonNote>
+      {POI.length > 0 ?
+        <IonNote style={{ textAlign: "center" }}>Location: {POI}</IonNote>
+        :
+        <IonNote style={{ textAlign: "center" }}>*Clicking this will use your current location to link your post to one of many POIs on campus.</IonNote>
+      }
+
       <br />
       <div className="ion-button-container">
         <IonButton
@@ -277,7 +323,7 @@ export const LocationPinModal = (props: any) => {
           }}
           className={context.schoolColorToggled ? "location-post-button-humboldt" : "login-button"} fill="clear" expand="block"
           id="message"
-          style={{ width: "75vw", fontSize : "1.25em" }}
+          style={{ width: "75vw", fontSize: "1.25em" }}
         >
           Post
         </IonButton>
