@@ -944,9 +944,7 @@ const Settings: React.FC = () => {
               <IonLabel>Spotify Song Spotlight</IonLabel>
               <br /><br />
               {editableSpotifyUri && editableSpotifyUri.length > 0 &&
-                <iframe style={{ width: "82.5vw", borderRadius: "15px", maxHeight: "80px" }} className='Music'
-                  src={"https://embed.spotify.com/?uri=" + editableSpotifyUri} frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-                </iframe>
+                <Spotify style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + editableSpotifyUri.substring(14)} />
               }
               {editableSpotifyUri && editableSpotifyUri.length > 0 ?
                 <IonRow>

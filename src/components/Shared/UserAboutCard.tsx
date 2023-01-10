@@ -8,6 +8,7 @@ import { logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import { useContext } from "../../my-context";
 import FadeIn from "react-fade-in/lib/FadeIn";
+import Spotify from "react-spotify-embed";
 
 export const UserAboutCard = (props: any) => {
 
@@ -146,31 +147,14 @@ export const UserAboutCard = (props: any) => {
                   <FadeIn delay={250} transitionDuration={750}>
                     <br />
                     {context.darkMode ?
-                      <iframe
-                        id="iframe1"
-                        title="darkmode_iframe_spotify"
-                        style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
-                        className='Music'
-                        onLoad={() => { setIframeLoader(false); }}
-                        src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
-                        seamless={true}
-                        loading="eager"
-                      >
-                      </iframe>
+                      <>
+                        <Spotify style={{ backgroundColor: "#2f2f2f" }} wide link={"https://open.spotify.com/track/" + spotifyUri.substring(14)} />
+                      </>
                       :
-                      <iframe
-                        id="iframetwo"
-                        title="lightmode_iframe_spotify"
-                        style={iFrameLoader ? { width: "82.5vw", backgroundColor: "#f2f1f1", borderRadius: "15px", maxHeight: "80px", opacity: 0, colorScheme: "normal" } : { backgroundColor: "#f2f1f1", width: "82.5vw", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }}
-                        className='Music'
-                        onLoad={() => { setIframeLoader(false); }}
-                        src={"https://embed.spotify.com/?uri=" + spotifyUri} frameBorder="0" allow="autoplay; clipboard-write; fullscreen; picture-in-picture "
-                        seamless={true}
-                        loading="eager"
-                      >
-                      </iframe>
+                      <>
+                        <Spotify style={{ backgroundColor: "#F2F1F1" }} wide link={"https://open.spotify.com/track/" + spotifyUri.substring(14)} />
+                      </>
                     }
-
                   </FadeIn>
                 }
               </FadeIn>
