@@ -420,9 +420,11 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                     </div>
                   </>
                   :
-                  <div className="ion-spinner">
-                    <p style={{ textAlign: "center" }}>Send a DM!</p>
-                  </div>
+                  <FadeIn delay={1000}>
+                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", transform : "translateY(25vh)"}}>
+                      <p style={{ textAlign: "center",}}>Send a DM!</p>
+                      </div>
+                  </FadeIn>
             }
             {kbHeight !== 0 || kbHeight > 0 ?
               <>

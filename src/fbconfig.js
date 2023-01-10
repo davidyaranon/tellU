@@ -18,20 +18,15 @@ import {
 } from "firebase/database";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { getFunctions, httpsCallable } from 'firebase/functions';
-
-import { Capacitor } from '@capacitor/core';
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { ref as rtdbRef } from "firebase/database";
 
+import { Capacitor } from '@capacitor/core';
 import SpotifyWebApi from 'spotify-web-api-js';
 
-export const spotifyApi = new SpotifyWebApi();
-
-const REACT_APP_SPOTIFY_CLIENT_ID='1df10089b0b3490db93c23353b0cdc35';
-const REACT_APP_SPOTIFY_SECRET_ID='118bf77d75eb4ef98c3dbc1a2443929f';
-
-
+const spotifyApi = new SpotifyWebApi();
+const REACT_APP_SPOTIFY_CLIENT_ID = '1df10089b0b3490db93c23353b0cdc35';
+const REACT_APP_SPOTIFY_SECRET_ID = '118bf77d75eb4ef98c3dbc1a2443929f';
 const firebaseConfig = {
   apiKey: "AIzaSyAHV2ukGyxwx_8wADQSd4QXV1rRiU93L44",
   databaseURL: "https://quantum-61b84-default-rtdb.firebaseio.com",
@@ -43,7 +38,6 @@ const firebaseConfig = {
   measurementId: "G-JRZ1RJ4P89",
 };
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = Capacitor.isNativePlatform ?
   initializeAuth(app, {
     persistence: indexedDBLocalPersistence,
@@ -1513,15 +1507,15 @@ export const spotifySearch = async (query) => {
     }).catch((err) => {
       console.log(err);
     });
-    console.log({res});
+    console.log({ res });
     const data = await res.json().catch((err) => { console.log(err); });
     const token = data.access_token;
     spotifyApi.setAccessToken(token);
     console.log(spotifyApi.getAccessToken());
-    console.log({token});
-    console.log({data});
+    console.log({ token });
+    console.log({ data });
     const searchResults = await spotifyApi.search(query, ["track"], { limit: 20 });
-    console.log({searchResults});
+    console.log({ searchResults });
     return searchResults.tracks.items;
   } catch (err) {
     console.error("UH OH");
@@ -1533,7 +1527,7 @@ export const spotifySearch = async (query) => {
  * @description Gets the current app version number from Firestore
  */
 export const getAppVersionNum = async () => {
-  if(!db || !auth) {
+  if (!db || !auth) {
     console.log("WHAT")
     return null;
   }
@@ -1543,5 +1537,17 @@ export const getAppVersionNum = async () => {
     return versionDoc.data().version;
   }
   return '';
-}
+};
+
+/**
+ * @description Gets the information about a certain map POI.
+ * Information includes a description + other info and an array with 
+ * the last 15 posts made at that POI.
+ * 
+ * @param {string} poiName Name of the POI
+ * 
+ * @returns {POIInfo} Object with POI information
+ */
+export const getPOIInfo = async (poiName) => {
+};
 
