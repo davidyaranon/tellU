@@ -59,7 +59,7 @@ export const PostPagePost = (props: any) => {
               </FadeIn>
               <p> {post.userName} </p>
             </IonText>
-            <PostType schoolName={schoolName} type={post.postType} marker={post.marker} location={post.location} timestamp={post.timestamp} />
+            <PostType schoolName={schoolName} type={post.postType} marker={post.marker} POI={post.POI} timestamp={post.timestamp} />
             <PostMessage schoolName={schoolName} message={post.message} classNumber={post.classNumber} className={post.className} reports={post.reports || 0} />
             <PostImages userName={post.userName} imgSrc={post.imgSrc || []} reports={post.reports || 0} />
           </IonLabel>

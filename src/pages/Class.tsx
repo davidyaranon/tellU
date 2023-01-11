@@ -1099,14 +1099,12 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               >
                                 {post.postType.toUpperCase()}
                                 &nbsp;
-                                {post.marker ? (
+                                {post.marker && "POI" in post && post.POI.length > 0 ? (
                                   <RoomIcon
                                     style={{ fontSize: "1em" }}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      localStorage.setItem("lat", (post.location[0].toString()));
-                                      localStorage.setItem("long", (post.location[1].toString()));
-                                      history.push("maps");
+                                      history.push("/markerInfo/" + schoolName + "/" + post.POI);
                                     }}
                                   />
                                 ) : null}
@@ -1119,12 +1117,10 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   marginLeft: "75%"
                                 }}
                               >
-                                {post.marker ? (
+                                {post.marker && "POI" in post && post.POI.length > 0? (
                                   <RoomIcon onClick={(e) => {
                                     e.stopPropagation();
-                                    localStorage.setItem("lat", (post.location[0].toString()));
-                                    localStorage.setItem("long", (post.location[1].toString()));
-                                    history.push("maps");
+                                    history.push("/markerInfo/" + schoolName + "/" + post.POI);
                                   }}
                                     style={{ fontSize: "1em" }} />) : null}
                               </p>

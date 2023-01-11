@@ -148,11 +148,11 @@ export const UserAboutCard = (props: any) => {
                     <br />
                     {context.darkMode ?
                       <>
-                        <Spotify style={{ backgroundColor: "#2f2f2f" }} wide link={"https://open.spotify.com/track/" + spotifyUri.substring(14)} />
+                        <Spotify allow="encrypted-media" style={{ backgroundColor: "#2f2f2f" }} wide link={"https://open.spotify.com/track/" + spotifyUri.substring(14)} />
                       </>
                       :
                       <>
-                        <Spotify style={{ backgroundColor: "#F2F1F1" }} wide link={"https://open.spotify.com/track/" + spotifyUri.substring(14)} />
+                        <Spotify allow="encrypted-media" style={{ backgroundColor: "#F2F1F1" }} wide link={"https://open.spotify.com/track/" + spotifyUri.substring(14)} />
                       </>
                     }
                   </FadeIn>

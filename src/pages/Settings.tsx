@@ -793,7 +793,7 @@ const Settings: React.FC = () => {
                   return (
                     <FadeIn key={track.id + index.toString()} delay={1000} transitionDuration={750}>
                       <IonItem className="spotify-emb" mode="ios" lines="none">
-                        <Spotify style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)} />
+                        <Spotify allow="encrypted-media" style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)} />
                         <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); if (spotifyTextSearch && spotifyTextSearch.current) { spotifyTextSearch.current.value = ""; } setSpotifyResults([]); }}>Select</IonButton>
                       </IonItem>
                       <div style={{ height: "20px", backgroundColor: "#0D1117" }}> </div>
@@ -944,7 +944,7 @@ const Settings: React.FC = () => {
               <IonLabel>Spotify Song Spotlight</IonLabel>
               <br /><br />
               {editableSpotifyUri && editableSpotifyUri.length > 0 &&
-                <Spotify style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + editableSpotifyUri.substring(14)} />
+                <Spotify allow="encrypted-media" style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + editableSpotifyUri.substring(14)} />
               }
               {editableSpotifyUri && editableSpotifyUri.length > 0 ?
                 <IonRow>

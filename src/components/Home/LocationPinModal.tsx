@@ -98,6 +98,7 @@ export const LocationPinModal = (props: any) => {
             photos,
             uniqueId.toString(),
             position,
+            POI,
             schoolName,
             notificationsToken,
             checkboxSelection,
@@ -129,6 +130,7 @@ export const LocationPinModal = (props: any) => {
           blob,
           uniqueId.toString(),
           position,
+          POI,
           schoolName,
           notificationsToken,
           checkboxSelection,
@@ -212,7 +214,7 @@ export const LocationPinModal = (props: any) => {
         dismiss();
         return;
       }
-      setPOI(poi)
+      setPOI(poi.trim());
       setPosition(pos);
       const toast = Toast.create({ message: 'POI: ' + poi + ' added!', duration: 2000, color: 'toast-success' });
       toast.present();
@@ -279,12 +281,12 @@ export const LocationPinModal = (props: any) => {
             <IonRadio color="event" slot="end" value="Event" onIonFocus={() => setCheckboxSelection("event")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="dining" >Dining</IonLabel>
-            <IonRadio color="dining" slot="end" value="Dining" onIonFocus={() => setCheckboxSelection("dining")}></IonRadio>
-          </IonItem>
-          <IonItem>
             <IonLabel style={{ fontSize: "1.1em" }} color="research">Research</IonLabel>
             <IonRadio color="research" slot="end" value="Research" onIonFocus={() => setCheckboxSelection("research")}></IonRadio>
+          </IonItem>
+          <IonItem>
+            <IonLabel style={{ fontSize: "1.1em" }} color="dining" >Dining</IonLabel>
+            <IonRadio color="dining" slot="end" value="Dining" onIonFocus={() => setCheckboxSelection("dining")}></IonRadio>
           </IonItem>
         </IonRadioGroup>
       </IonList>

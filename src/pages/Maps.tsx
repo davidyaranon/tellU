@@ -7,29 +7,39 @@ import { useHistory } from "react-router";
 import {
   IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, IonSpinner, useIonViewDidLeave, useIonViewWillEnter, IonText
+  RouterDirection, useIonViewDidLeave, useIonViewWillEnter, IonText
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
 /* Firebase */
-import auth, { db } from "../fbConfig";
-import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
+import auth from "../fbConfig";
 
 /* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
-import { mapTiler, markers, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../helpers/maps-config";
+import { mapTiler, markers, schoolInfo, setMarkers, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../helpers/maps-config";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
 import { useContext } from "../my-context";
 import { Preferences } from "@capacitor/preferences";
-import { getColor } from "../helpers/getColor";
 import { Capacitor } from "@capacitor/core";
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
+}
+
+const getIonColor = (color : string) => {
+  let c : string = "";
+  for(let i = color.length - 2; i >= 0; --i) {
+    if(color[i] === '-') {
+      console.log(c);
+      return c.split('').reverse().join('');
+    }
+    c += color[i];
+  }
+  return c.split('').reverse().join('');
 }
 
 function Maps() {
@@ -48,14 +58,9 @@ function Maps() {
   const [defaultLat, setDefaultLat] = useState(0);
   const [defaultLong, setDefaultLong] = useState(0);
   const [defaultZoom, setDefaultZoom] = useState(0);
-  // const [markers, setMarkers] = useState<any[] | null>(null);
-  const [markersCopy, setMarkersCopy] = useState<any[] | null>(null);
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
-  const [pinsLoading, setPinsLoading] = useState<boolean>(false);
   const [selectOptions, setSelectOptions] = useState<any>({});
-  const [overlayHeight, setOverlayHeight] = useState<number>(150);
-  const [overlayWidth, setOverlayWidth] = useState<number>(150);
 
 
   /**
@@ -108,100 +113,54 @@ function Maps() {
    * @description sets map view to only show
    * certain markers based on a filter chosen by the user
    * 
-   * @param {string} filter the type of marker being displayed (GENERAL, BUY/SELL, ALERTS, SIGHTINGS, etc.)
+   * @param {string} filter the type of marker being displayed (Housing, Dining, Recreation, etc.)
    */
   const updateMarkers = (filter: string) => {
     setMarkerFilter(filter);
-    if (filter === "ALL") {
-      // setMarkers(markersCopy);
-    } else {
-      if (filter == "YOURS") {
-        let tempMarkers: any[] = [];
-        if (markersCopy && user) {
-          for (const marker of markersCopy) {
-            if (marker.uid == user.uid) {
-              tempMarkers.push(marker);
-            }
-          }
-          // setMarkers(tempMarkers);
-        } else {
-          const toast = Toast.create({ message: 'Unable to filter', duration: 2000, color: 'toast-error' });
-          toast.present();
-        }
-      } else {
-        if (filter === "BUY/SELL") {
-          filter = "buy/Sell";
-        } else if (filter === "RESEARCH") {
-          filter = "research";
-        } else if (filter === "HOUSING") {
-          filter = "housing"
-        } else if (filter === "DINING") {
-          filter = "dining"
-        }
-        else if (filter === "GENERAL") {
-          filter = filter.toLowerCase();
-        } else {
-          filter = filter.toLowerCase();
-          filter = filter.slice(0, -1);
-        }
-        let tempMarkers: any[] = [];
-        if (markersCopy) {
-          for (const marker of markersCopy) {
-            if (marker.postType == filter) {
-              tempMarkers.push(marker);
-            }
-          }
-          // setMarkers(tempMarkers);
-        } else {
-          const toast = Toast.create({ message: 'Unable to filter', duration: 2000, color: 'toast-error' });
-          toast.present();
-        }
-      }
-    }
+    setMarkers(filter);
   };
-
 
   /**
    * @description Pulls info about a school's markers
    * from Firestore database, shows the most recent
    * 50 markers within the past 2 days
    */
-  const getMapMarkers = async () => {
-    if (schoolName) {
-      const markersRef = collection(
-        db,
-        "schoolPosts",
-        schoolName.replace(/\s+/g, ""),
-        "allPosts"
-      );
-      const yesterday = new Date();
-      yesterday.setHours(0, 0, 0, 0);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const tomorrow = new Date();
-      tomorrow.setHours(24, 0, 0, 0);
-      tomorrow.setDate(yesterday.getDate() + 2);
-      const q = query(
-        markersRef,
-        where("marker", "==", true),
-        where("timestamp", ">", yesterday),
-        where("timestamp", "<", tomorrow),
-        orderBy("timestamp", "desc"),
-        limit(50)
-      );
-      const querySnapshot = await getDocs(q);
-      const tempMarkers: any[] = [];
-      const docs = querySnapshot.docs;
-      for (const doc of docs) {
-        tempMarkers.push({
-          ...doc.data(),
-          key: doc.id,
-        });
-      }
-      // setMarkers(tempMarkers);
-      setMarkersCopy(tempMarkers);
-      setPinsLoading(false);
-    }
-  };
+  // const getMapMarkers = async () => {
+  //   if (schoolName) {
+  //     const markersRef = collection(
+  //       db,
+  //       "schoolPosts",
+  //       schoolName.replace(/\s+/g, ""),
+  //       "allPosts"
+  //     );
+  //     const yesterday = new Date();
+  //     yesterday.setHours(0, 0, 0, 0);
+  //     yesterday.setDate(yesterday.getDate() - 1);
+  //     const tomorrow = new Date();
+  //     tomorrow.setHours(24, 0, 0, 0);
+  //     tomorrow.setDate(yesterday.getDate() + 2);
+  //     const q = query(
+  //       markersRef,
+  //       where("marker", "==", true),
+  //       where("timestamp", ">", yesterday),
+  //       where("timestamp", "<", tomorrow),
+  //       orderBy("timestamp", "desc"),
+  //       limit(50)
+  //     );
+  //     const querySnapshot = await getDocs(q);
+  //     const tempMarkers: any[] = [];
+  //     const docs = querySnapshot.docs;
+  //     for (const doc of docs) {
+  //       tempMarkers.push({
+  //         ...doc.data(),
+  //         key: doc.id,
+  //       });
+  //     }
+  //     // setMarkers(tempMarkers);
+  //     setMarkersCopy(tempMarkers);
+  //     setPinsLoading(false);
+  //   }
+  // };
 
   /**
    * Runs on page exit
@@ -260,10 +219,7 @@ function Maps() {
         localStorage.removeItem("long");
         localStorage.removeItem("lat");
         setZoom(18.5);
-        setOverlayHeight(150);
-        setOverlayWidth(150);
       }
-      getMapMarkers();
     }
   }, [user, loading, schoolName]);
 
@@ -293,9 +249,7 @@ function Maps() {
    */
   useEffect(() => {
     if (schoolName.length > 0) {
-      setPinsLoading(true);
       getSchoolLocation();
-      getMapMarkers();
     }
   }, [schoolName]);
 
@@ -306,11 +260,6 @@ function Maps() {
   return (
     <IonPage className={className}>
       <IonContent fullscreen={true} className="no-scroll-content">
-        {pinsLoading &&
-          <IonFab horizontal="start" vertical="top">
-            <IonSpinner name="lines"></IonSpinner>
-          </IonFab>
-        }
         <div className={
           context.darkMode && schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "overlaySearchDark"
             : context.darkMode && schoolName === "Cal Poly Humboldt" && !context.schoolColorToggled ? "overlaySearchDarkNotHumboldt"
@@ -334,18 +283,12 @@ function Maps() {
             }}
           >
             <IonSelectOption value="ALL" class="all-option">All</IonSelectOption>
-            <IonSelectOption value="YOURS" class="your-option">Yours</IonSelectOption>
-            <IonSelectOption value="GENERAL" className="general-option">General</IonSelectOption>
-            <IonSelectOption value="ALERTS">Alerts</IonSelectOption>
-            <IonSelectOption value="BUY/SELL">Buy/Sell</IonSelectOption>
-            <IonSelectOption value="SIGHTINGS">Sightings</IonSelectOption>
-            <IonSelectOption value="EVENTS">Events</IonSelectOption>
-            <IonSelectOption value="RESEARCH">Research</IonSelectOption>
-            <IonSelectOption value="HOUSING">Housing</IonSelectOption>
-            <IonSelectOption value="DINING">Dining</IonSelectOption>
+            <IonSelectOption value="Dining">Dining</IonSelectOption>
+            <IonSelectOption value="Housing">Housing</IonSelectOption>
+            <IonSelectOption value="Academics">Academics</IonSelectOption>
+            <IonSelectOption value="Recreation">Recreation</IonSelectOption>
           </IonSelect>
         </div>
-
 
         <Map
           provider={mapTiler}
@@ -367,16 +310,25 @@ function Maps() {
           {markers ? markers.map((marker, index) => {
             return (
               <Marker
-                // color={getColor(marker.postType)}
-                style={{ opacity: "75%" }}
+                color={marker.color}
+                style={{ opacity: "85%" }}
                 key={marker.title}
                 anchor={[marker.location[0], marker.location[1]]}
-                width={40}
+                width={35}
+                offset={[0, -5]}
                 onClick={() => {
-                  setCenter([
-                    marker.location[0] - 0.00225,
-                    marker.location[1],
-                  ]);
+                  if (mapZoom > 17) {
+                    setCenter([
+                      marker.location[0] - 0.0001,
+                      marker.location[1],
+                    ]);
+                  } else {
+                    setCenter([
+                      marker.location[0] - 0.00225,
+                      marker.location[1],
+                    ]);
+                  }
+
                   setOverlayIndex(-1);
                   setOverlayIndex(index);
                 }}
@@ -403,13 +355,13 @@ function Maps() {
                     {markers[overlayIndex].title}
                   </IonCardTitle>
                   <IonFab horizontal="end" vertical="top">
-                    <p style={{ fontWeight: "bold", fontSize: "2.5vw", /* color: getColor(markers[overlayIndex].postType)*/ }}>
-                      Housing
+                    <p style={{ fontWeight: "bold", fontSize: "2.5vw", color: markers[overlayIndex].color }}>
+                      {markers[overlayIndex].tag}
                     </p>
                   </IonFab>
                   <div style={{ height: "1vh" }} />
                   <p>
-                    {markers[overlayIndex].description.substring(0, 110) + " ... "} <IonText color="primary">(more)</IonText>
+                    {markers[overlayIndex].description.substring(0, 110) + " ... "} <IonText color={getIonColor(markers[overlayIndex].color)}>(more)</IonText>
                   </p>
                   {markers[overlayIndex].imgSrc &&
                     markers[overlayIndex].imgSrc.length > 0 ? (

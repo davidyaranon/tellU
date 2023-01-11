@@ -11,11 +11,11 @@ export const getColor = (postType: string) => {
     case "sighting":
       return "#DBFB61";
     case "research" :
-      return "#CE61FB";
+      return "#D5CB9F";
     case "housing" :
       return "#ffaf2e";
     case "dining" :
-      return "#D5CB9F";
+      return "#CE61FB";
     default:
       break;
   }

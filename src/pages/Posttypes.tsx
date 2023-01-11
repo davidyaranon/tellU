@@ -31,7 +31,10 @@ interface MatchUserPostParams {
 }
 
 const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
-  const postType = match.params.type;
+  let postType = match.params.type;
+  if(postType === "buySell") {
+    postType = "buy/Sell";
+  }
   const schoolName = match.params.schoolName;
   const context = useContext();
   const [user] = useAuthState(auth);
@@ -124,14 +127,12 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               >
                                 {post.postType.toUpperCase()}
                                 &nbsp;
-                                {post.marker ? (
+                                {post.marker && "POI" in post && post.POI.length > 0 ? (
                                   <RoomIcon
                                     style={{ fontSize: "1em" }}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      localStorage.setItem("lat", (post.location[0].toString()));
-                                      localStorage.setItem("long", (post.location[1].toString()));
-                                      dynamicNavigate(router, "/maps", 'forward');
+                                      dynamicNavigate(router, "/markerInfo/" + schoolName + "/" + post.POI, 'forward');
                                     }}
                                   />
                                 ) : null}
@@ -144,12 +145,10 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                   marginLeft: "75%"
                                 }}
                               >
-                                {post.marker ? (
+                                {post.marker && "POI" in post && post.POI.length > 0 ? (
                                   <RoomIcon onClick={(e) => {
                                     e.stopPropagation();
-                                    localStorage.setItem("lat", (post.location[0].toString()));
-                                    localStorage.setItem("long", (post.location[1].toString()));
-                                    dynamicNavigate(router, "/maps", 'forward');
+                                    dynamicNavigate(router, "/markerInfo/" + schoolName + "/" + post.POI, 'forward');
                                   }}
                                     style={{ fontSize: "1em" }} />) : null}
                               </p>

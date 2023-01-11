@@ -997,7 +997,7 @@ export const submitPollNew = async (pollText, pollOptions, schoolName, userName,
  * @param {string} docId 
  * @returns boolean if message was successfully uploaded
  */
-export const addMessage = async (mess, blob, id, pos, school, notificationsToken, postType = "general", postClassName = "", postClassNumber = "", docId) => {
+export const addMessage = async (mess, blob, id, pos, POI, school, notificationsToken, postType = "general", postClassName = "", postClassNumber = "", docId) => {
   try {
     if (auth.currentUser != null) {
       if (auth.currentUser.uid != null) {
@@ -1014,22 +1014,6 @@ export const addMessage = async (mess, blob, id, pos, school, notificationsToken
           }
         }
         if (pos) {
-          const isPositiveOne = Math.random() >= 0.5;
-          const isPositiveTwo = Math.random() >= 0.5;
-          if (isPositiveOne) {
-            lat = pos.coords.latitude;
-            lat += Math.random() * 0.0003;
-          } else {
-            lat = pos.coords.latitude;
-            lat -= Math.random() * 0.0003;
-          }
-          if (isPositiveTwo) {
-            long = pos.coords.longitude;
-            long += Math.random() * 0.0003;
-          } else {
-            long = pos.coords.longitude;
-            long -= Math.random() * 0.0003;
-          }
           marker = true;
         }
         await set(rtdbRef(database, docId), {
@@ -1052,7 +1036,7 @@ export const addMessage = async (mess, blob, id, pos, school, notificationsToken
             message: mess,
             url: url,
             uid: auth.currentUser.uid,
-            location: [lat, long],
+            POI : POI,
             postType: postType,
             imgSrc: imgSources,
             marker: marker,
@@ -1064,10 +1048,8 @@ export const addMessage = async (mess, blob, id, pos, school, notificationsToken
         ).catch((err) => {
           console.log(err);
         });
-
-
+        
         return true;
-
       } else {
         console.log("uid missing");
         return false;

@@ -5,9 +5,9 @@ import RoomIcon from '@mui/icons-material/Room';
 import { getDate } from "../../helpers/timeago";
 
 export const PostType = (props: any) => {
-  const type = props.type;
+  let type = props.type;
   const marker = props.marker;
-  const location = props.location;
+  const POI = props.POI;
   const timestamp = props.timestamp;
   const schoolName = props.schoolName;
 
@@ -16,6 +16,9 @@ export const PostType = (props: any) => {
   if (type) {
     return (
       <IonFab vertical="top" horizontal="end" onClick={(e) => {
+        if(type === "buy/Sell") {
+          type = "buySell";
+        }
         if (type !== "general") {
           e.stopPropagation();
           history.push("/type/" + schoolName + "/" + type);
@@ -25,26 +28,22 @@ export const PostType = (props: any) => {
           <p style={{ fontWeight: "bold", color: getColor(type) }} >
             {type.toUpperCase()}
             &nbsp;
-            {marker ? (
+            {marker && POI && POI.length > 0 ? (
               <RoomIcon
                 style={{ fontSize: "1em" }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  localStorage.setItem("lat", (location[0].toString()));
-                  localStorage.setItem("long", (location[1].toString()));
-                  history.push("/maps");
+                  history.push("/markerInfo/" + schoolName + "/" + POI);
                 }}
               />
             ) : null}
           </p>
           :
           <p style={{ fontWeight: "bold", color: getColor(type), marginLeft: "75%" }} >
-            {marker ? (
+            {marker && POI && POI.length > 0 ? (
               <RoomIcon onClick={(e) => {
                 e.stopPropagation();
-                localStorage.setItem("lat", (location[0].toString()));
-                localStorage.setItem("long", (location[1].toString()));
-                history.push("/maps");
+                history.push("/markerInfo/" + schoolName + "/" + POI);
               }}
                 style={{ fontSize: "1em" }} />) : null}
           </p>
