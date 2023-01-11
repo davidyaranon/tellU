@@ -34,7 +34,6 @@ const getIonColor = (color : string) => {
   let c : string = "";
   for(let i = color.length - 2; i >= 0; --i) {
     if(color[i] === '-') {
-      console.log(c);
       return c.split('').reverse().join('');
     }
     c += color[i];

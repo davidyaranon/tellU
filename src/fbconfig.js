@@ -1048,7 +1048,7 @@ export const addMessage = async (mess, blob, id, pos, POI, school, notifications
         ).catch((err) => {
           console.log(err);
         });
-        
+
         return true;
       } else {
         console.log("uid missing");
@@ -1528,7 +1528,6 @@ export const getAppVersionNum = async () => {
  * 
  * @param {string} poiName Name of the POI
  * 
- * @returns {POIInfo} Object with POI information
  */
 export const getPOIInfo = async (poiName) => {
 };

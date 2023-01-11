@@ -86,8 +86,8 @@ export let markers: Marker[] = [
     title: "Campus Apartments",
     imgSrc: "",
     description: "",
-    color: "#ffaf2e",
-    tag : "var(--ion-color-housing)"
+    color: "var(--ion-color-housing)",
+    tag : "Housing"
   },
   {
     location: [40.874678149454596, -124.08341969266914],
