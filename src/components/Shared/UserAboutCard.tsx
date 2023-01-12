@@ -1,6 +1,6 @@
 import {
   IonCard, IonCardContent, IonRow, IonAvatar,
-  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon
+  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip
 } from "@ionic/react";
 import { useState } from "react";
 import { useToast } from "@agney/ir-toast";
@@ -100,33 +100,39 @@ export const UserAboutCard = (props: any) => {
                   {userSnapchat && userSnapchat.length > 0 ? (
                     <>
                       <IonCol>
-                        <IonText style={{ fontSize: "0.75em" }}>
-                          <IonIcon style={{}} icon={logoSnapchat} />
-                          {'\u00A0'}
-                          {userSnapchat}
-                        </IonText>
+                        <IonChip outline color="snapchat-yellow">
+                          <IonText style={{ fontSize: "0.75em" }}>
+                            <IonIcon style={{}} icon={logoSnapchat} />
+                            {'\u00A0'}
+                            {userSnapchat}
+                          </IonText>
+                        </IonChip>
                       </IonCol>
                     </>
                   ) : null}
                   {userInstagram && userInstagram.length > 0 ? (
                     <>
                       <IonCol>
-                        <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram); }} style={{ fontSize: "0.75em" }}>
-                          <IonIcon style={{}} icon={logoInstagram} />
-                          {'\u00A0'}
-                          {userInstagram}
-                        </IonText>
+                        <IonChip outline color="instagram-hex">
+                          <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@','')); }} style={{ fontSize: "0.75em" }}>
+                            <IonIcon style={{}} icon={logoInstagram} />
+                            {'\u00A0'}
+                            {userInstagram}
+                          </IonText>
+                        </IonChip>
                       </IonCol>
                     </>
                   ) : null}
                   {userTiktok && userTiktok.length > 0 ? (
                     <>
                       <IonCol>
-                        <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
-                          <IonIcon style={{}} icon={logoTiktok} />
-                          {'\u00A0'}
-                          {userTiktok}
-                        </IonText>
+                        <IonChip outline color="tik-tok-hex">
+                          <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@','') + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
+                            <IonIcon style={{}} icon={logoTiktok} />
+                            {'\u00A0'}
+                            {userTiktok}
+                          </IonText>
+                        </IonChip>
                       </IonCol>
                     </>
                   ) : null}

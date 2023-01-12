@@ -554,6 +554,7 @@ const Settings: React.FC = () => {
         <SettingsHeader schoolName={schoolName} logout={handleLogout} user={user} editableUsername={editableUserName} />
 
         <Swiper
+          id="settings-swiper"
           pagination={{ dynamicBullets: true }}
           modules={[Pagination]}
           slidesPerView={1}

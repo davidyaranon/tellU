@@ -44,7 +44,7 @@ export const Toolbar = (props: any) => {
   return (
     <>
       <IonHeader>
-        <IonToolbar >
+        <IonToolbar>
           {title && title.length > 0 && <IonTitle style={{ fontSize: "1.2em" }}>{title}</IonTitle>}
           <IonButtons style={{ marginLeft: "-2.5%" }}>
             <IonBackButton

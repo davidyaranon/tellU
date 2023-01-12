@@ -402,7 +402,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   return (
     <IonPage>
       <Toolbar setShowReportModal={handleShowReportModal} schoolName={schoolName} title={userName + '\'s Post'} text={"Back"} />
-      <IonContent ref={contentRef} scrollEvents>
+      <IonContent fullscreen ref={contentRef} scrollEvents>
         <IonLoading isOpen={deletingComment} duration={0} message={"Deleting post..."} />
         <ReportModal schoolName={schoolName} postKey={postKey} handleShowReportModal={handleShowReportModal} isOpen={showReportModal} />
         <IonFab style={context.darkMode ? { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }

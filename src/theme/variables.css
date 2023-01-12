@@ -151,6 +151,27 @@
 	--ion-color-toast-error-shade: #dd5c55;
 	--ion-color-toast-error-tint: #fb7871;
 
+  --ion-color-snapchat-yellow: #FFFC00;
+	--ion-color-snapchat-yellow-rgb: 255,252,0;
+	--ion-color-snapchat-yellow-contrast: #000000;
+	--ion-color-snapchat-yellow-contrast-rgb: 0,0,0;
+	--ion-color-snapchat-yellow-shade: #e0de00;
+	--ion-color-snapchat-yellow-tint: #fffc1a;
+
+  --ion-color-tik-tok-hex: #00f2ea;
+	--ion-color-tik-tok-hex-rgb: 0,242,234;
+	--ion-color-tik-tok-hex-contrast: #000000;
+	--ion-color-tik-tok-hex-contrast-rgb: 0,0,0;
+	--ion-color-tik-tok-hex-shade: #00d5ce;
+	--ion-color-tik-tok-hex-tint: #1af3ec;
+
+  --ion-color-instagram-hex: #C13584;
+	--ion-color-instagram-hex-rgb: 193,53,132;
+	--ion-color-instagram-hex-contrast: #ffffff;
+	--ion-color-instagram-hex-contrast-rgb: 255,255,255;
+	--ion-color-instagram-hex-shade: #aa2f74;
+	--ion-color-instagram-hex-tint: #c74990;
+
   --ion-color-ion-blue: #85cfe2;
 	--ion-color-ion-blue-rgb: 133,207,226;
 	--ion-color-ion-blue-contrast: #000000;
@@ -467,4 +488,31 @@ body {
 	--ion-color-contrast-rgb: var(--ion-color-general-contrast-rgb);
 	--ion-color-shade: var(--ion-color-general-shade);
 	--ion-color-tint: var(--ion-color-general-tint);
+}
+
+.ion-color-snapchat-yellow {
+	--ion-color-base: var(--ion-color-snapchat-yellow);
+	--ion-color-base-rgb: var(--ion-color-snapchat-yellow-rgb);
+	--ion-color-contrast: var(--ion-color-snapchat-yellow-contrast);
+	--ion-color-contrast-rgb: var(--ion-color-snapchat-yellow-contrast-rgb);
+	--ion-color-shade: var(--ion-color-snapchat-yellow-shade);
+	--ion-color-tint: var(--ion-color-snapchat-yellow-tint);
+}
+
+.ion-color-instagram-hex {
+	--ion-color-base: var(--ion-color-instagram-hex);
+	--ion-color-base-rgb: var(--ion-color-instagram-hex-rgb);
+	--ion-color-contrast: var(--ion-color-instagram-hex-contrast);
+	--ion-color-contrast-rgb: var(--ion-color-instagram-hex-contrast-rgb);
+	--ion-color-shade: var(--ion-color-instagram-hex-shade);
+	--ion-color-tint: var(--ion-color-instagram-hex-tint);
+}
+
+.ion-color-tik-tok-hex {
+	--ion-color-base: var(--ion-color-tik-tok-hex);
+	--ion-color-base-rgb: var(--ion-color-tik-tok-hex-rgb);
+	--ion-color-contrast: var(--ion-color-tik-tok-hex-contrast);
+	--ion-color-contrast-rgb: var(--ion-color-tik-tok-hex-contrast-rgb);
+	--ion-color-shade: var(--ion-color-tik-tok-hex-shade);
+	--ion-color-tint: var(--ion-color-tik-tok-hex-tint);
 }

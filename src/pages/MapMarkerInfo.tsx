@@ -1,4 +1,4 @@
-import { IonPage, IonContent, IonCardContent, IonCard, IonCardTitle } from "@ionic/react";
+import { IonPage, IonContent, IonCardContent, IonCard, IonCardTitle, IonHeader, IonToolbar, IonTitle, IonBackButton, IonButtons } from "@ionic/react";
 import { useCallback, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 
@@ -11,6 +11,10 @@ import '../helpers/maps.css';
 import "swiper/css";
 import "swiper/css/pagination";
 import { markers } from "../helpers/maps-config";
+import { Virtuoso } from "react-virtuoso";
+import { color } from "@mui/system";
+import { useContext } from "../my-context";
+import { chevronBackOutline } from "ionicons/icons";
 
 interface MatchUserPostParams {
   school: string;
@@ -20,6 +24,8 @@ interface MatchUserPostParams {
 export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const schoolName = match.params.school;
   const title = match.params.title;
+
+  const context = useContext();
 
   const [posts, setPosts] = useState<any[]>([]);
   const [description, setDescription] = useState<string>("");
@@ -35,14 +41,34 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
 
   useEffect(() => {
     getInfo();
-  }, [])
+  }, []);
 
   return (
     <IonPage>
-      <IonContent>
-        <Toolbar schoolName={schoolName} title={title} />
+      {/* <IonHeader translucent={true}>
+        <IonToolbar className="map-marker">
+          <IonTitle>{title}</IonTitle>
+          <IonButtons style={{ marginLeft: "-2.5%" }}>
+            <IonBackButton
+              defaultHref="/home"
+              className="back-button"
+              icon={chevronBackOutline}
+              text={"Back"}
+              color={context.schoolColorToggled ? "tertiary" : "dark"}
+            >
+            </IonBackButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent className="map-marker-content" fullscreen={true}>
+        <IonHeader collapse="condense">
+          <IonToolbar className="map-marker">
+            <IonTitle></IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        {/* <br /> <br />
         <IonCard className="ion-no-padding ion-no-border ion-no-margin">
-          <IonCardTitle style={{fontSize : "1em", fontWeight : "lighter", padding : "10px"}}>
+          <IonCardTitle style={{ fontSize: "1em", fontWeight: "lighter", padding: "10px" }}>
             <p>{description}</p>
           </IonCardTitle>
           <Swiper
@@ -62,8 +88,18 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
               </IonCard>
             </SwiperSlide>
           </Swiper>
-        </IonCard>
-      </IonContent>
+        </IonCard> 
+        <br />
+
+        <p style={{ padding: '10px', color : "black" }}>{description}</p>
+        <p style={{ padding: '10px' }}>{description}</p>
+        <p style={{ padding: '10px' }}>{description}</p>
+        <p style={{ padding: '10px' }}>{description}</p>
+        <p style={{ padding: '10px' }}>{description}</p>
+        <p style={{ padding: '10px' }}>{description}</p>
+        <p style={{ padding: '10px' }}>{description}</p>
+
+      </IonContent> */}
     </IonPage>
   )
 };

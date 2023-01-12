@@ -32,7 +32,8 @@ ion-alert,
 button,
 ion-button,
 p,
-ion-note {
+ion-note,
+ion-header {
   font-family: 'Dosis', sans-serif;
   font-family: 'Noto Serif Khojki', serif;
   font-family: 'Dosis', sans-serif;
@@ -945,9 +946,17 @@ hr {
   padding-bottom: 56.25%;
 }
 
-ion-toolbar {
-  --border-style: none;
-}
+ ion-toolbar {
+  --border-style : none;
+} 
+
+ion-toolbar.map-marker {
+  --background: transparent no-repeat fixed center;
+  --border-style : none;
+  --color: black;
+  position: absolute;
+  top: 0;
+} 
 
 .ion-img-comment {
   aspect-ratio: 1;
