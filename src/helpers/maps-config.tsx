@@ -1,5 +1,6 @@
 import Canyon from "../images/canyon.jpeg";
 import Canyon_Bathroom from '../images/canyon_bathroom.jpeg';
+import Creekview_Bathroom from '../images/creekview_bathroom.jpeg';
 
 import ShowerIcon from '@mui/icons-material/Shower';
 import SchoolIcon from '@mui/icons-material/School';
@@ -16,7 +17,7 @@ export interface Marker {
   location: number[];
   title: string;
   imgSrc: string;
-  description: string;
+  description: string[];
   tag: string;
   color: string;
   chip?: any[];
@@ -27,23 +28,23 @@ export let markers: Marker[] = [
     location: [40.87910000000000, -124.07814836935913],
     title: "Canyon",
     imgSrc: Canyon,
-    description: "The Canyon consists of eight separate buildings: Alder, Cedar, Chinquapin, Hemlock, Madrone, Maple, Pepperwood, and Tan Oak. Each building has three levels of residents and is home to approximately 50 students. Each building has a kitchen, laundry room, and a TV/study lounge on the ground floor.",
+    description: ["The Canyon consists of eight separate buildings: Alder, Cedar, Chinquapin, Hemlock, Madrone, Maple, Pepperwood, and Tan Oak. Each building has three levels of residents and is home to approximately 50 students. Each building has a kitchen, laundry room, and a TV/study lounge on the ground floor."],
     color: "var(--ion-color-housing)",
     tag: "Housing",
     chip: [
-      { title: 'Freshmen & Upperclassmen', color : "ion-blue", icon: SchoolIcon, image: null },
-      { title: 'Communal Bathrooms', color : "ion-blue", icon: ShowerIcon, local : true, image: Canyon_Bathroom },
-      { title: 'Single', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-single_0.jpg' },
-      { title: 'Double', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-double_0.jpg' },
-      { title: 'Triple', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-triple.jpg'},
-      { title: 'Suite', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-suite.png' }
+      { title: 'Freshmen & Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
+      { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Canyon_Bathroom },
+      { title: 'Single', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-single_0.jpg' },
+      { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-double_0.jpg' },
+      { title: 'Triple', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-triple.jpg' },
+      { title: 'Suite', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-suite.png' }
     ]
   },
   {
     location: [40.87650711366812, -124.08006372823574],
     title: "Library",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
   },
@@ -51,7 +52,7 @@ export let markers: Marker[] = [
     location: [40.87820892589766, -124.07966164730095],
     title: "The Hill",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-housing)",
     tag: "Housing"
   },
@@ -59,7 +60,7 @@ export let markers: Marker[] = [
     location: [40.87875191469408, -124.07862230601667],
     title: "Jolly Giant Commons",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining/Recreation",
   },
@@ -67,7 +68,7 @@ export let markers: Marker[] = [
     location: [40.878263687897764, -124.07816712005274],
     title: "Cypress",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-housing)",
     tag: "Housing"
   },
@@ -75,7 +76,7 @@ export let markers: Marker[] = [
     location: [40.877495692957545, -124.0783592939952],
     title: "SAC",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining/Recreation"
   },
@@ -83,7 +84,7 @@ export let markers: Marker[] = [
     location: [40.876192370982764, -124.0789702440554],
     title: "Van Duzer Theater",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
   },
@@ -91,7 +92,7 @@ export let markers: Marker[] = [
     location: [40.87720119793835, -124.07725674812491],
     title: "Founders Hall",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
   },
@@ -99,7 +100,7 @@ export let markers: Marker[] = [
     location: [40.87551466263999, -124.08060995139243],
     title: "Campus Apartments",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-housing)",
     tag: "Housing"
   },
@@ -107,7 +108,7 @@ export let markers: Marker[] = [
     location: [40.874678149454596, -124.08341969266914],
     title: "Hey Juan Burritos",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining"
   },
@@ -115,15 +116,22 @@ export let markers: Marker[] = [
     location: [40.87802147101603, -124.07497323187258],
     title: "Creekview",
     imgSrc: "",
-    description: "",
+    description: ["The complex is comprised of four, three story buildings, with a centrally located lounge and a laundry room.",
+      "Creekview Apartments(Fern and Willow) have a full kitchen, living room, dining area and bathroom. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin. The apartments house 6 students, either in two double rooms and one single or in three doubles. Individual apartments are single gender or coed. ",
+      "Creekview Suites(Juniper and Laurel) have a mini kitchenette(with induction stovetop), living room, dining area and a bathroom. Individual suites are single gender or coed. In the coed suites, we assign same genders only to the double rooms and will not assign men and women to the same room. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin, except for rooms that end with the number 6; these rooms have extra long twin beds. The suites house 6 students in two double rooms and two single rooms, or suites in Juniper have a double, single and triple room. The newly created triple rooms offer a unique space that combines a former double and single room for our lowest rate."
+    ],
     color: "var(--ion-color-housing)",
-    tag: "Housing"
+    tag: "Housing",
+    chip: [
+      { title: 'Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
+      { title: 'Private bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Creekview_Bathroom },
+    ]
   },
   {
     location: [40.87287985572268, -124.07712777876847],
     title: "BSS",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
   },
@@ -131,7 +139,7 @@ export let markers: Marker[] = [
     location: [40.87395509634375, -124.07998604637758],
     title: "Marketplace",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining"
   },
@@ -139,7 +147,7 @@ export let markers: Marker[] = [
     location: [40.877441480341396, -124.07925574696338],
     title: "Nelson Hall",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
   },
@@ -147,7 +155,7 @@ export let markers: Marker[] = [
     location: [40.875505404545414, -124.07919569964085],
     title: "Gist Hall",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
   },
@@ -155,7 +163,7 @@ export let markers: Marker[] = [
     location: [40.87663434160527, -124.07610282652482],
     title: "Redwood Bowl",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-toast-success)",
     tag: "Recreation"
   },
@@ -163,7 +171,7 @@ export let markers: Marker[] = [
     location: [40.87411504682606, -124.07780297128161],
     title: "Campus Events Field",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-toast-success)",
     tag: "Recreation"
   },
@@ -171,7 +179,7 @@ export let markers: Marker[] = [
     location: [40.873861486807506, -124.0809568314154],
     title: "College Creek",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-housing)",
     tag: "Housing"
   },
@@ -179,7 +187,7 @@ export let markers: Marker[] = [
     location: [40.87453111017034, -124.079232591335],
     title: "SBS",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-toast-success)",
     tag: ""
   },
@@ -187,7 +195,7 @@ export let markers: Marker[] = [
     location: [40.87354865256135, -124.07723521298793],
     title: "Forestry",
     imgSrc: "",
-    description: "",
+    description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
   },

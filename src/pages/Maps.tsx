@@ -318,7 +318,7 @@ function Maps() {
                   </IonFab>
                   <div style={{ height: "1vh" }} />
                   <p>
-                    {markers[overlayIndex].description.substring(0, 110) + " ... "} <IonText color={getIonColor(markers[overlayIndex].color)}>(more)</IonText>
+                    {markers[overlayIndex].description[0].substring(0, 110) + " ... "} <IonText color={getIonColor(markers[overlayIndex].color)}>(more)</IonText>
                   </p>
                   {markers[overlayIndex].imgSrc &&
                     markers[overlayIndex].imgSrc.length > 0 ? (

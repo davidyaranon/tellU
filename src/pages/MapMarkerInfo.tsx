@@ -31,14 +31,14 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
   const Toast = useToast();
 
   const [posts, setPosts] = useState<any>(null);
-  const [description, setDescription] = useState<string>("");
+  const [description, setDescription] = useState<string[]>([""]);
   const [chip, setChip] = useState<any[] | undefined>([]);
 
   const getInfo = useCallback(() => {
     for (let i = 0; i < markers.length; ++i) {
       if (markers[i].title === markerTitle) {
         setDescription(markers[i].description);
-        setChip(markers[i].chip)
+        setChip(markers[i].chip);
         return;
       }
     }
@@ -73,13 +73,13 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
     <IonPage>
       <Toolbar title={markerTitle} />
       <IonContent>
-        <div style={{height : "1vh"}} />
+        <div style={{ height: "1vh" }} />
         {chip && chip.map(({ title, color, icon: Icon, local, image }, index: number) => {
           return (
-            <IonChip outline color={color} key={index} onClick={async() => {
+            <IonChip outline color={color} key={index} onClick={async () => {
               if (image) {
                 let url = "";
-                if(!local) {
+                if (!local) {
                   url = await getStorageUrl(image) || "";
                 } else {
                   url = image;
@@ -104,7 +104,11 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
         })}
 
         <div style={{ padding: "10px" }}>
-          <p>{description}</p>
+          {description && description.map((desc, index: number) => {
+            return (
+              <p style={{ fontSize: "0.85em" }} key={index}>{desc}</p>
+            )
+          })}
         </div>
         <Swiper
           pagination={{ dynamicBullets: true }}
@@ -133,7 +137,14 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
           </SwiperSlide>
         </Swiper>
         <div style={{ padding: "10px", textAlign: "center" }}>
-          <IonCardTitle style={{ textAlign: "center" }}>Last 15 {markerTitle} Posts</IonCardTitle>
+          {posts && posts.length === 0 ?
+            <>
+              <IonCardTitle style={{ textAlign: "center", fontSize: "1.5em" }}>No {markerTitle} Posts Yet</IonCardTitle>
+              <IonNote>Go there and make a post now!</IonNote>
+            </>
+            :
+            <IonCardTitle style={{ textAlign: "center", fontSize: "1.5em" }}>Last 15 {markerTitle} Posts</IonCardTitle>
+          }
           {!posts &&
             <>
               <br />
@@ -149,7 +160,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
             </div>
           )
         })}
-
+        <div style={{ height: "1vh" }} />
       </IonContent>
     </IonPage >
   )
