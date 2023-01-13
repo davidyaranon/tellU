@@ -1522,13 +1522,32 @@ export const getAppVersionNum = async () => {
 };
 
 /**
- * @description Gets the information about a certain map POI.
- * Information includes a description + other info and an array with 
- * the last 15 posts made at that POI.
+ * @description Gets an array with the last 15 posts made at that POI.
  * 
  * @param {string} poiName Name of the POI
  * 
  */
-export const getPOIInfo = async (poiName) => {
+export const getPOIPosts = async (poiName) => {
+  try {
+    if(auth && db) {
+      const school = "CalPolyHumboldt"
+      const q = query(collection(db, "schoolPosts", school, "allPosts"), where("POI", "==", poiName), orderBy("timestamp", "desc"), limit(15));
+      const qSnapshot = await getDocs(q);
+      let poiPosts = [];
+      const docs = qSnapshot.docs;
+      for (const doc of docs) {
+        poiPosts.push({
+          ...doc.data(),
+          likes : {'null': true},
+          dislikes : {'null': true},
+          commentAmount : 0,
+          key: doc.id
+        });
+      }
+      return poiPosts;
+    }
+  } catch (err) {
+    console.error(err);
+  }
 };
 

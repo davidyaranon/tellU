@@ -60,8 +60,8 @@ const ForgotPassword = () => {
   }, []);
 
   return (
-    <IonPage className="ion-page-ios-notch">
-      <Toolbar color="primary" text="Sign Inb " />
+    <IonPage>
+      <Toolbar color="primary" text="Sign In" />
 
       <IonContent>
 

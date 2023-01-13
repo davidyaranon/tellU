@@ -180,15 +180,15 @@ const RoutingSystem: React.FunctionComponent = () => {
 
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
-            <IonIcon style={{ bottom: "-20px" }} icon={homeOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' style={{ bottom: "-20px" }} icon={homeOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
-            <IonIcon icon={mapOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={mapOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="settings" href="/settings">
-            <IonIcon icon={personOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={personOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
         </IonTabBar>
 
@@ -238,13 +238,13 @@ const App: React.FC = () => {
    * Enables school color toggle if it had been enabled previously
    */
   const handleSchoolColorToggle = React.useCallback(async () => {
-    const isChecked = await Preferences.get({ key: "schoolColorToggled" });
-    if (isChecked.value === "false" || !isChecked.value) {
-      context.setSchoolColorToggled(false);
-    } else {
-      context.setSchoolColorToggled(true);
-    }
-    // context.setSchoolColorToggled(false);
+    // const isChecked = await Preferences.get({ key: "schoolColorToggled" });
+    // if (isChecked.value === "false" || !isChecked.value) {
+    //   context.setSchoolColorToggled(false);
+    // } else {
+    //   context.setSchoolColorToggled(true);
+    // }
+    context.setSchoolColorToggled(false);
   }, []);
 
   /**

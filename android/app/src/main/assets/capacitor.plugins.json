@@ -16,16 +16,8 @@
 		"classpath": "com.capacitorjs.plugins.camera.CameraPlugin"
 	},
 	{
-		"pkg": "@capacitor/device",
-		"classpath": "com.capacitorjs.plugins.device.DevicePlugin"
-	},
-	{
 		"pkg": "@capacitor/dialog",
 		"classpath": "com.capacitorjs.plugins.dialog.DialogPlugin"
-	},
-	{
-		"pkg": "@capacitor/filesystem",
-		"classpath": "com.capacitorjs.plugins.filesystem.FilesystemPlugin"
 	},
 	{
 		"pkg": "@capacitor/haptics",
@@ -40,12 +32,12 @@
 		"classpath": "com.capacitorjs.plugins.network.NetworkPlugin"
 	},
 	{
-		"pkg": "@capacitor/push-notifications",
-		"classpath": "com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin"
+		"pkg": "@capacitor/preferences",
+		"classpath": "com.capacitorjs.plugins.preferences.PreferencesPlugin"
 	},
 	{
-		"pkg": "@capacitor/share",
-		"classpath": "com.capacitorjs.plugins.share.SharePlugin"
+		"pkg": "@capacitor/push-notifications",
+		"classpath": "com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin"
 	},
 	{
 		"pkg": "@capacitor/splash-screen",
@@ -56,7 +48,7 @@
 		"classpath": "com.capacitorjs.plugins.statusbar.StatusBarPlugin"
 	},
 	{
-		"pkg": "@capacitor/storage",
-		"classpath": "com.capacitorjs.plugins.storage.StoragePlugin"
+		"pkg": "@codetrix-studio/capacitor-google-auth",
+		"classpath": "com.codetrixstudio.capacitor.GoogleAuth.GoogleAuth"
 	}
 ]

@@ -44,7 +44,7 @@ export const HomePagePost = (props: any) => {
       setSchool();
     }
   }, [])
-
+  
   return (
     <FadeIn key={index}>
       <IonList inset mode="ios">

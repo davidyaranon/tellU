@@ -5,6 +5,14 @@
 	"bundledWebRuntime": false,
 	"loggingBehavior": "none",
 	"plugins": {
+		"GoogleAuth": {
+			"scopes": [
+				"profile",
+				"email"
+			],
+			"serverClientId": "552925208169-4aekc3uk4totonlccmv4j1ilvcmeo4um.apps.googleusercontent.com",
+			"forceCodeForRefreshToken": true
+		},
 		"PushNotifications": {
 			"presentationOptions": [
 				"sound",
@@ -12,7 +20,8 @@
 			]
 		},
 		"SplashScreen": {
-			"launchAutoHide": false
+			"launchAutoHide": false,
+			"showDuration": 500
 		}
 	}
 }

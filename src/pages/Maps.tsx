@@ -120,48 +120,6 @@ function Maps() {
   };
 
   /**
-   * @description Pulls info about a school's markers
-   * from Firestore database, shows the most recent
-   * 50 markers within the past 2 days
-   */
-  // const getMapMarkers = async () => {
-  //   if (schoolName) {
-  //     const markersRef = collection(
-  //       db,
-  //       "schoolPosts",
-  //       schoolName.replace(/\s+/g, ""),
-  //       "allPosts"
-  //     );
-  //     const yesterday = new Date();
-  //     yesterday.setHours(0, 0, 0, 0);
-  //     yesterday.setDate(yesterday.getDate() - 1);
-  //     const tomorrow = new Date();
-  //     tomorrow.setHours(24, 0, 0, 0);
-  //     tomorrow.setDate(yesterday.getDate() + 2);
-  //     const q = query(
-  //       markersRef,
-  //       where("marker", "==", true),
-  //       where("timestamp", ">", yesterday),
-  //       where("timestamp", "<", tomorrow),
-  //       orderBy("timestamp", "desc"),
-  //       limit(50)
-  //     );
-  //     const querySnapshot = await getDocs(q);
-  //     const tempMarkers: any[] = [];
-  //     const docs = querySnapshot.docs;
-  //     for (const doc of docs) {
-  //       tempMarkers.push({
-  //         ...doc.data(),
-  //         key: doc.id,
-  //       });
-  //     }
-  //     // setMarkers(tempMarkers);
-  //     setMarkersCopy(tempMarkers);
-  //     setPinsLoading(false);
-  //   }
-  // };
-
-  /**
    * Runs on page exit
    */
   useIonViewDidLeave(() => {

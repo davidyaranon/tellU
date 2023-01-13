@@ -1,4 +1,9 @@
 import Canyon from "../images/canyon.jpeg";
+import Canyon_Bathroom from '../images/canyon_bathroom.jpeg';
+
+import ShowerIcon from '@mui/icons-material/Shower';
+import SchoolIcon from '@mui/icons-material/School';
+import HotelIcon from '@mui/icons-material/Hotel';
 
 export const MAP_TILER_KEY = 'c9MoaJaVglEims9riUks';
 export const MAP_TILER_ID = 'streets';
@@ -12,8 +17,9 @@ export interface Marker {
   title: string;
   imgSrc: string;
   description: string;
-  tag : string;
+  tag: string;
   color: string;
+  chip?: any[];
 }
 
 export let markers: Marker[] = [
@@ -23,7 +29,15 @@ export let markers: Marker[] = [
     imgSrc: Canyon,
     description: "The Canyon consists of eight separate buildings: Alder, Cedar, Chinquapin, Hemlock, Madrone, Maple, Pepperwood, and Tan Oak. Each building has three levels of residents and is home to approximately 50 students. Each building has a kitchen, laundry room, and a TV/study lounge on the ground floor.",
     color: "var(--ion-color-housing)",
-    tag : "Housing",
+    tag: "Housing",
+    chip: [
+      { title: 'Freshmen & Upperclassmen', color : "ion-blue", icon: SchoolIcon, image: null },
+      { title: 'Communal Bathrooms', color : "ion-blue", icon: ShowerIcon, local : true, image: Canyon_Bathroom },
+      { title: 'Single', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-single_0.jpg' },
+      { title: 'Double', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-double_0.jpg' },
+      { title: 'Triple', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-triple.jpg'},
+      { title: 'Suite', color : "primary", icon: HotelIcon, local : false, image: 'mapImages/canyon-suite.png' }
+    ]
   },
   {
     location: [40.87650711366812, -124.08006372823574],
@@ -31,7 +45,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-primary)",
-    tag : "Academics"
+    tag: "Academics"
   },
   {
     location: [40.87820892589766, -124.07966164730095],
@@ -39,7 +53,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-housing)",
-    tag : "Housing"
+    tag: "Housing"
   },
   {
     location: [40.87875191469408, -124.07862230601667],
@@ -47,7 +61,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-dining)",
-    tag : "Dining/Recreation",
+    tag: "Dining/Recreation",
   },
   {
     location: [40.878263687897764, -124.07816712005274],
@@ -55,7 +69,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-housing)",
-    tag : "Housing"
+    tag: "Housing"
   },
   {
     location: [40.877495692957545, -124.0783592939952],
@@ -63,7 +77,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-dining)",
-    tag : "Dining/Recreation"
+    tag: "Dining/Recreation"
   },
   {
     location: [40.876192370982764, -124.0789702440554],
@@ -71,7 +85,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-primary)",
-    tag : "Academics"
+    tag: "Academics"
   },
   {
     location: [40.87720119793835, -124.07725674812491],
@@ -79,7 +93,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-primary)",
-    tag : "Academics"
+    tag: "Academics"
   },
   {
     location: [40.87551466263999, -124.08060995139243],
@@ -87,7 +101,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-housing)",
-    tag : "Housing"
+    tag: "Housing"
   },
   {
     location: [40.874678149454596, -124.08341969266914],
@@ -95,7 +109,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-dining)",
-    tag : "Dining"
+    tag: "Dining"
   },
   {
     location: [40.87802147101603, -124.07497323187258],
@@ -103,7 +117,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-housing)",
-    tag : "Housing"
+    tag: "Housing"
   },
   {
     location: [40.87287985572268, -124.07712777876847],
@@ -111,7 +125,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-primary)",
-    tag : "Academics"
+    tag: "Academics"
   },
   {
     location: [40.87395509634375, -124.07998604637758],
@@ -119,7 +133,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-dining)",
-    tag : "Dining"
+    tag: "Dining"
   },
   {
     location: [40.877441480341396, -124.07925574696338],
@@ -127,7 +141,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-primary)",
-    tag : "Academics"
+    tag: "Academics"
   },
   {
     location: [40.875505404545414, -124.07919569964085],
@@ -135,7 +149,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-primary)",
-    tag : "Academics"
+    tag: "Academics"
   },
   {
     location: [40.87663434160527, -124.07610282652482],
@@ -143,7 +157,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-toast-success)",
-    tag : "Recreation"
+    tag: "Recreation"
   },
   {
     location: [40.87411504682606, -124.07780297128161],
@@ -151,7 +165,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-toast-success)",
-    tag : "Recreation"
+    tag: "Recreation"
   },
   {
     location: [40.873861486807506, -124.0809568314154],
@@ -159,7 +173,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-housing)",
-    tag : "Housing"
+    tag: "Housing"
   },
   {
     location: [40.87453111017034, -124.079232591335],
@@ -167,7 +181,7 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-toast-success)",
-    tag : ""
+    tag: ""
   },
   {
     location: [40.87354865256135, -124.07723521298793],
@@ -175,13 +189,13 @@ export let markers: Marker[] = [
     imgSrc: "",
     description: "",
     color: "var(--ion-color-primary)",
-    tag : "Academics"
+    tag: "Academics"
   },
 ];
 
-export const markersCopy : Marker[] = markers;
+export const markersCopy: Marker[] = markers;
 
-export const setMarkers = (filter : string) => {
+export const setMarkers = (filter: string) => {
   if (filter === "ALL") {
     markers = markersCopy;
   } else {

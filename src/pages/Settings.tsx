@@ -550,7 +550,7 @@ const Settings: React.FC = () => {
    */
   return (
     <IonPage className="ion-page-ios-notch">
-      <IonContent ref={contentRef} >
+      <IonContent ref={contentRef} scrollY={false}>
         <SettingsHeader schoolName={schoolName} logout={handleLogout} user={user} editableUsername={editableUserName} />
 
         <Swiper
@@ -577,7 +577,7 @@ const Settings: React.FC = () => {
         >
           <SwiperSlide>
             <div style={{ height: "2vh" }}></div>
-            <IonHeader class="ion-no-border" style={{ textAlign: "center", fontSize: "1em", color: "#898989" }}>
+            <IonHeader class="ion-no-border" style={{ textAlign: "center", fontSize: "1em", color: "#898989", transform: "translateY(15%)" }}>
               Settings
             </IonHeader>
 
@@ -654,7 +654,7 @@ const Settings: React.FC = () => {
                   onIonChange={(e) => { toggleDarkMode(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                 />
               </IonItem> */}
-              {schoolName === "Cal Poly Humboldt" &&
+              {/* {schoolName === "Cal Poly Humboldt" &&
                 <IonItem mode="ios">
                   <p style={{ fontSize: "0.85em" }}> School Color Palette </p>&nbsp;&nbsp;
                   <IonIcon color="medium" icon={colorFill} slot="end" />
@@ -667,7 +667,7 @@ const Settings: React.FC = () => {
                     onIonChange={(e) => { toggleSchoolColor(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                   />
                 </IonItem>
-              }
+              } */}
               <IonItem mode="ios">
                 <p style={{ fontSize: "0.85em" }}> Hide Sensitive Content</p>&nbsp;&nbsp;
                 <IonIcon color="medium" icon={warningSharp} slot="end" />
@@ -694,7 +694,8 @@ const Settings: React.FC = () => {
               style={{
                 textAlign: "center",
                 fontSize: "1em",
-                color: "#898989"
+                color: "#898989",
+                transform: "translateY(15%)"
               }}
             >
               Liked Posts
@@ -742,6 +743,10 @@ const Settings: React.FC = () => {
           duration={5000}
           isOpen={busy}
         ></IonLoading>
+
+        <IonFab horizontal='end' vertical='bottom'>
+          <IonNote>v.{versionNum}</IonNote>
+        </IonFab>
 
       </IonContent>
 
@@ -1194,10 +1199,6 @@ const Settings: React.FC = () => {
           </div>
         </IonContent>
       </IonModal>
-
-      <IonFab horizontal='end' vertical='bottom'>
-        <IonNote>v.{versionNum}</IonNote>
-      </IonFab>
 
     </IonPage>
 

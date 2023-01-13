@@ -30,8 +30,6 @@ export const SettingsHeader = (props: any) => {
         setProfilePhoto(user.photoURL);
       } else {
         const u = await getUserPhotoUrl(user.uid);
-        console.log(u);
-        console.log("A")
         if (u) {
           setProfilePhoto(u);
           await Preferences.set({ key: "profilePhoto", value: u })
