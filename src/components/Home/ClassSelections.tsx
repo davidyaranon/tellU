@@ -972,7 +972,7 @@ export const ClassSelections = memo((props: classInfo) => {
           textAlign: "center", alignItems: "center",
           alignSelf: "center", display: "flex", paddingTop: ""
         }}>
-          <IonItem mode="ios" color={context.darkMode ? "light-item" : ""}>
+          <IonItem className="class-name-selection" mode="ios" color={context.darkMode ? "light-item" : ""}>
             <IonSelect
               interface="action-sheet"
               interfaceOptions={selectOptions}

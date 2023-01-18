@@ -6,12 +6,11 @@ import { useHistory } from "react-router-dom";
 /* Ionic/Capacitor */
 import {
   IonContent, IonHeader, IonButton, IonLoading, IonInput,
-  IonItem, IonLabel, IonSelect, IonSelectOption, IonPage, useIonRouter, IonText, IonIcon, AlertOptions
+  IonItem, IonLabel, IonSelect, IonSelectOption, IonPage, useIonRouter, IonIcon, AlertOptions
 } from "@ionic/react";
 import { eyeOffOutline, eyeOutline } from "ionicons/icons";
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { FCM } from "@capacitor-community/fcm";
-
 
 /* Firebase */
 import auth, { updateNotificationsToken } from '../fbConfig';
@@ -54,7 +53,6 @@ const selectInterfaceOptions : AlertOptions = {
   header: "University",
   subHeader : "Select your university",
   cssClass: 'custom-alert',
-
 }
 
 const Register: React.FC = () => {
@@ -125,7 +123,7 @@ const Register: React.FC = () => {
       } else {
         await Dialog.alert({
           title: "Agree to Terms and Conditions",
-          message: 'Don\'t post anything offensive, obscene, or harmful! Be nice... more at https://tellu-website.web.app/page/terms-and-conditions',
+          message: 'Don\'t post anything offensive, obscene, or harmful! Be nice... read our privacy policy at https://tellu-app.com/page/privacy-policy',
         });
         // check old registration
         const res = await registerWithEmailAndPassword(
@@ -365,11 +363,9 @@ const Register: React.FC = () => {
         }
         <div style={{ height: "1%" }} />
 
-
         <IonButton className="login-button" onClick={() => { register(); }} fill="clear" expand="block" id="signInButton" >Register</IonButton>
-        <div style={{ height: "1%" }} />
 
-        {/* <p className="sign-in-sign-up-list"> or <IonText color="primary" onClick={() => { dynamicNavigate(router, '/landing-page', 'back') }}>Sign In</IonText> to an exising account</p> */}
+        <div style={{ height: "1%" }} />
 
         <IonLoading
           message="Please wait..."

@@ -42,6 +42,7 @@ import { dynamicNavigate } from '../components/Shared/Navigation';
 import FadeIn from 'react-fade-in/lib/FadeIn';
 import { useHistory } from 'react-router';
 import { Dialog } from '@capacitor/dialog';
+import { Capacitor } from '@capacitor/core';
 
 const versionNum: string = '2.3.0';
 const keyStyleOptionsDark: KeyboardStyleOptions = {
@@ -203,9 +204,11 @@ const Home: React.FC = () => {
     context.setDarkMode(true);
     document.body.classList.toggle("dark");
     context.setDarkMode(true);
-    Keyboard.setStyle(keyStyleOptionsDark);
-    StatusBar.setStyle({ style: Style.Dark });
-  }, [context]);
+    if(Capacitor.getPlatform() === 'ios') {
+      Keyboard.setStyle(keyStyleOptionsDark);
+      StatusBar.setStyle({ style: Style.Dark });
+    }
+  }, []);
 
   const hideSplashScreen = React.useCallback(async () => {
     await timeout(250);
@@ -295,7 +298,11 @@ const Home: React.FC = () => {
             justAdded[0].commentAmount = 0;
             const finalData: any[] = justAdded.concat(datasCopy);
             await timeout(500);
-            setPosts([...finalData, ...postsRef.current]);
+            try {
+              setPosts([...finalData, ...postsRef.current]);
+            } catch (err) {
+              window.location.reload();
+            }
             virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
             setNewPostsLoaded(false);
             setNewData([]);

@@ -2,14 +2,10 @@ import { IonPage, IonContent, IonNote, IonCard, IonCardTitle, IonChip } from "@i
 import { useCallback, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
-import Canyon_Bathroom from '../images/canyon_bathroom.jpeg';
 
 import { Toolbar } from "../components/Shared/Toolbar";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper";
-import Canyon from '../images/canyon.jpeg';
-
-import mapStyles from '../helpers/maps.module.css';
 import "swiper/css";
 import "swiper/css/pagination";
 import { markers } from "../helpers/maps-config";
@@ -32,6 +28,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
 
   const [posts, setPosts] = useState<any>(null);
   const [description, setDescription] = useState<string[]>([""]);
+  const [images, setImages] = useState<string[]>([]);
   const [chip, setChip] = useState<any[] | undefined>([]);
 
   const getInfo = useCallback(() => {
@@ -39,6 +36,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
       if (markers[i].title === markerTitle) {
         setDescription(markers[i].description);
         setChip(markers[i].chip);
+        setImages(markers[i].imgSrc);
         return;
       }
     }
@@ -102,48 +100,37 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
             </IonChip>
           )
         })}
-
-        <div style={{ padding: "10px" }}>
+        <div style={{ height: "2.5vh" }} />
+        <Swiper
+          pagination={{ dynamicBullets: true }}
+          modules={[Pagination]}
+          slidesPerView={1}
+        >
+          {images.map((image: string, index: number) => {
+            return (
+              <SwiperSlide key={image + index.toString()}>
+                <IonCard style={{ backgroundColor: "#0D1117" }}>
+                  <img src={image} style={{ borderRadius: "10px" }} />
+                </IonCard>
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
+        <div style={{ padding: "10px", transform: "translateY(-5%)" }}>
           {description && description.map((desc, index: number) => {
             return (
               <p style={{ fontSize: "0.85em" }} key={index}>{desc}</p>
             )
           })}
         </div>
-        <Swiper
-          pagination={{ dynamicBullets: true }}
-          modules={[Pagination]}
-          slidesPerView={1}
-        >
-          <SwiperSlide>
-            <IonCard style={{ backgroundColor: "#0D1117" }}>
-              <img src={Canyon} style={{ borderRadius: "10px" }} />
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <IonCard style={{ backgroundColor: "#0D1117" }}>
-              <img src={Canyon} style={{ borderRadius: "10px" }} />
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <IonCard style={{ backgroundColor: "#0D1117" }}>
-              <img src={Canyon} style={{ borderRadius: "10px" }} />
-            </IonCard>
-          </SwiperSlide>
-          <SwiperSlide>
-            <IonCard style={{ backgroundColor: "#0D1117" }}>
-              <img src={Canyon} style={{ borderRadius: "10px" }} />
-            </IonCard>
-          </SwiperSlide>
-        </Swiper>
-        <div style={{ padding: "10px", textAlign: "center" }}>
+        <div style={{ textAlign: "center" }}>
           {posts && posts.length === 0 ?
             <>
               <IonCardTitle style={{ textAlign: "center", fontSize: "1.5em" }}>No {markerTitle} Posts Yet</IonCardTitle>
               <IonNote>Go there and make a post now!</IonNote>
             </>
             :
-            <IonCardTitle style={{ textAlign: "center", fontSize: "1.5em" }}>Last 15 {markerTitle} Posts</IonCardTitle>
+            <IonCardTitle style={{ textAlign: "center", fontSize: "1.5em" }}>Posts</IonCardTitle>
           }
           {!posts &&
             <>

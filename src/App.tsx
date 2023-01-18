@@ -66,7 +66,7 @@ import { MapMarkerInfo } from './pages/MapMarkerInfo';
 setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
 const historyInstance = createBrowserHistory();
 SplashScreen.show({
-  autoHide: false,
+  autoHide: true,
   fadeInDuration: 300,
   fadeOutDuration: 300
 });
@@ -126,6 +126,9 @@ const RoutingSystem: React.FunctionComponent = () => {
    * Adds a listener to PushNotifications
    */
   useEffect(() => {
+    if (Capacitor.getPlatform() !== 'ios') {
+      return;
+    }
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema) => {
@@ -292,7 +295,9 @@ const App: React.FC = () => {
     handleDarkMode().catch((err) => { console.log(err); })
     handleSchoolColorToggle().catch((err) => { console.log(err); })
     handleSensitityToggle().catch((err) => { console.log(err); })
-    registerNotifications();
+    if (Capacitor.getPlatform() === 'ios') {
+      registerNotifications();
+    }
   }, []);
 
   /**

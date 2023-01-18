@@ -326,7 +326,7 @@ function Maps() {
                       <div style={{ height: "1vh" }} />
                       <div
                         className="ion-img-container"
-                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc})`, borderRadius: '10px' }}
+                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc[0]})`, borderRadius: '10px' }}
                       >
                       </div>
                     </>

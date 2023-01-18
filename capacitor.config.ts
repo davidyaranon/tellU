@@ -5,7 +5,6 @@ const config: CapacitorConfig = {
   appName: 'tellU',
   webDir: 'build',
   bundledWebRuntime: false,
-  loggingBehavior : 'none',
   plugins: {
     GoogleAuth: {
       scopes: ['profile', 'email'],

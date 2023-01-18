@@ -13,7 +13,6 @@ import { Preferences } from '@capacitor/preferences';
 
 // Firebase/Google
 import auth, { checkUsernameUniqueness, db, getCurrentUserData, getUserLikedPosts, logout, promiseTimeout, spotifySearch, updateUserInfo } from '../fbConfig';
-import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { useAuthState } from "react-firebase-hooks/auth";
 
 // Other imports/components
@@ -31,7 +30,7 @@ import { PostType } from '../components/Shared/PostType';
 import ProfilePhoto from '../components/Shared/ProfilePhoto';
 import { PostMessage } from '../components/Home/PostMessage';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { colorFill, logoInstagram, logoSnapchat, logoTiktok, refreshOutline, warningSharp } from 'ionicons/icons';
+import { logoInstagram, logoSnapchat, logoTiktok, refreshOutline, warningSharp } from 'ionicons/icons';
 import FadeIn from 'react-fade-in/lib/FadeIn';
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -242,9 +241,9 @@ const Settings: React.FC = () => {
       duration: 2500,
       message: "Logging out..."
     });
-    if (user && (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'md')) {
-      await GoogleAuth.signOut();
-    }
+    // if (user && (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'md')) {
+    //   await GoogleAuth.signOut();
+    // }
     await logout();
     context.setSchoolColorToggled(false);
     context.setShowTabs(false);
@@ -799,7 +798,7 @@ const Settings: React.FC = () => {
                   return (
                     <FadeIn key={track.id + index.toString()} delay={1000} transitionDuration={750}>
                       <IonItem className="spotify-emb" mode="ios" lines="none">
-                        <Spotify allow="encrypted-media" style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)} />
+                        <Spotify allow="encrypted-media" style={{ width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)} />
                         <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); if (spotifyTextSearch && spotifyTextSearch.current) { spotifyTextSearch.current.value = ""; } setSpotifyResults([]); }}>Select</IonButton>
                       </IonItem>
                       <div style={{ height: "20px", backgroundColor: "#0D1117" }}> </div>
@@ -950,7 +949,7 @@ const Settings: React.FC = () => {
               <IonLabel>Spotify Song Spotlight</IonLabel>
               <br /><br />
               {editableSpotifyUri && editableSpotifyUri.length > 0 &&
-                <Spotify allow="encrypted-media" style={{ backgroundColor: "black" }} wide link={"https://open.spotify.com/track/" + editableSpotifyUri.substring(14)} />
+                <Spotify allow="encrypted-media" style={{ width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }} wide link={"https://open.spotify.com/track/" + editableSpotifyUri.substring(14)} />
               }
               {editableSpotifyUri && editableSpotifyUri.length > 0 ?
                 <IonRow>

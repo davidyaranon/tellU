@@ -1,4 +1,4 @@
-import { IonButton, IonFab, IonIcon, IonItem } from "@ionic/react";
+import { IonButton, IonFab, IonIcon, IonItem, IonRippleEffect } from "@ionic/react";
 import { memo, useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
