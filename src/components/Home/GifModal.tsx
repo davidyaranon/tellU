@@ -1,15 +1,18 @@
+/* React + Ionic + Capacitor */
 import React from "react";
 import {
   IonButton, IonButtons, IonCol, IonContent, IonGrid,
   IonHeader, IonIcon, IonModal, IonRow, IonSearchbar, IonSpinner, IonTitle, IonToolbar
 } from "@ionic/react";
-import { Keyboard } from "@capacitor/keyboard";
-import { useToast } from "@agney/ir-toast";
-import { useContext } from "../../my-context";
-import { GalleryPhoto } from "@capacitor/camera";
-import { timeout } from "../../helpers/timeout";
-import FadeIn from "react-fade-in/lib/FadeIn";
 import { closeOutline } from "ionicons/icons";
+import { Keyboard } from "@capacitor/keyboard";
+import { GalleryPhoto } from "@capacitor/camera";
+
+/* Other imports */
+import { useContext } from "../../my-context";
+import { timeout } from "../../helpers/timeout";
+import { useToast } from "@agney/ir-toast";
+import FadeIn from "react-fade-in/lib/FadeIn";
 
 function mapInSlices(array: any[], sliceSize: number, sliceFunc: any) {
   const out = [];

@@ -2,7 +2,6 @@ import {
   IonCard, IonCardContent, IonRow, IonAvatar,
   IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip
 } from "@ionic/react";
-import { useState } from "react";
 import { useToast } from "@agney/ir-toast";
 import { logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
@@ -22,8 +21,6 @@ export const UserAboutCard = (props: any) => {
   const userTiktok = props.userTiktok;
   const userMajor = props.userMajor;
   const spotifyUri = props.spotifyUri;
-
-  const [iFrameLoader, setIframeLoader] = useState<boolean>(false);
 
   const Toast = useToast();
   const context = useContext();

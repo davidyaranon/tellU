@@ -1,13 +1,15 @@
-import React from "react";
-import { Keyboard } from "@capacitor/keyboard";
+/* React + Ionic + Capacitor */
 import {
   IonAvatar,
-  IonButton, IonButtons, IonCard, IonCol, IonContent, IonFab, IonGrid,
-  IonHeader, IonIcon, IonImg, IonModal, IonRow, IonSearchbar, IonTextarea, IonTitle, IonToolbar
+  IonButton, IonButtons, IonCard, IonCol, IonContent, IonFab,
+  IonIcon, IonImg, IonModal, IonRow, IonTextarea, IonToolbar
 } from "@ionic/react";
-import { useContext } from "../../my-context";
+import { Keyboard } from "@capacitor/keyboard";
 import { Camera, GalleryPhoto } from "@capacitor/camera";
 import { cameraOutline, closeOutline } from "ionicons/icons";
+
+/* Other imports */
+import { useContext } from "../../my-context";
 import { ClassSelections } from "./ClassSelections";
 import FadeIn from "react-fade-in/lib/FadeIn";
 

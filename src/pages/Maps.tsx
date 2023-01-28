@@ -128,6 +128,7 @@ function Maps() {
 
   useIonViewWillEnter(() => {
     setClassName("");
+    StatusBar.setStyle({ style: Style.Light });
   })
 
   /**

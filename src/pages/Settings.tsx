@@ -3,7 +3,7 @@ import React from 'react';
 import {
   IonAvatar,
   IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonFab, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonLoading, IonModal, IonNote,
-  IonPage, IonRow, IonSearchbar, IonSpinner, IonText, IonTextarea, IonTitle, IonToggle, IonToolbar, useIonLoading,
+  IonPage, IonRow, IonSearchbar, IonSpinner, IonText, IonTextarea, IonTitle, IonToggle, IonToolbar, useIonLoading, useIonViewWillEnter,
 } from '@ionic/react';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from '@capacitor/keyboard';
@@ -542,6 +542,10 @@ const Settings: React.FC = () => {
       return () => { };
     }
   }, [user]);
+
+  useIonViewWillEnter(() => {
+    StatusBar.setStyle({ style: Style.Dark })
+  })
 
 
   /**

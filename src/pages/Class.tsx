@@ -1,24 +1,27 @@
+/* React + Ionic + Capacitor */
 import { useEffect, useState } from "react";
-import { RouteComponentProps, useHistory } from "react-router-dom";
-import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { getClassPostsDb, promiseTimeout } from '../fbConfig';
-import { useToast } from "@agney/ir-toast";
-import RoomIcon from '@mui/icons-material/Room';
 import {
   IonAvatar, IonBackButton, IonButtons, IonCol, IonContent, IonFab,
   IonHeader, IonItem, IonLabel, IonList,
   IonNote, IonPage, IonRow, IonSelect, IonSelectOption,
   IonSpinner, IonText, IonTitle, IonToolbar,
 } from "@ionic/react";
-import FadeIn from "react-fade-in/lib/FadeIn";
-import "../App.css";
-
 import { chevronBackOutline } from "ionicons/icons";
-
+import { Virtuoso } from "react-virtuoso";
 import Linkify from 'linkify-react';
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
+import { RouteComponentProps, useHistory } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
+
+/* Firebase */
+import auth, { getClassPostsDb, promiseTimeout } from '../fbConfig';
+
+/* Other Imports */
+import "../App.css";
+import { useToast } from "@agney/ir-toast";
+import FadeIn from "react-fade-in/lib/FadeIn";
+import RoomIcon from '@mui/icons-material/Room';
 import ProfilePhoto from "../components/Shared/ProfilePhoto";
-import { Virtuoso } from "react-virtuoso";
 import { useContext } from "../my-context";
 import { getColor } from "../helpers/getColor";
 import { getDate } from "../helpers/timeago";
@@ -27,7 +30,6 @@ interface MatchUserPostParams {
   className: string;
   schoolName: string;
 }
-
 
 const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postClassName = match.params.className;

@@ -1,9 +1,11 @@
+/* Images */
 import Canyon from "../images/canyon.jpeg";
 import Canyon_Bathroom from '../images/canyon_bathroom.jpeg';
 import Creekview_Bathroom from '../images/creekview_bathroom.jpeg';
 import Hill_Bathroom from '../images/hill_bathroom.jpeg';
 import Hill_Gender_Neutral_Bathroom from '../images/hill_gender_neutral.jpeg';
 
+/* Icons */
 import ShowerIcon from '@mui/icons-material/Shower';
 import SchoolIcon from '@mui/icons-material/School';
 import HotelIcon from '@mui/icons-material/Hotel';
@@ -83,9 +85,15 @@ export let markers: MapMarker[] = [
     location: [40.878263687897764, -124.07816712005274],
     title: "Cypress",
     imgSrc: [""],
-    description: [""],
+    description: ["Cypress is a series of suites built up the slope of a hillside and houses 231 students. A suite houses 7 to 12 students. Each suite has a living room, bathroom, and a small kitchen area with cooking facilities and a dining table.",
+      "Some suites have either a balcony or patio off the living room. There is a main laundry facility on the ground floor of the Cypress complex. There are some suites that have washers and dryers in the suites. A basketball hoop, barbecue, lawn, and recreation area are located on the grounds adjacent to Cypress.",
+      "The suites consist of double and single rooms. All rooms are furnished with a bed, desk and wardrobe closet for each resident. All beds are twin extra long. The rooms are wired for optional telephone service and cable TV service. Every resident has the ability to access the internet through wired or wireless connections. Custodial services clean the common areas: kitchen, bathroom, living room and hallway."
+    ],
     color: "var(--ion-color-housing)",
-    tag: "Housing"
+    tag: "Housing",
+    chip: [
+      { title: "Freshman & Upperclassmen", color: "ion-blue", icon: SchoolIcon, image: null},
+    ]
   },
   {
     location: [40.877495692957545, -124.0783592939952],

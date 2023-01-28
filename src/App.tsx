@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import Settings from './pages/Settings';
 import Maps from './pages/Maps';
+import { Events } from './pages/Events';
 import LoadingPage from './pages/LoadingPage';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -25,7 +26,7 @@ import {
 } from '@ionic/react';
 import { useEffect } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, mapOutline, personOutline } from 'ionicons/icons';
+import { calendarOutline, homeOutline, mapOutline, personOutline } from 'ionicons/icons';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
@@ -73,16 +74,12 @@ SplashScreen.show({
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
 }
-const keyStyleOptionsLight: KeyboardStyleOptions = {
-  style: KeyboardStyle.Light
-}
 
 /**
  * Handles routing in app
  * Includes tab bar routing and all page components
  */
 const RoutingSystem: React.FunctionComponent = () => {
-  console.log("Routing")
   /* hooks */
   const context = useContext();
   const history = useHistory();
@@ -169,6 +166,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/register" exact component={Register} />
           <Route path="/:tab(home)" exact component={Home} />
           <Route path="/:tab(maps)" exact component={Maps} />
+          <Route path="/:tab(events)" exact component={Events} />
           <Route path="/:tab(settings)" exact component={Settings} />
           <Route path="/markerInfo/:school/:title" component={MapMarkerInfo} />
           <Route path="/about/:school/:uid" component={UserProfile} />
@@ -184,6 +182,10 @@ const RoutingSystem: React.FunctionComponent = () => {
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
             <IonIcon size='large' style={{ bottom: "-20px" }} icon={homeOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+          </IonTabButton>
+
+          <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="events" href="/events">
+            <IonIcon size='large' icon={calendarOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
@@ -207,8 +209,6 @@ const RoutingSystem: React.FunctionComponent = () => {
  * @returns Rendered application
  */
 const App: React.FC = () => {
-  console.log('app');
-
   // hooks
   const context = useContext();
 

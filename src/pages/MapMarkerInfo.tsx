@@ -1,18 +1,21 @@
-import { IonPage, IonContent, IonNote, IonCard, IonCardTitle, IonChip } from "@ionic/react";
+/* Ionic + React + Capacitor */
 import { useCallback, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
+import { IonPage, IonContent, IonNote, IonCard, IonCardTitle, IonChip, useIonViewWillEnter } from "@ionic/react";
 import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
 
-import { Toolbar } from "../components/Shared/Toolbar";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper";
+/* Other Imports */
 import "swiper/css";
 import "swiper/css/pagination";
+import { Pagination } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Toolbar } from "../components/Shared/Toolbar";
 import { markers } from "../helpers/maps-config";
 import auth, { getLikes, getPOIPosts, getStorageUrl } from "../fbConfig";
 import { HomePagePost } from "../components/Home/HomePagePost";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useToast } from "@agney/ir-toast";
+import { StatusBar, Style } from "@capacitor/status-bar";
 
 interface MatchUserPostParams {
   school: string;
@@ -60,12 +63,16 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
       toast.present();
     }
 
-  }, [])
+  }, []);
 
   useEffect(() => {
     getInfo();
     getPosts();
   }, []);
+
+  useIonViewWillEnter(() => {
+    StatusBar.setStyle({ style: Style.Dark })
+  });
 
   return (
     <IonPage>

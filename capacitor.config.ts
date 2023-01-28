@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'tellU',
   webDir: 'build',
   bundledWebRuntime: false,
+  loggingBehavior: 'debug',
   plugins: {
     GoogleAuth: {
       scopes: ['profile', 'email'],
@@ -16,7 +17,6 @@ const config: CapacitorConfig = {
     },
     "SplashScreen": {
       "launchAutoHide": false,
-      "showDuration": 500
     }
   }
 };

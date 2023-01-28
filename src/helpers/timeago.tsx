@@ -7,7 +7,7 @@ TimeAgo.addDefaultLocale(en);
 
 const timeAgo = new TimeAgo("en-US");
 
-export const getDate = (timestamp: any) => {
+export const getDate = (timestamp: any) : string => {
   if (!timestamp) {
     return '';
   }
@@ -21,7 +21,7 @@ export const getDate = (timestamp: any) => {
   }
 };
 
-export const getTimeLeft = (timestamp: any) => {
+export const getTimeLeft = (timestamp: any) : string => {
   if (!timestamp) {
     return '';
   }

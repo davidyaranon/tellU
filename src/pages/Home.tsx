@@ -251,7 +251,11 @@ const Home: React.FC = () => {
 
   React.useEffect(() => {
     handleGetVersion();
-  }, [])
+  }, []);
+
+  useIonViewWillEnter(() => {
+    StatusBar.setStyle({ style: Style.Dark })
+  });
 
   /**
    * Firestore listener for new posts, loads 15 posts at a time

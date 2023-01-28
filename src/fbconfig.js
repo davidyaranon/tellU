@@ -16,13 +16,14 @@ import {
   runTransaction as rtdbRunTransaction,
   set, update
 } from "firebase/database";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes, uploadString } from "firebase/storage";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { initializeApp } from "firebase/app";
 import { ref as rtdbRef } from "firebase/database";
 
 import { Capacitor } from '@capacitor/core';
 import SpotifyWebApi from 'spotify-web-api-js';
+import { Preferences } from "@capacitor/preferences";
 
 const spotifyApi = new SpotifyWebApi();
 const REACT_APP_SPOTIFY_CLIENT_ID = '1df10089b0b3490db93c23353b0cdc35';
@@ -57,7 +58,7 @@ export const deleteCommentsFromDeletedPost = httpsCallable(functions, 'deleteCom
 export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNotification');
 export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
-
+export const getHumboldtUpdates = httpsCallable(functions, 'getHumboldtUpdates');
 
 
 /**
@@ -1036,7 +1037,7 @@ export const addMessage = async (mess, blob, id, pos, POI, school, notifications
             message: mess,
             url: url,
             uid: auth.currentUser.uid,
-            POI : POI,
+            POI: POI,
             postType: postType,
             imgSrc: imgSources,
             marker: marker,
@@ -1529,7 +1530,7 @@ export const getAppVersionNum = async () => {
  */
 export const getPOIPosts = async (poiName) => {
   try {
-    if(auth && db) {
+    if (auth && db) {
       const school = "CalPolyHumboldt"
       const q = query(collection(db, "schoolPosts", school, "allPosts"), where("POI", "==", poiName), orderBy("timestamp", "desc"), limit(15));
       const qSnapshot = await getDocs(q);
@@ -1538,9 +1539,9 @@ export const getPOIPosts = async (poiName) => {
       for (const doc of docs) {
         poiPosts.push({
           ...doc.data(),
-          likes : {'null': true},
-          dislikes : {'null': true},
-          commentAmount : 0,
+          likes: { 'null': true },
+          dislikes: { 'null': true },
+          commentAmount: 0,
           key: doc.id
         });
       }
@@ -1551,3 +1552,62 @@ export const getPOIPosts = async (poiName) => {
   }
 };
 
+/**
+ * @description Gets the latest updates from the Humboldt website.
+ * Translates the .rss language into html.
+ * 
+ * @returns a string of html that contains the latest updates from the Humboldt website
+ */
+export const getEvents = async () => {
+  const updates = await getHumboldtUpdates().catch((err) => { console.log(err); });
+
+  let line = "", htmlString = "";
+  let linkCount = 0;
+  let inLineTag = false;
+  let lines = updates.data.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    line = lines[i];
+    if (inLineTag) {
+      let title = line.indexOf("<title>");
+      if (title !== -1) {
+        let endTitle = line.indexOf("</title>");
+        let titleStr = line.slice(title + 7, endTitle);
+        htmlString += "<h1 class=\"events-h1\">" + titleStr + "</h1>";
+        htmlString += '\n';
+      }
+      let desc = line.indexOf("<description>");
+      if (desc !== -1) {
+        let endDesc = line.indexOf("</description>");
+        let descStr = line.slice(desc + 13, endDesc);
+        let subString = "&lt;b&gt;Event Title";
+        let index = descStr.indexOf(subString);
+        if (index !== -1) {
+          descStr = descStr.substring(0, index);
+        }
+        htmlString += "<div>" + descStr + "</div>";
+        htmlString += '\n';
+      }
+      let link = line.indexOf("<link>");
+      if (link !== -1) {
+        let endLink = line.indexOf("</link>");
+        let linkStr = line.slice(link + 6, endLink);
+        htmlString += "<a class=\"event-a\" href='" + linkStr + "'>Read More</a>";
+        htmlString += '\n';
+        // if(linkCount++ > 50) {
+        //   break;
+        // };
+      }
+      let endItem = line.indexOf("</item>");
+      if (endItem !== -1) {
+        inLineTag = false;
+      }
+    }
+    let n = line.indexOf("<item>");
+    if (n !== -1) {
+      inLineTag = true;
+    }
+  }
+  // console.log(htmlString);
+
+  return htmlString;
+};

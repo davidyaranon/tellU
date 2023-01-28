@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
@@ -185,6 +185,20 @@ exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async 
       localArticles: articles
     }).catch((err) => console.log(err));
   }
+});
+
+exports.getHumboldtUpdates = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Something went wrong, try logging in again'
+    );
+  }
+  
+  const bucket = app.storage().bucket();
+  const file = bucket.file('HSU-featured-events.rss');
+  const contents = await file.download();
+  return contents.toString();
 });
 
 exports.deleteImage = functions.https.onCall(async (data, context) => {

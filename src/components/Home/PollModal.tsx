@@ -1,13 +1,19 @@
+/* React + Ionic */
 import { useState } from "react";
 import {
   IonModal, IonContent, IonToolbar, IonButtons, IonButton,
-  IonTitle, IonInput, IonList, IonItem, IonIcon
+  IonInput, IonList, IonItem, IonIcon
 } from '@ionic/react';
 import { Keyboard } from "@capacitor/keyboard";
+import { closeOutline } from "ionicons/icons";
+
+/* Firebase */
+import { promiseTimeout, submitPollNew } from "../../fbConfig";
+
+/* Other imports */
 import { useToast } from "@agney/ir-toast";
 import { useContext } from "../../my-context";
-import { promiseTimeout, submitPollNew } from "../../fbConfig";
-import { closeOutline } from "ionicons/icons";
+
 
 interface PollAnswer {
   text: string,
