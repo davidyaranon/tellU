@@ -26,7 +26,7 @@ import {
 } from '@ionic/react';
 import { useEffect } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
-import { calendarOutline, homeOutline, mapOutline, personOutline } from 'ionicons/icons';
+import { calendarOutline, calendarSharp, homeOutline, homeSharp, mapOutline, mapSharp, personOutline, personSharp } from 'ionicons/icons';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
@@ -83,6 +83,7 @@ const RoutingSystem: React.FunctionComponent = () => {
   /* hooks */
   const context = useContext();
   const history = useHistory();
+  const [selectedTab, setSelectedTab] = React.useState<string>('home');
   const [present] = useIonToast();
 
   /* state variables */
@@ -155,7 +156,7 @@ const RoutingSystem: React.FunctionComponent = () => {
 
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-      <IonTabs>
+      <IonTabs onIonTabsDidChange={(e) => {setSelectedTab(e.detail.tab)}}>
 
         <IonRouterOutlet>
           <Route path="/" exact component={LoadingPage} />
@@ -181,19 +182,19 @@ const RoutingSystem: React.FunctionComponent = () => {
 
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
-            <IonIcon size='large' style={{ bottom: "-20px" }} icon={homeOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="events" href="/events">
-            <IonIcon size='large' icon={calendarOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'events' ? calendarSharp : calendarOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
-            <IonIcon size='large' icon={mapOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'maps' ? mapSharp : mapOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="settings" href="/settings">
-            <IonIcon size='large' icon={personOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'settings' ? personSharp : personOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
           </IonTabButton>
         </IonTabBar>
 

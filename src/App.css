@@ -627,9 +627,9 @@ ion-tab-button {
   height: 150px;
 }
 
-ion-tab-button[aria-selected=true].tab-dark {
+/* ion-tab-button[aria-selected=true].tab-dark {
   background-color: #0D1117;
-}
+} */
 
 ion-tab-button[aria-selected=true].tab-light {
   background-color: rgb(236, 236, 236);

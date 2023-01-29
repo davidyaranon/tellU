@@ -1,6 +1,6 @@
 import {
   IonContent, IonHeader, IonPage, IonSpinner,
-  useIonViewWillEnter, IonCard, IonText, IonFab, IonItem, IonLabel
+  useIonViewWillEnter, IonCard, IonText, IonItem, IonLabel, IonChip, IonRow, IonCol
 } from "@ionic/react";
 import React from "react";
 import { useContext } from "../my-context";
@@ -11,6 +11,8 @@ import { getEvents } from "../fbConfig";
 import { Preferences } from "@capacitor/preferences";
 import { useToast } from "@agney/ir-toast";
 import { Capacitor } from "@capacitor/core";
+import { Virtuoso } from "react-virtuoso";
+import FadeIn from "react-fade-in/lib/FadeIn";
 
 export const Events = () => {
 
@@ -20,7 +22,79 @@ export const Events = () => {
   const [today, setToday] = React.useState<Date | null>(null);
   const [htmlArr, setHtmlArr] = React.useState<string[]>([]);
   const [dates, setDates] = React.useState<string[]>([]);
-  const combinedArr = htmlArr.map((x, i) => [x, dates[i]]);
+  const [combinedArr, setCombinedArr] = React.useState<string[][]>([]);
+  const [selectedMonth, setSelectedMonth] = React.useState<number>(0);
+  const months = Array(4).fill(null);
+
+  /**
+   * @description filters the events based on the month selected
+   * 
+   * @param {string} month month Jan - Dec
+   * @param {number} index the index of the month selected array
+   */
+  const filterEvents = (month: string, index : number) => {
+    let start = 0, end = dates.length - 1;
+    for(let i = 0; i < dates.length; i++) {
+      if(dates[i].includes(month)) {
+        start = i;
+        break;
+      }
+    }
+    for(let i = dates.length - 1; i >= 0; i--) {
+      if(dates[i].includes(month)) {
+        end = i;
+        break;
+      }
+    }
+    if(start === 0 && end === dates.length - 1) {
+      const toast = Toast.create({ message: 'No events found for ' + month, duration: 2000, color: 'toast-error' });
+      toast.present();
+      return;
+    }
+    setSelectedMonth(index); 
+    setCombinedArr(htmlArr.slice(start, end + 1).map((x, i) => [x, dates.slice(start, end + 1)[i]]));
+  };
+
+  /**
+   * @decscription returns current month 
+   * 
+   * @param {number | undefined} month month number from 0 - 11 or undefined
+   * @returns {string} month name
+   */
+  const getMonthStr = (month: number | undefined): string => {
+    if (typeof month === 'undefined') {
+      return "";
+    }
+    switch (month) {
+      case 0:
+        return "January";
+      case 1:
+        return "February";
+      case 2:
+        return "March";
+      case 3:
+        return "April";
+      case 4:
+        return "May";
+      case 5:
+        return "June";
+      case 6:
+        return "July";
+      case 7:
+        return "August";
+      case 8:
+        return "September";
+      case 9:
+        return "October";
+      case 10:
+        return "November";
+      case 11:
+        return "December";
+      default:
+        return "";
+        break;
+    }
+  };
 
   /**
    * @description Get the day of the week from a day number.
@@ -93,10 +167,15 @@ export const Events = () => {
    * "Tomorrow" if the date is tomorrow, and "" otherwise.
    */
   const getMessage = (dateStr1: string): string => {
-    if (compareDates(dateStr1, today?.toDateString() || "")) {
+    if (!today) {
+      const toast = Toast.create({ message: 'Unable to load events, try again', duration: 2000, color: 'toast-error' });
+      toast.present();
+      return "";
+    }
+    if (compareDates(dateStr1 + ' ' + today.getFullYear(), today.toDateString())) {
       return "Today";
     }
-    if (seeIfTomorrow(dateStr1, today?.toDateString() || "")) {
+    if (seeIfTomorrow(dateStr1, today?.toDateString())) {
       return "Tomorrow";
     }
     return "";
@@ -123,11 +202,10 @@ export const Events = () => {
    */
   const getEventInfo = React.useCallback(async () => {
     const serverTimestamp = Timestamp.now().toDate();
-    // console.log(serverTimestamp.toDateString());
     setToday(serverTimestamp);
     const events = await Preferences.get({ key: "events" });
     const eventsLastUpdated = await Preferences.get({ key: "eventsLastUpdated" });
-    if (events.value && serverTimestamp.toDateString() != eventsLastUpdated.value) {
+    if (events.value && serverTimestamp.toDateString() == eventsLastUpdated.value) {
       let myString = events.value;
       let substring = "img";
       let substring2 = "&lt;p";
@@ -159,6 +237,7 @@ export const Events = () => {
       });
       setDates(dateArr);
       setHtmlArr(htmlStrings);
+      setCombinedArr(htmlStrings.map((x, i) => [x, dateArr[i]]));
     } else {
       console.log('getting events, new day');
       getEvents()
@@ -204,19 +283,20 @@ export const Events = () => {
         });
     }
   }, []);
-
-  React.useEffect(() => {
-    context.setShowTabs(true);
-  }, []);
-
   React.useEffect(() => {
     getEventInfo();
   }, []);
 
+  /**
+   * Shows tabs on load
+   */
   React.useEffect(() => {
     context.setShowTabs(true);
   }, [context]);
 
+  /**
+   * Sets the status bar to dark mode on iOS
+   */
   useIonViewWillEnter(() => {
     if (Capacitor.getPlatform() === 'ios')
       StatusBar.setStyle({ style: Style.Dark });
@@ -224,23 +304,48 @@ export const Events = () => {
 
   return (
     <IonPage className="ion-page-ios-notch">
-      <IonContent>
+      <IonContent fullscreen scrollY={false}>
 
-        <IonHeader>
-          <h1 style={{ padding: "10px", textAlign: 'center' }}><span style={{ fontWeight: 'bold' }}>Campus </span><span style={{ fontWeight: "lighter", color: "#61dbfb" }}>Events</span></h1>
-        </IonHeader>
+        <Virtuoso
+          overscan={1000}
+          className="ion-content-scroll-host"
+          data={combinedArr}
+          itemContent={(index, [htmlString, date]) => {
+            return (
+              <FadeIn key={htmlString}>
+                <IonCard style={{ padding: "10px" }}>
+                  <IonItem style={{ width: "85vw", margin: "auto", transform: "translateX(-5%)" }}>
+                    <IonLabel>{date}</IonLabel>
+                    <span style={{ textAlign: 'right' }}><IonText color="toast-error">{getMessage(date)}</IonText></span>
+                  </IonItem>
+                  <div>{decodeHtml(htmlString)}</div>
+                </IonCard>
+              </FadeIn>
+            )
+          }}
+          style={{ height: "100%" }}
+          components={{
+            Header: () =>
+              <>
+                <IonHeader>
+                  <h1 style={{ padding: "10px", textAlign: 'center' }}><span style={{ fontWeight: 'bold' }}>Campus </span><span style={{ fontWeight: "lighter", color: "#61dbfb" }}>Events</span></h1>
+                </IonHeader>
+                <IonRow>
+                  {today && months.map((month, index) => {
+                    return (
+                      <IonChip key={index.toString()} color={selectedMonth === index ? 'primary' : 'ion-blue'} style={selectedMonth === index ? {width: "22.5vw", justifyContent: 'center', fontWeight : 'bold'} :{ width: "22.5vw", justifyContent: 'center' }}>
+                        <IonLabel onClick={() => {let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }}>
+                          {getMonthStr(today.getMonth() + index)}
+                        </IonLabel>
+                      </IonChip>
+                    )
+                  })}
+                </IonRow>
+              </>
+          }}
+        />
 
-        {combinedArr.length > 0 ?
-          combinedArr.map(([htmlString, date]) => (
-            <IonCard key={htmlString} style={{ padding: "10px" }}>
-              <IonItem style={{ width: "85vw", margin: "auto", transform: "translateX(-5%)" }}>
-                <IonLabel>{date}</IonLabel>
-                <span style={{ textAlign: 'right' }}><IonText color="toast-error">{getMessage(date)}</IonText></span>
-              </IonItem>
-              <div>{decodeHtml(htmlString)}</div>
-            </IonCard>
-          ))
-          :
+        {combinedArr.length <= 0 &&
           <IonSpinner color='primary' className="ion-spinner"></IonSpinner>
         }
       </IonContent>
