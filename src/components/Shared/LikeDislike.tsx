@@ -25,6 +25,7 @@ export const LikeDislike = memo((props: any) => {
   const [dislikeAnimation, setDislikeAnimation] = useState<number>(-1);
   const [likes, setLikes] = useState<any>(props.likes);
   const [dislikes, setDisLikes] = useState<any>(props.dislikes);
+  const [isLiking, setIsLiking] = useState<boolean>(false);
 
   const post = props.post;
   const postKeyMatch = props.postKey;
@@ -54,6 +55,7 @@ export const LikeDislike = memo((props: any) => {
    * @param {any} post the post object used for updating user's likes document
   */
   const handleUpVote = async (postKey: string, index: number, post: any) => {
+    setIsLiking(true);
     if (postKeyMatch && postKeyMatch.length > 0) {
       postKey = postKeyMatch;
     }
@@ -75,12 +77,13 @@ export const LikeDislike = memo((props: any) => {
         }
         setLikes(likesCopy);
         setDisLikes(dislikesCopy);
-        await timeout(100);
+        await timeout(250);
       }
     } else {
       const toast = Toast.create({ message: 'Unable to like post', duration: 2000, color: 'toast-error' });
       toast.present();
     }
+    setIsLiking(false);
   };
 
   /**
@@ -90,6 +93,7 @@ export const LikeDislike = memo((props: any) => {
    * @param {number} index the index of the post in the posts array
    */
   const handleDownVote = async (postKey: string, index: number) => {
+    setIsLiking(true);
     if (postKeyMatch && postKeyMatch.length > 0) {
       postKey = postKeyMatch;
     }
@@ -111,12 +115,13 @@ export const LikeDislike = memo((props: any) => {
         }
         setLikes(likesCopy);
         setDisLikes(dislikesCopy);
-        await timeout(100);
+        await timeout(250);
       }
     } else {
       const toast = Toast.create({ message: 'Unable to dislike post', duration: 2000, color: 'toast-error' });
       toast.present();
     }
+    setIsLiking(false);
   };
 
   return (
@@ -124,7 +129,7 @@ export const LikeDislike = memo((props: any) => {
       <IonButton
         onAnimationEnd={() => { setLikeAnimation(-1); }}
         className={likeAnimation === post.key ? "likeAnimation" : ""}
-        disabled={disabledLikeButtons === index || Object.keys(likes).length - 1 === -1}
+        disabled={isLiking || disabledLikeButtons === index || Object.keys(likes).length - 1 === -1}
         mode="ios"
         fill="outline"
         color={

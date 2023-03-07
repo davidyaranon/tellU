@@ -15,7 +15,7 @@ const ProfilePhoto = (props : UserInfo) => {
     if(uid) {
       getDownloadURL(ref(storage, "profilePictures/" + uid + "photoURL")).then((res) => {
         setSrc(res);
-      }).catch(() => {
+      }).catch((err) => {
         setSrc("https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd",
         )
       });

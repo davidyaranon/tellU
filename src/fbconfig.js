@@ -1584,6 +1584,11 @@ export const getEvents = async () => {
         if (index !== -1) {
           descStr = descStr.substring(0, index);
         }
+        let subString2 = "&lt;b&gt;Organization"
+        let index2 = descStr.indexOf(subString2);
+        if (index2 !== -1) {
+          descStr = descStr.substring(0, index2);
+        }
         htmlString += "<div>" + descStr + "</div>";
         htmlString += '\n';
       }

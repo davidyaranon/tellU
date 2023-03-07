@@ -1,6 +1,7 @@
 import {
   IonContent, IonHeader, IonPage, IonSpinner,
-  useIonViewWillEnter, IonCard, IonText, IonItem, IonLabel, IonChip, IonRow, IonCol
+  useIonViewWillEnter, IonCard, IonText, IonItem,
+  IonLabel, IonChip, IonRow, IonCol,
 } from "@ionic/react";
 import React from "react";
 import { useContext } from "../my-context";
@@ -20,11 +21,15 @@ export const Events = () => {
   const Toast = useToast();
 
   const [today, setToday] = React.useState<Date | null>(null);
+  // const [promotions, setPromotions] = React.useState<any[]>([]);
   const [htmlArr, setHtmlArr] = React.useState<string[]>([]);
   const [dates, setDates] = React.useState<string[]>([]);
   const [combinedArr, setCombinedArr] = React.useState<string[][]>([]);
-  const [selectedMonth, setSelectedMonth] = React.useState<number>(0);
+  const [selectedMonth, setSelectedMonth] = React.useState<number>(-1000);
+  const [specialOneSelected, setSpecialOneSelected] = React.useState<boolean>(false);
+  const [specialTwoSelected, setSpecialTwoSelected] = React.useState<boolean>(false);
   const months = Array(4).fill(null);
+  const virtuosoRef = React.useRef<any>(null);
 
   /**
    * @description filters the events based on the month selected
@@ -32,27 +37,41 @@ export const Events = () => {
    * @param {string} month month Jan - Dec
    * @param {number} index the index of the month selected array
    */
-  const filterEvents = (month: string, index : number) => {
+  const filterEvents = (month: string, index: number) => {
     let start = 0, end = dates.length - 1;
-    for(let i = 0; i < dates.length; i++) {
-      if(dates[i].includes(month)) {
+    for (let i = 0; i < dates.length; i++) {
+      if (dates[i].includes(month)) {
         start = i;
         break;
       }
     }
-    for(let i = dates.length - 1; i >= 0; i--) {
-      if(dates[i].includes(month)) {
+    for (let i = dates.length - 1; i >= 0; i--) {
+      if (dates[i].includes(month)) {
         end = i;
         break;
       }
     }
-    if(start === 0 && end === dates.length - 1) {
+    if (start === 0 && end === dates.length - 1) {
       const toast = Toast.create({ message: 'No events found for ' + month, duration: 2000, color: 'toast-error' });
       toast.present();
       return;
     }
-    setSelectedMonth(index); 
+    setSpecialOneSelected(false);
+    setSpecialTwoSelected(false);
+    setSelectedMonth(index);
     setCombinedArr(htmlArr.slice(start, end + 1).map((x, i) => [x, dates.slice(start, end + 1)[i]]));
+    virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
+  };
+
+  /**
+   * @description filters the events based on if it is happening at the SAC
+   */
+  const getSacEvents = () => {
+    let filteredCombinedArr : string[][] = htmlArr.map((x, i) => [x, dates[i]])
+    filteredCombinedArr = filteredCombinedArr.filter(item => item[0].includes("Student Activities Center"));
+    setCombinedArr(filteredCombinedArr);
+    setSelectedMonth(-1000);
+    virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
   };
 
   /**
@@ -148,12 +167,12 @@ export const Events = () => {
    * @param {string} dateStr1 date string to be compared
    * @param {string} dateStr2 date string to be compared
    * 
-   * @returns {boolean} if the dates are one day apart
+   * @returns {boolean} if the date1 is one day after date2
    */
   const seeIfTomorrow = (dateStr1: string, dateStr2: string): boolean => {
     let date1 = new Date(dateStr1);
     let date2 = new Date(dateStr2);
-    if (Math.abs(date1.getDate() - date2.getDate()) === 1) {
+    if (date1.getDate() - date2.getDate() === 1) {
       return true;
     }
     return false;
@@ -276,6 +295,7 @@ export const Events = () => {
             });
             setDates(dateArr);
             setHtmlArr(htmlStrings);
+            setCombinedArr(htmlStrings.map((x, i) => [x, dateArr[i]]));
           } else {
             const toast = Toast.create({ message: 'Unable to load events, try again', duration: 2000, color: 'toast-error' });
             toast.present();
@@ -306,7 +326,38 @@ export const Events = () => {
     <IonPage className="ion-page-ios-notch">
       <IonContent fullscreen scrollY={false}>
 
+        <>
+          <IonHeader>
+            <h1 style={{ padding: "10px" }}><span style={{ fontWeight: 'bold' }}>Campus </span><span style={{ fontWeight: "lighter", color: "#61dbfb" }}>Events</span></h1>
+          </IonHeader>
+          <IonRow>
+            {today && months.map((month, index) => {
+              return (
+                <IonChip onClick={() => { let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }} key={index.toString()} color={selectedMonth - today.getMonth() === index ? 'primary' : 'ion-blue'} style={selectedMonth === index ? { width: "22.5vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "22.5vw", justifyContent: 'center' }}>
+                  <IonLabel>
+                    {getMonthStr(today.getMonth() + index)}
+                  </IonLabel>
+                </IonChip>
+              );
+            })}
+          </IonRow>
+          <IonRow className='ion-justify-content-center'>
+            <IonCol size="5">
+              <IonChip onClick={() => { setSpecialOneSelected(true); setSpecialTwoSelected(false); getSacEvents(); }} color={specialOneSelected ? 'primary' : 'ion-blue'} style={specialOneSelected ? { width: "35vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "35vw", justifyContent: 'center' }}>
+                <IonLabel>SAC Events</IonLabel>
+              </IonChip>
+            </IonCol>
+            <IonCol size="5">
+              <IonChip onClick={() => { const toast = Toast.create({ message: 'No promotions right now ;)', duration: 2000, color: 'toast-error' }); toast.present();/* setSpecialTwoSelected(true); setSpecialOneSelected(false); */ }} color={specialTwoSelected ? 'primary' : 'ion-blue'} style={specialTwoSelected ? { width: "35vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "35vw", justifyContent: 'center' }}>
+                <IonLabel>Promotions</IonLabel>
+              </IonChip>
+            </IonCol>
+          </IonRow>
+          <div style={{ height: "1vh" }}></div>
+        </>
+
         <Virtuoso
+          ref={virtuosoRef}
           overscan={1000}
           className="ion-content-scroll-host"
           data={combinedArr}
@@ -325,29 +376,14 @@ export const Events = () => {
           }}
           style={{ height: "100%" }}
           components={{
-            Header: () =>
-              <>
-                <IonHeader>
-                  <h1 style={{ padding: "10px", textAlign: 'center' }}><span style={{ fontWeight: 'bold' }}>Campus </span><span style={{ fontWeight: "lighter", color: "#61dbfb" }}>Events</span></h1>
-                </IonHeader>
-                <IonRow>
-                  {today && months.map((month, index) => {
-                    return (
-                      <IonChip key={index.toString()} color={selectedMonth === index ? 'primary' : 'ion-blue'} style={selectedMonth === index ? {width: "22.5vw", justifyContent: 'center', fontWeight : 'bold'} :{ width: "22.5vw", justifyContent: 'center' }}>
-                        <IonLabel onClick={() => {let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }}>
-                          {getMonthStr(today.getMonth() + index)}
-                        </IonLabel>
-                      </IonChip>
-                    )
-                  })}
-                </IonRow>
-              </>
+            Footer: () => <div style={{ height: '25vh' }}></div>
           }}
         />
 
         {combinedArr.length <= 0 &&
-          <IonSpinner color='primary' className="ion-spinner"></IonSpinner>
+          <IonSpinner color="primary" className="ion-spinner">Select a Month</IonSpinner>
         }
+
       </IonContent>
     </IonPage>
   );

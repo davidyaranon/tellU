@@ -77,7 +77,16 @@ export const Notifications = () => {
                 return (
                   <FadeIn key={"chatnotif_" + notif.postKey + index.toString()}>
                     <IonList inset={true} mode="ios">
-                      <IonItem lines="none" mode="ios" onClick={() => { history.push(notif.chatroomString); }}>
+                      <IonItem lines="none" mode="ios" onClick={() => {
+                        let url: string = '';
+                        let chatroomString : string = notif.chatroomString;
+                        if (chatroomString.includes("chatroom")) {
+                          url = notif.chatroomString.slice(0, 9) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
+                        } else {
+                          url = notif.chatroomString.slice(0, 5) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
+                        }
+                        history.push(url);
+                      }}>
                         <IonFab horizontal="end" vertical="top">
                           <IonNote style={{ fontSize: "0.75em" }}>
                             {" "}
@@ -100,7 +109,8 @@ export const Notifications = () => {
                 return (
                   <FadeIn key={"postnotif_" + notif.postKey + index.toString()}>
                     <IonList inset={true} mode="ios">
-                      <IonItem lines="none" mode="ios" onClick={() => { const key = notif.postKey.toString(); history.push("post/" + key); }}>
+                      <IonItem lines="none" mode="ios" onClick={() => { 
+                        const key = notif.postKey.toString(); history.push("post/Cal%20Poly%20Humboldt/" + notif.userName + '/' + key); }}>
                         <IonFab horizontal="end" vertical="top">
                           <IonNote style={{ fontSize: "0.75em" }}>
                             {" "}
