@@ -193,10 +193,6 @@ const Home: React.FC = () => {
     const school = await Preferences.get({ key: 'school' });
     if (school && school.value) {
       setSchoolName(school.value);
-    } else {
-      const toast = Toast.create({ message: 'Something went wrong when retrieving posts', duration: 2000, color: 'toast-error' });
-      toast.present();
-      dynamicNavigate(router, '/landing-page', 'root');
     }
   }, []);
 

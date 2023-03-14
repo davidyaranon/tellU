@@ -150,9 +150,9 @@ const Register: React.FC = () => {
           toast.present();
           toast.dismiss();
         }
+        setBusy(false);
       }
     }
-    setBusy(false);
   }
 
   const setSchool = React.useCallback(async (school: string) => {

@@ -67,7 +67,7 @@ export const Events = () => {
    * @description filters the events based on if it is happening at the SAC
    */
   const getSacEvents = () => {
-    let filteredCombinedArr : string[][] = htmlArr.map((x, i) => [x, dates[i]])
+    let filteredCombinedArr: string[][] = htmlArr.map((x, i) => [x, dates[i]])
     filteredCombinedArr = filteredCombinedArr.filter(item => item[0].includes("Student Activities Center"));
     setCombinedArr(filteredCombinedArr);
     setSelectedMonth(-1000);
@@ -381,7 +381,9 @@ export const Events = () => {
         />
 
         {combinedArr.length <= 0 &&
-          <IonSpinner color="primary" className="ion-spinner">Select a Month</IonSpinner>
+          <><p className="center-this">Events take a few seconds to load</p>
+            <IonSpinner color="primary" className="ion-spinner">Select a Month</IonSpinner>
+          </>
         }
 
       </IonContent>
