@@ -133,7 +133,7 @@ const Register: React.FC = () => {
           schoolName
         );
         if (typeof res === "string") {
-          Toast.error(res);
+          Toast.error('Connection interrupted. Your account should be created, try logging in');
         } else {
           await setSchool(schoolName);
           const notificationsToken = localStorage.getItem("notificationsToken") || "";

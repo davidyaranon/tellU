@@ -73,7 +73,6 @@ export const getHumboldtUpdates = httpsCallable(functions, 'getHumboldtUpdates')
 export async function registerWithEmailAndPassword(name, email, password, school) {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
-    const batch = writeBatch(db);
     if (res) {
       const user = res.user;
       await updateProfile(user, {

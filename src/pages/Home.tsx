@@ -44,7 +44,7 @@ import { useHistory } from 'react-router';
 import { Dialog } from '@capacitor/dialog';
 import { Capacitor } from '@capacitor/core';
 
-const versionNum: string = '2.3.0';
+const versionNum: string = '3.0.0';
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
 }
