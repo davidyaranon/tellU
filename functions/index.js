@@ -3,6 +3,12 @@ const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 
+const { Configuration, OpenAIApi } = require("openai");
+
+const configuration = new Configuration({
+  apiKey: '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'
+});
+const openai = new OpenAIApi(configuration);
 
 const app = admin.initializeApp({
   credential: admin.credential.applicationDefault(),
@@ -194,7 +200,7 @@ exports.getHumboldtUpdates = functions.https.onCall(async (data, context) => {
       'Something went wrong, try logging in again'
     );
   }
-  
+
   const bucket = app.storage().bucket();
   const file = bucket.file('HSU-featured-events.rss');
   const contents = await file.download();
@@ -361,6 +367,56 @@ exports.sendDmNotification = functions.https.onCall(async (data, context) => {
   });
 
 });
+
+exports.askAI = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    functions.logger.log("no auth");
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Something went wrong, try logging in again'
+    );
+  }
+  if (!data.message) {
+    functions.logger.log("invalid data");
+    console.log("invalid data");
+    throw new functions.https.HttpsError(
+      'resource-exhausted',
+      'Invalid data, try again'
+    );
+  }
+
+  const message = data.message.toString();
+
+  functions.logger.log("message: " + message);
+
+  let msgs = [
+    { role: 'system', content: 'You are Humboldt Hank, a lumberjack and the brother of the mascot of Cal Poly Humboldt. You work as a chat assistant on a mobile app for university students called tellU. Respond with witty banter that reflects your personality.' },
+    { role: 'user', content: message },
+    { role: 'assistant', content: 'Chat response here...' }
+  ];
+
+  try {
+    const chatGPT = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: msgs
+    });
+    return chatGPT.data.choices[0].message;
+  } catch (err) {
+    console.log('error in openai');
+    if (err.response) {
+      console.log(err.response.status);
+      console.log(err.response.data);
+      functions.logger.log(err.response.status);
+      functions.logger.log(err.response.data);
+    } else {
+      console.log(err.message);
+      functions.logger.log(err.message);
+    }
+    return '';
+  }
+  return '';
+});
+
 
 exports.sendCommentsNotification = functions.https.onCall(async (data, context) => {
   if (!context.auth) {

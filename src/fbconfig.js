@@ -23,7 +23,15 @@ import { ref as rtdbRef } from "firebase/database";
 
 import { Capacitor } from '@capacitor/core';
 import SpotifyWebApi from 'spotify-web-api-js';
-import { Preferences } from "@capacitor/preferences";
+
+import { Configuration, OpenAIApi } from "openai";
+
+const configuration = new Configuration({
+  apiKey: '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',
+  organization: 'org-sNt3CfvC6ARPCBn2BlSYCVpl'
+});
+
+const openai = new OpenAIApi(configuration);
 
 const spotifyApi = new SpotifyWebApi();
 const REACT_APP_SPOTIFY_CLIENT_ID = '1df10089b0b3490db93c23353b0cdc35';
@@ -59,6 +67,7 @@ export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNotification');
 export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
 export const getHumboldtUpdates = httpsCallable(functions, 'getHumboldtUpdates');
+export const askAI = httpsCallable(functions, 'askAI');
 
 
 /**
@@ -1613,3 +1622,16 @@ export const getEvents = async () => {
 
   return htmlString;
 };
+
+export const testOpenAi = async (msg) => {
+  const answer = await askAI({
+    message: msg
+  }).catch((err) => {
+    console.error(err);
+    return '';
+  });
+
+  console.log(answer.data.content);
+
+  return answer.data.content.toString();
+}

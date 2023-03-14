@@ -1,5 +1,5 @@
 import React from "react";
-import { IonFab, IonFabButton, IonFabList, IonIcon } from "@ionic/react";
+import { IonFab, IonFabButton, IonFabList, IonIcon, IonImg } from "@ionic/react";
 import { useContext } from "../../my-context"
 import GifIcon from '@mui/icons-material/Gif';
 import { add, chatboxEllipsesOutline, statsChartOutline } from "ionicons/icons";
@@ -8,6 +8,8 @@ import { GifModal } from "./GifModal";
 import { PostModal } from "./PostModal";
 import { PollModal } from "./PollModal";
 import { LocationPinModal } from "./LocationPinModal";
+import { AIModal } from "./AIModal";
+import DynamicFormIcon from '@mui/icons-material/DynamicForm';
 
 export const MakePost = (props: any) => {
 
@@ -23,6 +25,7 @@ export const MakePost = (props: any) => {
   const [showModal, setShowModal] = React.useState<boolean>(false);
   const [showGifModal, setShowGifModal] = React.useState<boolean>(false);
   const [showPollModal, setShowPollModal] = React.useState<boolean>(false);
+  const [showAIModal, setShowAIModal] = React.useState<boolean>(false);
   const [postClassNumber, setPostClassNumber] = React.useState<string>("");
   const [postClassName, setPostClassName] = React.useState<string>("");
   const [prevPostUploading, setPrevPostUploading] = React.useState<boolean>(false);
@@ -111,10 +114,19 @@ export const MakePost = (props: any) => {
     setShowModal(show);
   }, []);
 
+  /**
+   * @description handles state update of AI chat modal from child components
+   * 
+   * @param {boolean} show boolean to show or hide modal
+   */
+  const handleSetShowAIModal = React.useCallback((show: boolean) => {
+    setShowAIModal(show);
+  }, []);
+
   return (
     <>
       <LocationPinModal
-        isOpen={showLocationPinModal} setLocationPinModal={handleSetLocationPinModal} 
+        isOpen={showLocationPinModal} setLocationPinModal={handleSetLocationPinModal}
         user={user} schoolName={schoolName}
         photos={photo} blob={blob} setPhoto={handleSetPhotos} setBlob={handleSetBlob}
         setShowModal={handleSetShowModal} setGifModal={handleSetGifModal}
@@ -122,8 +134,8 @@ export const MakePost = (props: any) => {
         inputRef={inputRef} setShowProgressBar={setShowProgressBar} setPrevPostUploading={handleSetPreviousPostLoading} />
 
       <PostModal user={user} profilePhoto={profilePhoto} isOpen={showModal} schoolName={schoolName}
-        postClassName={postClassName} setPostClassName={handleSetPostClassName} postClassNumber={postClassNumber} setPostClassNumber={handleSetPostClassNumber} 
-        photos={photo} setPhotos={handleSetPhotos} setBlob={handleSetBlob} inputRef={inputRef} 
+        postClassName={postClassName} setPostClassName={handleSetPostClassName} postClassNumber={postClassNumber} setPostClassNumber={handleSetPostClassNumber}
+        photos={photo} setPhotos={handleSetPhotos} setBlob={handleSetBlob} inputRef={inputRef}
         setShowModal={handleSetShowModal} setGifModal={handleSetGifModal} setLocationPinModal={handleSetLocationPinModal} />
 
       <PollModal prevPostUploading={prevPostUploading} setShowProgressBar={setShowProgressBar}
@@ -132,11 +144,16 @@ export const MakePost = (props: any) => {
       <GifModal isOpen={showGifModal} schoolName={schoolName} setBlob={handleSetBlob} setPhotos={handleSetPhotos}
         setShowModal={handleSetShowModal} setGifModal={handleSetGifModal} />
 
+      <AIModal isOpen={showAIModal} schoolName={schoolName} setShowAIModal={handleSetShowAIModal} />
+
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
         <IonFabButton color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>
           <IonIcon icon={add} />
         </IonFabButton>
         <IonFabList side="top">
+          <IonFabButton onClick={() => { handleSetShowAIModal(true); }} color={context.schoolColorToggled ? "secondary" : "ion-blue"}>
+            <DynamicFormIcon />
+          </IonFabButton>
           <IonFabButton onClick={() => { handleSetShowPollModal(true) }} color={context.schoolColorToggled ? "secondary" : "ion-blue"}>
             <IonIcon icon={statsChartOutline} />
           </IonFabButton>
