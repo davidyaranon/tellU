@@ -1560,9 +1560,7 @@ export const getPOIPosts = async (poiName) => {
  */
 export const getEvents = async () => {
   const updates = await getHumboldtUpdates().catch((err) => { console.log(err); });
-
   let line = "", htmlString = "";
-  let linkCount = 0;
   let inLineTag = false;
   let lines = updates.data.split('\n');
   for (let i = 0; i < lines.length; i++) {

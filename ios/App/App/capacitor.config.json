@@ -3,7 +3,7 @@
 	"appName": "tellU",
 	"webDir": "build",
 	"bundledWebRuntime": false,
-	"loggingBehavior": "debug",
+	"loggingBehavior": "none",
 	"plugins": {
 		"GoogleAuth": {
 			"scopes": [

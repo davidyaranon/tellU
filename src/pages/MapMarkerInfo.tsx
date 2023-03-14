@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { IonPage, IonContent, IonNote, IonCard, IonCardTitle, IonChip, useIonViewWillEnter } from "@ionic/react";
 import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
+import { Camera, GalleryPhoto } from "@capacitor/camera";
 
 /* Other Imports */
 import "swiper/css";
@@ -16,6 +17,7 @@ import { HomePagePost } from "../components/Home/HomePagePost";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useToast } from "@agney/ir-toast";
 import { StatusBar, Style } from "@capacitor/status-bar";
+import { Dialog } from "@capacitor/dialog";
 
 interface MatchUserPostParams {
   school: string;
@@ -33,6 +35,41 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
   const [description, setDescription] = useState<string[]>([""]);
   const [images, setImages] = useState<string[]>([]);
   const [chip, setChip] = useState<any[] | undefined>([]);
+  const [clickable, setClickable] = useState<boolean>(false);
+
+  const takePicture = async () => {
+    try {
+      const images = await Camera.pickImages({
+        quality: 50,
+        limit: 3,
+      });
+      let blobsArr: any[] = [];
+      let photoArr: GalleryPhoto[] = [];
+      for (let i = 0; i < images.photos.length; ++i) {
+        let res = await fetch(images.photos[i].webPath!);
+        let blobRes = await res.blob();
+        blobsArr.push(blobRes);
+        photoArr.push(images.photos[i]);
+      }
+      
+    } catch (err: any) {
+      // Toast.error(err.message.toString());
+    }
+  };
+
+  const handleUploadImage = async () => {
+    if(!clickable) {
+      return;
+    }
+    const {value} = await Dialog.confirm({
+      title: 'Upload Image',
+      message: 'Would you like to upload an image for this location?',
+    });
+    if(!value) {
+      return;
+    }
+    takePicture(); 
+  }
 
   const getInfo = useCallback(() => {
     for (let i = 0; i < markers.length; ++i) {
@@ -112,10 +149,20 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
           pagination={{ dynamicBullets: true }}
           modules={[Pagination]}
           slidesPerView={1}
+          onSlideChange={(e) => {
+            if(images && images.length > 0) {
+              let len = images.length;
+              if(e.realIndex === len - 1) {
+                setClickable(true);
+              } else {
+                setClickable(false);
+              }
+            }
+          }}
         >
           {images.map((image: string, index: number) => {
             return (
-              <SwiperSlide key={image + index.toString()}>
+              <SwiperSlide key={image + index.toString()} onClick={handleUploadImage}>
                 <IonCard style={{ backgroundColor: "#0D1117" }}>
                   <img src={image} style={{ borderRadius: "10px" }} />
                 </IonCard>
@@ -123,6 +170,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
             );
           })}
         </Swiper>
+
         <div style={{ padding: "10px", transform: "translateY(-5%)" }}>
           {description && description.map((desc, index: number) => {
             return (

@@ -1,9 +1,37 @@
 /* Images */
 import Canyon from "../images/canyon.jpeg";
+import Canyon_ from '../images/canyon_.jpg';
+import Canyon_2 from "../images/canyon_2.jpeg";
+import Canyon_3 from "../images/canyon_3.jpeg";
+import Canyon_4 from "../images/canyon_4.jpeg";
 import Canyon_Bathroom from '../images/canyon_bathroom.jpeg';
+import Creekview_1 from "../images/creekview_1.jpeg";
+import Creekview_2 from "../images/creekview_2.jpeg";
+import Creekview_3 from "../images/creekview_3.jpeg";
+import Creekview_4 from "../images/creekview_4.jpeg";
+import Creekview_5 from "../images/creekview_5.jpeg";
 import Creekview_Bathroom from '../images/creekview_bathroom.jpeg';
+import Creek_0 from '../images/creek_0.jpeg';
+import Creek_1 from "../images/creek_1.jpeg";
+import Creek_2 from "../images/creek_2.jpeg";
+import Creek_3 from "../images/creek_3.jpeg";
+import Cypress_0 from '../images/cypress_0.jpeg';
+import Cypress_1 from "../images/cypress_1.jpeg";
+import Cypress_2 from "../images/cypress_2.jpeg";
+import Cypress_3 from "../images/cypress_3.jpeg";
+import Hill_1 from "../images/hill_1.jpeg";
+import Hill_2 from "../images/hill_2.jpeg";
+import Hill_3 from "../images/hill_3.jpeg";
 import Hill_Bathroom from '../images/hill_bathroom.jpeg';
 import Hill_Gender_Neutral_Bathroom from '../images/hill_gender_neutral.jpeg';
+import Apts_0 from '../images/apts_0.jpeg';
+import Apts_1 from "../images/apts_1.jpeg";
+import Apts_2 from "../images/apts_2.jpeg";
+import j_0 from '../images/j_0.jpeg';
+import j_1 from "../images/j_1.jpeg";
+import j_2 from "../images/j_2.jpeg";
+import j_3 from "../images/j_3.jpg";
+// import add_img from '../images/add_img.png';
 
 /* Icons */
 import ShowerIcon from '@mui/icons-material/Shower';
@@ -11,9 +39,9 @@ import SchoolIcon from '@mui/icons-material/School';
 import HotelIcon from '@mui/icons-material/Hotel';
 import WeekendIcon from '@mui/icons-material/Weekend';
 
+/* Pigeon Map Details */
 export const MAP_TILER_KEY = 'c9MoaJaVglEims9riUks';
 export const MAP_TILER_ID = 'streets';
-
 export function mapTiler(x: any, y: any, z: any, dpr: any) {
   return `https://api.maptiler.com/maps/${MAP_TILER_ID}/256/${z}/${x}/${y}.png?key=${MAP_TILER_KEY}`
 }
@@ -32,12 +60,12 @@ export let markers: MapMarker[] = [
   {
     location: [40.87910000000000, -124.07814836935913],
     title: "Canyon",
-    imgSrc: [Canyon, Canyon, Canyon],
+    imgSrc: [Canyon, Canyon_2, Canyon_3, Canyon_4, Canyon_, /* add_img */],
     description: ["The Canyon consists of eight separate buildings: Alder, Cedar, Chinquapin, Hemlock, Madrone, Maple, Pepperwood, and Tan Oak. Each building has three levels of residents and is home to approximately 50 students. Each building has a kitchen, laundry room, and a TV/study lounge on the ground floor."],
     color: "var(--ion-color-housing)",
     tag: "Housing",
     chip: [
-      { title: 'Freshmen & Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
+      { title: 'Freshmen', color: "ion-blue", icon: SchoolIcon, image: null },
       { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Canyon_Bathroom },
       { title: 'Single', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-single_0.jpg' },
       { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-double_0.jpg' },
@@ -48,7 +76,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87650711366812, -124.08006372823574],
     title: "Library",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
@@ -56,7 +84,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87820892589766, -124.07966164730095],
     title: "The Hill",
-    imgSrc: [""],
+    imgSrc: [Hill_1, Hill_2, Hill_3, /* add_img */],
     description: ["Redwood and Sunset Halls, known as \"The Hill\", are traditional residence halls. Each building is three stories and houses approximately 225 students in primarily double rooms with a limited number of triple and single rooms.",
       "The triple rooms are the same size as double rooms. The buildings are L-shaped and there are approximately 40 students per floor on each wing.",
       "On the first floor, one wing of the \"L\" is female, the other wing is male. On the second and third floors, men and women are assigned rooms next to each other. Bathrooms are not co-ed.",
@@ -76,7 +104,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87875191469408, -124.07862230601667],
     title: "Jolly Giant Commons",
-    imgSrc: [""],
+    imgSrc: [j_0, j_1, j_3, /* add_img */],
     description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining/Recreation",
@@ -84,7 +112,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.878263687897764, -124.07816712005274],
     title: "Cypress",
-    imgSrc: [""],
+    imgSrc: [Cypress_1, Cypress_0, Cypress_2, Cypress_3, /* add_img */],
     description: ["Cypress is a series of suites built up the slope of a hillside and houses 231 students. A suite houses 7 to 12 students. Each suite has a living room, bathroom, and a small kitchen area with cooking facilities and a dining table.",
       "Some suites have either a balcony or patio off the living room. There is a main laundry facility on the ground floor of the Cypress complex. There are some suites that have washers and dryers in the suites. A basketball hoop, barbecue, lawn, and recreation area are located on the grounds adjacent to Cypress.",
       "The suites consist of double and single rooms. All rooms are furnished with a bed, desk and wardrobe closet for each resident. All beds are twin extra long. The rooms are wired for optional telephone service and cable TV service. Every resident has the ability to access the internet through wired or wireless connections. Custodial services clean the common areas: kitchen, bathroom, living room and hallway."
@@ -92,13 +120,15 @@ export let markers: MapMarker[] = [
     color: "var(--ion-color-housing)",
     tag: "Housing",
     chip: [
-      { title: "Freshman & Upperclassmen", color: "ion-blue", icon: SchoolIcon, image: null},
+      { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
+      { title: "Single", color: "primary", icon: HotelIcon, image: null },
+      { title: "Double", color: "primary", icon: HotelIcon, image: null },
     ]
   },
   {
     location: [40.877495692957545, -124.0783592939952],
     title: "SAC",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining/Recreation"
@@ -106,7 +136,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.876192370982764, -124.0789702440554],
     title: "Van Duzer Theater",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
@@ -114,7 +144,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87720119793835, -124.07725674812491],
     title: "Founders Hall",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
@@ -122,15 +152,23 @@ export let markers: MapMarker[] = [
   {
     location: [40.87551466263999, -124.08060995139243],
     title: "Campus Apartments",
-    imgSrc: [""],
-    description: [""],
+    imgSrc: [Apts_0, Apts_1, Apts_2, /* add_img */],
+    description: ["The Campus Apartments are home to 207 students in a four level complex comprised of 54 apartments. Each apartment has two rooms with private entrances that share an adjoining kitchen",
+      "Rooms house either one or two residents and have private bathrooms. The rooms are furnished with a bed, desk, chair and dresser for each resident and a shared closet. Individual apartments are single gender or coed.",
+      "Residents in each unit are responsible for the cleaning of the common area kitchen and bathroom. All residents are responsible for supplying toiletries and bathroom tissue. Laundry facilities are located next to the second floor, and there is a lounge available to residents next to the mailboxes. All beds are extra long twin beds, EXCEPT for the following: double rooms 1-16, 25-32, 40-47 on the A2 or B1 side and double rooms 17-24, 33-39, 48-55 on the A1 or B2 side. Single rooms have either a regular twin or an extra long twin.",
+      "Private Bathroom in apartment, toilet and shower behind a full door with a lock - 1 toilet & 1 shower."],
     color: "var(--ion-color-housing)",
-    tag: "Housing"
+    tag: "Housing",
+    chip: [
+      { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
+      { title: 'Double', color: "primary", icon: HotelIcon, local: true, image: null },
+      { title: 'Private Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Bathroom },
+    ]
   },
   {
     location: [40.874678149454596, -124.08341969266914],
     title: "Hey Juan Burritos",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining"
@@ -138,7 +176,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87802147101603, -124.07497323187258],
     title: "Creekview",
-    imgSrc: [""],
+    imgSrc: [Creekview_1, Creekview_2, Creekview_3, Creekview_4, Creekview_5, /* add_img */],
     description: ["The complex is comprised of four, three story buildings, with a centrally located lounge and a laundry room.",
       "Creekview Apartments(Fern and Willow) have a full kitchen, living room, dining area and bathroom. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin. The apartments house 6 students, either in two double rooms and one single or in three doubles. Individual apartments are single gender or coed. ",
       "Creekview Suites(Juniper and Laurel) have a mini kitchenette(with induction stovetop), living room, dining area and a bathroom. Individual suites are single gender or coed. In the coed suites, we assign same genders only to the double rooms and will not assign men and women to the same room. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin, except for rooms that end with the number 6; these rooms have extra long twin beds. The suites house 6 students in two double rooms and two single rooms, or suites in Juniper have a double, single and triple room. The newly created triple rooms offer a unique space that combines a former double and single room for our lowest rate."
@@ -146,7 +184,7 @@ export let markers: MapMarker[] = [
     color: "var(--ion-color-housing)",
     tag: "Housing",
     chip: [
-      { title: 'Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
+      { title: 'Freshman & Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
       { title: 'Private bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Creekview_Bathroom },
       { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview-6.jpg' },
       { title: '6 Person Suite', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview_suite.jpeg' },
@@ -155,7 +193,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87287985572268, -124.07712777876847],
     title: "BSS",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
@@ -163,7 +201,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87395509634375, -124.07998604637758],
     title: "Marketplace",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-dining)",
     tag: "Dining"
@@ -171,7 +209,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.877441480341396, -124.07925574696338],
     title: "Nelson Hall",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
@@ -179,7 +217,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.875505404545414, -124.07919569964085],
     title: "Gist Hall",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
@@ -187,7 +225,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87663434160527, -124.07610282652482],
     title: "Redwood Bowl",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-toast-success)",
     tag: "Recreation"
@@ -195,7 +233,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87411504682606, -124.07780297128161],
     title: "Campus Events Field",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-toast-success)",
     tag: "Recreation"
@@ -203,15 +241,21 @@ export let markers: MapMarker[] = [
   {
     location: [40.873861486807506, -124.0809568314154],
     title: "College Creek",
-    imgSrc: [""],
-    description: [""],
+    imgSrc: [Creek_0, Creek_1, Creek_2, Creek_3, /* add_img */],
+    description: ["The College Creek complex offers 97 apartments to call home, complete with kitchens and furnished living areas, all located next to a community center and NCAA soccer field. Each fully furnished apartment includes all the amenities to help make your stay more comfortable. Residents in each apartment are responsible for the cleaning of the common area kitchen, bathroom, living room and hallway. All residents are responsible for supplying toiletries and bathroom tissue.",
+      "Two private bathrooms in each apartment, toilet and shower behind a full door with a lock - 1 toilet & 1 shower in each."],
     color: "var(--ion-color-housing)",
-    tag: "Housing"
+    tag: "Housing",
+    chip: [
+      { title: 'Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
+      { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
+      { title: '4-5 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
+    ]
   },
   {
     location: [40.87453111017034, -124.079232591335],
     title: "SBS",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-toast-success)",
     tag: ""
@@ -219,7 +263,7 @@ export let markers: MapMarker[] = [
   {
     location: [40.87354865256135, -124.07723521298793],
     title: "Forestry",
-    imgSrc: [""],
+    imgSrc: [/* add_img */],
     description: [""],
     color: "var(--ion-color-primary)",
     tag: "Academics"
@@ -227,7 +271,6 @@ export let markers: MapMarker[] = [
 ];
 
 export const markersCopy: MapMarker[] = markers;
-
 export const setMarkers = (filter: string) => {
   if (filter === "ALL") {
     markers = markersCopy;
@@ -261,7 +304,6 @@ export const humboldtPOIs = {
   "BSS": [40.872403722347585, -124.07771440677251, 40.87314604033667, -124.0777465932807, 40.87317849120643, -124.07644840411749, 40.8723834403185, -124.07651814155187],
   "Forestry": [40.873369735739, -124.07759248444609, 40.87341029918665, -124.07654642293028, 40.87375103116581, -124.07661616036467, 40.87372669322545, -124.07760321328215],
 }
-
 
 export const schoolInfo = {
   "Cal Poly Humboldt": [40.87649434150835, -124.07918370203882, 15.5],
@@ -298,7 +340,6 @@ export const schoolInfo = {
   "": [37.250458, -120.350249, 6],
 }; // school latitude, longitude, and zoom level
 
-
 export const zoomControlButtonsStyleDark = {
   width: "50px",
   height: '50px',
@@ -314,7 +355,7 @@ export const zoomControlButtonsStyleDark = {
   display: 'block',
   outline: 'none',
   textIndent: '0px',
-}
+} // +/- buttons that appear on map can be styled here
 
 export const zoomControlButtonsStyle = {
   width: "50px",

@@ -43,7 +43,8 @@ export const PrivacyPolicy = () => {
     });
     deleteUserDataAndAccount().then(() => {
       dismiss();
-      history.replace('/register');
+      history.replace('/landing-page');
+      context.setShowTabs(false);
       const toast = Toast.create({ message: 'Account deleted', duration: 2000, color: 'toast-success' });
       toast.present();
       toast.dismiss();

@@ -5,7 +5,7 @@ import { useHistory } from 'react-router';
 /* Ionic/Capacitor */
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import {
-  IonContent, IonHeader, IonButton, IonSpinner, IonPage, useIonRouter, useIonViewWillEnter
+  IonContent, IonButton, IonSpinner, IonPage, useIonRouter, useIonViewWillEnter, IonFooter, IonText, IonHeader
 } from '@ionic/react';
 
 /* Firebase */
@@ -15,6 +15,7 @@ import auth, { db, } from '../fbConfig';
 
 /* CSS + Other components */
 import '../App.css';
+import Header from "../components/Shared/Header";
 import tellU_png from '../images/tellU_logo_transparent.png';
 import { dynamicNavigate } from '../components/Shared/Navigation';
 import { Preferences } from '@capacitor/preferences';
@@ -116,12 +117,24 @@ const LandingPage = () => {
   return (
     <IonPage >
       <IonContent>
-        <div style={{ height: "10vh" }} />
+        <div style={{ height: "15vh" }} />
 
+        <IonHeader class="ion-no-border" style={{ paddingBottom: "5vh" }}>
+          <Header darkMode={context.darkMode} schoolName="" zoom={1.1} />
+          <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'Arial' }}>University Chats</p>
+        </IonHeader>
 
-        <IonButton onClick={() => dynamicNavigate(router, '/sign-in', 'forward')}>Sign In</IonButton>
-        <IonButton onClick={() => dynamicNavigate(router, '/register', 'forward')}>Register</IonButton>
+        <div style={{ height: "30%" }} />
 
+        <IonFooter>
+          <div>
+            <IonButton className="login-button" fill="clear" expand="block" id="signInButton" onClick={() => dynamicNavigate(router, '/sign-in', 'forward')}>Sign In</IonButton>
+          </div>
+          <div style={{ height: "1vh" }} />
+          <div>
+            <IonButton className="login-button" fill="clear" expand="block" id="signInButton" onClick={() => dynamicNavigate(router, '/register', 'forward')}>Register</IonButton>
+          </div>
+        </IonFooter>
 
       </IonContent>
     </IonPage>
