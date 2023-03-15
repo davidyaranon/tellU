@@ -747,9 +747,8 @@ ion-radio.ios {
   border-radius: 25px;
   margin-right: 10px;
   position: relative;
-  color: white;
+  color: rgb(141, 141, 141);
   text-align: right;
-  color: white;
   background: #61dbfb;
   align-self: flex-end;
 }
@@ -762,11 +761,10 @@ ion-radio.ios {
   border-radius: 25px;
   margin-right: 10px;
   position: relative;
-  color: white;
   font-size: 0.85em;
   text-align: right;
-  color: white;
-  background: #004c46;
+  color: rgb(255, 255, 255);
+  background: #46d6fa;
   align-self: flex-end;
 }
 

@@ -10,7 +10,7 @@ import { useToast } from "@agney/ir-toast";
 import { Capacitor } from "@capacitor/core";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
-import Hank from '../images/hank.png';
+import Hank from '../images/hank_blue.png';
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { timeout } from "../helpers/timeout";
 
@@ -102,6 +102,7 @@ export const HumboldtHank = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
+          <div style={{height : "1vh"}} />
           <img style={{ width: "90vw", marginLeft: "5vw", marginRight: "5vw" }} src={Hank} />
         </IonToolbar>
       </IonHeader>
@@ -110,7 +111,7 @@ export const HumboldtHank = () => {
           : { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={context.darkMode ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
           {loadingAnswer &&
-            <IonProgressBar color='secondary' type="indeterminate" />
+            <IonProgressBar color='primary' type="indeterminate" />
           }
           <IonTextarea
             mode="ios"
@@ -126,7 +127,7 @@ export const HumboldtHank = () => {
           />
           <IonFab horizontal="end" vertical="top">
             <IonRow>
-              <IonFabButton disabled={loadingAnswer} size="small" color={'secondary'}
+              <IonFabButton disabled={loadingAnswer} size="small" color={'primary'}
                 onClick={async () => {
                   contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
                   if (!textRef || !textRef.current || !textRef.current.value) return;

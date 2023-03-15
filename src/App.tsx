@@ -15,6 +15,7 @@ import { Notifications } from './pages/Notifications';
 import ChatRoom from './pages/ChatRoom';
 import { SignIn } from './pages/SignIn';
 import Class from './pages/Class';
+import { UserProfile } from './pages/UserProfile';
 import { MapMarkerInfo } from './pages/MapMarkerInfo';
 import { HumboldtHank } from './pages/HumboldtHank';
 
@@ -27,7 +28,7 @@ import {
 } from '@ionic/react';
 import { useEffect } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
-import { calendarOutline, calendarSharp, chatbubbleEllipses, chatbubbleEllipsesOutline, desktop, desktopOutline, desktopSharp, hammerOutline, hammerSharp, happySharp, homeOutline, homeSharp, mapOutline, mapSharp, personOutline, personSharp, terminalOutline, terminalSharp } from 'ionicons/icons';
+import { calendarOutline, calendarSharp, homeOutline, homeSharp, mapOutline, mapSharp, personOutline, personSharp } from 'ionicons/icons';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
@@ -60,7 +61,8 @@ import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { createBrowserHistory } from "history";
 import { ToastProvider } from "@agney/ir-toast";
 import { useContext } from "./my-context";
-import { UserProfile } from './pages/UserProfile';
+import ForestIcon from '@mui/icons-material/Forest';
+import ForestOutlinedIcon from '@mui/icons-material/ForestOutlined';
 import { FCM } from '@capacitor-community/fcm';
 
 // Global variables
@@ -156,7 +158,7 @@ const RoutingSystem: React.FunctionComponent = () => {
 
   return (
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-      <IonTabs onIonTabsDidChange={(e) => {setSelectedTab(e.detail.tab)}}>
+      <IonTabs onIonTabsDidChange={(e) => { setSelectedTab(e.detail.tab) }}>
 
         <IonRouterOutlet>
           <Route path="/" exact component={LoadingPage} />
@@ -183,23 +185,28 @@ const RoutingSystem: React.FunctionComponent = () => {
 
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
-            <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
+            <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={selectedTab === 'hank' ? "primary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="events" href="/events">
-            <IonIcon size='large' icon={selectedTab === 'events' ? calendarSharp : calendarOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'events' ? calendarSharp : calendarOutline} color={selectedTab === 'hank' ? "primary" : "primary"} />
           </IonTabButton>
 
-          <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="hank" href="/hank">
-            <IonIcon size='large' icon={selectedTab === 'hank' ? chatbubbleEllipses : chatbubbleEllipsesOutline } color={selectedTab === 'hank' ? "tertiary" : "primary"} />
+          <IonTabButton tab="hank" href="/hank">
+            {/* <IonIcon size='large' icon={selectedTab === 'hank' ? chatbubbleEllipses : chatbubbleEllipsesOutline } color={selectedTab === 'hank' ? "primary" : "primary"} /> */}
+            {selectedTab === 'hank' ?
+              <ForestIcon fontSize='large' style={{ fill: '#61dbfb' }} />
+              :
+              <ForestOutlinedIcon fontSize='large' style={{ fill: '#61dbfb' }} />
+            }
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
-            <IonIcon size='large' icon={selectedTab === 'maps' ? mapSharp : mapOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'maps' ? mapSharp : mapOutline} color={selectedTab === 'hank' ? "primary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="settings" href="/settings">
-            <IonIcon size='large' icon={selectedTab === 'settings' ? personSharp : personOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'settings' ? personSharp : personOutline} color={selectedTab === 'hank' ? "primary" : "primary"} />
           </IonTabButton>
         </IonTabBar>
 

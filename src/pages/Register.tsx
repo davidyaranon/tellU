@@ -153,6 +153,7 @@ const Register: React.FC = () => {
         setBusy(false);
       }
     }
+    setBusy(false);
   }
 
   const setSchool = React.useCallback(async (school: string) => {
@@ -289,44 +290,44 @@ const Register: React.FC = () => {
             }}
           >
             <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
-            <IonSelectOption value="Cal Poly Pomona">Cal Poly Pomona</IonSelectOption>
-            <IonSelectOption value="Cal Poly San Luis Obispo">Cal Poly San Luis Obispo</IonSelectOption>
-            <IonSelectOption value="Cal State Fullerton">Cal State Fullerton</IonSelectOption>
-            <IonSelectOption value="Cal State East Bay">Cal State East Bay</IonSelectOption>
-            <IonSelectOption value="Cal State LA">Cal State LA</IonSelectOption>
-            <IonSelectOption value="Cal Maritime">Cal Maritime</IonSelectOption>
-            <IonSelectOption value="Cal State San Bernardino">Cal State San Bernardino</IonSelectOption>
-            <IonSelectOption value="Cal State Long Beach">Cal State Long Beach</IonSelectOption>
-            <IonSelectOption value="SF State">SF State</IonSelectOption>
-            <IonSelectOption value="San Jose State">San Jose State</IonSelectOption>
-            <IonSelectOption value="Chico State">Chico State</IonSelectOption>
-            <IonSelectOption value="Fresno State">Fresno State</IonSelectOption>
-            <IonSelectOption value="San Diego State">San Diego State</IonSelectOption>
-            <IonSelectOption value="Sonoma State">Sonoma State</IonSelectOption>
-            <IonSelectOption value="Stanislaus State">Stanislaus State</IonSelectOption>
-            <IonSelectOption value="Sac State">Sac State</IonSelectOption>
-            <IonSelectOption value="CSUN">CSUN</IonSelectOption>
-            <IonSelectOption value="CSU Bakersfield">CSU Bakersfield</IonSelectOption>
-            <IonSelectOption value="CSU Dominguez Hills">CSU Dominguez Hills</IonSelectOption>
-            <IonSelectOption value="CSU Channel Islands">CSU Channel Islands</IonSelectOption>
-            <IonSelectOption value="CSU Monterey Bay">CSU Monterey Bay</IonSelectOption>
-            <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
-            <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
-            <IonSelectOption value="UC Irvine">UC Irvine</IonSelectOption>
-            <IonSelectOption value="UCLA">UCLA</IonSelectOption>
-            <IonSelectOption value="UC Merced">UC Merced</IonSelectOption>
-            <IonSelectOption value="UC Riverside">UC Riverside</IonSelectOption>
-            <IonSelectOption value="UC San Diego">UC San Diego</IonSelectOption>
-            <IonSelectOption value="UCSF">UCSF</IonSelectOption>
-            <IonSelectOption value="UC Santa Barbara">UC Santa Barbara</IonSelectOption>
-            <IonSelectOption value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
-            <IonSelectOption disabled={true} value="More schools to come!...">More schools to come!...</IonSelectOption>
+            <IonSelectOption disabled value="Cal Poly Pomona">Cal Poly Pomona</IonSelectOption>
+            <IonSelectOption disabled value="Cal Poly San Luis Obispo">Cal Poly San Luis Obispo</IonSelectOption>
+            <IonSelectOption disabled value="Cal State Fullerton">Cal State Fullerton</IonSelectOption>
+            <IonSelectOption disabled value="Cal State East Bay">Cal State East Bay</IonSelectOption>
+            <IonSelectOption disabled value="Cal State LA">Cal State LA</IonSelectOption>
+            <IonSelectOption disabled value="Cal Maritime">Cal Maritime</IonSelectOption>
+            <IonSelectOption disabled value="Cal State San Bernardino">Cal State San Bernardino</IonSelectOption>
+            <IonSelectOption disabled value="Cal State Long Beach">Cal State Long Beach</IonSelectOption>
+            <IonSelectOption disabled value="SF State">SF State</IonSelectOption>
+            <IonSelectOption disabled value="San Jose State">San Jose State</IonSelectOption>
+            <IonSelectOption disabled value="Chico State">Chico State</IonSelectOption>
+            <IonSelectOption disabled value="Fresno State">Fresno State</IonSelectOption>
+            <IonSelectOption disabled value="San Diego State">San Diego State</IonSelectOption>
+            <IonSelectOption disabled value="Sonoma State">Sonoma State</IonSelectOption>
+            <IonSelectOption disabled value="Stanislaus State">Stanislaus State</IonSelectOption>
+            <IonSelectOption disabled value="Sac State">Sac State</IonSelectOption>
+            <IonSelectOption disabled value="CSUN">CSUN</IonSelectOption>
+            <IonSelectOption disabled value="CSU Bakersfield">CSU Bakersfield</IonSelectOption>
+            <IonSelectOption disabled value="CSU Dominguez Hills">CSU Dominguez Hills</IonSelectOption>
+            <IonSelectOption disabled value="CSU Channel Islands">CSU Channel Islands</IonSelectOption>
+            <IonSelectOption disabled value="CSU Monterey Bay">CSU Monterey Bay</IonSelectOption>
+            <IonSelectOption disabled value="UC Berkeley">UC Berkeley</IonSelectOption>
+            <IonSelectOption disabled value="UC Davis">UC Davis</IonSelectOption>
+            <IonSelectOption disabled value="UC Irvine">UC Irvine</IonSelectOption>
+            <IonSelectOption disabled value="UCLA">UCLA</IonSelectOption>
+            <IonSelectOption disabled value="UC Merced">UC Merced</IonSelectOption>
+            <IonSelectOption disabled value="UC Riverside">UC Riverside</IonSelectOption>
+            <IonSelectOption disabled value="UC San Diego">UC San Diego</IonSelectOption>
+            <IonSelectOption disabled value="UCSF">UCSF</IonSelectOption>
+            <IonSelectOption disabled value="UC Santa Barbara">UC Santa Barbara</IonSelectOption>
+            <IonSelectOption disabled value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
+            <IonSelectOption disabled value="More schools to come!...">More schools to come!...</IonSelectOption>
           </IonSelect>
         </IonItem>
 
         <IonLabel className="login-label">School Email</IonLabel>
         <IonItem className='register-input'>
-          <IonInput clearInput value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} />
+          <IonInput clearInput disabled value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} />
         </IonItem>
         {emailSignUp.length > 0 && schoolName.length <= 0 ?
           <FadeIn>
@@ -343,13 +344,13 @@ const Register: React.FC = () => {
 
         <IonLabel className="login-label">Username</IonLabel>
         <IonItem className='register-input'>
-          <IonInput maxlength={15} clearInput value={userNameSignUp} type="text" placeholder="userName1234" id="userNameSignUp" onIonChange={(e: any) => { handleUsernameInput(e) }} />
+          <IonInput maxlength={15} clearInput disabled value={userNameSignUp} type="text" placeholder="userName1234" id="userNameSignUp" onIonChange={(e: any) => { handleUsernameInput(e) }} />
         </IonItem>
         <p style={inputNote}> {userNameSignUp.length} / 15 </p>
 
         <IonLabel className="login-label">Password</IonLabel>
         <IonItem className='register-input'>
-          <IonInput value={passwordSignUp} clearInput clearOnEdit={false} type={showPassword ? "text" : "password"} placeholder="••••••••" id="passwordSignUp" onIonChange={(e: any) => setPasswordSignUp(e.detail.value)} />
+          <IonInput disabled value={passwordSignUp} clearInput clearOnEdit={false} type={showPassword ? "text" : "password"} placeholder="••••••••" id="passwordSignUp" onIonChange={(e: any) => setPasswordSignUp(e.detail.value)} />
           <IonButton slot="end" fill="clear" onClick={() => { setShowPassword(!showPassword) }}>
             <IonIcon color="medium" icon={showPassword ? eyeOutline : eyeOffOutline} />
           </IonButton>
