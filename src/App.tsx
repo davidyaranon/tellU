@@ -27,7 +27,7 @@ import {
 } from '@ionic/react';
 import { useEffect } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
-import { calendarOutline, calendarSharp, desktop, desktopOutline, desktopSharp, hammerOutline, hammerSharp, happySharp, homeOutline, homeSharp, mapOutline, mapSharp, personOutline, personSharp, terminalOutline, terminalSharp } from 'ionicons/icons';
+import { calendarOutline, calendarSharp, chatbubbleEllipses, chatbubbleEllipsesOutline, desktop, desktopOutline, desktopSharp, hammerOutline, hammerSharp, happySharp, homeOutline, homeSharp, mapOutline, mapSharp, personOutline, personSharp, terminalOutline, terminalSharp } from 'ionicons/icons';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
@@ -191,7 +191,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="hank" href="/hank">
-            <IonIcon size='large' icon={selectedTab === 'hank' ? desktop : desktopOutline } color={selectedTab === 'hank' ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'hank' ? chatbubbleEllipses : chatbubbleEllipsesOutline } color={selectedTab === 'hank' ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
