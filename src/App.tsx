@@ -183,23 +183,23 @@ const RoutingSystem: React.FunctionComponent = () => {
 
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
-            <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
+            <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="events" href="/events">
-            <IonIcon size='large' icon={selectedTab === 'events' ? calendarSharp : calendarOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'events' ? calendarSharp : calendarOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="hank" href="/hank">
-            <IonIcon size='large' icon={selectedTab === 'hank' ? desktop : desktopOutline } color={selectedTab === 'hank' ? "secondary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'hank' ? desktop : desktopOutline } color={selectedTab === 'hank' ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
-            <IonIcon size='large' icon={selectedTab === 'maps' ? mapSharp : mapOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'maps' ? mapSharp : mapOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="settings" href="/settings">
-            <IonIcon size='large' icon={selectedTab === 'settings' ? personSharp : personOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'settings' ? personSharp : personOutline} color={selectedTab === 'hank' ? "tertiary" : "primary"} />
           </IonTabButton>
         </IonTabBar>
 

@@ -1,5 +1,5 @@
 import { Keyboard, KeyboardResize, KeyboardResizeOptions, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle, IonTextarea, IonPage, IonFab, IonRow, IonCol, IonFabButton, IonImg } from "@ionic/react";
+import { IonContent, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle, IonTextarea, IonPage, IonFab, IonRow, IonCol, IonFabButton, IonImg, useIonViewWillEnter, IonLoading, IonProgressBar } from "@ionic/react";
 import { arrowUpOutline, banOutline, cameraOutline, closeOutline } from "ionicons/icons";
 import { useContext } from "../my-context";
 
@@ -11,6 +11,8 @@ import { Capacitor } from "@capacitor/core";
 import { StatusBar, Style } from "@capacitor/status-bar";
 
 import Hank from '../images/hank.png';
+import FadeIn from "react-fade-in/lib/FadeIn";
+import { timeout } from "../helpers/timeout";
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
@@ -33,6 +35,7 @@ export const HumboldtHank = () => {
   const textRef = useRef<HTMLIonTextareaElement>(null);
   const [schoolName, setSchoolName] = useState<string>('');
   const [kbHeight, setKbHeight] = useState<number>(0);
+  const contentRef = useRef<HTMLIonContentElement>(null);
   const Toast = useToast();
 
   /**
@@ -46,6 +49,14 @@ export const HumboldtHank = () => {
       const toast = Toast.create({ message: 'Something went wrong', duration: 2000, color: 'toast-error' });
       toast.present();
     }
+  }, []);
+
+  /**
+  * Sets the status bar to dark mode on iOS
+  */
+  useIonViewWillEnter(() => {
+    if (Capacitor.getPlatform() === 'ios')
+      StatusBar.setStyle({ style: Style.Dark });
   }, []);
 
 
@@ -73,8 +84,8 @@ export const HumboldtHank = () => {
     Keyboard.addListener('keyboardWillShow', info => {
       Keyboard.setResizeMode(resizeOptions);
       setKbHeight(info.keyboardHeight);
+      contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
     });
-
     Keyboard.addListener('keyboardWillHide', () => {
       Keyboard.setResizeMode(defaultResizeOptions);
       setKbHeight(0);
@@ -92,10 +103,13 @@ export const HumboldtHank = () => {
           <img style={{ width: "90vw", marginLeft: "5vw", marginRight: "5vw" }} src={Hank} />
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent ref={contentRef}>
         <IonFab style={context.darkMode ? { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
           : { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={context.darkMode ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
+          {loadingAnswer &&
+            <IonProgressBar color='secondary' type="indeterminate" />
+          }
           <IonTextarea
             mode="ios"
             rows={3}
@@ -112,6 +126,7 @@ export const HumboldtHank = () => {
             <IonRow>
               <IonFabButton disabled={loadingAnswer} size="small" color={'secondary'}
                 onClick={async () => {
+                  contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
                   if (!textRef || !textRef.current || !textRef.current.value) return;
                   setLoadingAnswer(true);
                   setAnswers(prevAnswers => [...prevAnswers, textRef.current?.value || '']);
@@ -124,6 +139,8 @@ export const HumboldtHank = () => {
                   setAnswers(prevAnswers => [...prevAnswers, ans]);
                   setLoadingAnswer(false);
                   textRef.current.value = '';
+                  await timeout(500);
+                  contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
                 }}
               >
                 <IonIcon icon={arrowUpOutline} color={!context.darkMode ? "light" : ""} size="small" mode="ios" />
@@ -137,31 +154,32 @@ export const HumboldtHank = () => {
             let messageClass: string = 'sent-humboldt';
             return (
               <>
-                <div key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
+                <FadeIn key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
                   <>
                     <p
                       onClick={(e: any) => { }
                       } >{ans}
                     </p>
                   </>
-                </div>
+                </FadeIn>
               </>
             )
           } else {
             let messageClass: string = 'received';
             return (
-              <div key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
+              <FadeIn key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
                 <>
                   <p
                     onClick={(e: any) => { }
                     } >{ans}
                   </p>
                 </>
-              </div>
+              </FadeIn>
             )
           }
         })}
-        <div style={{ height: "20vh" }} />
+        <div style={{ height: "15vh" }} />
+        <div style={{ height: kbHeight }} />
       </IonContent>
     </IonPage >
   );

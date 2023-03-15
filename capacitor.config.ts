@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'tellU',
   webDir: 'build',
   bundledWebRuntime: false,
+  // server : { url: 'http://10.0.0.71:3000/', },
   loggingBehavior: 'none', // change to debug to see console logs
   plugins: {
     GoogleAuth: {
