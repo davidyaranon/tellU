@@ -8,7 +8,6 @@ import { GifModal } from "./GifModal";
 import { PostModal } from "./PostModal";
 import { PollModal } from "./PollModal";
 import { LocationPinModal } from "./LocationPinModal";
-import { AIModal } from "./AIModal";
 import DynamicFormIcon from '@mui/icons-material/DynamicForm';
 
 export const MakePost = (props: any) => {
@@ -25,7 +24,6 @@ export const MakePost = (props: any) => {
   const [showModal, setShowModal] = React.useState<boolean>(false);
   const [showGifModal, setShowGifModal] = React.useState<boolean>(false);
   const [showPollModal, setShowPollModal] = React.useState<boolean>(false);
-  const [showAIModal, setShowAIModal] = React.useState<boolean>(false);
   const [postClassNumber, setPostClassNumber] = React.useState<string>("");
   const [postClassName, setPostClassName] = React.useState<string>("");
   const [prevPostUploading, setPrevPostUploading] = React.useState<boolean>(false);
@@ -114,15 +112,6 @@ export const MakePost = (props: any) => {
     setShowModal(show);
   }, []);
 
-  /**
-   * @description handles state update of AI chat modal from child components
-   * 
-   * @param {boolean} show boolean to show or hide modal
-   */
-  const handleSetShowAIModal = React.useCallback((show: boolean) => {
-    setShowAIModal(show);
-  }, []);
-
   return (
     <>
       <LocationPinModal
@@ -144,16 +133,11 @@ export const MakePost = (props: any) => {
       <GifModal isOpen={showGifModal} schoolName={schoolName} setBlob={handleSetBlob} setPhotos={handleSetPhotos}
         setShowModal={handleSetShowModal} setGifModal={handleSetGifModal} />
 
-      <AIModal isOpen={showAIModal} schoolName={schoolName} setShowAIModal={handleSetShowAIModal} />
-
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
         <IonFabButton color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>
           <IonIcon icon={add} />
         </IonFabButton>
         <IonFabList side="top">
-          <IonFabButton onClick={() => { handleSetShowAIModal(true); }} color={context.schoolColorToggled ? "secondary" : "ion-blue"}>
-            <DynamicFormIcon />
-          </IonFabButton>
           <IonFabButton onClick={() => { handleSetShowPollModal(true) }} color={context.schoolColorToggled ? "secondary" : "ion-blue"}>
             <IonIcon icon={statsChartOutline} />
           </IonFabButton>

@@ -765,21 +765,24 @@ ion-radio.ios {
   color: white;
   text-align: right;
   color: white;
-  background: #00856A;
+  background: #004c46;
   align-self: flex-end;
 }
 
 .received p {
   max-width: 250px;
   margin-bottom: 12px;
-  line-height: 24px;
+  line-height: 20px;
   padding: 10px 20px;
   border-radius: 25px;
+  margin-left: 7.5px;
   position: relative;
   color: white;
+  font-size: 0.85em;
   text-align: left;
   background: #e5e5ea;
   color: black;
+  
 }
 
 .received-humboldt p {

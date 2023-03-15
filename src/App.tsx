@@ -15,7 +15,8 @@ import { Notifications } from './pages/Notifications';
 import ChatRoom from './pages/ChatRoom';
 import { SignIn } from './pages/SignIn';
 import Class from './pages/Class';
-
+import { MapMarkerInfo } from './pages/MapMarkerInfo';
+import { HumboldtHank } from './pages/HumboldtHank';
 
 // Ionic/Capacitor + React
 import React from 'react';
@@ -26,7 +27,7 @@ import {
 } from '@ionic/react';
 import { useEffect } from 'react';
 import { IonReactRouter } from '@ionic/react-router';
-import { calendarOutline, calendarSharp, homeOutline, homeSharp, mapOutline, mapSharp, personOutline, personSharp } from 'ionicons/icons';
+import { calendarOutline, calendarSharp, desktop, desktopOutline, desktopSharp, hammerOutline, hammerSharp, happySharp, homeOutline, homeSharp, mapOutline, mapSharp, personOutline, personSharp, terminalOutline, terminalSharp } from 'ionicons/icons';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
@@ -61,7 +62,6 @@ import { ToastProvider } from "@agney/ir-toast";
 import { useContext } from "./my-context";
 import { UserProfile } from './pages/UserProfile';
 import { FCM } from '@capacitor-community/fcm';
-import { MapMarkerInfo } from './pages/MapMarkerInfo';
 
 // Global variables
 setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
@@ -169,6 +169,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/:tab(maps)" exact component={Maps} />
           <Route path="/:tab(events)" exact component={Events} />
           <Route path="/:tab(settings)" exact component={Settings} />
+          <Route path="/:tab(hank)" exact component={HumboldtHank} />
           <Route path="/markerInfo/:school/:title" component={MapMarkerInfo} />
           <Route path="/about/:school/:uid" component={UserProfile} />
           <Route path="/post/:school/:userName/:key" component={Post} />
@@ -182,19 +183,23 @@ const RoutingSystem: React.FunctionComponent = () => {
 
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
-            <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="events" href="/events">
-            <IonIcon size='large' icon={selectedTab === 'events' ? calendarSharp : calendarOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'events' ? calendarSharp : calendarOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
+          </IonTabButton>
+
+          <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="hank" href="/hank">
+            <IonIcon size='large' icon={selectedTab === 'hank' ? desktop : desktopOutline } color={selectedTab === 'hank' ? "secondary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
-            <IonIcon size='large' icon={selectedTab === 'maps' ? mapSharp : mapOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'maps' ? mapSharp : mapOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="settings" href="/settings">
-            <IonIcon size='large' icon={selectedTab === 'settings' ? personSharp : personOutline} color={context.schoolColorToggled ? "tertiary" : "primary"} />
+            <IonIcon size='large' icon={selectedTab === 'settings' ? personSharp : personOutline} color={selectedTab === 'hank' ? "secondary" : "primary"} />
           </IonTabButton>
         </IonTabBar>
 
