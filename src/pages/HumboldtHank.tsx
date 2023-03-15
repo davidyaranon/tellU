@@ -31,6 +31,8 @@ export const HumboldtHank = () => {
 
   const context = useContext();
   const [answers, setAnswers] = useState<any[]>(['I\'m Hank your AI friend. Ask me anything!']);
+  // const answersRef = useRef<any[]>([]);
+  // answersRef.current = answers;
   const [loadingAnswer, setLoadingAnswer] = useState<boolean>(false);
   const textRef = useRef<HTMLIonTextareaElement>(null);
   const [schoolName, setSchoolName] = useState<string>('');
@@ -136,7 +138,12 @@ export const HumboldtHank = () => {
                     setLoadingAnswer(false);
                     return;
                   }
-                  setAnswers(prevAnswers => [...prevAnswers, ans]);
+                  setAnswers(prev => {
+                    let temp = [...prev];
+                    let temp2 = temp.splice(temp.length - 4, 4);
+                    return [...temp2, ans];
+                  }
+                  );
                   setLoadingAnswer(false);
                   textRef.current.value = '';
                   await timeout(500);
@@ -153,16 +160,14 @@ export const HumboldtHank = () => {
           if (index % 2 == 1) {
             let messageClass: string = 'sent-humboldt';
             return (
-              <>
-                <FadeIn key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
-                  <>
-                    <p
-                      onClick={(e: any) => { }
-                      } >{ans}
-                    </p>
-                  </>
-                </FadeIn>
-              </>
+              <FadeIn key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
+                <>
+                  <p
+                    onClick={(e: any) => { }
+                    } >{ans}
+                  </p>
+                </>
+              </FadeIn>
             )
           } else {
             let messageClass: string = 'received';
