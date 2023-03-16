@@ -21,7 +21,6 @@ export const ionHeaderStyle = {
  */
 class TellUHeader extends Component<any, any>{
   render() {
-    console.log("header");
     const dark: boolean = this.props.darkMode;
     const zoom: number = this.props.zoom;
     const colorPallete: boolean = this.props.colorPallete;

@@ -31,8 +31,6 @@ export const HumboldtHank = () => {
 
   const context = useContext();
   const [answers, setAnswers] = useState<any[]>(['I\'m Hank your AI friend. Ask me anything!']);
-  // const answersRef = useRef<any[]>([]);
-  // answersRef.current = answers;
   const [loadingAnswer, setLoadingAnswer] = useState<boolean>(false);
   const textRef = useRef<HTMLIonTextareaElement>(null);
   const [schoolName, setSchoolName] = useState<string>('');

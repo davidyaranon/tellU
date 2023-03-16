@@ -50,7 +50,6 @@ const keyStyleOptionsDark: KeyboardStyleOptions = {
 }
 
 const Home: React.FC = () => {
-  console.log('home');
 
   // hooks
   const Toast = useToast();
@@ -92,8 +91,6 @@ const Home: React.FC = () => {
    * @param event IonInfiniteScroll event
    */
   const handleLoadPostsNextBatch = async (event: any) => {
-    // setBusy(true);
-    console.log('inf')
     if (lastKey && user && schoolName) {
       await timeout(500);
       let tempPosts = promiseTimeout(20000, getAllPostsNextBatch(schoolName, lastKey));
@@ -200,7 +197,7 @@ const Home: React.FC = () => {
     context.setDarkMode(true);
     document.body.classList.toggle("dark");
     context.setDarkMode(true);
-    if(Capacitor.getPlatform() === 'ios') {
+    if (Capacitor.getPlatform() === 'ios') {
       Keyboard.setStyle(keyStyleOptionsDark);
       StatusBar.setStyle({ style: Style.Dark });
     }
@@ -235,7 +232,6 @@ const Home: React.FC = () => {
   });
 
   const handleGetVersion = React.useCallback(async () => {
-    console.log("getting version")
     const serverVersion: null | string = await getAppVersionNum();
     if (serverVersion !== versionNum) {
       await Dialog.alert({
@@ -250,7 +246,8 @@ const Home: React.FC = () => {
   }, []);
 
   useIonViewWillEnter(() => {
-    StatusBar.setStyle({ style: Style.Dark })
+    if (Capacitor.getPlatform() === 'ios')
+      StatusBar.setStyle({ style: Style.Dark })
   });
 
   /**

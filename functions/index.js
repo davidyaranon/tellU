@@ -16,6 +16,7 @@ const app = admin.initializeApp({
   storageBucket: "quantum-61b84.appspot.com"
 });
 
+
 process.env.DEBUG = true;
 
 
@@ -38,160 +39,191 @@ const option = {
   }
 };
 
-exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async (context) => {
-  const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20County%20CA&mkt=en-US', option);
-  const humboldtCountyNews = await res1.json();
-  const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Cal%20Poly%20Humboldt&mkt=en-US', option);
-  const humboldtStateNews = await res2.json();
-  const res3 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Lost%20Coast%20Outpost%20Humboldt&mkt=en-US', option);
-  const lostCoastOutpost = await res3.json();
-  const res4 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20Ca&mkt=en-US', option);
-  const elLenador = await res4.json();
-
-  const berk = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
-  const berkNews = await berk.json();
-
-  let berkArticles = [];
-
-  let articles = [];
-
-  if (berkNews && "value" in berkNews && Array.isArray(berkNews.value)) {
-    let arrSize = berkNews.value.length;
-    if (arrSize > 15) {
-      arrSize = 15;
-    }
-    for (let i = 0; i < arrSize; ++i) {
-      let temp = {};
-      if ("image" in berkNews.value[i] && "thumbnail" in berkNews.value[i].image && "contentUrl" in berkNews.value[i].image.thumbnail) {
-        temp['image'] = berkNews.value[i].image.thumbnail.contentUrl;
-      } else {
-        temp['image'] = '';
+exports.getRssUpdates = functions.pubsub.schedule('every 12 hours').onRun(async (context) => {
+  functions.logger.log('running rss update');
+  fetch('https://25livepub.collegenet.com/calendars/HSU-featured-events.rss')
+    .then(response => {
+      functions.logger.log('fetched');
+      functions.logger.log(response);
+      response.text()
+    })
+    .then(data => {
+      functions.logger.log('text');
+      functions.logger.log(data);
+      try {
+        const bucket = app.storage().bucket();
+        const file = bucket.file('HSU-featured-events.rss');
+        file.save(data).then(() => {
+          console.log('Uploaded file');
+          functions.logger.log('Uploaded file');
+        }).catch((err) => {
+          functions.logger.log(err);
+          functions.logger.log('something went wrong with file.save(data).then(()')
+        });
+      } catch (err) {
+        console.log(err);
+        functions.logger.log(err);
       }
-      if ("name" in berkNews.value[i])
-        temp['title'] = berkNews.value[i].name;
-      if ("url" in berkNews.value[i])
-        temp['url'] = berkNews.value[i].url;
-      if ("datePublished" in berkNews.value[i])
-        temp['date'] = berkNews.value[i].datePublished;
-      berkArticles.push(temp);
-    }
-  } else {
-    console.log("berk articles if check failed");
-  }
-
-  if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
-    let arrSize = humboldtCountyNews.value.length;
-    if (arrSize > 5) {
-      arrSize = 5;
-    }
-    for (let i = 0; i < arrSize; ++i) {
-      let temp = {};
-      if ("image" in humboldtCountyNews.value[i] && "thumbnail" in humboldtCountyNews.value[i].image && "contentUrl" in humboldtCountyNews.value[i].image.thumbnail) {
-        temp['image'] = humboldtCountyNews.value[i].image.thumbnail.contentUrl;
-      } else {
-        temp['image'] = '';
-      }
-      if ("name" in humboldtCountyNews.value[i])
-        temp['title'] = humboldtCountyNews.value[i].name;
-      if ("url" in humboldtCountyNews.value[i])
-        temp['url'] = humboldtCountyNews.value[i].url;
-      if ("datePublished" in humboldtCountyNews.value[i])
-        temp['date'] = humboldtCountyNews.value[i].datePublished;
-      articles.push(temp);
-    }
-  } else {
-    console.log("county articles if check failed");
-  }
-
-  if (lostCoastOutpost && "value" in lostCoastOutpost && Array.isArray(lostCoastOutpost.value)) {
-    let arrSize = lostCoastOutpost.value.length;
-    if (arrSize > 5) {
-      arrSize = 5;
-    }
-    for (let i = 0; i < arrSize; ++i) {
-      let temp = {};
-      if ("image" in lostCoastOutpost.value[i] && "thumbnail" in lostCoastOutpost.value[i].image && "contentUrl" in lostCoastOutpost.value[i].image.thumbnail) {
-        temp['image'] = lostCoastOutpost.value[i].image.thumbnail.contentUrl;
-      } else {
-        temp['image'] = 'https://lostcoastoutpost.com/favicon.ico';
-      }
-      if ("name" in lostCoastOutpost.value[i])
-        temp['title'] = lostCoastOutpost.value[i].name;
-      if ("url" in lostCoastOutpost.value[i])
-        temp['url'] = lostCoastOutpost.value[i].url;
-      if ("datePublished" in lostCoastOutpost.value[i])
-        temp['date'] = lostCoastOutpost.value[i].datePublished;
-      articles.push(temp);
-    }
-  } else {
-    console.log("lostCoastOutpost articles if check failed");
-  }
-
-  if (elLenador && "value" in elLenador && Array.isArray(elLenador.value)) {
-    let arrSize = elLenador.value.length;
-    if (arrSize > 5) {
-      arrSize = 5;
-    }
-    for (let i = 0; i < arrSize; ++i) {
-      let temp = {};
-      if ("image" in elLenador.value[i] && "thumbnail" in elLenador.value[i].image && "contentUrl" in elLenador.value[i].image.thumbnail) {
-        temp['image'] = elLenador.value[i].image.thumbnail.contentUrl;
-      } else {
-        temp['image'] = '';
-      }
-      if ("name" in elLenador.value[i])
-        temp['title'] = elLenador.value[i].name;
-      if ("url" in elLenador.value[i])
-        temp['url'] = elLenador.value[i].url;
-      if ("datePublished" in elLenador.value[i])
-        temp['date'] = elLenador.value[i].datePublished;
-      articles.push(temp);
-    }
-  } else {
-    console.log("EL Lenador articles if check failed");
-  }
-
-  let schoolArticles = [];
-  if (humboldtStateNews && "value" in humboldtStateNews && Array.isArray(humboldtStateNews.value)) {
-    let arrSize = humboldtStateNews.value.length;
-    if (arrSize > 10) {
-      arrSize = 10;
-    }
-    for (let i = 0; i < arrSize; ++i) {
-      let temp = {};
-      if ("image" in humboldtStateNews.value[i] && "thumbnail" in humboldtStateNews.value[i].image && "contentUrl" in humboldtStateNews.value[i].image.thumbnail) {
-        temp['image'] = humboldtStateNews.value[i].image.thumbnail.contentUrl;
-      } else {
-        temp['image'] = '';
-      }
-      if ("name" in humboldtStateNews.value[i])
-        temp['title'] = humboldtStateNews.value[i].name;
-      if ("url" in humboldtStateNews.value[i])
-        temp['url'] = humboldtStateNews.value[i].url;
-      if ("datePublished" in humboldtStateNews.value[i])
-        temp['date'] = humboldtStateNews.value[i].datePublished;
-      schoolArticles.push(temp);
-    }
-    console.log(schoolArticles);
-  } else {
-    console.log("school articles if check failed");
-  }
-
-  if (berkArticles.length > 0) {
-    admin.firestore().collection('schoolNews').doc('UCBerkeley').update({
-      schoolArticles: berkArticles
-    }).catch((err) => console.log(err));
-  }
-
-  if (!schoolArticles || !articles || schoolArticles.length <= 0 || articles.length <= 0) {
-    console.log("articles empty");
-  } else {
-    admin.firestore().collection('schoolNews').doc('CalPolyHumboldt').update({
-      schoolArticles: schoolArticles,
-      localArticles: articles
-    }).catch((err) => console.log(err));
-  }
+    }).catch((err) => {
+      functions.logger.log(err);
+      functions.logger.log('something went wrong with response.text()');
+    });
 });
+
+// exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async (context) => {
+//   const res1 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20County%20CA&mkt=en-US', option);
+//   const humboldtCountyNews = await res1.json();
+//   const res2 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Cal%20Poly%20Humboldt&mkt=en-US', option);
+//   const humboldtStateNews = await res2.json();
+//   const res3 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Lost%20Coast%20Outpost%20Humboldt&mkt=en-US', option);
+//   const lostCoastOutpost = await res3.json();
+//   const res4 = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=Humboldt%20Ca&mkt=en-US', option);
+//   const elLenador = await res4.json();
+
+//   const berk = await fetch('https://api.bing.microsoft.com/v7.0/news/search?q=UC%20Berkeley&mkt=en-US', option);
+//   const berkNews = await berk.json();
+
+//   let berkArticles = [];
+
+//   let articles = [];
+
+//   if (berkNews && "value" in berkNews && Array.isArray(berkNews.value)) {
+//     let arrSize = berkNews.value.length;
+//     if (arrSize > 15) {
+//       arrSize = 15;
+//     }
+//     for (let i = 0; i < arrSize; ++i) {
+//       let temp = {};
+//       if ("image" in berkNews.value[i] && "thumbnail" in berkNews.value[i].image && "contentUrl" in berkNews.value[i].image.thumbnail) {
+//         temp['image'] = berkNews.value[i].image.thumbnail.contentUrl;
+//       } else {
+//         temp['image'] = '';
+//       }
+//       if ("name" in berkNews.value[i])
+//         temp['title'] = berkNews.value[i].name;
+//       if ("url" in berkNews.value[i])
+//         temp['url'] = berkNews.value[i].url;
+//       if ("datePublished" in berkNews.value[i])
+//         temp['date'] = berkNews.value[i].datePublished;
+//       berkArticles.push(temp);
+//     }
+//   } else {
+//     console.log("berk articles if check failed");
+//   }
+
+//   if (humboldtCountyNews && "value" in humboldtCountyNews && Array.isArray(humboldtCountyNews.value)) {
+//     let arrSize = humboldtCountyNews.value.length;
+//     if (arrSize > 5) {
+//       arrSize = 5;
+//     }
+//     for (let i = 0; i < arrSize; ++i) {
+//       let temp = {};
+//       if ("image" in humboldtCountyNews.value[i] && "thumbnail" in humboldtCountyNews.value[i].image && "contentUrl" in humboldtCountyNews.value[i].image.thumbnail) {
+//         temp['image'] = humboldtCountyNews.value[i].image.thumbnail.contentUrl;
+//       } else {
+//         temp['image'] = '';
+//       }
+//       if ("name" in humboldtCountyNews.value[i])
+//         temp['title'] = humboldtCountyNews.value[i].name;
+//       if ("url" in humboldtCountyNews.value[i])
+//         temp['url'] = humboldtCountyNews.value[i].url;
+//       if ("datePublished" in humboldtCountyNews.value[i])
+//         temp['date'] = humboldtCountyNews.value[i].datePublished;
+//       articles.push(temp);
+//     }
+//   } else {
+//     console.log("county articles if check failed");
+//   }
+
+//   if (lostCoastOutpost && "value" in lostCoastOutpost && Array.isArray(lostCoastOutpost.value)) {
+//     let arrSize = lostCoastOutpost.value.length;
+//     if (arrSize > 5) {
+//       arrSize = 5;
+//     }
+//     for (let i = 0; i < arrSize; ++i) {
+//       let temp = {};
+//       if ("image" in lostCoastOutpost.value[i] && "thumbnail" in lostCoastOutpost.value[i].image && "contentUrl" in lostCoastOutpost.value[i].image.thumbnail) {
+//         temp['image'] = lostCoastOutpost.value[i].image.thumbnail.contentUrl;
+//       } else {
+//         temp['image'] = 'https://lostcoastoutpost.com/favicon.ico';
+//       }
+//       if ("name" in lostCoastOutpost.value[i])
+//         temp['title'] = lostCoastOutpost.value[i].name;
+//       if ("url" in lostCoastOutpost.value[i])
+//         temp['url'] = lostCoastOutpost.value[i].url;
+//       if ("datePublished" in lostCoastOutpost.value[i])
+//         temp['date'] = lostCoastOutpost.value[i].datePublished;
+//       articles.push(temp);
+//     }
+//   } else {
+//     console.log("lostCoastOutpost articles if check failed");
+//   }
+
+//   if (elLenador && "value" in elLenador && Array.isArray(elLenador.value)) {
+//     let arrSize = elLenador.value.length;
+//     if (arrSize > 5) {
+//       arrSize = 5;
+//     }
+//     for (let i = 0; i < arrSize; ++i) {
+//       let temp = {};
+//       if ("image" in elLenador.value[i] && "thumbnail" in elLenador.value[i].image && "contentUrl" in elLenador.value[i].image.thumbnail) {
+//         temp['image'] = elLenador.value[i].image.thumbnail.contentUrl;
+//       } else {
+//         temp['image'] = '';
+//       }
+//       if ("name" in elLenador.value[i])
+//         temp['title'] = elLenador.value[i].name;
+//       if ("url" in elLenador.value[i])
+//         temp['url'] = elLenador.value[i].url;
+//       if ("datePublished" in elLenador.value[i])
+//         temp['date'] = elLenador.value[i].datePublished;
+//       articles.push(temp);
+//     }
+//   } else {
+//     console.log("EL Lenador articles if check failed");
+//   }
+
+//   let schoolArticles = [];
+//   if (humboldtStateNews && "value" in humboldtStateNews && Array.isArray(humboldtStateNews.value)) {
+//     let arrSize = humboldtStateNews.value.length;
+//     if (arrSize > 10) {
+//       arrSize = 10;
+//     }
+//     for (let i = 0; i < arrSize; ++i) {
+//       let temp = {};
+//       if ("image" in humboldtStateNews.value[i] && "thumbnail" in humboldtStateNews.value[i].image && "contentUrl" in humboldtStateNews.value[i].image.thumbnail) {
+//         temp['image'] = humboldtStateNews.value[i].image.thumbnail.contentUrl;
+//       } else {
+//         temp['image'] = '';
+//       }
+//       if ("name" in humboldtStateNews.value[i])
+//         temp['title'] = humboldtStateNews.value[i].name;
+//       if ("url" in humboldtStateNews.value[i])
+//         temp['url'] = humboldtStateNews.value[i].url;
+//       if ("datePublished" in humboldtStateNews.value[i])
+//         temp['date'] = humboldtStateNews.value[i].datePublished;
+//       schoolArticles.push(temp);
+//     }
+//     console.log(schoolArticles);
+//   } else {
+//     console.log("school articles if check failed");
+//   }
+
+//   if (berkArticles.length > 0) {
+//     admin.firestore().collection('schoolNews').doc('UCBerkeley').update({
+//       schoolArticles: berkArticles
+//     }).catch((err) => console.log(err));
+//   }
+
+//   if (!schoolArticles || !articles || schoolArticles.length <= 0 || articles.length <= 0) {
+//     console.log("articles empty");
+//   } else {
+//     admin.firestore().collection('schoolNews').doc('CalPolyHumboldt').update({
+//       schoolArticles: schoolArticles,
+//       localArticles: articles
+//     }).catch((err) => console.log(err));
+//   }
+// });
 
 exports.getHumboldtUpdates = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
@@ -416,7 +448,6 @@ exports.askAI = functions.https.onCall(async (data, context) => {
   }
   return '';
 });
-
 
 exports.sendCommentsNotification = functions.https.onCall(async (data, context) => {
   if (!context.auth) {

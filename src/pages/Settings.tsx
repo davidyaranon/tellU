@@ -47,7 +47,6 @@ const versionNum: string = '2.3.0';
 
 
 const Settings: React.FC = () => {
-  console.log('settings');
 
   // hooks  
   const history = useHistory();
@@ -204,27 +203,6 @@ const Settings: React.FC = () => {
     context.setSensitivityToggled(isChecked);
     await Preferences.set({ key: 'sensitivityToggled', value: JSON.stringify(isChecked) });
   };
-
-  /**
-   * @description Enables/disables dark mode and sets/unsets Keyboard and StatusBar style
-   * 
-   * @param {boolean} isChecked whether dark mode toggled is enabled or disabled (checked or unchecked)
-   */
-  const toggleDarkMode = async (isChecked: boolean) => {
-    console.log("dark mode: ", isChecked);
-    document.body.classList.toggle("dark");
-    context.setDarkMode(isChecked);
-    await Preferences.set({ key: "darkMode", value: JSON.stringify(isChecked) });
-    if (Capacitor.getPlatform() === 'ios') {
-      if (isChecked) {
-        await Keyboard.setStyle(keyStyleOptionsDark);
-        await StatusBar.setStyle({ style: Style.Dark });
-      } else {
-        await Keyboard.setStyle(keyStyleOptionsLight);
-        await StatusBar.setStyle({ style: Style.Light });
-      }
-    }
-  }
 
   /**
    * @description Logs authenticated user out of application
@@ -491,8 +469,6 @@ const Settings: React.FC = () => {
     Keyboard.setStyle(keyStyleOptionsDark);
     StatusBar.setStyle({ style: Style.Dark });
   }, [context]);
-
-
 
   React.useEffect(() => {
     context.setShowTabs(true);

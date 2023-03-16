@@ -1522,7 +1522,6 @@ export const getAppVersionNum = async () => {
     console.log("WHAT")
     return null;
   }
-  console.log("OK")
   const versionDoc = await getDoc(doc(db, "appVersion", "versionNum"));
   if ("version" in versionDoc.data()) {
     return versionDoc.data().version;
