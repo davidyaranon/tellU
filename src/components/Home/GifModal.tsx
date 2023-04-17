@@ -93,7 +93,7 @@ export const GifModal = (props: any) => {
 
 
   return (
-    <IonModal backdropDismiss={false} isOpen={isOpen} swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+    <IonModal backdropDismiss={false} isOpen={isOpen} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
       <IonContent>
         <div style={{ width: "100%" }}>
           <IonHeader>

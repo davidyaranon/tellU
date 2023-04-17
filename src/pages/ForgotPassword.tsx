@@ -19,7 +19,7 @@ const ForgotPassword = () => {
   const context = useContext();
 
   // state variables
-  const [email, setEmail] = useState<string>("");
+  const [email, setEmail] = useState<string | number>("");
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
 
   /**
@@ -27,6 +27,12 @@ const ForgotPassword = () => {
    */
   const handleResetPassword = () => {
     setButtonDisabled(true);
+    if(typeof email != 'string') {
+      const toast = Toast.create({ message: 'Enter an email', duration: 2000, color: 'toast-error' });
+      toast.present();
+      setButtonDisabled(false);
+      return;
+    }
     if (email.trim().length <= 0) {
       const toast = Toast.create({ message: 'Enter an email', duration: 2000, color: 'toast-error' });
       toast.present();

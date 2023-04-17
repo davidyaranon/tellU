@@ -17,7 +17,7 @@ export const ReportModal = (props: any) => {
   const handleShowReportModal = props.handleShowReportModal;
 
   return (
-    <IonModal isOpen={isOpen} mode="ios" swipeToClose={false} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+    <IonModal isOpen={isOpen} mode="ios" handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
       <div slot="fixed" style={{ width: "100%" }}>
         <IonToolbar mode="ios">
           <IonButtons slot="start">

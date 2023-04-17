@@ -730,7 +730,7 @@ const Settings: React.FC = () => {
       </IonContent>
 
       <IonModal
-        handle={false} breakpoints={[0, 1]} initialBreakpoint={1} swipeToClose={false}
+        handle={false} breakpoints={[0, 1]} initialBreakpoint={1} 
         isOpen={spotifyModal}
         onDidDismiss={() => {
           Keyboard.hide();
@@ -791,7 +791,7 @@ const Settings: React.FC = () => {
         </IonContent>
       </IonModal>
 
-      <IonModal backdropDismiss={false} mode="ios" swipeToClose={false} isOpen={showAboutModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+      <IonModal backdropDismiss={false} mode="ios" isOpen={showAboutModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
         <IonContent>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios" >
@@ -980,7 +980,7 @@ const Settings: React.FC = () => {
         </IonContent>
       </IonModal>
 
-      <IonModal backdropDismiss={false} isOpen={showEditEmailModal} swipeToClose={false} mode="ios" handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+      <IonModal backdropDismiss={false} isOpen={showEditEmailModal} mode="ios" handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
         <IonContent>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios" >
@@ -1022,7 +1022,7 @@ const Settings: React.FC = () => {
         </IonContent>
       </IonModal>
 
-      <IonModal backdropDismiss={false} swipeToClose={false} isOpen={showEditUsernameModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+      <IonModal backdropDismiss={false} isOpen={showEditUsernameModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
         <IonContent>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios" >
@@ -1062,7 +1062,7 @@ const Settings: React.FC = () => {
         </IonContent>
       </IonModal>
 
-      <IonModal backdropDismiss={false} swipeToClose={false} isOpen={credentialsModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+      <IonModal backdropDismiss={false} isOpen={credentialsModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
         <IonContent>
           <div className="ion-modal">
             <IonHeader mode="ios">
@@ -1120,7 +1120,7 @@ const Settings: React.FC = () => {
         </IonContent>
       </IonModal>
 
-      <IonModal backdropDismiss={false} swipeToClose={false} isOpen={credentialsUserModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+      <IonModal backdropDismiss={false} isOpen={credentialsUserModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
         <IonContent>
           <div className="ion-modal">
             <IonHeader mode="ios">

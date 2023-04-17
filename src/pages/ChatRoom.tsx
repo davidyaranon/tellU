@@ -280,7 +280,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       </IonHeader>
       <IonContent ref={contentRef} scrollEvents>
 
-        <IonModal isOpen={showReportModal} mode="ios" handle={false} swipeToClose={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+        <IonModal isOpen={showReportModal} mode="ios" handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           <div slot="fixed" style={{ width: "100%" }}>
             <IonToolbar mode="ios">
               <IonButtons slot="start">
