@@ -1014,8 +1014,8 @@ const Settings: React.FC = () => {
               readonly={false}
               value={editableEmail}
               onIonChange={(e) => {
-                console.log(e.detail.value)
-                setEditableEmail(e.detail.value || "");
+                if(typeof e.detail.value === "string")
+                  setEditableEmail(e.detail.value || "");
               }}
             ></IonInput>
           </IonItem>
@@ -1055,7 +1055,8 @@ const Settings: React.FC = () => {
               readonly={false}
               value={editableUserName}
               onIonChange={(e) => {
-                setEditableUserName(e.detail.value || "");
+                if(typeof e.detail.value === "string")
+                  setEditableUserName(e.detail.value || "");
               }}
             ></IonInput>
           </IonItem>
