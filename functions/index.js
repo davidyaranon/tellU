@@ -2,6 +2,7 @@ const fetch = require("node-fetch");
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
+const retry = require('retry');
 
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -39,35 +40,45 @@ const option = {
   }
 };
 
-exports.getRssUpdates = functions.pubsub.schedule('every 12 hours').onRun(async (context) => {
+const rssOperation = retry.operation({
+  retries: 5,
+  factor: 2,
+  minTimeout: 1 * 1000,
+  maxTimeout: 60 * 1000,
+  randomize: true,
+});
+
+function fetchRssUpdatesHumboldt() {
   functions.logger.log('running rss update');
   fetch('https://25livepub.collegenet.com/calendars/HSU-featured-events.rss')
     .then(response => {
-      functions.logger.log('fetched');
       functions.logger.log(response);
-      response.text()
+      return response.text();
     })
     .then(data => {
-      functions.logger.log('text');
+      functions.logger.log('text data');
       functions.logger.log(data);
       try {
         const bucket = app.storage().bucket();
         const file = bucket.file('HSU-featured-events.rss');
         file.save(data).then(() => {
-          console.log('Uploaded file');
           functions.logger.log('Uploaded file');
-        }).catch((err) => {
-          functions.logger.log(err);
-          functions.logger.log('something went wrong with file.save(data).then(()')
         });
       } catch (err) {
-        console.log(err);
+        functions.logger.log('uploading file failed');
         functions.logger.log(err);
       }
-    }).catch((err) => {
-      functions.logger.log(err);
-      functions.logger.log('something went wrong with response.text()');
+    })
+    .catch(error => {
+      functions.logger.log('data fetch failed');
+      functions.logger.log(error);
     });
+}
+
+exports.getRssUpdates = functions.pubsub.schedule('every 6 hours').onRun(async (context) => {
+  rssOperation.attempt(function (currentAttempt) {
+    fetchRssUpdatesHumboldt();
+  });
 });
 
 // exports.updateNews = functions.pubsub.schedule('every 240 minutes').onRun(async (context) => {
@@ -236,6 +247,13 @@ exports.getHumboldtUpdates = functions.https.onCall(async (data, context) => {
   const bucket = app.storage().bucket();
   const file = bucket.file('HSU-featured-events.rss');
   const contents = await file.download();
+  functions.logger.log(contents);
+  if (!contents || contents.toString().length <= 0) {
+    functions.logger.log('error getting file, pulling manual file');
+    const manualFile = bucket.file('HSU-featured-events-manual.rss');
+    const manualContents = await manualFile.download();
+    return manualContents.toString();
+  }
   return contents.toString();
 });
 

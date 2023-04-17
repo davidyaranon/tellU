@@ -20,7 +20,8 @@
     "firebase-tools": "^9.23.3",
     "node-fetch": "^2.6.1",
     "nodemailer": "^6.7.7",
-    "openai": "^3.2.1"
+    "openai": "^3.2.1",
+    "retry": "^0.13.1"
   },
   "devDependencies": {
     "eslint": "^8.9.0",

@@ -25,19 +25,24 @@ interface MatchUserPostParams {
 };
 
 export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
+  // props
   const schoolName = match.params.school;
   const markerTitle = match.params.title;
 
+  // hooks 
   const [user, loading, error] = useAuthState(auth);
   const Toast = useToast();
 
+  // state variables
   const [posts, setPosts] = useState<any>(null);
   const [description, setDescription] = useState<string[]>([""]);
   const [images, setImages] = useState<string[]>([]);
   const [chip, setChip] = useState<any[] | undefined>([]);
   const [clickable, setClickable] = useState<boolean>(false);
 
+  // NOTE: both of these functions are not being used ATM
   const takePicture = async () => {
+    return;
     try {
       const images = await Camera.pickImages({
         quality: 50,
@@ -56,8 +61,8 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
       // Toast.error(err.message.toString());
     }
   };
-
   const handleUploadImage = async () => {
+    return;
     if(!clickable) {
       return;
     }
@@ -150,6 +155,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
           modules={[Pagination]}
           slidesPerView={1}
           onSlideChange={(e) => {
+            return;
             if(images && images.length > 0) {
               let len = images.length;
               if(e.realIndex === len - 1) {

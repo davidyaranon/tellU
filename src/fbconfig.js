@@ -16,22 +16,13 @@ import {
   runTransaction as rtdbRunTransaction,
   set, update
 } from "firebase/database";
-import { getDownloadURL, getStorage, ref, uploadBytes, uploadString } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { initializeApp } from "firebase/app";
 import { ref as rtdbRef } from "firebase/database";
-
 import { Capacitor } from '@capacitor/core';
 import SpotifyWebApi from 'spotify-web-api-js';
 
-import { Configuration, OpenAIApi } from "openai";
-
-const configuration = new Configuration({
-  apiKey: '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',
-  organization: 'org-sNt3CfvC6ARPCBn2BlSYCVpl'
-});
-
-const openai = new OpenAIApi(configuration);
 
 const spotifyApi = new SpotifyWebApi();
 const REACT_APP_SPOTIFY_CLIENT_ID = '1df10089b0b3490db93c23353b0cdc35';
@@ -68,7 +59,6 @@ export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNo
 export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
 export const getHumboldtUpdates = httpsCallable(functions, 'getHumboldtUpdates');
 export const askAI = httpsCallable(functions, 'askAI');
-
 
 /**
  * Registers user with Firestore auth based on email and password
@@ -558,7 +548,7 @@ export const getOnePost = async (postKey, schoolName) => {
  * @param {string} postKey 
  * @param {string} schoolName 
  * @param {string} commentString 
- * @param {any} blob 
+ * @param {any}    blob 
  * @param {string} id 
  * @param {string} notificationsToken 
  * @param {string} posterUid 
@@ -721,10 +711,10 @@ export const upVoteComment = async (commentKey) => {
 }
 
 /**
+ * @description loads comments of a specific post from Firestore
  * 
- * @param {*} postKey 
- * @param {*} schoolName 
- * @returns 
+ * @param {string} postKey 
+ * @param {string} schoolName 
  */
 export const loadCommentsNew = async (postKey, schoolName) => {
   try {
@@ -1276,6 +1266,7 @@ export const getCurrentUserData = async () => {
 }
 
 /**
+ * @description send DM to user and call notification function in backend
  * 
  * @param {*} chatroomString 
  * @param {*} notificationsToken 
@@ -1309,10 +1300,11 @@ export const sendDm = async (chatroomString, notificationsToken, message, contac
 };
 
 /**
+ * @description updates the user's recent messages list in Firestore
  * 
- * @param {*} message 
- * @param {*} contactUid 
- * @param {*} contactUserName 
+ * @param {string} message 
+ * @param {string} contactUid 
+ * @param {string} contactUserName 
  */
 export const updateDmList = async (message, contactUid, contactUserName) => {
   if (auth && db) {
@@ -1442,14 +1434,14 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
 };
 
 /**
+ * @description updates the user's info in the firestore database.
  * 
- * @param {*} bio 
- * @param {*} instagram 
- * @param {*} major 
- * @param {*} snapchat 
- * @param {*} tiktok 
- * @param {*} spotifyUri 
- * @returns 
+ * @param {string} bio 
+ * @param {string} instagram 
+ * @param {string} major 
+ * @param {string} snapchat 
+ * @param {string} tiktok 
+ * @param {string} spotifyUri 
  */
 export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, spotifyUri) => {
   try {
@@ -1622,6 +1614,14 @@ export const getEvents = async () => {
   return htmlString;
 };
 
+
+/**
+ * @description Runs the backend AI code from openAI 
+ * to generate a response.
+ * 
+ * @param {string} msg the question to ask the AI
+ * @returns {string} the response from the AI
+ */
 export const testOpenAi = async (msg) => {
   const answer = await askAI({
     message: msg
@@ -1630,7 +1630,7 @@ export const testOpenAi = async (msg) => {
     return '';
   });
 
-  console.log(answer.data.content);
+  // console.log(answer.data.content);
 
   return answer.data.content.toString();
 }

@@ -44,7 +44,7 @@ import { useHistory } from 'react-router';
 import { Dialog } from '@capacitor/dialog';
 import { Capacitor } from '@capacitor/core';
 
-const versionNum: string = '3.1.0';
+const versionNum: string = '3.1.1';
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
 }
@@ -190,6 +190,9 @@ const Home: React.FC = () => {
     const school = await Preferences.get({ key: 'school' });
     if (school && school.value) {
       setSchoolName(school.value);
+    } else {
+      setSchoolName('Cal Poly Humboldt');
+      await Preferences.set( {key : "school", value: "Cal Poly Humboldt" } );
     }
   }, []);
 

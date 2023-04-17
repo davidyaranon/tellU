@@ -1,27 +1,30 @@
 import { useEffect, useState } from "react";
-import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonPage, IonText } from "@ionic/react";
+import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonPage } from "@ionic/react";
+import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 
-import { useHistory } from "react-router-dom";
 import { useToast } from "@agney/ir-toast";
-
 import Header from "../components/Shared/Header";
 import { timeout } from "../helpers/timeout";
 import { sendPasswordReset } from "../fbConfig";
-import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 import { useContext } from "../my-context";
 import { Toolbar } from "../components/Shared/Toolbar";
 
+// global variables
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }
 
 const ForgotPassword = () => {
 
+  // hooks
   const Toast = useToast();
   const context = useContext();
-  const history = useHistory();
 
+  // state variables
   const [email, setEmail] = useState<string>("");
   const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
 
+  /**
+   * @description handles the reset password button click
+   */
   const handleResetPassword = () => {
     setButtonDisabled(true);
     if (email.trim().length <= 0) {

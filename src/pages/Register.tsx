@@ -64,9 +64,10 @@ const Register: React.FC = () => {
   const [schoolName, setSchoolName] = React.useState("");
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [schoolEmailEnding, setSchoolEmailEnding] = React.useState("");
-  const [user, loading] = useAuthState(auth);
   const [busy, setBusy] = React.useState<boolean>(false);
 
+  // hooks
+  const [user, loading] = useAuthState(auth);
   const Toast = useToast();
   const router = useIonRouter();
   const history = useHistory();
@@ -192,7 +193,6 @@ const Register: React.FC = () => {
       setBusy(false);
     }
   }, [user, loading]);
-
 
   React.useEffect(() => {
     Keyboard.addListener('keyboardWillShow', info => {

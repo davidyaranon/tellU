@@ -42,6 +42,7 @@ export const SignIn = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [user, loading, error] = useAuthState(auth);
 
+  // hooks
   const Toast = useToast();
   const history = useHistory();
   const emailRef = useRef<HTMLIonInputElement>(null);
