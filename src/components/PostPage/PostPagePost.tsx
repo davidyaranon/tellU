@@ -11,8 +11,9 @@ import { useCallback, useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { useToast } from "@agney/ir-toast";
 import FadeIn from "react-fade-in/lib/FadeIn";
+import { memo } from "react";
 
-export const PostPagePost = (props: any) => {
+const PostPagePost = (props: any) => {
   const post = props.post;
   const index = props.index;
   const user = props.user;
@@ -68,4 +69,6 @@ export const PostPagePost = (props: any) => {
       </IonList>
     </FadeIn>
   )
-}
+};
+
+export default memo(PostPagePost);

@@ -29,9 +29,7 @@ import Apts_1 from "../images/apts_1.jpeg";
 import Apts_2 from "../images/apts_2.jpeg";
 import j_0 from '../images/j_0.jpeg';
 import j_1 from "../images/j_1.jpeg";
-import j_2 from "../images/j_2.jpeg";
 import j_3 from "../images/j_3.jpg";
-// import add_img from '../images/add_img.png';
 
 /* Icons */
 import ShowerIcon from '@mui/icons-material/Shower';

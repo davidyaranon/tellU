@@ -1,3 +1,9 @@
+/**
+ * @description returns color of text in top right of post if it has a flair
+ * 
+ * @param {string} postType the post flair
+ * @returns {string} color value corresponding to post flair
+ */
 export const getColor = (postType: string) => {
   switch (postType) {
     case "general":

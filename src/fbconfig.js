@@ -20,10 +20,10 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { initializeApp } from "firebase/app";
 import { ref as rtdbRef } from "firebase/database";
+
 import { Capacitor } from '@capacitor/core';
+
 import SpotifyWebApi from 'spotify-web-api-js';
-
-
 const spotifyApi = new SpotifyWebApi();
 const REACT_APP_SPOTIFY_CLIENT_ID = '1df10089b0b3490db93c23353b0cdc35';
 const REACT_APP_SPOTIFY_SECRET_ID = '118bf77d75eb4ef98c3dbc1a2443929f';
@@ -44,6 +44,7 @@ const auth = Capacitor.isNativePlatform ?
   }) :
   getAuth();
 export default auth;
+
 export const functions = getFunctions(app);
 export const db = getFirestore(app);
 export const storage = getStorage();
@@ -67,7 +68,6 @@ export const askAI = httpsCallable(functions, 'askAI');
  * @param {string} email provided user email
  * @param {string} password provided user password
  * @param {string} school school the user is attending
- * @returns 
  */
 export async function registerWithEmailAndPassword(name, email, password, school) {
   try {
@@ -144,8 +144,8 @@ export async function addUserToDb(uid, email) {
 }
 
 /**
- * @description Signs out authenticated user
- * auth object is taken as parameter
+ * @description Signs out authenticated user.
+ * Auth object is taken as parameter.
  */
 export async function logout() {
   await signOut(auth).catch((err) => { console.log(err) });
@@ -478,7 +478,7 @@ export const updateNotificationsToken = async (token) => {
  * Checks if a user name has been taken by another user
  * 
  * @param {string} userName userName to check
- * @returns boolean value whether or not the username is taken
+ * @returns {boolean} value whether or not the username is taken
  */
 export async function checkUsernameUniqueness(userName) {
   try {
@@ -503,7 +503,6 @@ export async function checkUsernameUniqueness(userName) {
  * Sends password reset email in case user forgets password
  * 
  * @param {string} email email to send paassword reset instructions to
- * @returns boolean if email was sent
  */
 export const sendPasswordReset = async (email) => {
   try {
@@ -520,7 +519,6 @@ export const sendPasswordReset = async (email) => {
  * 
  * @param {string} postKey the key of the post in Firestore to retreive
  * @param {string} schoolName the school the user is attending
- * @returns 
  */
 export const getOnePost = async (postKey, schoolName) => {
   try {
@@ -747,11 +745,10 @@ export const loadCommentsNew = async (postKey, schoolName) => {
 }
 
 /**
+ * @description loads the next batch of comments (10) for a corresponding post.
  * 
- * @param {*} postKey 
- * @param {*} schoolName 
- * @param {*} key 
- * @returns 
+ * @param {string} postKey 
+ * @param {string} schoolName 
  */
 export const loadCommentsNewNextBatch = async (postKey, schoolName, key) => {
   try {
@@ -784,11 +781,12 @@ export const loadCommentsNewNextBatch = async (postKey, schoolName, key) => {
 }
 
 /**
+ * @description deletes a post from Firestore.
+ * Also deletes image(s) (if any) and the likes/dislikes doc from RTDB
  * 
- * @param {*} postKey 
- * @param {*} schoolName 
- * @param {*} postUrl 
- * @returns 
+ * @param {string} postKey 
+ * @param {string} schoolName 
+ * @param {any[]} postUrl 
  */
 export const removePost = async (postKey, schoolName, postUrl) => {
   try {
@@ -828,11 +826,11 @@ export const removePost = async (postKey, schoolName, postUrl) => {
 }
 
 /**
+ * @description reports a post and sends corresponding email to user and admin
  * 
- * @param {*} message 
- * @param {*} schoolName 
- * @param {*} postKey 
- * @returns 
+ * @param {string} message 
+ * @param {string} schoolName 
+ * @param {string} postKey 
  */
 export const sendReportStatus = async (message, schoolName, postKey) => {
   try {
@@ -878,7 +876,6 @@ export const sendReportStatus = async (message, schoolName, postKey) => {
  * @param {string} location path in Firestore storage where the image is being uploaded
  * @param {blob} blob bytes of the image
  * @param {string} url basename of location in Firestore storage
- * @returns 
  */
 export async function uploadImage(location, blob, url) {
   try {
@@ -903,12 +900,13 @@ export async function uploadImage(location, blob, url) {
 }
 
 /**
+ * @description calls cloud function to delete a comment from a post.
+ * This will remove image(s) (if any) and likes/dislikes doc from RTDB
  * 
- * @param {*} comment 
- * @param {*} schoolName 
- * @param {*} postKey 
- * @param {*} commentUrl 
- * @returns 
+ * @param {string} comment 
+ * @param {string} schoolName 
+ * @param {string} postKey 
+ * @param {string} commentUrl 
  */
 export const removeCommentNew = async (comment, schoolName, postKey, commentUrl) => {
   try {
@@ -946,13 +944,13 @@ export const removeCommentNew = async (comment, schoolName, postKey, commentUrl)
 
 
 /**
+ * @description submits poll to /schoolPosts/{schoolName}/allPosts
  * 
- * @param {*} pollText 
- * @param {*} pollOptions 
- * @param {*} schoolName 
- * @param {*} userName 
- * @param {*} userUid 
- * @returns 
+ * @param {string} pollText 
+ * @param {array} pollOptions 
+ * @param {string} schoolName 
+ * @param {string} userName 
+ * @param {string} userUid 
  */
 export const submitPollNew = async (pollText, pollOptions, schoolName, userName, userUid) => {
   try {
@@ -1150,7 +1148,6 @@ export const getUserData = async (uid) => {
  * 
  * @param {string} className 
  * @param {string} schoolName name of school to check for
- * @returns 
  */
 export const getClassPostsDb = async (className, schoolName) => {
   try {
@@ -1205,7 +1202,7 @@ export const getUserLikedPosts = async (uid) => {
  * @description locates profile photo of user location in Firebase storage.
  * 
  * @param {string} userUid 
- * @returns url of the user's profile picture
+ * @returns {string} url of the user's profile picture
  */
 export const getUserPhotoUrl = async (userUid) => {
   try {
@@ -1222,7 +1219,7 @@ export const getUserPhotoUrl = async (userUid) => {
  * 
  * @param {string} postType post flairs: GENERAL, ALERT, SIGHTING, DINING, HOUSING, BUY/SELL, EVENT
  * @param {string} schoolName name of school to check for
- * @returns 
+ * @returns {array} array of posts
  */
 export const getPostTypeDb = async (postType, schoolName) => {
   try {
@@ -1268,10 +1265,10 @@ export const getCurrentUserData = async () => {
 /**
  * @description send DM to user and call notification function in backend
  * 
- * @param {*} chatroomString 
- * @param {*} notificationsToken 
- * @param {*} message 
- * @param {*} contactUid 
+ * @param {string} chatroomString 
+ * @param {string} notificationsToken 
+ * @param {string} message 
+ * @param {string} contactUid 
  */
 export const sendDm = async (chatroomString, notificationsToken, message, contactUid) => {
   try {
@@ -1508,10 +1505,11 @@ export const spotifySearch = async (query) => {
 
 /**
  * @description Gets the current app version number from Firestore
+ * 
+ * @returns {string | null} the version number, or null if not logged in :)
  */
 export const getAppVersionNum = async () => {
   if (!db || !auth) {
-    console.log("WHAT")
     return null;
   }
   const versionDoc = await getDoc(doc(db, "appVersion", "versionNum"));

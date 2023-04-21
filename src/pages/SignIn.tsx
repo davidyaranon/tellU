@@ -179,14 +179,14 @@ export const SignIn = () => {
           <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'Arial' }}>Sign In</p>
         </IonHeader>
 
-        <IonLabel className="login-label">Email</IonLabel>
+        <IonLabel id="email-label" className="login-label">Email</IonLabel>
         <IonItem className='login-input'>
-          <IonInput type="email" ref={emailRef} placeholder="email@email.com" />
+          <IonInput aria-labelledby="email-input" type="email" ref={emailRef} placeholder="email@email.com" />
         </IonItem>
 
-        <IonLabel className="login-label">Password</IonLabel>
+        <IonLabel id="password-label" className="login-label">Password</IonLabel>
         <IonItem className='login-input'>
-          <IonInput clearInput clearOnEdit={false} type={showPassword ? "text" : "password"} ref={passwordRef} placeholder="••••••••" />
+          <IonInput aria-labelledby='password-label' clearInput clearOnEdit={false} type={showPassword ? "text" : "password"} ref={passwordRef} placeholder="••••••••" />
           <IonButton slot="end" fill="clear" onClick={() => { setShowPassword(!showPassword) }}>
             <IonIcon color="medium" icon={showPassword ? eyeOutline : eyeOffOutline} />
           </IonButton>

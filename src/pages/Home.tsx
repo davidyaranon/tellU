@@ -184,7 +184,10 @@ const Home: React.FC = () => {
   }
 
   /**
-   * Loads school from local storage (Preferences API)
+   * Loads school from local storage (Preferences API).
+   * Currently just defaults to Cal Poly Humboldt.
+   * 
+   * @todo TODO: Add support for all other schools.
    */
   const setSchool = React.useCallback(async () => {
     const school = await Preferences.get({ key: 'school' });
@@ -236,12 +239,12 @@ const Home: React.FC = () => {
 
   const handleGetVersion = React.useCallback(async () => {
     const serverVersion: null | string = await getAppVersionNum();
-    if (serverVersion !== versionNum) {
-      await Dialog.alert({
-        title: "App Update Available",
-        message: 'Consider updating to the latest version of tellU!',
-      });
-    }
+    // if (serverVersion !== versionNum) {
+    //   await Dialog.alert({
+    //     title: "App Update Available",
+    //     message: 'Consider updating to the latest version of tellU!',
+    //   });
+    // }
   }, [])
 
   React.useEffect(() => {

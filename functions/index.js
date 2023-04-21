@@ -581,3 +581,63 @@ exports.sendCommentsNotification = functions.https.onCall(async (data, context) 
   }
 });
 
+const getAllUserEmails = async (nextPageToken) => {
+  let allUsers = [];
+  try {
+    const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
+    listUsersResult.users.forEach((userRecord) => {
+      const email = userRecord.email;
+      allUsers.push(email);
+    });
+    if (listUsersResult.pageToken) {
+      allUsers = allUsers.concat(await getAllUserEmails(listUsersResult.pageToken));
+    }
+  } catch (error) {
+    console.log('Error listing users:', error);
+    throw new functions.https.HttpsError(
+      'internal',
+      'Failed to list users'
+    );
+  }
+  return allUsers;
+};
+exports.sendEmailToAllUsers = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    console.log('No context');
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Something went wrong, try logging in again'
+    );
+  }
+  if (!data.subject || !data.html) {
+    functions.logger.log("invalid data");
+    console.log("invalid data");
+    throw new functions.https.HttpsError(
+      'resource-exhausted',
+      'Invalid data, try again'
+    );
+  }
+  try {
+    // const allUsers = await getAllUserEmails();
+    const mailOptions = {
+      from: `app.tellU@gmail.com`,
+      to: `app.tellU@gmail.com`, /* allUsers.join(', '), */
+      subject: data.subject,
+      html: data.html
+    };
+    return transporter.sendMail(mailOptions, (error, data) => {
+      if (error) {
+        console.log(error)
+        return;
+      }
+      console.log("Sent!")
+    });
+  } catch (error) {
+    console.log('Failed to send email:', error);
+    throw new functions.https.HttpsError(
+      'internal',
+      'Failed to send email'
+    );
+  }
+});
+

@@ -216,9 +216,10 @@ const Register: React.FC = () => {
           <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'Arial' }}>Register</p>
         </IonHeader>
 
-        <IonLabel className="login-label">University</IonLabel>
-        <IonItem className='register-input-select'>
+        <IonLabel id="university-label" className="login-label">University</IonLabel>
+        <IonItem  className='register-input-select'>
           <IonSelect
+            aria-label="university-label"
             value={schoolName}
             interfaceOptions={selectInterfaceOptions}
             placeholder="University of California"
@@ -325,9 +326,9 @@ const Register: React.FC = () => {
           </IonSelect>
         </IonItem>
 
-        <IonLabel className="login-label">School Email</IonLabel>
+        <IonLabel id="school-email-label" className="login-label">School Email</IonLabel>
         <IonItem className='register-input'>
-          <IonInput clearInput disabled value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} />
+          <IonInput aria-labelledby="school-email-label" clearInput value={emailSignUp} type="email" placeholder="email@email.com" id="emailSignUp" onIonChange={(e: any) => setEmailSignUp(e.detail.value)} />
         </IonItem>
         {emailSignUp.length > 0 && schoolName.length <= 0 ?
           <FadeIn>
@@ -342,15 +343,15 @@ const Register: React.FC = () => {
             <p style={inputNoteError}>{" "}</p>
         }
 
-        <IonLabel className="login-label">Username</IonLabel>
+        <IonLabel id="username-label-reg" className="login-label">Username</IonLabel>
         <IonItem className='register-input'>
-          <IonInput maxlength={15} clearInput disabled value={userNameSignUp} type="text" placeholder="userName1234" id="userNameSignUp" onIonChange={(e: any) => { handleUsernameInput(e) }} />
+          <IonInput aria-labelledby="username-label-reg" maxlength={15} clearInput value={userNameSignUp} type="text" placeholder="userName1234" id="userNameSignUp" onIonChange={(e: any) => { handleUsernameInput(e) }} />
         </IonItem>
         <p style={inputNote}> {userNameSignUp.length} / 15 </p>
 
-        <IonLabel className="login-label">Password</IonLabel>
+        <IonLabel id="password-label-reg" className="login-label">Password</IonLabel>
         <IonItem className='register-input'>
-          <IonInput disabled value={passwordSignUp} clearInput clearOnEdit={false} type={showPassword ? "text" : "password"} placeholder="••••••••" id="passwordSignUp" onIonChange={(e: any) => setPasswordSignUp(e.detail.value)} />
+          <IonInput aria-labelledby="password-label-reg" value={passwordSignUp} clearInput clearOnEdit={false} type={showPassword ? "text" : "password"} placeholder="••••••••" id="passwordSignUp" onIonChange={(e: any) => setPasswordSignUp(e.detail.value)} />
           <IonButton slot="end" fill="clear" onClick={() => { setShowPassword(!showPassword) }}>
             <IonIcon color="medium" icon={showPassword ? eyeOutline : eyeOffOutline} />
           </IonButton>

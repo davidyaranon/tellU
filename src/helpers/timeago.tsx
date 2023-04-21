@@ -1,3 +1,9 @@
+/**
+ * @fileoverview timeago.tsx
+ * 
+ * Contains TimeAgo library functions which deals with how long ago something happneed. 
+ */
+
 import TimeAgo from "javascript-time-ago";
 import en from 'javascript-time-ago/locale/en'
 

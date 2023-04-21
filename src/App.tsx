@@ -3,18 +3,18 @@ import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
 import Settings from './pages/Settings';
 import Maps from './pages/Maps';
-import { Events } from './pages/Events';
+import Class from './pages/Class';
 import LoadingPage from './pages/LoadingPage';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Post from './pages/Post';
 import DirectMessages from './pages/DirectMessages';
-import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import Posttypes from './pages/Posttypes';
-import { Notifications } from './pages/Notifications';
 import ChatRoom from './pages/ChatRoom';
 import { SignIn } from './pages/SignIn';
-import Class from './pages/Class';
+import { Notifications } from './pages/Notifications';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { Events } from './pages/Events';
 import { UserProfile } from './pages/UserProfile';
 import { MapMarkerInfo } from './pages/MapMarkerInfo';
 import { HumboldtHank } from './pages/HumboldtHank';
@@ -61,9 +61,9 @@ import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { createBrowserHistory } from "history";
 import { ToastProvider } from "@agney/ir-toast";
 import { useContext } from "./my-context";
+import { FCM } from '@capacitor-community/fcm';
 import ForestIcon from '@mui/icons-material/Forest';
 import ForestOutlinedIcon from '@mui/icons-material/ForestOutlined';
-import { FCM } from '@capacitor-community/fcm';
 
 // Global variables
 setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
@@ -157,9 +157,11 @@ const RoutingSystem: React.FunctionComponent = () => {
   }, []);
 
   return (
+    /* Allows use of toast popups throughout app using the useToast() hook */
     <ToastProvider value={{ color: "primary", duration: 2000 }}>
-      <IonTabs onIonTabsDidChange={(e) => { setSelectedTab(e.detail.tab) }}>
 
+      {/* Routing */}
+      <IonTabs onIonTabsDidChange={(e) => { setSelectedTab(e.detail.tab) }}>
         <IonRouterOutlet>
           <Route path="/" exact component={LoadingPage} />
           <Route path="/loadingPage" exact component={LoadingPage} />
@@ -183,6 +185,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/type/:schoolName/:type" exact component={Posttypes} />
         </IonRouterOutlet>
 
+        {/* Bottom Tabs / Tab Bar */}
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
             <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={selectedTab === 'hank' ? "primary" : "primary"} />
@@ -193,12 +196,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           </IonTabButton>
 
           <IonTabButton tab="hank" href="/hank">
-            {/* <IonIcon size='large' icon={selectedTab === 'hank' ? chatbubbleEllipses : chatbubbleEllipsesOutline } color={selectedTab === 'hank' ? "primary" : "primary"} /> */}
-            {selectedTab === 'hank' ?
-              <ForestIcon fontSize='large' style={{ fill: '#61dbfb' }} />
-              :
-              <ForestOutlinedIcon fontSize='large' style={{ fill: '#61dbfb' }} />
-            }
+            {selectedTab === 'hank' ? <ForestIcon fontSize='large' style={{ fill: '#61dbfb' }} /> : <ForestOutlinedIcon fontSize='large' style={{ fill: '#61dbfb' }} />}
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
@@ -305,7 +303,7 @@ const App: React.FC = () => {
    * temp function to set school name to Cal Poly Humboldt
    */
   const setSchoolName = React.useCallback(async () => {
-    await Preferences.set( {key : "school", value: "Cal Poly Humboldt" } );
+    await Preferences.set({ key: "school", value: "Cal Poly Humboldt" });
   }, []);
 
   /**

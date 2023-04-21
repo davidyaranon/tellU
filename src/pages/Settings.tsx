@@ -5,7 +5,6 @@ import {
   IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonFab, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonLoading, IonModal, IonNote,
   IonPage, IonRow, IonSearchbar, IonSpinner, IonText, IonTextarea, IonTitle, IonToggle, IonToolbar, useIonLoading, useIonViewWillEnter,
 } from '@ionic/react';
-import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from '@capacitor/keyboard';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Dialog } from '@capacitor/dialog';

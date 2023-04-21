@@ -15,7 +15,6 @@ import { arrowUpOutline, banOutline, cameraOutline } from "ionicons/icons";
 /* CSS */
 import "../App.css";
 
-
 /* Firebase */
 import auth, {
   addCommentNew, getLikes, promiseTimeout, getOnePost,
@@ -32,7 +31,7 @@ import mentionInputStyles from "../helpers/mentionInputStyles";
 import mentionInputStylesLight from "../helpers/mentionInputStylesLight";
 import { Mention, MentionsInput, SuggestionDataItem } from 'react-mentions';
 import { Toolbar } from "../components/Shared/Toolbar";
-import { PostPagePost } from "../components/PostPage/PostPagePost";
+import PostPagePost from "../components/PostPage/PostPagePost";
 import { CommentLoading, PostLoading } from "../components/PostPage/PostLoading";
 import { ReportModal } from "../components/PostPage/ReportModal";
 import { PostComment } from "../components/PostPage/Comment";
@@ -519,6 +518,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             loadingText="Loading">
           </IonInfiniteScrollContent>
         </IonInfiniteScroll>
+
       </IonContent>
     </IonPage >
   )

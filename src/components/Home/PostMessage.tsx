@@ -13,7 +13,7 @@ export const PostMessage = (props: any) => {
   const context = useContext();
   const history = useHistory();
 
-  if (classNumber && className && className.length > 0) {
+  if (className && className.length > 0) {
     return (
       <>
         <div style={{ height: "0.75vh", }}>{" "}</div>
@@ -27,7 +27,7 @@ export const PostMessage = (props: any) => {
             color="medium"
             style={{ fontWeight: "400" }}
           >
-            &nbsp; — {className}{classNumber}
+            &nbsp; — {className}{classNumber || ''}
           </IonNote>
         </Linkify>
       </>
