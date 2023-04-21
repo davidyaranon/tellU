@@ -239,12 +239,12 @@ const Home: React.FC = () => {
 
   const handleGetVersion = React.useCallback(async () => {
     const serverVersion: null | string = await getAppVersionNum();
-    // if (serverVersion !== versionNum) {
-    //   await Dialog.alert({
-    //     title: "App Update Available",
-    //     message: 'Consider updating to the latest version of tellU!',
-    //   });
-    // }
+    if (serverVersion !== versionNum) {
+      await Dialog.alert({
+        title: "App Update Available",
+        message: 'Consider updating to the latest version of tellU!',
+      });
+    }
   }, [])
 
   React.useEffect(() => {
