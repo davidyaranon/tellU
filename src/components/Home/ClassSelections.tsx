@@ -60,6 +60,7 @@ export const ClassSelections = memo((props: classInfo) => {
       }}>
         <IonItem className="class-name-selection" mode="ios" color={context.darkMode ? "light-item" : ""}>
           <IonSelect
+            aria-label=""
             interface="action-sheet"
             interfaceOptions={selectOptions}
             okText="Select"

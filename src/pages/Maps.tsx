@@ -227,7 +227,6 @@ function Maps() {
         }>
           <IonLabel color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>{"Filter:"}</IonLabel>
           <IonSelect
-            legacy
             interface="action-sheet"
             interfaceOptions={selectOptions}
             okText="Filter"

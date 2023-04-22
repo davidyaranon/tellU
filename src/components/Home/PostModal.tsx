@@ -61,7 +61,7 @@ export const PostModal = (props: any) => {
   };
 
   return (
-    <IonModal backdropDismiss={false} isOpen={isOpen} animated mode='ios' handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+    <IonModal backdropDismiss={false} isOpen={isOpen} mode='ios' handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
       <IonContent scrollEvents={true}>
         <div style={{ width: "100%" }}>
           <IonToolbar mode="ios">
@@ -114,6 +114,7 @@ export const PostModal = (props: any) => {
                 </IonCol>
                 <IonCol>
                   <IonTextarea
+                    aria-label=""
                     spellcheck={true}
                     ref={inputRef}
                     rows={4}
@@ -129,6 +130,7 @@ export const PostModal = (props: any) => {
               : (
                 <>
                   <IonTextarea
+                    aria-label=""
                     spellcheck={true}
                     ref={inputRef}
                     rows={4}

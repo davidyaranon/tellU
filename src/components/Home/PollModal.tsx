@@ -137,6 +137,7 @@ export const PollModal = (props: any) => {
 
           <IonInput
             autoCorrect="on"
+            aria-label=""
             type="text"
             style={{ width: "90vw", left: "5vw", fontWeight: "bold" }}
             maxlength={100}
@@ -152,7 +153,7 @@ export const PollModal = (props: any) => {
               {pollOptions?.map((option, index) => {
                 return (
                   <IonItem key={index}><p style={{ alignSelf: "center" }} slot="start">{(index + 1).toString() + ". "}</p>
-                    <IonInput maxlength={50} value={isOpen ? option.text : ""} onIonChange={(e: any) => { handleChangePollOptions(index, e) }} />
+                    <IonInput aria-label="" maxlength={50} value={isOpen ? option.text : ""} onIonChange={(e: any) => { handleChangePollOptions(index, e) }} />
                   </IonItem>
                 )
               })}

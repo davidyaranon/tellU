@@ -257,36 +257,36 @@ export const LocationPinModal = (props: any) => {
       <IonList inset lines="none">
         <IonRadioGroup value={checkboxSelection.charAt(0).toUpperCase() + checkboxSelection.slice(1)}>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="general">General</IonLabel>
-            <IonRadio slot="end" value="General" color="general" onIonFocus={() => setCheckboxSelection("general")}></IonRadio>
+            <IonLabel id='general-radio' style={{ fontSize: "1.1em" }} color="general">General</IonLabel>
+            <IonRadio aria-labelledby='general-radio' slot="end" value="General" color="general" onIonFocus={() => setCheckboxSelection("general")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="alert">Alert</IonLabel>
-            <IonRadio color="alert" slot="end" value="Alert" onIonFocus={() => setCheckboxSelection("alert")}></IonRadio>
+            <IonLabel id='alert-radio' style={{ fontSize: "1.1em" }} color="alert">Alert</IonLabel>
+            <IonRadio aria-labelledby="alert-radio" color="alert" slot="end" value="Alert" onIonFocus={() => setCheckboxSelection("alert")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="sighting">Sighting</IonLabel>
-            <IonRadio color="sighting" slot="end" value="Sighting" onIonFocus={() => setCheckboxSelection("sighting")}></IonRadio>
+            <IonLabel id='sighting-radio' style={{ fontSize: "1.1em" }} color="sighting">Sighting</IonLabel>
+            <IonRadio aria-labelledby="sighting-radio" color="sighting" slot="end" value="Sighting" onIonFocus={() => setCheckboxSelection("sighting")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="buysell">Buy / Sell</IonLabel>
-            <IonRadio color="buysell" slot="end" value="Buy/Sell" onIonFocus={() => setCheckboxSelection("buy/Sell")}></IonRadio>
+            <IonLabel id='buysell-radio' style={{ fontSize: "1.1em" }} color="buysell">Buy / Sell</IonLabel>
+            <IonRadio aria-labelledby="buysell-radio" color="buysell" slot="end" value="Buy/Sell" onIonFocus={() => setCheckboxSelection("buy/Sell")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="housing" >Housing</IonLabel>
-            <IonRadio color="housing" slot="end" value="Housing" onIonFocus={() => setCheckboxSelection("housing")}></IonRadio>
+            <IonLabel id='housing-radio' style={{ fontSize: "1.1em" }} color="housing" >Housing</IonLabel>
+            <IonRadio aria-labelledby="housing-radio" color="housing" slot="end" value="Housing" onIonFocus={() => setCheckboxSelection("housing")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="event" >Event</IonLabel>
-            <IonRadio color="event" slot="end" value="Event" onIonFocus={() => setCheckboxSelection("event")}></IonRadio>
+            <IonLabel id='event-radio' style={{ fontSize: "1.1em" }} color="event" >Event</IonLabel>
+            <IonRadio aria-labelledby="event-radio" color="event" slot="end" value="Event" onIonFocus={() => setCheckboxSelection("event")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="research">Research</IonLabel>
-            <IonRadio color="research" slot="end" value="Research" onIonFocus={() => setCheckboxSelection("research")}></IonRadio>
+            <IonLabel id='research-radio' style={{ fontSize: "1.1em" }} color="research">Research</IonLabel>
+            <IonRadio aria-labelledby="research-radio" color="research" slot="end" value="Research" onIonFocus={() => setCheckboxSelection("research")}></IonRadio>
           </IonItem>
           <IonItem>
-            <IonLabel style={{ fontSize: "1.1em" }} color="dining" >Dining</IonLabel>
-            <IonRadio color="dining" slot="end" value="Dining" onIonFocus={() => setCheckboxSelection("dining")}></IonRadio>
+            <IonLabel id='dining-radio' style={{ fontSize: "1.1em" }} color="dining" >Dining</IonLabel>
+            <IonRadio aria-labelledby="dining-radio" color="dining" slot="end" value="Dining" onIonFocus={() => setCheckboxSelection("dining")}></IonRadio>
           </IonItem>
         </IonRadioGroup>
       </IonList>
