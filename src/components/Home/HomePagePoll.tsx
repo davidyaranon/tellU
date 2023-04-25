@@ -75,6 +75,10 @@ export const HomePagePoll = (props: any) => {
     }
   }
 
+  if(!user) {
+    return null;
+  }
+
   return (
     <FadeIn key={postIndex}>
       <IonCard mode='ios'>
