@@ -333,7 +333,7 @@ export const Events = React.memo(() => {
           <IonRow style={{margin : "5px"}} class="ion-justify-content-center">
             {today && months.map((month, index) => {
               return (
-                <IonChip onClick={() => { let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }} key={index.toString()} color={selectedMonth === index ? 'primary' : 'ion-blue'} style={selectedMonth === index ? { width: "20vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "20vw", justifyContent: 'center' }}>
+                <IonChip onClick={() => { let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }} key={index.toString()} color={selectedMonth === index ? 'primary' : 'ion-chip-blue'} style={selectedMonth === index ? { width: "20vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "20vw", justifyContent: 'center' }}>
                   <IonLabel>
                     {getMonthStr(today.getMonth() + index)}
                   </IonLabel>
@@ -343,12 +343,12 @@ export const Events = React.memo(() => {
           </IonRow>
           <IonRow className='ion-justify-content-center'>
             <IonCol size="5">
-              <IonChip onClick={() => { setSpecialOneSelected(true); setSpecialTwoSelected(false); getSacEvents(); }} color={specialOneSelected ? 'primary' : 'ion-blue'} style={specialOneSelected ? { width: "35vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "35vw", justifyContent: 'center' }}>
+              <IonChip onClick={() => { setSpecialOneSelected(true); setSpecialTwoSelected(false); getSacEvents(); }} color={specialOneSelected ? 'primary' : 'ion-chip-blue'} style={specialOneSelected ? { width: "35vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "35vw", justifyContent: 'center' }}>
                 <IonLabel>SAC Events</IonLabel>
               </IonChip>
             </IonCol>
             <IonCol size="5">
-              <IonChip onClick={() => { const toast = Toast.create({ message: 'No promotions right now ;)', duration: 2000, color: 'toast-error' }); toast.present();/* setSpecialTwoSelected(true); setSpecialOneSelected(false); */ }} color={specialTwoSelected ? 'primary' : 'ion-blue'} style={specialTwoSelected ? { width: "35vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "35vw", justifyContent: 'center' }}>
+              <IonChip onClick={() => { const toast = Toast.create({ message: 'No promotions right now ;)', duration: 2000, color: 'toast-error' }); toast.present();/* setSpecialTwoSelected(true); setSpecialOneSelected(false); */ }} color={specialTwoSelected ? 'primary' : 'ion-chip-blue'} style={specialTwoSelected ? { width: "35vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "35vw", justifyContent: 'center' }}>
                 <IonLabel>Promotions</IonLabel>
               </IonChip>
             </IonCol>
