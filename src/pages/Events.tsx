@@ -15,7 +15,7 @@ import { Capacitor } from "@capacitor/core";
 import { Virtuoso } from "react-virtuoso";
 import FadeIn from "react-fade-in/lib/FadeIn";
 
-export const Events = () => {
+export const Events = React.memo(() => {
 
   const context = useContext();
   const Toast = useToast();
@@ -330,10 +330,10 @@ export const Events = () => {
           <IonHeader>
             <h1 style={{ padding: "10px" }}><span style={{ fontWeight: 'bold' }}>Campus </span><span style={{ fontWeight: "lighter", color: "#61dbfb" }}>Events</span></h1>
           </IonHeader>
-          <IonRow>
+          <IonRow style={{margin : "5px"}} class="ion-justify-content-center">
             {today && months.map((month, index) => {
               return (
-                <IonChip onClick={() => { let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }} key={index.toString()} color={selectedMonth - today.getMonth() === index ? 'primary' : 'ion-blue'} style={selectedMonth === index ? { width: "22.5vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "22.5vw", justifyContent: 'center' }}>
+                <IonChip onClick={() => { let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }} key={index.toString()} color={selectedMonth === index ? 'primary' : 'ion-blue'} style={selectedMonth === index ? { width: "20vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "20vw", justifyContent: 'center' }}>
                   <IonLabel>
                     {getMonthStr(today.getMonth() + index)}
                   </IonLabel>
@@ -390,4 +390,4 @@ export const Events = () => {
     </IonPage>
   );
 
-};
+});

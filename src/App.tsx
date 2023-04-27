@@ -62,8 +62,8 @@ import { createBrowserHistory } from "history";
 import { ToastProvider } from "@agney/ir-toast";
 import { useContext } from "./my-context";
 import { FCM } from '@capacitor-community/fcm';
-import ForestIcon from '@mui/icons-material/Forest';
-import ForestOutlinedIcon from '@mui/icons-material/ForestOutlined';
+import aiIconFilled from './images/aiFilled.svg';
+import aiIconUnfilled from './images/aiUnfilled.svg';
 
 // Global variables
 setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
@@ -196,7 +196,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           </IonTabButton>
 
           <IonTabButton tab="hank" href="/hank">
-            {selectedTab === 'hank' ? <ForestIcon fontSize='large' style={{ fill: '#61dbfb' }} /> : <ForestOutlinedIcon fontSize='large' style={{ fill: '#61dbfb' }} />}
+            {selectedTab === 'hank' ? <IonIcon style={{ transform : "scale(1.1)"}} src={aiIconFilled} /> : <IonIcon style={{ transform : "scale(1.1)"}} src={aiIconUnfilled} />}
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">

@@ -1311,3 +1311,13 @@ img.chat_avatar {
 .event-img {
   transform: translateX(17.5vw);
 }
+
+ion-tab-button[tab='hank'] {
+  /* --background: #61dbfb; */
+  width : 5px;
+}
+
+a[href="hank"] span {
+  height : 10px;
+  width : 10px;
+}

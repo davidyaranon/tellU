@@ -172,13 +172,13 @@
 	--ion-color-instagram-hex-shade: #aa2f74;
 	--ion-color-instagram-hex-tint: #c74990;
 
-  --ion-color-ion-blue: #2FD0FA;
-	--ion-color-ion-blue-rgb: 133,207,226;
-	--ion-color-ion-blue-contrast: #000000;
-	--ion-color-ion-blue-contrast-rgb: 0,0,0;
-	--ion-color-ion-blue-shade: #75b6c7;
-	--ion-color-ion-blue-tint: #91d4e5;
-
+  --ion-color-ion-blue: #0080a0;
+	--ion-color-ion-blue-rgb: 0,128,160;
+	--ion-color-ion-blue-contrast: #ffffff;
+	--ion-color-ion-blue-contrast-rgb: 255,255,255;
+	--ion-color-ion-blue-shade: #00718d;
+	--ion-color-ion-blue-tint: #1a8daa;
+  
   --ion-color-light-item: #252529;
 	--ion-color-light-item-rgb: 37,37,41;
 	--ion-color-light-item-contrast: #ffffff;

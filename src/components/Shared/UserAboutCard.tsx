@@ -1,6 +1,6 @@
 import {
   IonCard, IonCardContent, IonRow, IonAvatar,
-  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip
+  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip, IonBadge
 } from "@ionic/react";
 import { useToast } from "@agney/ir-toast";
 import { logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
@@ -58,7 +58,7 @@ export const UserAboutCard = (props: any) => {
             </FadeIn>
           ) : (
             <>
-              <FadeIn>
+              <FadeIn>      
                 <IonRow class="ion-justify-content-start">
                   <IonCol size="4">
                     <IonAvatar className="user-avatar">
