@@ -66,7 +66,7 @@ import aiIconFilled from './images/aiFilled.svg';
 import aiIconUnfilled from './images/aiUnfilled.svg';
 
 // Global variables
-setupIonicReact({ mode: 'md' }); // ios for iPhone, md for Android, affects ALL components
+setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
 const historyInstance = createBrowserHistory();
 SplashScreen.show({
   autoHide: true,
