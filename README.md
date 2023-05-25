@@ -3,3 +3,9 @@ The tellU app puts students into chat rooms with their fellow university student
 App store link: https://apps.apple.com/us/app/tellu/id6443764288?ign-itscg=30200&ign-itsct=apps_box_link
 
 Website: https://tellu-app.com
+
+![tellU_app](https://github.com/tellUapp/tellU/assets/74125645/413b0196-908c-4d7d-9d63-0ff77aff6949)
+
+![tellu_app2](https://github.com/tellUapp/tellU/assets/74125645/4dd8f368-c49b-4cc7-b73c-fff7388ec868)
+
+![telluapp_3](https://github.com/tellUapp/tellU/assets/74125645/263d53a8-8eae-4533-a364-269962745679)
