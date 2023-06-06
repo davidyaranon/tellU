@@ -297,7 +297,7 @@ export const Events = React.memo(() => {
             setHtmlArr(htmlStrings);
             setCombinedArr(htmlStrings.map((x, i) => [x, dateArr[i]]));
           } else {
-            const toast = Toast.create({ message: 'Unable to load events, try again', duration: 2000, color: 'toast-error' });
+            const toast = Toast.create({ message: 'No events available at this time', duration: 2000, color: 'toast-error' });
             toast.present();
           }
         });
