@@ -7,7 +7,7 @@ const retry = require('retry');
 const { Configuration, OpenAIApi } = require("openai");
 
 const configuration = new Configuration({
-  apiKey: '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'
+  apiKey: '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'
 });
 const openai = new OpenAIApi(configuration);
 

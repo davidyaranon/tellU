@@ -1,0 +1,28 @@
+// {/* ROUTES */ }
+// <Route path="/:tab(home)" exact component={Home} />
+// <Route path="/post/:school/:userName/:key" component={Post} />
+
+// {/* Home Component */ }
+// const Home: React.FC = () => {
+//   ...
+//   <IonItem
+//     onClick={() => {
+//       history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key);
+//     }}
+//   ></IonItem >
+//   ...
+// };
+
+// {/* Post Component */}
+// interface MatchUserPostParams {
+//   school: string;
+//   userName: string;
+//   key: string;
+// };
+
+// const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
+//   const postKey = match.params.key;
+//   const schoolName = match.params.school;
+//   const userName = match.params.userName;
+//   ...
+//   };

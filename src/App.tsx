@@ -265,7 +265,7 @@ const App: React.FC = () => {
    * @description Runs on app startup.
    * Enables post sensitivity if it had been enabled previously
    */
-  const handleSensitityToggle = React.useCallback(async () => {
+  const handleSensitivityToggle = React.useCallback(async () => {
     const isChecked = await Preferences.get({ key: "sensitivityToggled" });
     if (isChecked.value === "false") {
       context.setSensitivityToggled(false);
@@ -313,7 +313,7 @@ const App: React.FC = () => {
     setSchoolName().catch((err) => console.log(err));
     handleDarkMode().catch((err) => { console.log(err); })
     handleSchoolColorToggle().catch((err) => { console.log(err); })
-    handleSensitityToggle().catch((err) => { console.log(err); })
+    handleSensitivityToggle().catch((err) => { console.log(err); })
     if (Capacitor.getPlatform() === 'ios') {
       registerNotifications();
     }
