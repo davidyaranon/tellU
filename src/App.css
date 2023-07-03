@@ -860,7 +860,7 @@ ion-radio.ios {
   border: 1px solid rgb(119, 119, 119);
   overflow: hidden;
   zoom: 0.75;
-  margin-top: 2.5px;
+  margin-top: 1px;
 }
 
 .ion-card-community {
@@ -937,7 +937,7 @@ hr {
   white-space: pre-line;
   font-weight: bold;
   color: var(--ion-color-light);
-  padding: 2.5%;
+  padding: 1%;
 }
 
 .navbar_label {

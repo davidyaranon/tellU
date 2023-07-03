@@ -79,7 +79,7 @@ export const HomePagePoll = (props: any) => {
   return (
     <IonCard mode="ios" key={postIndex}>
       <IonCardContent style={{ minHeight: "50vh" }}>
-        <IonRow>
+        <IonRow style={{width : "100vw"}}>
           <IonAvatar
             className="posts-avatar-poll"
             onClick={(e) => {
