@@ -25,7 +25,7 @@ export const PostType = (props: any) => {
         }
       }}>
         {type !== "general" ?
-          <p style={{ fontWeight: "bold", color: getColor(type) }} >
+          <p style={{ fontWeight: "bold", color: getColor(type), fontSize : ".65em", margin: 0 }} >
             {type.toUpperCase()}
             &nbsp;
             {marker && POI && POI.length > 0 ? (
@@ -48,13 +48,13 @@ export const PostType = (props: any) => {
                 style={{ fontSize: "1em" }} />) : null}
           </p>
         }
-        <IonNote style={{ fontSize: "0.85em" }}> {getDate(timestamp)} </IonNote>
+        <IonNote style={{ fontSize: "0.55em" }}> {getDate(timestamp)} </IonNote>
       </IonFab>
     )
   } else {
     return (
       <IonFab vertical="top" horizontal="end">
-        <IonNote style={{ fontSize: "0.85em" }}> {getDate(timestamp)} </IonNote>
+        <IonNote style={{ fontSize: "0.5em" }}> {getDate(timestamp)} </IonNote>
       </IonFab>
     )
   }

@@ -12,7 +12,6 @@ import { promiseTimeout, submitPollNew } from "../../fbConfig";
 
 /* Other imports */
 import { useToast } from "@agney/ir-toast";
-import { useContext } from "../../my-context";
 
 
 interface PollAnswer {
@@ -20,7 +19,6 @@ interface PollAnswer {
 };
 
 export const PollModal = (props: any) => {
-  const context = useContext();
   const schoolName = props.schoolName;
   const setShowPollModal = props.setShowPollModal;
   const isOpen = props.isOpen;
@@ -111,10 +109,10 @@ export const PollModal = (props: any) => {
       <IonContent>
         <div>
           <div style={{ width: "100%" }}>
-            <IonToolbar mode="ios">
-              <IonButtons style={{ marginLeft: "-2.5%" }}>
+            <IonToolbar mode="md">
+              <IonButtons>
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+                  color={"primary"}
                   onClick={() => {
                     Keyboard.hide().then(() => {
                       setTimeout(() => setShowPollModal(false), 100);
@@ -128,7 +126,7 @@ export const PollModal = (props: any) => {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton color="light" onClick={submitPoll} className={context.schoolColorToggled ? "post-button-humboldt" : "post-button"}fill="clear">Post</IonButton>
+                <IonButton color="light" onClick={submitPoll} className={"post-button"} fill="clear">Post</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -142,14 +140,14 @@ export const PollModal = (props: any) => {
             style={{ width: "90vw", left: "5vw", fontWeight: "bold" }}
             maxlength={100}
             value={pollText}
-            placeholder="Ask a question*"
+            placeholder="Ask a question..."
             id="pollQuestion"
             onIonChange={(e: any) => {
               handlePollTextChange(e);
             }}
           ></IonInput>
           {pollOptions && pollOptions.length > 0 ? (
-            <IonList mode="ios" inset={true} lines="none">
+            <IonList mode="md" inset={true} lines="none">
               {pollOptions?.map((option, index) => {
                 return (
                   <IonItem key={index}><p style={{ alignSelf: "center" }} slot="start">{(index + 1).toString() + ". "}</p>
@@ -160,8 +158,8 @@ export const PollModal = (props: any) => {
             </IonList>
           ) : (null)}
           <div style={{ textAlign: "center", }}>
-            <IonButton color="medium" fill="clear" disabled={pollOptions.length >= 6} onClick={addPollAnswer} mode="ios">Add Option</IonButton>
-            <IonButton fill="clear" color="toast-error" disabled={pollOptions.length <= 2} onClick={removePollAnswer} mode="ios">Remove Option</IonButton>
+            <IonButton color="medium" fill="clear" disabled={pollOptions.length >= 6} onClick={addPollAnswer} mode="md">Add Option</IonButton>
+            <IonButton fill="clear" color="toast-error" disabled={pollOptions.length <= 2} onClick={removePollAnswer} mode="md">Remove Option</IonButton>
           </div>
           <br />
           <div style={{ textAlign: "center", }}>

@@ -1,53 +1,44 @@
 // Ionic/Capacitor + React
 import React from 'react';
+import { useHistory } from 'react-router';
 import { IonContent, IonHeader, IonPage, IonSpinner, useIonRouter, useIonViewWillEnter } from '@ionic/react';
 import { Preferences } from '@capacitor/preferences';
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
 import { StatusBar, Style } from "@capacitor/status-bar";
+import { Dialog } from '@capacitor/dialog';
+import { Capacitor } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 // Firebase/Google
-import auth, { db, getAllPostsNextBatch, getAppVersionNum, getLikes, promiseTimeout, storage } from '../fbConfig';
+import auth, { db, downVote, getAllPostsNextBatch, getAppVersionNum, getLikes, promiseTimeout, storage, upVote } from '../fbConfig';
 import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { getDownloadURL, ref } from 'firebase/storage';
 
 // Other imports/components
-import { Virtuoso } from 'react-virtuoso';
-import { useToast } from '@agney/ir-toast';
 import { useContext } from '../my-context';
+import { MakePost } from '../components/Home/MakePost';
+import { NewPostsButton } from '../components/Home/NewPostsButton';
+import { ProgressBar } from '../components/Home/ProgressBar';
+import { dynamicNavigate } from '../components/Shared/Navigation';
 import { timeout } from '../helpers/timeout';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import { HomePagePost } from '../components/Home/HomePagePost';
 import { HomePagePoll } from '../components/Home/HomePagePoll';
 import TellUHeader, { ionHeaderStyle } from "../components/Shared/Header";
 
+import { Virtuoso } from 'react-virtuoso';
+import { useToast } from '@agney/ir-toast';
+import FadeIn from 'react-fade-in/lib/FadeIn';
+
 // CSS
 import '../App.css';
-import '../theme/variables.css';
-import '../theme/custom-tab-bar.css';
-import '@ionic/react/css/core.css';
-import '@ionic/react/css/normalize.css';
-import '@ionic/react/css/structure.css';
-import '@ionic/react/css/typography.css';
-import '@ionic/react/css/padding.css';
-import '@ionic/react/css/float-elements.css';
-import '@ionic/react/css/text-alignment.css';
-import '@ionic/react/css/text-transformation.css';
-import '@ionic/react/css/flex-utils.css';
-import '@ionic/react/css/display.css';
-import { MakePost } from '../components/Home/MakePost';
-import { NewPostsButton } from '../components/Home/NewPostsButton';
-import { ProgressBar } from '../components/Home/ProgressBar';
-import { getDownloadURL, ref } from 'firebase/storage';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { dynamicNavigate } from '../components/Shared/Navigation';
-import FadeIn from 'react-fade-in/lib/FadeIn';
-import { useHistory } from 'react-router';
-import { Dialog } from '@capacitor/dialog';
-import { Capacitor } from '@capacitor/core';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+
 
 const versionNum: string = '3.2.2';
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
-}
+};
 
 const Home: React.FC = () => {
 
@@ -60,6 +51,8 @@ const Home: React.FC = () => {
   const [user, loading, error] = useAuthState(auth);
 
   // state variables
+  const [postLikes, setPostLikes] = React.useState<any[]>([]);
+  const [postDislikes, setPostDislikes] = React.useState<any[]>([]);
   const [schoolName, setSchoolName] = React.useState<string | null>(null);
   const [profilePhoto, setProfilePhoto] = React.useState<string | null>(null);
   const [lastKey, setLastKey] = React.useState<string>("");
@@ -73,6 +66,73 @@ const Home: React.FC = () => {
   const [newData, setNewData] = React.useState<any[] | null>(null);
   const newDataRef = React.useRef<any>();
   newDataRef.current = newData;
+
+  /**
+   * @description upvotes a post and updates the state
+   * 
+   * @param {string} postKey the Firestore key of the post
+   * @param {number} index the index of the post in the posts array
+   * @param {any} post the post object used for updating user's likes document
+  */
+  const handleUpVote = async (postKey: string, index: number, post: any) => {
+    const val = await upVote(postKey, post);
+    if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
+      if (user) {
+        let likesCopy: any = { ...postLikes };
+        let dislikesCopy: any = { ...postDislikes };
+        if (likesCopy[index][user.uid]) {
+          delete likesCopy[index][user.uid];
+        } else {
+          if (dislikesCopy[index][user.uid]) {
+            delete dislikesCopy[index][user.uid];
+          }
+          likesCopy[index][user.uid] = true;
+        }
+        setPostLikes(likesCopy);
+        setPostDislikes(dislikesCopy);
+        await timeout(250);
+      }
+    } else {
+      const toast = Toast.create({ message: 'Unable to like post', duration: 2000, color: 'toast-error' });
+      toast.present();
+    }
+  };
+
+  /**
+   * @description downvotes a post and updates the state
+   * 
+   * @param {string} postKey the Firestore key of the post
+   * @param {number} index the index of the post in the posts array
+   */
+  const handleDownVote = async (postKey: string, index: number) => {
+    const val = await downVote(postKey);
+    if (val && (val === 1 || val === -1)) {
+      if (val === 1) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
+      if (user) {
+        let likesCopy: any = { ...postLikes };
+        let dislikesCopy: any = { ...postDislikes };
+        if (dislikesCopy[index][user.uid]) {
+          delete dislikesCopy[index][user.uid];
+        } else {
+          if (likesCopy[index][user.uid]) {
+            delete likesCopy[index][user.uid];
+          }
+          dislikesCopy[index][user.uid] = true;
+        }
+        setPostLikes(likesCopy);
+        setPostDislikes(dislikesCopy);
+        await timeout(250);
+      }
+    } else {
+      const toast = Toast.create({ message: 'Unable to dislike post', duration: 2000, color: 'toast-error' });
+      toast.present();
+    }
+  };
 
   /**
    * @description runs when the New Posts button is clicked
@@ -110,18 +170,14 @@ const Home: React.FC = () => {
           }
           setPosts(posts?.concat(res.allPosts)!);
           setLastKey(res.lastKey);
-          // if (event)
-          //   event.target.complete();
         } else {
           const toast = Toast.create({ message: 'Unable to load posts', duration: 2000, color: 'toast-error' });
           toast.present();
         }
-        // setBusy(false);
       });
       tempPosts.catch((err: any) => {
         const toast = Toast.create({ message: err || "", duration: 2000, color: 'toast-error' });
         toast.present();
-        // setBusy(false);
         setPosts(null);
       });
     } else {
@@ -136,7 +192,7 @@ const Home: React.FC = () => {
    */
   const handleSetShowProgressBar = (val: boolean) => {
     setShowProgressBar(val)
-  }
+  };
 
   /**
    * @description handles state update of posts array from child components
@@ -153,7 +209,7 @@ const Home: React.FC = () => {
       const toast = Toast.create({ message: 'Something went wrong when updating posts', duration: 2000, color: 'toast-error' });
       toast.present();
     }
-  }
+  };
 
   /**
    * tellU logo header
@@ -161,27 +217,27 @@ const Home: React.FC = () => {
   const Header = React.memo(() => {
     return (
       <>
-        <IonHeader style={ionHeaderStyle} >
-          <TellUHeader darkMode={context.darkMode} colorPallete={context.schoolColorToggled} schoolName={schoolName} zoom={1} />
+        <IonHeader className="ion-no-border" style={ionHeaderStyle} >
+          <TellUHeader darkMode={context.darkMode} schoolName={schoolName} zoom={1} />
         </IonHeader>
       </>
     )
   });
 
   /**
-   * The infinite loading footer compontent
+   * The infinite loading footer component
    * 
    * @returns a string that says "Loading..." if there are more posts to load, otherwise an empty string
    */
   const Footer = () => {
     return (
-      <FadeIn delay={500}>
+      <FadeIn>
         <div style={{ padding: '2rem', display: 'flex', justifyContent: 'center' }} >
           {!noMorePosts ? "Loading..." : ""}
         </div>
       </FadeIn>
     )
-  }
+  };
 
   /**
    * Loads school from local storage (Preferences API).
@@ -193,17 +249,47 @@ const Home: React.FC = () => {
     const school = await Preferences.get({ key: 'school' });
     if (school && school.value) {
       setSchoolName(school.value);
-    } else {
-      setSchoolName('Cal Poly Humboldt');
-      await Preferences.set( {key : "school", value: "Cal Poly Humboldt" } );
     }
   }, []);
+
+  const handleSetLikes = React.useCallback(() => {
+    if (posts) {
+      let likes: any[] = [];
+      for (let i = 0; i < posts.length; i++) {
+        if ("likes" in posts[i]) {
+          likes.push(posts[i].likes);
+        }
+      }
+      setPostLikes(likes);
+      console.log(likes);
+    }
+  }, [posts]);
+
+
+  const handleSetDislikes = React.useCallback(() => {
+    if (posts) {
+      let dislikes: any[] = [];
+      for (let i = 0; i < posts.length; i++) {
+        if ("dislikes" in posts[i]) {
+          dislikes.push(posts[i].dislikes);
+        }
+      }
+      setPostDislikes(dislikes);
+    }
+  }, [posts]);
+
+  React.useEffect(() => {
+    if (posts) {
+      handleSetLikes();
+      handleSetDislikes();
+    }
+  }, [posts]);
 
   React.useEffect(() => {
     context.setDarkMode(true);
     document.body.classList.toggle("dark");
     context.setDarkMode(true);
-    if (Capacitor.getPlatform() === 'ios') {
+    if (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'ios') {
       Keyboard.setStyle(keyStyleOptionsDark);
       StatusBar.setStyle({ style: Style.Dark });
     }
@@ -214,28 +300,25 @@ const Home: React.FC = () => {
     SplashScreen.hide();
   }, []);
 
-  /**
-   * Hides splash screen on mount
-   */
-  React.useEffect(() => {
-    hideSplashScreen();
-  }, []);
+  useIonViewWillEnter(() => {
+    if (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'ios') {
+      StatusBar.setStyle({ style: Style.Dark })
+    }
+  });
 
-  /**
-   * Calls setSchool on mount
-   */
-  React.useEffect(() => {
-    setSchool();
-  }, [setSchool]);
-
-  /**
-   * Sets the showTabs variable in the context to true
-   */
   useIonViewWillEnter(() => {
     if (context.showTabs === false) {
       context.setShowTabs(true);
     }
   });
+
+  React.useEffect(() => {
+    hideSplashScreen();
+  }, []);
+
+  React.useEffect(() => {
+    setSchool();
+  }, [setSchool]);
 
   const handleGetVersion = React.useCallback(async () => {
     const serverVersion: null | string = await getAppVersionNum();
@@ -251,19 +334,21 @@ const Home: React.FC = () => {
     handleGetVersion();
   }, []);
 
-  useIonViewWillEnter(() => {
-    if (Capacitor.getPlatform() === 'ios')
-      StatusBar.setStyle({ style: Style.Dark })
-  });
+  React.useEffect(() => {
+    if (posts && posts.length < 15) {
+      setNoMorePosts(true);
+    } else {
+      setNoMorePosts(false);
+    }
+  }, [posts]);
 
-  /**
-   * Firestore listener for new posts, loads 15 posts at a time
-   */
+
   React.useEffect(() => {
     if (!loading && !user) {
       dynamicNavigate(router, '/landing-page', 'root');
       history.replace('/landing-page');
     } else {
+      console.log("USER LOADED " + user?.displayName);
       if (user && "uid" in user && user.uid && user.uid.length > 0) {
         getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL")).then((res) => {
           console.log(res);
@@ -278,6 +363,7 @@ const Home: React.FC = () => {
     if (schoolName) {
       school = schoolName.toString().replace(/\s+/g, "");
     }
+    console.log(school);
     const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"), limit(15));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const data: any = [];
@@ -300,12 +386,16 @@ const Home: React.FC = () => {
             justAdded[0].dislikes = { 'null': true };
             justAdded[0].commentAmount = 0;
             const finalData: any[] = justAdded.concat(datasCopy);
+            console.log(finalData);
             await timeout(500);
-            try {
+            // try {
+            if (postsRef.current)
               setPosts([...finalData, ...postsRef.current]);
-            } catch (err) {
-              window.location.reload();
-            }
+            else
+              setPosts([...finalData]);
+            // } catch (err) {
+            //   window.location.reload();
+            // }
             virtuosoRef && virtuosoRef.current && virtuosoRef.current.scrollTo({ top: 0, behavior: "auto" })
             setNewPostsLoaded(false);
             setNewData([]);
@@ -342,6 +432,7 @@ const Home: React.FC = () => {
           }
           setNewPostsLoaded(true);
         } else { // on initial load
+          console.log("INIT LOAD")
           for (let i = 0; i < data.length; ++i) {
             const likesData = await getLikes(data[i].key);
             if (likesData) {
@@ -356,16 +447,13 @@ const Home: React.FC = () => {
           }
           setPosts(data);
           setLastKey(data[data.length - 1].timestamp);
-          // tabs.setShowTabs(true);
         }
       }
     });
     return () => { unsubscribe(); };
   }, [user, loading, schoolName]);
 
-  /**
-   * Main page
-   */
+
   if (posts && posts.length > 0 && schoolName) {
     return (
       <IonPage className="ion-page-ios-notch">
@@ -384,13 +472,15 @@ const Home: React.FC = () => {
             itemContent={(item) => {
               let index = item;
               let post = posts[index];
+              let likes = postLikes[index] || {};
+              let dislikes = postDislikes[index] || {};
               if ("question" in post) {
                 return (
                   <HomePagePoll updatePosts={updatePosts} postIndex={index} post={post} user={user} schoolName={schoolName} />
                 )
               }
               return (
-                <HomePagePost schoolName={schoolName} user={user} index={index} post={post} />
+                <HomePagePost handleDownVote={handleDownVote} handleUpVote={handleUpVote} likes={likes} dislikes={dislikes} schoolName={schoolName} user={user} index={index} post={post} />
               );
             }}
             style={{ height: "100%" }}
@@ -404,13 +494,11 @@ const Home: React.FC = () => {
     );
   }
 
-  /**
-   * Loading spinner
-   */
+  // Loading posts...
   return (
     <IonPage>
       <div className="ion-spinner">
-        <IonSpinner color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} />
+        <IonSpinner color={"primary"} />
       </div>
     </IonPage>
   );

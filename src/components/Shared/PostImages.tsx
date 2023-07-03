@@ -20,7 +20,7 @@ const PostImages = (props: any) => {
       <>
         <div style={{ height: "0.75vh" }}>{" "}</div>
         <div
-          className="ion-img-container"
+          className="ion-img-container-margin"
           style={sensitiveToggled && reports > 1 ? { borderRadius: '10px', filter: "blur(0.25em)" } : { backgroundImage: `url(${imgSrc[0]})`, borderRadius: '10px' }}
           onClick={(e) => {
             e.stopPropagation();
@@ -192,7 +192,7 @@ const PostImages = (props: any) => {
         <>
           <div style={{ height: "0.75vh", }}>{" "}</div>
           <div
-            className="ion-img-container"
+            className="ion-img-container-margin"
             style={sensitiveToggled && reports > 1 ? { backgroundImage: `url(${imgSrc[2]})`, borderRadius: '20px', filter: "blur(0.25em)" } : { backgroundImage: `url(${imgSrc[2]})`, borderRadius: '20px' }}
             onClick={(e) => {
               e.stopPropagation();

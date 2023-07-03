@@ -781,7 +781,7 @@ ion-radio.ios {
   text-align: left;
   background: #e5e5ea;
   color: black;
-  
+
 }
 
 .received-humboldt p {
@@ -853,6 +853,14 @@ ion-radio.ios {
   border: 1px solid rgb(119, 119, 119);
   overflow: hidden;
   zoom: 0.75;
+  margin-top: 10px;
+}
+
+.posts-avatar-poll {
+  border: 1px solid rgb(119, 119, 119);
+  overflow: hidden;
+  zoom: 0.75;
+  margin-top: 2.5px;
 }
 
 .ion-card-community {
@@ -928,6 +936,8 @@ hr {
 .h2-message {
   white-space: pre-line;
   font-weight: bold;
+  color: var(--ion-color-light);
+  padding: 2.5%;
 }
 
 .navbar_label {
@@ -1017,6 +1027,17 @@ ion-img::part(image) {
   -webkit-transform: translate3d(0, 0, 1px);
   -webkit-backface-visibility: hidden;
   image-rendering: pixelated;
+}
+
+.ion-img-container-margin {
+  background-size: cover;
+  background-position: center;
+  height: 20.5vh;
+  -webkit-transform: translate3d(0, 0, 1px);
+  -webkit-backface-visibility: hidden;
+  image-rendering: pixelated;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .ion-img-container.visible {
@@ -1314,10 +1335,10 @@ img.chat_avatar {
 
 ion-tab-button[tab='hank'] {
   /* --background: #61dbfb; */
-  width : 5px;
+  width: 5px;
 }
 
 a[href="hank"] span {
-  height : 10px;
-  width : 10px;
+  height: 10px;
+  width: 10px;
 }

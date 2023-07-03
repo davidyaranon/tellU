@@ -93,7 +93,7 @@ export const PostModal = (props: any) => {
                   setLocationPinModal(true);
                 }}
                 className={context.schoolColorToggled ? "post-button-humboldt" : "post-button"}
-                fill="clear" 
+                fill="clear"
                 expand="block"
                 id="message"
                 disabled={prevPostUploading}
@@ -107,8 +107,8 @@ export const PostModal = (props: any) => {
           <IonRow class="ion-padding-top">
             {profilePhoto ? (
               <>
-                <IonCol size="2">
-                  <IonAvatar>
+                <IonCol size="2.75" style={{ paddingLeft: "20px", paddingTop: "10px" }}>
+                  <IonAvatar style={{ padding: "1px" }}>
                     <img src={profilePhoto} />
                   </IonAvatar>
                 </IonCol>
