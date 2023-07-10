@@ -30,7 +30,7 @@ export const UserAboutCard = (props: any) => {
       <IonCard mode="ios">
         <IonCardContent>
           {busy ? (
-            <FadeIn>
+            <>
               <IonRow>
                 <IonAvatar className="user-avatar">
                   <IonLabel>
@@ -55,7 +55,7 @@ export const UserAboutCard = (props: any) => {
                 <IonSkeletonText style={{ width: "75vw", marginLeft: "5vw" }} animated />
                 <IonSkeletonText style={{ width: "75vw", marginLeft: "5vw" }} animated />
               </IonFab>
-            </FadeIn>
+            </>
           ) : (
             <>
               <FadeIn>      

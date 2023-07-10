@@ -1135,7 +1135,7 @@ export const getUserData = async (uid) => {
       const usersRef = doc(db, "userData", uid.toString());
       const res = await getDoc(usersRef);
       if (res.exists()) {
-        return { ...res.data(), key: doc.id }
+        return { ...res.data(), key: doc.name }
       }
     }
   } catch (err) {

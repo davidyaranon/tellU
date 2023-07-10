@@ -25,6 +25,9 @@
 firebase.json
 capacitor.config.ts
 index.js
+functions/*
+functions/index.js
+*/functions
 
 npm-debug.log*
 yarn-debug.log*

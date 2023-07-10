@@ -71,7 +71,7 @@ export const HomePagePost = (props: any) => {
           <PostImages userName={post.userName} imgSrc={post.imgSrc || []} reports={post.reports || 0} />
         </IonLabel>
       </IonItem>
-      <IonItem lines="none" mode="ios">
+      <IonItem lines="none" mode="ios" style={{ marginLeft: "1%" }}>
         <IonButton
           onAnimationEnd={() => { setLikeAnimation(-1); }}
           className={likeAnimation === post.key ? "likeAnimation" : ""}

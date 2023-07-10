@@ -7,7 +7,7 @@ const retry = require('retry');
 const { Configuration, OpenAIApi } = require("openai");
 
 const configuration = new Configuration({
-  apiKey: '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'
+  apiKey: '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'
 });
 const openai = new OpenAIApi(configuration);
 
@@ -48,6 +48,32 @@ const rssOperation = retry.operation({
   randomize: true,
 });
 
+function fetchRssUpdatesUcDavis() {
+  fetch('https://www.trumba.com/calendars/uc-davis-events.rss')
+    .then(response => {
+      functions.logger.log(response);
+      return response.text();
+    })
+    .then(data => {
+      functions.logger.log('text data');
+      functions.logger.log(data);
+      try {
+        const bucket = app.storage().bucket();
+        const file = bucket.file('uc-davis-events.rss');
+        file.save(data).then(() => {
+          functions.logger.log('Uploaded file');
+        });
+      } catch (err) {
+        functions.logger.log('uploading file failed');
+        functions.logger.log(err);
+      }
+    })
+    .catch(error => {
+      functions.logger.log('data fetch failed');
+      functions.logger.log(error);
+    });
+}
+
 function fetchRssUpdatesHumboldt() {
   functions.logger.log('running rss update');
   fetch('https://25livepub.collegenet.com/calendars/HSU-featured-events.rss')
@@ -75,9 +101,42 @@ function fetchRssUpdatesHumboldt() {
     });
 }
 
+function fetchRssUpdatesUcBerkeley() {
+  functions.logger.log('running rss update');
+  fetch('https://events.berkeley.edu/live/rss/events/exclude_group/Recreational%20Sports/header/All%20Events')
+    .then(response => {
+      functions.logger.log(response);
+      return response.text();
+    })
+    .then(data => {
+      functions.logger.log('text data');
+      functions.logger.log(data);
+      try {
+        const bucket = app.storage().bucket();
+        const file = bucket.file('uc-berkeley-events.rss');
+        file.save(data).then(() => {
+          functions.logger.log('Uploaded file');
+        });
+      } catch (err) {
+        functions.logger.log('uploading file failed');
+        functions.logger.log(err);
+      }
+    })
+    .catch(error => {
+      functions.logger.log('data fetch failed');
+      functions.logger.log(error);
+    });
+}
+
 exports.getRssUpdates = functions.pubsub.schedule('every 6 hours').onRun(async (context) => {
   rssOperation.attempt(function (currentAttempt) {
     fetchRssUpdatesHumboldt();
+  });
+  rssOperation.attempt(function (currentAttempt) {
+    fetchRssUpdatesUcDavis();
+  });
+  rssOperation.attempt(function (currentAttempt) {
+    fetchRssUpdatesUcBerkeley();
   });
 });
 
@@ -251,6 +310,49 @@ exports.getHumboldtUpdates = functions.https.onCall(async (data, context) => {
   if (!contents || contents.toString().length <= 0) {
     functions.logger.log('error getting file, pulling manual file');
     const manualFile = bucket.file('HSU-featured-events-manual.rss');
+    const manualContents = await manualFile.download();
+    return manualContents.toString();
+  }
+  return contents.toString();
+});
+
+exports.getUcDavisUpdates = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Something went wrong, try logging in again'
+    );
+  }
+  functions.logger.log('authenticated!\n\n\n');
+  const bucket = app.storage().bucket();
+  const file = bucket.file('uc-davis-events.rss');
+  const contents = await file.download();
+  functions.logger.log('CONTENTS: \n');
+  functions.logger.log(contents);
+  if (!contents || contents.toString().length <= 0) {
+    functions.logger.log('error getting file, pulling manual file');
+    const manualFile = bucket.file('uc-davis-events-manual.rss');
+    const manualContents = await manualFile.download();
+    return manualContents.toString();
+  }
+  return contents.toString();
+});
+
+exports.getUcBerkeleyUpdates = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Something went wrong, try logging in again'
+    );
+  }
+
+  const bucket = app.storage().bucket();
+  const file = bucket.file('uc-berkeley-events.rss');
+  const contents = await file.download();
+  functions.logger.log(contents);
+  if (!contents || contents.toString().length <= 0) {
+    functions.logger.log('error getting file, pulling manual file');
+    const manualFile = bucket.file('uc-berkeley-events-manual.rss');
     const manualContents = await manualFile.download();
     return manualContents.toString();
   }

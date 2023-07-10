@@ -301,7 +301,7 @@ export const humboldtPOIs = {
   "Campus Events Field": [40.87440986131338, -124.07852599690956, 40.87439769246541, -124.07701323102516, 40.87382169776997, -124.07704541753334, 40.87382169776997, -124.07850990365547],
   "BSS": [40.872403722347585, -124.07771440677251, 40.87314604033667, -124.0777465932807, 40.87317849120643, -124.07644840411749, 40.8723834403185, -124.07651814155187],
   "Forestry": [40.873369735739, -124.07759248444609, 40.87341029918665, -124.07654642293028, 40.87375103116581, -124.07661616036467, 40.87372669322545, -124.07760321328215],
-}
+};
 
 export const schoolInfo = {
   "Cal Poly Humboldt": [40.87649434150835, -124.07918370203882, 15.5],
@@ -353,7 +353,7 @@ export const zoomControlButtonsStyleDark = {
   display: 'block',
   outline: 'none',
   textIndent: '0px',
-} // +/- buttons that appear on map can be styled here
+}; // +/- buttons that appear on map can be styled here
 
 export const zoomControlButtonsStyle = {
   width: "50px",
