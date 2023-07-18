@@ -8,7 +8,7 @@ import {
 import {
   createUserWithEmailAndPassword, getAuth, indexedDBLocalPersistence,
   initializeAuth, sendPasswordResetEmail, signInWithEmailAndPassword,
-  signOut, updateProfile, deleteUser,
+  signOut, updateProfile, deleteUser, EmailAuthProvider, reauthenticateWithCredential,
 } from "firebase/auth";
 import {
   get, getDatabase,
@@ -154,19 +154,42 @@ export async function logout() {
 /**
  * @description Deletes user from Firebase Auth and all data from Firestore (/userInfo/{userUid})
  * TO-DO: Delete all user data from all Firestore paths
+ * 
+ * @param {string} pass the user's password
  */
-export const deleteUserDataAndAccount = async () => {
+export const deleteUserDataAndAccount = async (pass) => {
   try {
     const user = auth.currentUser;
-    const batch = writeBatch(db);
-    const userDoc = doc(db, "userInfo", user.uid);
-    batch.delete(userDoc);
 
-    await deleteUser(user).catch((err) => { console.log(err); });
-    await batch.commit().catch((err) => { console.log(err); });
+    if (!user) {
+      console.error("User not logged in...");
+      return "User not logged in...";
+    }
+
+    if (!pass) {
+      console.error("Email or password missing");
+      return "Email or password missing";
+    }
+
+    const credential = EmailAuthProvider.credential(user.email, pass);
+    try {
+      await reauthenticateWithCredential(user, credential);
+
+      const batch = writeBatch(db);
+      const userDoc = doc(db, "userInfo", user.uid);
+      batch.delete(userDoc);
+
+      await deleteUser(user).catch((err) => { console.log(err); });
+      await batch.commit().catch((err) => { console.log(err); });
+
+    } catch (err) {
+      console.error(err);
+      return "Password is incorrect";
+    }
 
   } catch (err) {
     console.log(err);
+    return "Something went wrong";
   }
 }
 

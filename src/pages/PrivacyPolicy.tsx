@@ -1,23 +1,65 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  IonButton, IonButtons, IonCard, IonCardContent,
-  IonCardTitle, IonContent, IonIcon, IonLoading, IonPage, IonToolbar,
-  RouterDirection, useIonLoading, useIonRouter
+  IonButton,
+  IonCard, IonCardContent,
+  IonCardTitle, IonContent, IonHeader, IonInput, IonItem, IonList, IonModal, IonPage, IonTitle, useIonLoading, useIonRouter,
 } from "@ionic/react";
-import { chevronBackOutline } from "ionicons/icons";
 import { Dialog } from "@capacitor/dialog";
 import { deleteUserDataAndAccount } from "../fbConfig";
 import { useToast } from "@agney/ir-toast";
 import { useHistory } from "react-router";
 import { useContext } from "../my-context";
 import { Toolbar } from "../components/Shared/Toolbar";
+import { navigateBack } from "../components/Shared/Navigation";
 
-export const PrivacyPolicy = () => {
+const PrivacyPolicy = () => {
 
   const history = useHistory();
   const context = useContext();
   const Toast = useToast();
+  const router = useIonRouter();
   const [present, dismiss] = useIonLoading();
+
+  const [pass, setPass] = React.useState<string>("");
+  const [showPasswordModal, setShowPasswordModal] = React.useState<boolean>(false);
+
+  /**
+   * @description handles re-authentication of user so that their account can be deleted.
+   * 
+   * @param {string} pass the user's password
+   */
+  const handleReAuthForDeletion = () => {
+    if (!pass) {
+      const toast = Toast.create({ message: "Password unable to be read", duration: 2000, color: 'toast-success' });
+      toast.present();
+      toast.dismiss();
+      return;
+    }
+    present({
+      duration: 0,
+      message: "Please wait..."
+    });
+    deleteUserDataAndAccount(pass).then((res: string | void) => {
+      if (typeof res === "string") {
+        const toast = Toast.create({ message: res, duration: 2000, color: 'toast-error' });
+        toast.present();
+        toast.dismiss();
+        dismiss();
+      } else {
+        dismiss();
+        history.replace('/landing-page');
+        context.setShowTabs(false);
+        const toast = Toast.create({ message: 'Account deleted', duration: 2000, color: 'toast-success' });
+        toast.present();
+        toast.dismiss();
+      }
+    }).catch((err) => {
+      const toast = Toast.create({ message: err.toString(), duration: 2000, color: 'toast-error' });
+      toast.present();
+      console.log(err);
+      dismiss();
+    })
+  }
 
 
   /**
@@ -37,28 +79,29 @@ export const PrivacyPolicy = () => {
       okButtonTitle: 'Delete my account'
     });
     if (!areYouSure.value) { return; }
-    present({
-      duration: 0,
-      message: "Please wait..."
-    });
-    deleteUserDataAndAccount().then(() => {
-      dismiss();
-      history.replace('/landing-page');
-      context.setShowTabs(false);
-      const toast = Toast.create({ message: 'Account deleted', duration: 2000, color: 'toast-success' });
-      toast.present();
-      toast.dismiss();
-    }).catch((err) => {
-      const toast = Toast.create({ message: 'Something went wrong...', duration: 2000, color: 'toast-error' });
-      toast.present();
-      console.log(err);
-    })
+    setShowPasswordModal(true);
+
   };
+
+  React.useEffect(() => {
+    const eventListener: any = (ev: CustomEvent<any>) => {
+      ev.detail.register(10, () => {
+        console.log("BACK BUTTON UserProfile\n");
+        navigateBack(router);
+      });
+    };
+
+    document.addEventListener('ionBackButton', eventListener);
+
+    return () => {
+      document.removeEventListener('ionBackButton', eventListener);
+    };
+  }, [router]);
 
 
   return (
     <IonPage>
-      <Toolbar deleteButton={true} deleteAccount={handleDeleteUser} />
+      <Toolbar deleteButton={true} text={'\n'} deleteAccount={handleDeleteUser} />
       <IonContent>
         <IonCard>
           <IonCardContent>
@@ -290,7 +333,63 @@ export const PrivacyPolicy = () => {
             <p> Submit your feedback <a href="https://docs.google.com/forms/d/e/1FAIpQLSfyEjG1AaZzfvh3HsEqfbQN6DtgCp_zKfWsNzTh94R-3paDwg/viewform?usp=sf_link">HERE</a></p>
           </IonCardContent>
         </IonCard>
+
+        <IonModal backdropDismiss={false} isOpen={showPasswordModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+          <IonContent>
+            <div className="ion-modal">
+              <IonHeader mode="ios">
+                <IonTitle color="light" class="ion-title">
+                  {" "}
+                  <div>Account deletion</div>{" "}
+                </IonTitle>
+              </IonHeader>
+              <div>
+                <br></br>
+              </div>
+              <IonList inset={true} mode="ios" className="sign-in-sign-up-list">
+                <IonItem key="singleton_item" mode="ios" className="ion-item-style">
+                  <IonInput
+                    color="transparent"
+                    mode="ios"
+                    clearOnEdit={false}
+                    value={pass}
+                    type="password"
+                    placeholder="Enter your password again..."
+                    id="passwordSignIn"
+                    onIonInput={(e: any) => setPass(e.detail.value)}
+                  ></IonInput>
+                </IonItem>
+                <br />
+                <IonButton
+                  color="toast-error"
+                  mode="ios"
+                  onClick={() => {
+                    setPass("");
+                  }}
+                  fill="clear"
+                  id="cancelButton"
+                >
+                  Cancel
+                </IonButton>
+                <IonButton
+                  color={"primary"}
+                  mode="ios"
+                  onClick={handleReAuthForDeletion}
+                  fill="clear"
+                  id="signInButton"
+                >
+                  Delete my Account
+                </IonButton>
+                <br />
+                <br />
+              </IonList>
+            </div>
+          </IonContent>
+        </IonModal>
+
       </IonContent>
     </IonPage>
   )
-}
+};
+
+export default PrivacyPolicy;
