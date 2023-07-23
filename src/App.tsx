@@ -99,7 +99,12 @@ const RoutingSystem: React.FunctionComponent = () => {
    * @param {string} url the url to be opened if a user clicks the notification
    * @param {string} position where the toast will be displayed on the screen (top, middle, bottom)
    */
-  const presentToast = (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
+  const presentToast = async (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
+    let newUrl: string = url;
+    const schoolName = await Preferences.get({ key: "school" });
+    if(schoolName && schoolName.value) {
+      newUrl = url.replace(/(\/post\/|\/chatroom\/)/, `$1${schoolName.value}/`);
+    }
     message = message.replace(' sent a DM', "");
     present({
       message: message,
@@ -109,7 +114,7 @@ const RoutingSystem: React.FunctionComponent = () => {
         {
           text: 'Open',
           role: 'info',
-          handler: () => { history.push(url); }
+          handler: () => { history.push(newUrl); }
         },
         {
           text: 'Dismiss',

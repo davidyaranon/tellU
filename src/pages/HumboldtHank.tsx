@@ -56,6 +56,8 @@ export const HumboldtHank = () => {
    * @description opens the 'contact photo' image using Capacitor
    */
   const openImage = () => {
+    console.log(aiImage[schoolName])
+    console.log(aiName[schoolName])
     const img: CapacitorImage = {
       url: aiImage[schoolName],
       title: aiName[schoolName]

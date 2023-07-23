@@ -233,97 +233,12 @@ const Register: React.FC = () => {
                 setSchoolEmailEnding('berkeley.edu');
               } else if (e.detail.value == 'UC Davis') {
                 setSchoolEmailEnding('ucdavis.edu');
-              } else if (e.detail.value == 'UC Irvine') {
-                setSchoolEmailEnding('uci.edu');
-              } else if (e.detail.value == 'UCLA') {
-                setSchoolEmailEnding('ucla.edu');
-              } else if (e.detail.value == 'UC Merced') {
-                setSchoolEmailEnding('ucmerced.edu');
-              } else if (e.detail.value == 'UC Riverside') {
-                setSchoolEmailEnding('ucr.edu');
-              } else if (e.detail.value == 'UC San Diego') {
-                setSchoolEmailEnding('ucsd.edu');
-              } else if (e.detail.value == 'UCSF') {
-                setSchoolEmailEnding('ucsf.edu');
-              } else if (e.detail.value == 'UC Santa Barbara') {
-                setSchoolEmailEnding('ucsb.edu');
-              } else if (e.detail.value == 'UC Santa Cruz') {
-                setSchoolEmailEnding('ucsc.edu');
-              } else if (e.detail.value == 'Cal Poly Pomona') {
-                setSchoolEmailEnding('cpp.edu');
-              } else if (e.detail.value == 'Cal Poly San Luis Obispo') {
-                setSchoolEmailEnding('calpoly.edu');
-              } else if (e.detail.value == "Cal State Fullerton") {
-                setSchoolEmailEnding('fullerton.edu');
-              } else if (e.detail.value == "Cal State East Bay") {
-                setSchoolEmailEnding('csueastbay.edu');
-              } else if (e.detail.value == "Cal State LA") {
-                setSchoolEmailEnding('calstatela.edu');
-              } else if (e.detail.value == "Cal Maritime") {
-                setSchoolEmailEnding('csum.edu');
-              } else if (e.detail.value == "Cal State San Bernardino") {
-                setSchoolEmailEnding('csusb.edu');
-              } else if (e.detail.value == "Cal State Long Beach") {
-                setSchoolEmailEnding('csulb.edu');
-              } else if (e.detail.value == "SF State") {
-                setSchoolEmailEnding('sfsu.edu');
-              } else if (e.detail.value == "San Jose State") {
-                setSchoolEmailEnding('sjsu.edu');
-              } else if (e.detail.value == "Chico State") {
-                setSchoolEmailEnding('csuchico.edu');
-              } else if (e.detail.value == "Fresno State") {
-                setSchoolEmailEnding('csufresno.edu');
-              } else if (e.detail.value == "Stanislaus State") {
-                setSchoolEmailEnding('csustan.edu');
-              } else if (e.detail.value == "Sac State") {
-                setSchoolEmailEnding('csus.edu');
-              } else if (e.detail.value == "CSUN") {
-                setSchoolEmailEnding('csun.edu');
-              } else if (e.detail.value == "CSU Bakersfield") {
-                setSchoolEmailEnding('csub.edu');
-              } else if (e.detail.value == "CSU Dominguez Hills") {
-                setSchoolEmailEnding('csudh.edu');
-              } else if (e.detail.value == "CSU Dominguez Hills") {
-                setSchoolEmailEnding('csudh.edu');
-              } else if (e.detail.value == "CSU Channel Islands") {
-                setSchoolEmailEnding('csuci.edu');
-              } else if (e.detail.value == "CSU Monterey Bay") {
-                setSchoolEmailEnding('csumb.edu');
               }
             }}
           >
             <IonSelectOption value="Cal Poly Humboldt">Cal Poly Humboldt</IonSelectOption>
-            <IonSelectOption disabled value="Cal Poly Pomona">Cal Poly Pomona</IonSelectOption>
-            <IonSelectOption disabled value="Cal Poly San Luis Obispo">Cal Poly San Luis Obispo</IonSelectOption>
-            <IonSelectOption disabled value="Cal State Fullerton">Cal State Fullerton</IonSelectOption>
-            <IonSelectOption disabled value="Cal State East Bay">Cal State East Bay</IonSelectOption>
-            <IonSelectOption disabled value="Cal State LA">Cal State LA</IonSelectOption>
-            <IonSelectOption disabled value="Cal Maritime">Cal Maritime</IonSelectOption>
-            <IonSelectOption disabled value="Cal State San Bernardino">Cal State San Bernardino</IonSelectOption>
-            <IonSelectOption disabled value="Cal State Long Beach">Cal State Long Beach</IonSelectOption>
-            <IonSelectOption disabled value="SF State">SF State</IonSelectOption>
-            <IonSelectOption disabled value="San Jose State">San Jose State</IonSelectOption>
-            <IonSelectOption disabled value="Chico State">Chico State</IonSelectOption>
-            <IonSelectOption disabled value="Fresno State">Fresno State</IonSelectOption>
-            <IonSelectOption disabled value="San Diego State">San Diego State</IonSelectOption>
-            <IonSelectOption disabled value="Sonoma State">Sonoma State</IonSelectOption>
-            <IonSelectOption disabled value="Stanislaus State">Stanislaus State</IonSelectOption>
-            <IonSelectOption disabled value="Sac State">Sac State</IonSelectOption>
-            <IonSelectOption disabled value="CSUN">CSUN</IonSelectOption>
-            <IonSelectOption disabled value="CSU Bakersfield">CSU Bakersfield</IonSelectOption>
-            <IonSelectOption disabled value="CSU Dominguez Hills">CSU Dominguez Hills</IonSelectOption>
-            <IonSelectOption disabled value="CSU Channel Islands">CSU Channel Islands</IonSelectOption>
-            <IonSelectOption disabled value="CSU Monterey Bay">CSU Monterey Bay</IonSelectOption>
-            <IonSelectOption disabled value="UC Berkeley">UC Berkeley</IonSelectOption>
-            <IonSelectOption disabled value="UC Davis">UC Davis</IonSelectOption>
-            <IonSelectOption disabled value="UC Irvine">UC Irvine</IonSelectOption>
-            <IonSelectOption disabled value="UCLA">UCLA</IonSelectOption>
-            <IonSelectOption disabled value="UC Merced">UC Merced</IonSelectOption>
-            <IonSelectOption disabled value="UC Riverside">UC Riverside</IonSelectOption>
-            <IonSelectOption disabled value="UC San Diego">UC San Diego</IonSelectOption>
-            <IonSelectOption disabled value="UCSF">UCSF</IonSelectOption>
-            <IonSelectOption disabled value="UC Santa Barbara">UC Santa Barbara</IonSelectOption>
-            <IonSelectOption disabled value="UC Santa Cruz">UC Santa Cruz</IonSelectOption>
+            <IonSelectOption value="UC Davis">UC Davis</IonSelectOption>
+            <IonSelectOption value="UC Berkeley">UC Berkeley</IonSelectOption>
             <IonSelectOption disabled value="More schools to come!...">More schools to come!...</IonSelectOption>
           </IonSelect>
         </IonItem>

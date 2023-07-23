@@ -1316,15 +1316,21 @@ img.chat_avatar {
 }
 
 .toast-options {
-  transform: translateY(-50px) !important;
+  transform: translateY(-60px) !important;
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
 }
 
 .ios .toast-options {
-  transform: translateY(-50px) !important;
+  transform: translateY(-60px) !important;
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
 }
 
 .md .toast-options {
-  transform: translateY(-50px) !important;
+  transform: translateY(-60px) !important;
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
 }
 
 .event-title-heading {
