@@ -171,7 +171,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       }
       const hasTimedOut = promiseTimeout(
         10000,
-        addCommentNew(postKey, schoolName, tempComment, blob, uniqueId.toString(), notificationsToken, post.uid, localStorage.getItem("notificationsToken") || "", attedUsersList)
+        addCommentNew(postKey, schoolName, tempComment, blob, uniqueId.toString(), notificationsToken, post.uid, localStorage.getItem("notificationsToken") || "", attedUsersList, userName)
       );
       hasTimedOut.then(async (commentSent: any) => {
         if (commentSent) {

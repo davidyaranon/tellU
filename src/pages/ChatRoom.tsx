@@ -160,7 +160,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       });
       if (contactInfo && "notificationsToken" in contactInfo && schoolName) {
         console.log('sending dm to: ', contactInfo.notificationsToken);
-        await sendDm(collectionPath, contactInfo.notificationsToken, tempComment, contactInfo.uid);
+        await sendDm(collectionPath, contactInfo.notificationsToken, tempComment, contactInfo.uid, schoolName);
       }
     }
   };

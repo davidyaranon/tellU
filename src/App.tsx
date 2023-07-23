@@ -100,11 +100,7 @@ const RoutingSystem: React.FunctionComponent = () => {
    * @param {string} position where the toast will be displayed on the screen (top, middle, bottom)
    */
   const presentToast = async (message: string, url: string, position: 'top' | 'middle' | 'bottom') => {
-    let newUrl: string = url;
-    const schoolName = await Preferences.get({ key: "school" });
-    if(schoolName && schoolName.value) {
-      newUrl = url.replace(/(\/post\/|\/chatroom\/)/, `$1${schoolName.value}/`);
-    }
+    console.log(url);
     message = message.replace(' sent a DM', "");
     present({
       message: message,
@@ -114,7 +110,7 @@ const RoutingSystem: React.FunctionComponent = () => {
         {
           text: 'Open',
           role: 'info',
-          handler: () => { history.push(newUrl); }
+          handler: () => { history.push(url); }
         },
         {
           text: 'Dismiss',
