@@ -343,9 +343,9 @@ function Maps() {
             </p>
           </IonFab>
           <IonFab horizontal="end" vertical="bottom" style={{ transform: 'translateX(15%) translateY(-15%)' }}>
-            <IonButton color="light-item" onClick={setDefaultCenter} mode="md">
+            <IonButton color="light-item" onClick={setDefaultCenter} mode="md" style={{ borderRadius: '7.5px' }}>
               {context.darkMode ?
-                <img style={{ width: "20px" }} src={schoolOutlineWhite} />
+                <img style={{ width: "20px", borderRadius: '7.5px' }} src={schoolOutlineWhite} />
                 :
                 <IonIcon icon={schoolOutline} />
               }

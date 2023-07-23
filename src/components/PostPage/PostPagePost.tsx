@@ -1,4 +1,4 @@
-import { IonList, IonLabel, IonText, IonAvatar, IonItem } from "@ionic/react";
+import { IonList, IonLabel, IonText, IonAvatar, IonItem, IonRow } from "@ionic/react";
 import { useHistory } from "react-router";
 import ProfilePhoto from "../Shared/ProfilePhoto";
 import { PostType } from "../Shared/PostType";
@@ -52,14 +52,14 @@ const PostPagePost = (props: any) => {
       <IonList inset={true} mode="ios">
         <IonItem lines="none" mode="ios">
           <IonLabel>
-            <IonText color="medium">
+            <IonRow>
               <FadeIn>
                 <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); history.push("/about/" + schoolName + "/" + post.uid); }} >
                   <ProfilePhoto uid={post.uid} />
                 </IonAvatar>
               </FadeIn>
-              <p> {post.userName} </p>
-            </IonText>
+              <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+            </IonRow>
             <PostType schoolName={schoolName} type={post.postType} marker={post.marker} POI={post.POI} timestamp={post.timestamp} />
             <PostMessage schoolName={schoolName} message={post.message} classNumber={post.classNumber} className={post.className} reports={post.reports || 0} />
             <PostImages userName={post.userName} imgSrc={post.imgSrc || []} reports={post.reports || 0} />

@@ -129,8 +129,8 @@ export const HumboldtHank = () => {
 
   return (
     <IonPage>
-      <IonHeader collapse="fade">
-        <IonToolbar mode='ios'>
+      <IonHeader collapse="fade" className='ion-no-border'>
+        <IonToolbar mode='ios' color='tab-bar-background' className='ion-no-border'>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ height: "1vh" }} />
             <IonAvatar onClick={openImage}>

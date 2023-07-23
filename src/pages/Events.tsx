@@ -300,7 +300,7 @@ const Events = React.memo(() => {
           let dayOfWeek = d.getDay();
           dateArr.push(getDayOfWeek(dayOfWeek) + ', ' + month + ' ' + day);
         }
-        htmlString = htmlString.replace("<div>", "<div><div class=\"event-div\">");
+        htmlString = htmlString.replace("<div>", "<div class=\"p-div\"><div class=\"event-div\">");
         htmlString = htmlString.replace("&lt;br/&gt;&lt;br/&gt;", "&lt;br/&gt;</div>");
         htmlString = htmlString.replace(/(&lt;img.*?&gt;)/g, '$1<br /><br />');
         htmlStrings[index] = htmlString;
@@ -351,7 +351,7 @@ const Events = React.memo(() => {
                 let dayOfWeek = d.getDay();
                 dateArr.push(getDayOfWeek(dayOfWeek) + ', ' + month + ' ' + day);
               }
-              htmlString = htmlString.replace("<div>", "<div><div class=\"event-div\">");
+              htmlString = htmlString.replace("<div>", "<div class=\"p-div\"><div class=\"event-div\">");
               htmlString = htmlString.replace("&lt;br/&gt;&lt;br/&gt;", "&lt;br/&gt;</div>");
               htmlString = htmlString.replace(/(&lt;img.*?&gt;)/g, '$1<br /><br />');
               htmlStrings[index] = htmlString;

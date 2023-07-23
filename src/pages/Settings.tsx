@@ -1093,7 +1093,7 @@ const Settings: React.FC = () => {
         <IonContent>
           <div className="ion-modal">
             <IonHeader mode="ios">
-              <IonTitle color="secondary" class="ion-title">
+              <IonTitle class="ion-title">
                 {" "}
                 <div>Email Change</div>{" "}
               </IonTitle>
@@ -1151,7 +1151,7 @@ const Settings: React.FC = () => {
         <IonContent>
           <div className="ion-modal">
             <IonHeader mode="ios">
-              <IonTitle color="secondary" class="ion-title">
+              <IonTitle class="ion-title">
                 {" "}
                 <div>Username Change</div>{" "}
               </IonTitle>

@@ -1,7 +1,7 @@
 import { useToast } from "@agney/ir-toast";
 import { Dialog } from "@capacitor/dialog";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { IonList, IonItem, IonLabel, IonAvatar, IonText, IonFab, IonNote, IonButton } from "@ionic/react";
+import { IonList, IonItem, IonLabel, IonAvatar, IonText, IonFab, IonNote, IonButton, IonRow } from "@ionic/react";
 import Linkify from "linkify-react";
 import { useState } from "react";
 import { useHistory } from "react-router";
@@ -184,21 +184,17 @@ export const PostComment = (props: any) => {
         {" "}
         <IonItem mode="ios" lines="none">
           <IonLabel class="ion-text-wrap">
-            <IonText color="medium">
-              <p>
-                <IonAvatar
-                  onClick={() => {
-                    setComment("");
-                    handleUserPageNavigation(comment.uid);
-                  }}
-                  class="posts-avatar"
-                >
-                  <ProfilePhoto uid={comment.uid}></ProfilePhoto>
-                </IonAvatar>
-                {comment.userName}
-              </p>
-            </IonText>
-            <Linkify tagName="h3" className="h2-message">
+            <IonRow>
+              <IonAvatar class="posts-avatar" onClick={() => {
+                setComment("");
+                handleUserPageNavigation(comment.uid);
+              }}
+              >
+                <ProfilePhoto uid={comment.uid}></ProfilePhoto>
+              </IonAvatar>
+              <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {comment.userName} </p>
+            </IonRow>
+            <Linkify tagName="h3" className="h2-message-comment">
               {comment.comment}
             </Linkify>
             {"imgSrc" in comment && comment.imgSrc && comment.imgSrc.length > 0 ? (

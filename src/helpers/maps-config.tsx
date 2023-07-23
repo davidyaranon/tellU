@@ -340,7 +340,7 @@ export const schoolInfo : Record<string, number[]> = {
 export const zoomControlButtonsStyleDark = {
   width: "50px",
   height: '50px',
-  borderRadius: '5px',
+  borderRadius: '7.5px',
   boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
   background: '#0D1117',
   lineHeight: '50px',
