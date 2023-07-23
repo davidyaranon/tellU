@@ -1,42 +1,73 @@
-import { Keyboard, KeyboardResize, KeyboardResizeOptions, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
-import { IonContent, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle, IonTextarea, IonPage, IonFab, IonRow, IonCol, IonFabButton, IonImg, useIonViewWillEnter, IonLoading, IonProgressBar } from "@ionic/react";
-import { arrowUpOutline, banOutline, cameraOutline, closeOutline } from "ionicons/icons";
-import { useContext } from "../my-context";
-
-import { testOpenAi } from "../fbConfig";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Preferences } from "@capacitor/preferences";
-import { useToast } from "@agney/ir-toast";
+import {
+  IonContent, IonHeader, IonToolbar, IonIcon, IonTextarea, IonPage, IonFab,
+  IonRow, IonFabButton, useIonViewWillEnter, IonProgressBar, IonAvatar, IonLabel
+} from "@ionic/react";
+import { arrowUpOutline } from "ionicons/icons";
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Preferences } from "@capacitor/preferences";
 import { StatusBar, Style } from "@capacitor/status-bar";
+import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
+import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
 
-import Hank from '../images/hank_blue.png';
 import FadeIn from "react-fade-in/lib/FadeIn";
+import { useToast } from "@agney/ir-toast";
+
+import { useContext } from "../my-context"
 import { timeout } from "../helpers/timeout";
+import { testOpenAi } from "../fbConfig";
+
+import Hank from '../images/hank_blue_crop.png';
+import Blaze from '../images/bronco.png';
+import Blitz from '../images/blitz.png';
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
-}
+};
 
-const resizeOptions: KeyboardResizeOptions = {
-  mode: KeyboardResize.None,
-}
+const aiName: Record<string, string> = {
+  "Cal Poly Humboldt": "Hank",
+  "UC Davis": "Blaze the Bronco",
+  "UC Berkeley": "Blitz the Bruin",
+  "": ""
+};
 
-const defaultResizeOptions: KeyboardResizeOptions = {
-  mode: KeyboardResize.Body,
-}
-
+const aiImage: Record<string, string> = {
+  "Cal Poly Humboldt": Hank,
+  "UC Davis": Blaze,
+  "UC Berkeley": Blitz,
+  "": ""
+};
 
 export const HumboldtHank = () => {
 
+  const Toast = useToast();
   const context = useContext();
-  const [answers, setAnswers] = useState<any[]>(['I\'m Hank your AI friend. Ask me anything!']);
+
+  const [answers, setAnswers] = useState<any[]>([]);
   const [loadingAnswer, setLoadingAnswer] = useState<boolean>(false);
   const textRef = useRef<HTMLIonTextareaElement>(null);
   const [schoolName, setSchoolName] = useState<string>('');
   const [kbHeight, setKbHeight] = useState<number>(0);
   const contentRef = useRef<HTMLIonContentElement>(null);
-  const Toast = useToast();
+
+  /**
+   * @description opens the 'contact photo' image using Capacitor
+   */
+  const openImage = () => {
+    const img: CapacitorImage = {
+      url: aiImage[schoolName],
+      title: aiName[schoolName]
+    };
+    CapacitorPhotoViewer.show({
+      images: [img],
+      mode: 'one',
+      options: {
+        title: true
+      }
+    });
+  };
 
   /**
    * Loads school from local storage (Preferences API)
@@ -45,6 +76,8 @@ export const HumboldtHank = () => {
     const school = await Preferences.get({ key: 'school' });
     if (school && school.value) {
       setSchoolName(school.value);
+      const answerArr = ['I\'m ' + aiName[school.value] + ' your AI friend. Ask me anything!'];
+      setAnswers(answerArr);
     } else {
       const toast = Toast.create({ message: 'Something went wrong', duration: 2000, color: 'toast-error' });
       toast.present();
@@ -66,14 +99,13 @@ export const HumboldtHank = () => {
     context.setDarkMode(true);
     if (Capacitor.getPlatform() === "ios") {
       Keyboard.setStyle(keyStyleOptionsDark);
-      StatusBar.setStyle({ style: Style.Dark });
     }
   }, [context]);
 
 
   useEffect(() => {
     setSchool();
-  }, [])
+  }, []);
 
 
   useEffect(() => {
@@ -81,30 +113,35 @@ export const HumboldtHank = () => {
   }, []);
 
   useEffect(() => {
-    Keyboard.addListener('keyboardWillShow', info => {
-      Keyboard.setResizeMode(resizeOptions);
-      setKbHeight(info.keyboardHeight);
-      contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
-    });
-    Keyboard.addListener('keyboardWillHide', () => {
-      Keyboard.setResizeMode(defaultResizeOptions);
-      setKbHeight(0);
-    });
-    return () => {
-      Keyboard.removeAllListeners();
+    const eventListener: any = (ev: CustomEvent<any>) => {
+      ev.detail.register(10, () => {
+        CapacitorApp.exitApp();
+      });
     };
-  }, [])
+
+    document.addEventListener('ionBackButton', eventListener);
+
+    return () => {
+      document.removeEventListener('ionBackButton', eventListener);
+    };
+  }, []);
 
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <div style={{height : "1vh"}} />
-          <img style={{ width: "90vw", marginLeft: "5vw", marginRight: "5vw" }} src={Hank} />
+      <IonHeader collapse="fade">
+        <IonToolbar mode='ios'>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ height: "1vh" }} />
+            <IonAvatar onClick={openImage}>
+              <img src={aiImage[schoolName]} />
+            </IonAvatar>
+            <IonLabel>{aiName[schoolName]}</IonLabel>
+          </div>
         </IonToolbar>
       </IonHeader>
-      <IonContent ref={contentRef}>
+
+      <IonContent className="ion-padding" ref={contentRef}>
         <IonFab style={context.darkMode ? { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #282828', borderRadius: "10px" }
           : { bottom: `${kbHeight}px`, height: "125px", width: "100vw", border: '2px solid #e6e6e6', borderRadius: "10px" }} slot="fixed"
           className={context.darkMode ? "text-area-dark" : "text-area-light"} vertical="bottom" edge>
@@ -128,25 +165,44 @@ export const HumboldtHank = () => {
               <IonFabButton disabled={loadingAnswer} size="small" color={'primary'}
                 onClick={async () => {
                   contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
-                  if (!textRef || !textRef.current || !textRef.current.value) return;
+                  if (!textRef || !textRef.current || !textRef.current.value || !schoolName) return;
                   setLoadingAnswer(true);
                   setAnswers(prevAnswers => [...prevAnswers, textRef.current?.value || '']);
-                  const ans: string = await testOpenAi(textRef.current.value);
-                  if (!ans || ans.length <= 0) {
-                    console.log('something went wrong with AI, try again');
+
+                  // Create a promise that resolves after 15 seconds
+                  const timeoutPromise = new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                      reject(new Error('The function took too long to respond.'));
+                    }, 15000);
+                  });
+
+                  try {
+                    const ans = await Promise.race([testOpenAi(schoolName, textRef.current.value), timeoutPromise]);
+
+                    if (!ans) {
+                      console.log('something went wrong with AI, try again');
+                      const toast = Toast.create({ message: 'Something went wrong!' + aiName[schoolName] + ' must be sleeping...', duration: 2000, color: 'toast-error' });
+                      toast.present();
+                      setLoadingAnswer(false);
+                      return;
+                    }
+
+                    setAnswers(prev => {
+                      let temp = [...prev];
+                      let temp2 = temp.splice(temp.length - 4, 4);
+                      return [...temp2, ans];
+                    });
+
                     setLoadingAnswer(false);
-                    return;
+                    textRef.current.value = '';
+                    await timeout(500);
+                    contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
+                  } catch (error) {
+                    console.error(error);
+                    const toast = Toast.create({ message: 'Something went wrong!' + aiName[schoolName] + ' must be sleeping...', duration: 2000, color: 'toast-error' });
+                    toast.present();
+                    setLoadingAnswer(false);
                   }
-                  setAnswers(prev => {
-                    let temp = [...prev];
-                    let temp2 = temp.splice(temp.length - 4, 4);
-                    return [...temp2, ans];
-                  }
-                  );
-                  setLoadingAnswer(false);
-                  textRef.current.value = '';
-                  await timeout(500);
-                  contentRef && contentRef.current && contentRef.current.scrollToBottom(500);
                 }}
               >
                 <IonIcon icon={arrowUpOutline} color={!context.darkMode ? "light" : ""} size="small" mode="ios" />
@@ -157,7 +213,7 @@ export const HumboldtHank = () => {
 
         {answers.map((ans: string | null, index) => {
           if (index % 2 == 1) {
-            let messageClass: string = 'sent-humboldt';
+            let messageClass: string = 'sent-humboldt-hank';
             return (
               <FadeIn key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
                 <>
@@ -169,7 +225,7 @@ export const HumboldtHank = () => {
               </FadeIn>
             )
           } else {
-            let messageClass: string = 'received';
+            let messageClass: string = 'received-hank';
             return (
               <FadeIn key={index.toString() + ans?.slice(0, 10)} className={`message ${messageClass}`}>
                 <>
@@ -182,8 +238,7 @@ export const HumboldtHank = () => {
             )
           }
         })}
-        <div style={{ height: "15vh" }} />
-        <div style={{ height: kbHeight }} />
+        <div style={{ height: "25vh" }} />
       </IonContent>
     </IonPage >
   );

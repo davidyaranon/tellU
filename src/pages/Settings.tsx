@@ -29,7 +29,7 @@ import { PostType } from '../components/Shared/PostType';
 import ProfilePhoto from '../components/Shared/ProfilePhoto';
 import { PostMessage } from '../components/Home/PostMessage';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { logoInstagram, logoSnapchat, logoTiktok, refreshOutline, warningSharp } from 'ionicons/icons';
+import { logoInstagram, logoSnapchat, logoTiktok, map, refreshOutline, warningSharp } from 'ionicons/icons';
 import FadeIn from 'react-fade-in/lib/FadeIn';
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -160,6 +160,21 @@ const Settings: React.FC = () => {
     if (key === "Enter") {
       Keyboard.hide();
       handleSpotifySearch();
+    }
+  };
+
+  /**
+   * @description handles the checkbox state change and enables/disables dark mode in maps tiler
+   * 
+   * @param {boolean} isChecked whether the checkbox is checked or not
+   */
+  const handleChangeMapTile = async (isChecked: boolean): Promise<void> => {
+    if (isChecked) {
+      context.setMapTilerId('streets-v2-dark');
+      await Preferences.set({ key: "mapTilerId", value: "streets-v2-dark" });
+    } else {
+      context.setMapTilerId('streets');
+      await Preferences.set({ key: "mapTilerId", value: "streets" });
     }
   };
 
@@ -658,6 +673,18 @@ const Settings: React.FC = () => {
                   onIonChange={(e) => { toggleSensitivity(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                 />
               </IonItem>
+              <IonItem>
+                <p style={{ fontSize: "0.85em" }}>Dark Maps</p>&nbsp;&nbsp;
+                <IonIcon color="medium" icon={map} slot='end' />
+                <IonToggle
+                  id="themeToggle"
+                  slot="end"
+                  checked={context.mapTilerId === "streets-v2-dark"}
+                  enableOnOffLabels={true}
+                  color={"primary"}
+                  onIonChange={(e) => { handleChangeMapTile(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                />
+              </IonItem>
             </IonList>
           </SwiperSlide>
           <SwiperSlide>
@@ -729,7 +756,7 @@ const Settings: React.FC = () => {
       </IonContent>
 
       <IonModal
-        handle={false} breakpoints={[0, 1]} initialBreakpoint={1} 
+        handle={false} breakpoints={[0, 1]} initialBreakpoint={1}
         isOpen={spotifyModal}
         onDidDismiss={() => {
           Keyboard.hide();
@@ -1013,7 +1040,7 @@ const Settings: React.FC = () => {
               readonly={false}
               value={editableEmail}
               onIonChange={(e) => {
-                if(typeof e.detail.value === "string")
+                if (typeof e.detail.value === "string")
                   setEditableEmail(e.detail.value || "");
               }}
             ></IonInput>
@@ -1054,7 +1081,7 @@ const Settings: React.FC = () => {
               readonly={false}
               value={editableUserName}
               onIonChange={(e) => {
-                if(typeof e.detail.value === "string")
+                if (typeof e.detail.value === "string")
                   setEditableUserName(e.detail.value || "");
               }}
             ></IonInput>

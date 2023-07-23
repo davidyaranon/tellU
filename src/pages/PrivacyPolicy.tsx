@@ -12,7 +12,7 @@ import { useContext } from "../my-context";
 import { Toolbar } from "../components/Shared/Toolbar";
 import { navigateBack } from "../components/Shared/Navigation";
 
-const PrivacyPolicy = () => {
+export const PrivacyPolicy = () => {
 
   const history = useHistory();
   const context = useContext();
@@ -30,7 +30,7 @@ const PrivacyPolicy = () => {
    */
   const handleReAuthForDeletion = () => {
     if (!pass) {
-      const toast = Toast.create({ message: "Password unable to be read", duration: 2000, color: 'toast-success' });
+      const toast = Toast.create({ message: "Password unable to be read", duration: 2000, color: 'toast-error' });
       toast.present();
       toast.dismiss();
       return;
@@ -337,7 +337,7 @@ const PrivacyPolicy = () => {
         <IonModal backdropDismiss={false} isOpen={showPasswordModal} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
           <IonContent>
             <div className="ion-modal">
-              <IonHeader mode="ios">
+              <IonHeader mode="ios" className='ion-no-border'>
                 <IonTitle color="light" class="ion-title">
                   {" "}
                   <div>Account deletion</div>{" "}
@@ -361,10 +361,11 @@ const PrivacyPolicy = () => {
                 </IonItem>
                 <br />
                 <IonButton
-                  color="toast-error"
+                  color="medium"
                   mode="ios"
                   onClick={() => {
                     setPass("");
+                    setShowPasswordModal(false);
                   }}
                   fill="clear"
                   id="cancelButton"
@@ -372,7 +373,7 @@ const PrivacyPolicy = () => {
                   Cancel
                 </IonButton>
                 <IonButton
-                  color={"primary"}
+                  color="toast-error"
                   mode="ios"
                   onClick={handleReAuthForDeletion}
                   fill="clear"
@@ -391,5 +392,3 @@ const PrivacyPolicy = () => {
     </IonPage>
   )
 };
-
-export default PrivacyPolicy;

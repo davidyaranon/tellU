@@ -14,7 +14,7 @@ import ChatRoom from './pages/ChatRoom';
 import { SignIn } from './pages/SignIn';
 import { Notifications } from './pages/Notifications';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { Events } from './pages/Events';
+import Events from './pages/Events';
 import { UserProfile } from './pages/UserProfile';
 import { MapMarkerInfo } from './pages/MapMarkerInfo';
 import { HumboldtHank } from './pages/HumboldtHank';
@@ -196,7 +196,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           </IonTabButton>
 
           <IonTabButton tab="hank" href="/hank">
-            {selectedTab === 'hank' ? <IonIcon style={{ transform : "scale(1.1)"}} src={aiIconFilled} /> : <IonIcon style={{ transform : "scale(1.1)"}} src={aiIconUnfilled} />}
+            {selectedTab === 'hank' ? <IonIcon style={{ transform: "scale(1.1)" }} src={aiIconFilled} /> : <IonIcon style={{ transform: "scale(1.1)" }} src={aiIconUnfilled} />}
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
@@ -261,6 +261,15 @@ const App: React.FC = () => {
     context.setSchoolColorToggled(false);
   }, []);
 
+  const handleMapTiler = React.useCallback(async () => {
+    const mapId = await Preferences.get({ key: "mapTilerId" });
+    if (!mapId.value) {
+      context.setMapTilerId('streets');
+    } else {
+      context.setMapTilerId(mapId.value);
+    }
+  }, []);
+
   /**
    * @description Runs on app startup.
    * Enables post sensitivity if it had been enabled previously
@@ -313,6 +322,7 @@ const App: React.FC = () => {
     setSchoolName().catch((err) => console.log(err));
     handleDarkMode().catch((err) => { console.log(err); })
     handleSchoolColorToggle().catch((err) => { console.log(err); })
+    handleMapTiler().catch((err) => { console.log(err); });
     handleSensitivityToggle().catch((err) => { console.log(err); })
     if (Capacitor.getPlatform() === 'ios') {
       registerNotifications();

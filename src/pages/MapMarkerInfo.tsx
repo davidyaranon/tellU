@@ -1,7 +1,7 @@
 /* Ionic + React + Capacitor */
 import { useCallback, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { IonPage, IonContent, IonNote, IonCard, IonCardTitle, IonChip, useIonViewWillEnter } from "@ionic/react";
+import { IonPage, IonContent, IonNote, IonCard, IonCardTitle, IonChip, useIonViewWillEnter, useIonRouter } from "@ionic/react";
 import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
 import { Camera, GalleryPhoto } from "@capacitor/camera";
 
@@ -18,6 +18,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useToast } from "@agney/ir-toast";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Dialog } from "@capacitor/dialog";
+import { navigateBack } from "../components/Shared/Navigation";
 
 interface MatchUserPostParams {
   school: string;
@@ -32,6 +33,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
   // hooks 
   const [user, loading, error] = useAuthState(auth);
   const Toast = useToast();
+  const router = useIonRouter();
 
   // state variables
   const [posts, setPosts] = useState<any>(null);
@@ -56,32 +58,32 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
         blobsArr.push(blobRes);
         photoArr.push(images.photos[i]);
       }
-      
+
     } catch (err: any) {
       // Toast.error(err.message.toString());
     }
   };
   const handleUploadImage = async () => {
     return;
-    if(!clickable) {
+    if (!clickable) {
       return;
     }
-    const {value} = await Dialog.confirm({
+    const { value } = await Dialog.confirm({
       title: 'Upload Image',
       message: 'Would you like to upload an image for this location?',
     });
-    if(!value) {
+    if (!value) {
       return;
     }
-    takePicture(); 
+    takePicture();
   }
 
   const getInfo = useCallback(() => {
-    for (let i = 0; i < markers.length; ++i) {
-      if (markers[i].title === markerTitle) {
-        setDescription(markers[i].description);
-        setChip(markers[i].chip);
-        setImages(markers[i].imgSrc);
+    for (let i = 0; i < markers[schoolName].length; ++i) {
+      if (markers[schoolName][i].title === markerTitle) {
+        setDescription(markers[schoolName][i].description);
+        setChip(markers[schoolName][i].chip);
+        setImages(markers[schoolName][i].imgSrc);
         return;
       }
     }
@@ -116,34 +118,50 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
     StatusBar.setStyle({ style: Style.Dark })
   });
 
+  useEffect(() => {
+    const eventListener: any = (ev: CustomEvent<any>) => {
+      ev.detail.register(10, () => {
+        console.log("BACK BUTTON POST\n");
+        navigateBack(router);
+      });
+    };
+
+    document.addEventListener('ionBackButton', eventListener);
+
+    return () => {
+      document.removeEventListener('ionBackButton', eventListener);
+    };
+  }, [router]);
+
   return (
     <IonPage>
-      <Toolbar title={markerTitle} />
+      <Toolbar text={'Back'} title={markerTitle} />
       <IonContent>
         <div style={{ height: "1vh" }} />
         {chip && chip.map(({ title, color, icon: Icon, local, image }, index: number) => {
           return (
-            <IonChip outline color={color} key={index} onClick={async () => {
-              if (image) {
-                let url = "";
-                if (!local) {
-                  url = await getStorageUrl(image) || "";
-                } else {
-                  url = image;
-                }
-                const img: CapacitorImage = {
-                  url: url,
-                  title: markerTitle + title,
-                };
-                CapacitorPhotoViewer.show({
-                  images: [img],
-                  mode: 'one',
-                  options: {
-                    title: true
+            <IonChip outline color={color} key={index} style={{ marginLeft: '7.5px'}}
+              onClick={async () => {
+                if (image) {
+                  let url = "";
+                  if (!local) {
+                    url = await getStorageUrl(image) || "";
+                  } else {
+                    url = image;
                   }
-                });
-              }
-            }}>
+                  const img: CapacitorImage = {
+                    url: url,
+                    title: markerTitle + title,
+                  };
+                  CapacitorPhotoViewer.show({
+                    images: [img],
+                    mode: 'one',
+                    options: {
+                      title: true
+                    }
+                  });
+                }
+              }}>
               <Icon />
               <IonNote style={{ color: "var(--ion-color-" + color + ")", padding: "5px" }}>{title}</IonNote>
             </IonChip>
@@ -156,9 +174,9 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
           slidesPerView={1}
           onSlideChange={(e) => {
             return;
-            if(images && images.length > 0) {
+            if (images && images.length > 0) {
               let len = images.length;
-              if(e.realIndex === len - 1) {
+              if (e.realIndex === len - 1) {
                 setClickable(true);
               } else {
                 setClickable(false);
@@ -213,3 +231,4 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
     </IonPage >
   )
 };
+

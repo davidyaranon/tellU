@@ -59,6 +59,8 @@ export const sendEmailOnReport = httpsCallable(functions, 'sendEmailOnReport');
 export const sendCommentsNotification = httpsCallable(functions, 'sendCommentsNotification');
 export const sendDmNotification = httpsCallable(functions, 'sendDmNotification');
 export const getHumboldtUpdates = httpsCallable(functions, 'getHumboldtUpdates');
+export const getUcDavisUpdates = httpsCallable(functions, 'getUcDavisUpdates');
+export const getUcBerkeleyUpdates = httpsCallable(functions, 'getUcBerkeleyUpdates');
 export const askAI = httpsCallable(functions, 'askAI');
 
 /**
@@ -74,13 +76,9 @@ export async function registerWithEmailAndPassword(name, email, password, school
     const res = await createUserWithEmailAndPassword(auth, email, password);
     if (res) {
       const user = res.user;
-      await updateProfile(user, {
-        displayName: name,
-        photoURL:
-          "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd",
-      });
-      try {
-        await setDoc(doc(db, "userData", user.uid.toString()), {
+      const transactionRes = await runTransaction(db, async (transaction) => {
+        const userDataRef = doc(db, "userData", user.uid);
+        transaction.set(userDataRef, {
           bio: "",
           snapchat: "",
           instagram: "",
@@ -94,18 +92,27 @@ export async function registerWithEmailAndPassword(name, email, password, school
           timestamp: serverTimestamp(),
           notificationsToken: "",
         });
-        await setDoc(doc(db, "userPhotoUrls", user.uid.toString()), {
-          url: "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd"
+        return { success: true };
+      });
+      if (transactionRes.success) {
+        await updateProfile(user, {
+          displayName: name,
+          photoURL:
+            "https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd",
         });
-      } catch (docErr) {
-        console.log(docErr);
+        return res;
+      } else {
+        console.log("Transaction on db failed");
+        await deleteUser(user);
+        return undefined;
       }
-      return res;
     }
+    return undefined;
   } catch (err) {
-    return err.message.toString();
+    console.error(err);
+    return undefined;
   }
-}
+};
 
 /**
  * @description Signs in returning user using Firebase's 'logInWithEmailAndPassword()'
@@ -124,6 +131,7 @@ export async function logInWithEmailAndPassword(email, password) {
 }
 
 /**
+ * @deprecated Use `signInWithEmailAndPassword`
  * @description Adds user to Firestore database ("/userInfo/{uid}")
  * 
  * @param {string} uid uid of new user
@@ -176,7 +184,7 @@ export const deleteUserDataAndAccount = async (pass) => {
       await reauthenticateWithCredential(user, credential);
 
       const batch = writeBatch(db);
-      const userDoc = doc(db, "userInfo", user.uid);
+      const userDoc = doc(db, "userData", user.uid);
       batch.delete(userDoc);
 
       await deleteUser(user).catch((err) => { console.log(err); });
@@ -1572,17 +1580,83 @@ export const getPOIPosts = async (poiName) => {
   }
 };
 
+
 /**
- * @description Gets the latest updates from the Humboldt website.
+ * @description extracts certain parts of the XML response data
+ * 
+ * @param {string} xmlString 
+ * @returns {{ title: string; pubDate: string; description: string; link: string; }[]}
+ */
+function extractDataFromXML(xmlString) {
+  let parser = new DOMParser();
+  let xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+  let items = xmlDoc.getElementsByTagName("item");
+  let result = [];
+
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i];
+    let title = item.getElementsByTagName("title")[0]?.textContent || '';
+    let pubDate = item.getElementsByTagName("pubDate")[0]?.textContent || '';
+    let description = item.getElementsByTagName("description")[0]?.textContent || '';
+    let link = item.getElementsByTagName("link")[0]?.textContent || '';
+    console.log(pubDate);
+    console.log('\n');
+    result.push({
+      title: title,
+      pubDate: pubDate,
+      description: description,
+      link: link,
+    });
+  }
+
+  return result;
+}
+
+
+/**
+ * @description Gets the latest updates from the school's events page
  * Translates the .rss language into html.
  * 
- * @returns a string of html that contains the latest updates from the Humboldt website
+ * @param {string} schoolName The name of the school to pull the events from.
+ * 
+ * @returns a string of html that contains the latest updates from the school's events page.
  */
-export const getEvents = async () => {
-  const updates = await getHumboldtUpdates().catch((err) => { console.log(err); });
+export const getEvents = async (schoolName) => {
+  let updates;
+  let isBerkeley = false;
+  if (schoolName === 'Cal Poly Humboldt') {
+    updates = await getHumboldtUpdates().catch((err) => { console.log(err); });
+  } else if (schoolName === 'UC Davis') {
+    updates = await getUcDavisUpdates().catch((err) => { console.log(err); });
+  } else if (schoolName === "UC Berkeley") {
+    updates = await getUcBerkeleyUpdates().catch((err) => { console.log(err); });
+    isBerkeley = true;
+  } else {
+    console.log('Invalid school name');
+  }
   let line = "", htmlString = "";
   let inLineTag = false;
+  // console.log(updates.data);
   let lines = updates.data.split('\n');
+
+  if (isBerkeley) {
+    let data = extractDataFromXML(updates.data);
+    data.forEach((item) => {
+      htmlString += "<section>";
+      htmlString += "<h1 class=\"events-h1\">" + item.title + "</h1>";
+      htmlString += '\n';
+      htmlString += '<p style=\'padding-left:15px\'>' + item.pubDate.replace(/\s\+\d{4}$/, "") + '</p';
+      htmlString += '\n';
+      htmlString += "<div>" + item.description + "</div>";
+      htmlString += '\n';
+      htmlString += "<a class=\"event-a\" href='" + item.link + "'>Read More</a>";
+      htmlString += '\n';
+      htmlString += "</section>"
+    });
+    return htmlString;
+  }
+
   for (let i = 0; i < lines.length; i++) {
     line = lines[i];
     if (inLineTag) {
@@ -1614,11 +1688,8 @@ export const getEvents = async () => {
       if (link !== -1) {
         let endLink = line.indexOf("</link>");
         let linkStr = line.slice(link + 6, endLink);
-        htmlString += "<a class=\"event-a\" href='" + linkStr + "'>Read More</a>";
+        htmlString += "<br /> <br /> <a class=\"event-a\" href='" + linkStr + "'>Read More</a>";
         htmlString += '\n';
-        // if(linkCount++ > 50) {
-        //   break;
-        // };
       }
       let endItem = line.indexOf("</item>");
       if (endItem !== -1) {
@@ -1630,7 +1701,6 @@ export const getEvents = async () => {
       inLineTag = true;
     }
   }
-  // console.log(htmlString);
 
   return htmlString;
 };
@@ -1640,18 +1710,23 @@ export const getEvents = async () => {
  * @description Runs the backend AI code from openAI 
  * to generate a response.
  * 
+ * @param {string} schoolName the name of the school 
  * @param {string} msg the question to ask the AI
- * @returns {string} the response from the AI
+ * @returns {any} the response from the AI
  */
-export const testOpenAi = async (msg) => {
+export const testOpenAi = async (schoolName, msg) => {
+  console.log(msg);
+  console.log('testing open ai');
   const answer = await askAI({
-    message: msg
+    message: msg,
+    schoolName: schoolName
   }).catch((err) => {
     console.error(err);
     return '';
   });
 
-  // console.log(answer.data.content);
+  console.log('done...')
+  console.log(answer);
 
-  return answer.data.content.toString();
-}
+  return answer.data.content;
+};

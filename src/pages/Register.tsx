@@ -133,18 +133,20 @@ const Register: React.FC = () => {
           passwordSignUp,
           schoolName
         );
-        if (typeof res === "string") {
-          Toast.error('Connection interrupted. Your account should be created, try logging in');
+        console.log('reg done');
+        if (!res) {
+          Toast.error('Registration failed, try again');
         } else {
-          await setSchool(schoolName);
-          const notificationsToken = localStorage.getItem("notificationsToken") || "";
+          const notificationsToken: string = localStorage.getItem("notificationsToken") || "";
           if (notificationsToken.length <= 0) {
             FCM.deleteInstance().then(() => console.log("FCM instance deleted")).catch((err) => console.log(err));
             FCM.getToken().then((token) => {
               localStorage.setItem("notificationsToken", token.token);
               updateNotificationsToken(token.token);
+              console.log("FCM TOKEN: " + token.token);
             });
           } else {
+            console.log("NOTIFICATIONS TOKEN EXISTS : " + notificationsToken);
             updateNotificationsToken(notificationsToken);
           }
           const toast = Toast.create({ message: 'Registered Successfully', duration: 2000, color: 'toast-success' });

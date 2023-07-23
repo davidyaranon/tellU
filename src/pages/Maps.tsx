@@ -5,13 +5,13 @@ import { useHistory } from "react-router";
 
 /* Ionic/Capacitor */
 import {
-  IonContent, IonCardTitle, IonCard, IonLabel, IonButton, IonIcon,
+  IonContent, IonCardTitle, IonCard, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonViewDidLeave, useIonViewWillEnter, IonText
+  RouterDirection, useIonViewWillEnter, IonText, IonCheckbox
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
-import { StatusBar, Style } from "@capacitor/status-bar";
+import { App as CapacitorApp } from "@capacitor/app";
 
 /* Firebase */
 import auth from "../fbConfig";
@@ -19,7 +19,7 @@ import auth from "../fbConfig";
 /* CSS + Other components */
 import "../App.css";
 import { useToast } from "@agney/ir-toast";
-import { mapTiler, markers, schoolInfo, setMarkers, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../helpers/maps-config";
+import { MapMarker, mapTiler, markers, schoolInfo, zoomControlButtonsStyle, zoomControlButtonsStyleDark } from "../helpers/maps-config";
 import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
 import { useContext } from "../my-context";
@@ -30,23 +30,27 @@ const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
 }
 
-const getIonColor = (color : string) => {
-  let c : string = "";
-  for(let i = color.length - 2; i >= 0; --i) {
-    if(color[i] === '-') {
+const getIonColor = (color: string) => {
+  let c: string = "";
+  for (let i = color.length - 2; i >= 0; --i) {
+    if (color[i] === '-') {
       return c.split('').reverse().join('');
     }
     c += color[i];
   }
   return c.split('').reverse().join('');
-}
+};
+
+const selectOptions = {
+  header: 'Pin Filters',
+  subHeader: 'Select which type of pin to display on the map'
+};
 
 function Maps() {
   /* Hooks */
   const Toast = useToast();
   const history = useHistory();
   const context = useContext();
-
 
   /* State variables */
   const [user, loading, error] = useAuthState(auth);
@@ -59,7 +63,27 @@ function Maps() {
   const [defaultZoom, setDefaultZoom] = useState(0);
   const [overlayIndex, setOverlayIndex] = useState<number>(-1);
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
-  const [selectOptions, setSelectOptions] = useState<any>({});
+  const [filteredMarkers, setFilteredMarkers] = useState<Record<string, MapMarker[]>>(markers);
+
+
+  /**
+   * @description filters the map markers to only include those selected by the user
+   * 
+   * @param {string} filter the kind of map pin to display {All, Dining, Housing, Academics, Recreation}
+   */
+  const setMarkers = (filter: string): void => {
+    if (filter === "A") {
+      setFilteredMarkers(markers);
+    } else {
+      const filteredData: Record<string, MapMarker[]> = {};
+      Object.keys(markers).forEach((schoolName: string) => {
+        filteredData[schoolName] = markers[schoolName].filter((marker: MapMarker) =>
+          marker.tag.includes(filter)
+        );
+      });
+      setFilteredMarkers(filteredData);
+    }
+  }
 
 
   /**
@@ -75,7 +99,7 @@ function Maps() {
   /**
    * @description Sets the map to a default view based on school location
    */
-  const setDefaultCenter = () => {
+  const setDefaultCenter = (): void => {
     setCenter([defaultLat, defaultLong]);
     setZoom(defaultZoom);
   };
@@ -85,7 +109,7 @@ function Maps() {
    * on school name and sets map center/zoom
    * accordingly
    */
-  const getSchoolLocation = () => {
+  const getSchoolLocation = (): void => {
     if (schoolInfo[schoolName as keyof typeof schoolInfo] !== undefined) {
       const latitude = schoolInfo[schoolName as keyof typeof schoolInfo][0];
       const longitude = schoolInfo[schoolName as keyof typeof schoolInfo][1];
@@ -119,16 +143,8 @@ function Maps() {
     setMarkers(filter);
   };
 
-  /**
-   * Runs on page exit
-   */
-  useIonViewDidLeave(() => {
-    setMarkerFilter("ALL");
-  });
-
   useIonViewWillEnter(() => {
     setClassName("");
-    StatusBar.setStyle({ style: Style.Light });
   })
 
   /**
@@ -149,11 +165,25 @@ function Maps() {
     context.setDarkMode(true);
     document.body.classList.toggle("dark");
     context.setDarkMode(true);
-    if (Capacitor.getPlatform() === "ios") {
+    if (Capacitor.getPlatform() === "md") {
       Keyboard.setStyle(keyStyleOptionsDark);
-      StatusBar.setStyle({ style: Style.Dark });
     }
   }, [context]);
+
+  useEffect(() => {
+    const eventListener: any = (ev: CustomEvent<any>) => {
+      ev.detail.register(10, () => {
+        console.log("BACK BUTTON MAPS PAGE");
+        CapacitorApp.exitApp();
+      });
+    };
+
+    document.addEventListener('ionBackButton', eventListener);
+
+    return () => {
+      document.removeEventListener('ionBackButton', eventListener);
+    };
+  }, []);
 
 
   useEffect(() => {
@@ -183,25 +213,6 @@ function Maps() {
 
 
   /**
-   * Runs on page load
-   * Sets styles for filter select options depending on schoolColorToggled
-   */
-  useEffect(() => {
-    if (schoolName === "Cal Poly Humboldt" && context.schoolColorToggled) {
-      setSelectOptions({
-        cssClass: 'my-custom-interface',
-        header: 'Pin Filters',
-        subHeader: 'Select which type of pin to display on the map'
-      })
-    } else {
-      setSelectOptions({
-        header: 'Pin Filters',
-        subHeader: 'Select which type of pin to display on the map'
-      })
-    }
-  }, [schoolName, context.schoolColorToggled])
-
-  /**
    * Runs on initial load
    * Grabs school location based on redux storage
    */
@@ -218,29 +229,19 @@ function Maps() {
   return (
     <IonPage className={className}>
       <IonContent fullscreen={true} className="no-scroll-content">
-        <div className={
-          context.darkMode && schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "overlaySearchDark"
-            : context.darkMode && schoolName === "Cal Poly Humboldt" && !context.schoolColorToggled ? "overlaySearchDarkNotHumboldt"
-              : context.darkMode && schoolName !== "Cal Poly Humboldt" ? "overlaySearchDarkNotHumboldt"
-                : !context.darkMode && schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "overlaySearch"
-                  : "overlaySearchNotHumboldt"
-        }>
-          <IonLabel color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>{"Filter:"}</IonLabel>
+        <div className={context.darkMode ? "overlaySearchDark" : "overlaySearch"}>
           <IonSelect
             interface="action-sheet"
-            interfaceOptions={selectOptions}
             okText="Filter"
             cancelText="Cancel"
-            mode="ios"
             value={markerFilter}
-            style={{ fontSize: "0.9em", transform: "translateY(-35%)" }}
             placeholder="Filter: ALL"
             onIonChange={(e: any) => {
               setOverlayIndex(-1);
               updateMarkers(e.detail.value);
             }}
           >
-            <IonSelectOption value="ALL" class="all-option">All</IonSelectOption>
+            <IonSelectOption value="A">All</IonSelectOption>
             <IonSelectOption value="Dining">Dining</IonSelectOption>
             <IonSelectOption value="Housing">Housing</IonSelectOption>
             <IonSelectOption value="Academics">Academics</IonSelectOption>
@@ -249,7 +250,7 @@ function Maps() {
         </div>
 
         <Map
-          provider={mapTiler}
+          provider={(x, y, z, dpr) => mapTiler(context.mapTilerId, x, y, z, dpr)}
           center={center}
           zoom={mapZoom}
           animate={true}
@@ -265,7 +266,7 @@ function Maps() {
         >
           <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={context.darkMode ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
 
-          {markers ? markers.map((marker, index) => {
+          {filteredMarkers[schoolName] && filteredMarkers[schoolName].map((marker, index) => {
             return (
               <Marker
                 color={marker.color}
@@ -293,41 +294,41 @@ function Maps() {
               />
             );
           })
-            :
-            null}
-          {markers && overlayIndex != -1 && markers[overlayIndex] && "location" in markers[overlayIndex] ? (
+          }
+          {schoolName in filteredMarkers && overlayIndex != -1 && filteredMarkers[schoolName][overlayIndex] && "location" in filteredMarkers[schoolName][overlayIndex] ? (
             <Overlay
               anchor={[
-                markers[overlayIndex].location[0],
-                markers[overlayIndex].location[1],
+                filteredMarkers[schoolName][overlayIndex].location[0],
+                filteredMarkers[schoolName][overlayIndex].location[1],
               ]}
               offset={[110, 25]}
             >
               <IonCard
-                onClick={() => { setClassName("ion-page-ios-notch"); dynamicNavigate("markerInfo/" + schoolName + "/" + markers[overlayIndex].title, "forward"); }}
-                style={{ width: "55vw", opacity: "90%" }}
-                mode="ios"
+                onClick={() => { setClassName("ion-page-md-notch"); dynamicNavigate("markerInfo/" + schoolName + "/" + filteredMarkers[schoolName][overlayIndex].title, "forward"); }}
+                style={context.mapTilerId === 'streets' ? { width: "55vw", opacity: "90%" } : { width: "55vw", opacity: "95%" }}
+                mode="md"
               >
                 <IonCardContent>
-                  <IonCardTitle style={{ fontSize: "medium" }} mode="ios">
-                    {markers[overlayIndex].title}
+                  <div style={{ height: "1vh" }} />
+                  <IonCardTitle style={{ fontSize: "medium" }} mode="md">
+                    {filteredMarkers[schoolName][overlayIndex].title}
                   </IonCardTitle>
                   <IonFab horizontal="end" vertical="top">
-                    <p style={{ fontWeight: "bold", fontSize: "2.5vw", color: markers[overlayIndex].color }}>
-                      {markers[overlayIndex].tag}
+                    <p style={{ fontWeight: "bold", fontSize: "2.5vw", color: filteredMarkers[schoolName][overlayIndex].color }}>
+                      {filteredMarkers[schoolName][overlayIndex].tag}
                     </p>
                   </IonFab>
                   <div style={{ height: "1vh" }} />
                   <p>
-                    {markers[overlayIndex].description[0].substring(0, 110) + " ... "} <IonText color={getIonColor(markers[overlayIndex].color)}>(more)</IonText>
+                    {filteredMarkers[schoolName][overlayIndex].description[0].substring(0, 110) + " ... "} <IonText color={getIonColor(filteredMarkers[schoolName][overlayIndex].color)}>(more)</IonText>
                   </p>
-                  {markers[overlayIndex].imgSrc &&
-                    markers[overlayIndex].imgSrc.length > 0 ? (
+                  {filteredMarkers[schoolName][overlayIndex].imgSrc &&
+                    filteredMarkers[schoolName][overlayIndex].imgSrc.length > 0 ? (
                     <>
                       <div style={{ height: "1vh" }} />
                       <div
                         className="ion-img-container"
-                        style={{ backgroundImage: `url(${markers[overlayIndex].imgSrc[0]})`, borderRadius: '10px' }}
+                        style={{ backgroundImage: `url(${filteredMarkers[schoolName][overlayIndex].imgSrc[0]})`, borderRadius: '10px' }}
                       >
                       </div>
                     </>
@@ -336,15 +337,13 @@ function Maps() {
               </IonCard>
             </Overlay>
           ) : null}
-          <IonFab horizontal="start" vertical="bottom" >
-            <p style={schoolName === 'Cal Poly Humboldt' ?
-              { fontSize: "1em", color: "#0D1117", fontWeight: "bold" } :
-              { fontSize: "1em", color: "#0D1117", fontWeight: "bold" }}>
+          <IonFab horizontal="start" vertical="bottom" style={{ transform: 'translateY(15%)' }}>
+            <p style={context.mapTilerId === 'streets' ? { fontSize: "1em", color: "#0D1117", fontWeight: "bold" } : { fontSize: "1em", color: "#FFFFFF", fontWeight: "bold" }}>
               {schoolName}
             </p>
           </IonFab>
-          <IonFab horizontal="end" vertical="bottom">
-            <IonButton color="light-item" onClick={setDefaultCenter} mode="ios">
+          <IonFab horizontal="end" vertical="bottom" style={{ transform: 'translateX(15%) translateY(-15%)' }}>
+            <IonButton color="light-item" onClick={setDefaultCenter} mode="md">
               {context.darkMode ?
                 <img style={{ width: "20px" }} src={schoolOutlineWhite} />
                 :

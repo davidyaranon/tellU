@@ -39,9 +39,8 @@ import WeekendIcon from '@mui/icons-material/Weekend';
 
 /* Pigeon Map Details */
 export const MAP_TILER_KEY = 'c9MoaJaVglEims9riUks';
-export const MAP_TILER_ID = 'streets';
-export function mapTiler(x: any, y: any, z: any, dpr: any) {
-  return `https://api.maptiler.com/maps/${MAP_TILER_ID}/256/${z}/${x}/${y}.png?key=${MAP_TILER_KEY}`
+export function mapTiler(ID: string, x: any, y: any, z: any, dpr: any) {
+  return `https://api.maptiler.com/maps/${ID}/256/${z}/${x}/${y}.png?key=${MAP_TILER_KEY}`
 }
 
 export interface MapMarker {
@@ -54,230 +53,230 @@ export interface MapMarker {
   chip?: any[];
 }
 
-export let markers: MapMarker[] = [
-  {
-    location: [40.87910000000000, -124.07814836935913],
-    title: "Canyon",
-    imgSrc: [Canyon, Canyon_2, Canyon_3, Canyon_4, Canyon_, /* add_img */],
-    description: ["The Canyon consists of eight separate buildings: Alder, Cedar, Chinquapin, Hemlock, Madrone, Maple, Pepperwood, and Tan Oak. Each building has three levels of residents and is home to approximately 50 students. Each building has a kitchen, laundry room, and a TV/study lounge on the ground floor."],
-    color: "var(--ion-color-housing)",
-    tag: "Housing",
-    chip: [
-      { title: 'Freshmen', color: "ion-blue", icon: SchoolIcon, image: null },
-      { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Canyon_Bathroom },
-      { title: 'Single', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-single_0.jpg' },
-      { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-double_0.jpg' },
-      { title: 'Triple', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-triple.jpg' },
-      { title: 'Suite', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-suite.png' }
-    ]
-  },
-  {
-    location: [40.87650711366812, -124.08006372823574],
-    title: "Library",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-primary)",
-    tag: "Academics"
-  },
-  {
-    location: [40.87820892589766, -124.07966164730095],
-    title: "The Hill",
-    imgSrc: [Hill_1, Hill_2, Hill_3, /* add_img */],
-    description: ["Redwood and Sunset Halls, known as \"The Hill\", are traditional residence halls. Each building is three stories and houses approximately 225 students in primarily double rooms with a limited number of triple and single rooms.",
-      "The triple rooms are the same size as double rooms. The buildings are L-shaped and there are approximately 40 students per floor on each wing.",
-      "On the first floor, one wing of the \"L\" is female, the other wing is male. On the second and third floors, men and women are assigned rooms next to each other. Bathrooms are not co-ed.",
-      "Each room is furnished with a bed, dresser, desk and closet or wardrobe for each resident. All beds are twin extra long. Each floor has a study area and a TV lounge.On the first floor of each building, there is a kitchen, laundry and lounge area with vending machines and ping pong tables. Custodial services clean the hallways, bathrooms and lounges."
+export let markers: Record<string, MapMarker[]> =
+{
+  "Cal Poly Humboldt":
+    [
+      {
+        location: [40.87910000000000, -124.07814836935913],
+        title: "Canyon",
+        imgSrc: [Canyon, Canyon_2, Canyon_3, Canyon_4, Canyon_, /* add_img */],
+        description: ["The Canyon consists of eight separate buildings: Alder, Cedar, Chinquapin, Hemlock, Madrone, Maple, Pepperwood, and Tan Oak. Each building has three levels of residents and is home to approximately 50 students. Each building has a kitchen, laundry room, and a TV/study lounge on the ground floor."],
+        color: "var(--ion-color-housing)",
+        tag: "Housing",
+        chip: [
+          { title: 'Freshmen', color: "ion-blue", icon: SchoolIcon, image: null },
+          { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Canyon_Bathroom },
+          { title: 'Single', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-single_0.jpg' },
+          { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-double_0.jpg' },
+          { title: 'Triple', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-triple.jpg' },
+          { title: 'Suite', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-suite.png' }
+        ]
+      },
+      {
+        location: [40.87650711366812, -124.08006372823574],
+        title: "Library",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-primary)",
+        tag: "Academics"
+      },
+      {
+        location: [40.87820892589766, -124.07966164730095],
+        title: "The Hill",
+        imgSrc: [Hill_1, Hill_2, Hill_3, /* add_img */],
+        description: ["Redwood and Sunset Halls, known as \"The Hill\", are traditional residence halls. Each building is three stories and houses approximately 225 students in primarily double rooms with a limited number of triple and single rooms.",
+          "The triple rooms are the same size as double rooms. The buildings are L-shaped and there are approximately 40 students per floor on each wing.",
+          "On the first floor, one wing of the \"L\" is female, the other wing is male. On the second and third floors, men and women are assigned rooms next to each other. Bathrooms are not co-ed.",
+          "Each room is furnished with a bed, dresser, desk and closet or wardrobe for each resident. All beds are twin extra long. Each floor has a study area and a TV lounge.On the first floor of each building, there is a kitchen, laundry and lounge area with vending machines and ping pong tables. Custodial services clean the hallways, bathrooms and lounges."
+        ],
+        chip: [
+          { title: 'Freshmen', color: "ion-blue", icon: SchoolIcon, image: null },
+          { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Bathroom },
+          { title: 'Gender Neutral Private Bathroom ', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Gender_Neutral_Bathroom },
+          { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/hill-double_0.jpg' },
+          { title: 'Triple', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/hill-triple.jpg' },
+          { title: 'Lounge Area', color: "primary", icon: WeekendIcon, local: true, image: '' },
+        ],
+        color: "var(--ion-color-housing)",
+        tag: "Housing"
+      },
+      {
+        location: [40.87875191469408, -124.07862230601667],
+        title: "Jolly Giant Commons",
+        imgSrc: [j_0, j_1, j_3, /* add_img */],
+        description: [""],
+        color: "var(--ion-color-dining)",
+        tag: "Dining/Recreation",
+      },
+      {
+        location: [40.878263687897764, -124.07816712005274],
+        title: "Cypress",
+        imgSrc: [Cypress_1, Cypress_0, Cypress_2, Cypress_3, /* add_img */],
+        description: ["Cypress is a series of suites built up the slope of a hillside and houses 231 students. A suite houses 7 to 12 students. Each suite has a living room, bathroom, and a small kitchen area with cooking facilities and a dining table.",
+          "Some suites have either a balcony or patio off the living room. There is a main laundry facility on the ground floor of the Cypress complex. There are some suites that have washers and dryers in the suites. A basketball hoop, barbecue, lawn, and recreation area are located on the grounds adjacent to Cypress.",
+          "The suites consist of double and single rooms. All rooms are furnished with a bed, desk and wardrobe closet for each resident. All beds are twin extra long. The rooms are wired for optional telephone service and cable TV service. Every resident has the ability to access the internet through wired or wireless connections. Custodial services clean the common areas: kitchen, bathroom, living room and hallway."
+        ],
+        color: "var(--ion-color-housing)",
+        tag: "Housing",
+        chip: [
+          { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
+          { title: "Single", color: "primary", icon: HotelIcon, image: null },
+          { title: "Double", color: "primary", icon: HotelIcon, image: null },
+        ]
+      },
+      {
+        location: [40.877495692957545, -124.0783592939952],
+        title: "SAC",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-dining)",
+        tag: "Dining/Recreation"
+      },
+      {
+        location: [40.876192370982764, -124.0789702440554],
+        title: "Van Duzer Theater",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-primary)",
+        tag: "Academics"
+      },
+      {
+        location: [40.87720119793835, -124.07725674812491],
+        title: "Founders Hall",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-primary)",
+        tag: "Academics"
+      },
+      {
+        location: [40.87551466263999, -124.08060995139243],
+        title: "Campus Apartments",
+        imgSrc: [Apts_0, Apts_1, Apts_2, /* add_img */],
+        description: ["The Campus Apartments are home to 207 students in a four level complex comprised of 54 apartments. Each apartment has two rooms with private entrances that share an adjoining kitchen",
+          "Rooms house either one or two residents and have private bathrooms. The rooms are furnished with a bed, desk, chair and dresser for each resident and a shared closet. Individual apartments are single gender or coed.",
+          "Residents in each unit are responsible for the cleaning of the common area kitchen and bathroom. All residents are responsible for supplying toiletries and bathroom tissue. Laundry facilities are located next to the second floor, and there is a lounge available to residents next to the mailboxes. All beds are extra long twin beds, EXCEPT for the following: double rooms 1-16, 25-32, 40-47 on the A2 or B1 side and double rooms 17-24, 33-39, 48-55 on the A1 or B2 side. Single rooms have either a regular twin or an extra long twin.",
+          "Private Bathroom in apartment, toilet and shower behind a full door with a lock - 1 toilet & 1 shower."],
+        color: "var(--ion-color-housing)",
+        tag: "Housing",
+        chip: [
+          { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
+          { title: 'Double', color: "primary", icon: HotelIcon, local: true, image: null },
+          { title: 'Private Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Bathroom },
+        ]
+      },
+      {
+        location: [40.874678149454596, -124.08341969266914],
+        title: "Hey Juan Burritos",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-dining)",
+        tag: "Dining"
+      },
+      {
+        location: [40.87802147101603, -124.07497323187258],
+        title: "Creekview",
+        imgSrc: [Creekview_1, Creekview_2, Creekview_3, Creekview_4, Creekview_5, /* add_img */],
+        description: ["The complex is comprised of four, three story buildings, with a centrally located lounge and a laundry room.",
+          "Creekview Apartments(Fern and Willow) have a full kitchen, living room, dining area and bathroom. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin. The apartments house 6 students, either in two double rooms and one single or in three doubles. Individual apartments are single gender or coed. ",
+          "Creekview Suites(Juniper and Laurel) have a mini kitchenette(with induction stovetop), living room, dining area and a bathroom. Individual suites are single gender or coed. In the coed suites, we assign same genders only to the double rooms and will not assign men and women to the same room. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin, except for rooms that end with the number 6; these rooms have extra long twin beds. The suites house 6 students in two double rooms and two single rooms, or suites in Juniper have a double, single and triple room. The newly created triple rooms offer a unique space that combines a former double and single room for our lowest rate."
+        ],
+        color: "var(--ion-color-housing)",
+        tag: "Housing",
+        chip: [
+          { title: 'Freshman & Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
+          { title: 'Private bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Creekview_Bathroom },
+          { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview-6.jpg' },
+          { title: '6 Person Suite', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview_suite.jpeg' },
+        ]
+      },
+      {
+        location: [40.87287985572268, -124.07712777876847],
+        title: "BSS",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-primary)",
+        tag: "Academics"
+      },
+      {
+        location: [40.87395509634375, -124.07998604637758],
+        title: "Marketplace",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-dining)",
+        tag: "Dining"
+      },
+      {
+        location: [40.877441480341396, -124.07925574696338],
+        title: "Nelson Hall",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-primary)",
+        tag: "Academics"
+      },
+      {
+        location: [40.875505404545414, -124.07919569964085],
+        title: "Gist Hall",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-primary)",
+        tag: "Academics"
+      },
+      {
+        location: [40.87663434160527, -124.07610282652482],
+        title: "Redwood Bowl",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-toast-success)",
+        tag: "Recreation"
+      },
+      {
+        location: [40.87411504682606, -124.07780297128161],
+        title: "Campus Events Field",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-toast-success)",
+        tag: "Recreation"
+      },
+      {
+        location: [40.873861486807506, -124.0809568314154],
+        title: "College Creek",
+        imgSrc: [Creek_0, Creek_1, Creek_2, Creek_3, /* add_img */],
+        description: ["The College Creek complex offers 97 apartments to call home, complete with kitchens and furnished living areas, all located next to a community center and NCAA soccer field. Each fully furnished apartment includes all the amenities to help make your stay more comfortable. Residents in each apartment are responsible for the cleaning of the common area kitchen, bathroom, living room and hallway. All residents are responsible for supplying toiletries and bathroom tissue.",
+          "Two private bathrooms in each apartment, toilet and shower behind a full door with a lock - 1 toilet & 1 shower in each."],
+        color: "var(--ion-color-housing)",
+        tag: "Housing",
+        chip: [
+          { title: 'Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
+          { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
+          { title: '4-5 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
+        ]
+      },
+      {
+        location: [40.87453111017034, -124.079232591335],
+        title: "SBS",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-toast-success)",
+        tag: ""
+      },
+      {
+        location: [40.87354865256135, -124.07723521298793],
+        title: "Forestry",
+        imgSrc: [/* add_img */],
+        description: [""],
+        color: "var(--ion-color-primary)",
+        tag: "Academics"
+      },
     ],
-    chip: [
-      { title: 'Freshmen', color: "ion-blue", icon: SchoolIcon, image: null },
-      { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Bathroom },
-      { title: 'Gender Neutral Private Bathroom ', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Gender_Neutral_Bathroom },
-      { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/hill-double_0.jpg' },
-      { title: 'Triple', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/hill-triple.jpg' },
-      { title: 'Lounge Area', color: "primary", icon: WeekendIcon, local: true, image: '' },
-    ],
-    color: "var(--ion-color-housing)",
-    tag: "Housing"
-  },
-  {
-    location: [40.87875191469408, -124.07862230601667],
-    title: "Jolly Giant Commons",
-    imgSrc: [j_0, j_1, j_3, /* add_img */],
-    description: [""],
-    color: "var(--ion-color-dining)",
-    tag: "Dining/Recreation",
-  },
-  {
-    location: [40.878263687897764, -124.07816712005274],
-    title: "Cypress",
-    imgSrc: [Cypress_1, Cypress_0, Cypress_2, Cypress_3, /* add_img */],
-    description: ["Cypress is a series of suites built up the slope of a hillside and houses 231 students. A suite houses 7 to 12 students. Each suite has a living room, bathroom, and a small kitchen area with cooking facilities and a dining table.",
-      "Some suites have either a balcony or patio off the living room. There is a main laundry facility on the ground floor of the Cypress complex. There are some suites that have washers and dryers in the suites. A basketball hoop, barbecue, lawn, and recreation area are located on the grounds adjacent to Cypress.",
-      "The suites consist of double and single rooms. All rooms are furnished with a bed, desk and wardrobe closet for each resident. All beds are twin extra long. The rooms are wired for optional telephone service and cable TV service. Every resident has the ability to access the internet through wired or wireless connections. Custodial services clean the common areas: kitchen, bathroom, living room and hallway."
-    ],
-    color: "var(--ion-color-housing)",
-    tag: "Housing",
-    chip: [
-      { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
-      { title: "Single", color: "primary", icon: HotelIcon, image: null },
-      { title: "Double", color: "primary", icon: HotelIcon, image: null },
-    ]
-  },
-  {
-    location: [40.877495692957545, -124.0783592939952],
-    title: "SAC",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-dining)",
-    tag: "Dining/Recreation"
-  },
-  {
-    location: [40.876192370982764, -124.0789702440554],
-    title: "Van Duzer Theater",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-primary)",
-    tag: "Academics"
-  },
-  {
-    location: [40.87720119793835, -124.07725674812491],
-    title: "Founders Hall",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-primary)",
-    tag: "Academics"
-  },
-  {
-    location: [40.87551466263999, -124.08060995139243],
-    title: "Campus Apartments",
-    imgSrc: [Apts_0, Apts_1, Apts_2, /* add_img */],
-    description: ["The Campus Apartments are home to 207 students in a four level complex comprised of 54 apartments. Each apartment has two rooms with private entrances that share an adjoining kitchen",
-      "Rooms house either one or two residents and have private bathrooms. The rooms are furnished with a bed, desk, chair and dresser for each resident and a shared closet. Individual apartments are single gender or coed.",
-      "Residents in each unit are responsible for the cleaning of the common area kitchen and bathroom. All residents are responsible for supplying toiletries and bathroom tissue. Laundry facilities are located next to the second floor, and there is a lounge available to residents next to the mailboxes. All beds are extra long twin beds, EXCEPT for the following: double rooms 1-16, 25-32, 40-47 on the A2 or B1 side and double rooms 17-24, 33-39, 48-55 on the A1 or B2 side. Single rooms have either a regular twin or an extra long twin.",
-      "Private Bathroom in apartment, toilet and shower behind a full door with a lock - 1 toilet & 1 shower."],
-    color: "var(--ion-color-housing)",
-    tag: "Housing",
-    chip: [
-      { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
-      { title: 'Double', color: "primary", icon: HotelIcon, local: true, image: null },
-      { title: 'Private Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Bathroom },
-    ]
-  },
-  {
-    location: [40.874678149454596, -124.08341969266914],
-    title: "Hey Juan Burritos",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-dining)",
-    tag: "Dining"
-  },
-  {
-    location: [40.87802147101603, -124.07497323187258],
-    title: "Creekview",
-    imgSrc: [Creekview_1, Creekview_2, Creekview_3, Creekview_4, Creekview_5, /* add_img */],
-    description: ["The complex is comprised of four, three story buildings, with a centrally located lounge and a laundry room.",
-      "Creekview Apartments(Fern and Willow) have a full kitchen, living room, dining area and bathroom. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin. The apartments house 6 students, either in two double rooms and one single or in three doubles. Individual apartments are single gender or coed. ",
-      "Creekview Suites(Juniper and Laurel) have a mini kitchenette(with induction stovetop), living room, dining area and a bathroom. Individual suites are single gender or coed. In the coed suites, we assign same genders only to the double rooms and will not assign men and women to the same room. All rooms are furnished with a bed, desk, dresser and closet. All beds are standard twin, except for rooms that end with the number 6; these rooms have extra long twin beds. The suites house 6 students in two double rooms and two single rooms, or suites in Juniper have a double, single and triple room. The newly created triple rooms offer a unique space that combines a former double and single room for our lowest rate."
-    ],
-    color: "var(--ion-color-housing)",
-    tag: "Housing",
-    chip: [
-      { title: 'Freshman & Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
-      { title: 'Private bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Creekview_Bathroom },
-      { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview-6.jpg' },
-      { title: '6 Person Suite', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview_suite.jpeg' },
-    ]
-  },
-  {
-    location: [40.87287985572268, -124.07712777876847],
-    title: "BSS",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-primary)",
-    tag: "Academics"
-  },
-  {
-    location: [40.87395509634375, -124.07998604637758],
-    title: "Marketplace",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-dining)",
-    tag: "Dining"
-  },
-  {
-    location: [40.877441480341396, -124.07925574696338],
-    title: "Nelson Hall",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-primary)",
-    tag: "Academics"
-  },
-  {
-    location: [40.875505404545414, -124.07919569964085],
-    title: "Gist Hall",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-primary)",
-    tag: "Academics"
-  },
-  {
-    location: [40.87663434160527, -124.07610282652482],
-    title: "Redwood Bowl",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-toast-success)",
-    tag: "Recreation"
-  },
-  {
-    location: [40.87411504682606, -124.07780297128161],
-    title: "Campus Events Field",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-toast-success)",
-    tag: "Recreation"
-  },
-  {
-    location: [40.873861486807506, -124.0809568314154],
-    title: "College Creek",
-    imgSrc: [Creek_0, Creek_1, Creek_2, Creek_3, /* add_img */],
-    description: ["The College Creek complex offers 97 apartments to call home, complete with kitchens and furnished living areas, all located next to a community center and NCAA soccer field. Each fully furnished apartment includes all the amenities to help make your stay more comfortable. Residents in each apartment are responsible for the cleaning of the common area kitchen, bathroom, living room and hallway. All residents are responsible for supplying toiletries and bathroom tissue.",
-      "Two private bathrooms in each apartment, toilet and shower behind a full door with a lock - 1 toilet & 1 shower in each."],
-    color: "var(--ion-color-housing)",
-    tag: "Housing",
-    chip: [
-      { title: 'Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
-      { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
-      { title: '4-5 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
-    ]
-  },
-  {
-    location: [40.87453111017034, -124.079232591335],
-    title: "SBS",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-toast-success)",
-    tag: ""
-  },
-  {
-    location: [40.87354865256135, -124.07723521298793],
-    title: "Forestry",
-    imgSrc: [/* add_img */],
-    description: [""],
-    color: "var(--ion-color-primary)",
-    tag: "Academics"
-  },
-];
+  "": [{ location: [], title: "", color: "", imgSrc: [""], description: [""], tag: "" }]
+};
 
-export const markersCopy: MapMarker[] = markers;
-export const setMarkers = (filter: string) => {
-  if (filter === "ALL") {
-    markers = markersCopy;
-  } else {
-    markers = markersCopy.filter((marker) => marker.tag.includes(filter));
-  }
+export const davisPOIs: Record<string, number[]> = {
+  "": [2]
 }
 
-export const humboldtPOIs = {
+export const humboldtPOIs: Record<string, number[]> = {
   "Canyon": [40.87863884021505, -124.07773811097722, 40.87927157680416, -124.07703000779729, 40.879977314325885, -124.07843012090306, 40.87937703231433, -124.0789772915421],
   "Jolly Giant Commons": [40.878750411486195, -124.07907665054881, 40.878490825932374, -124.07866895477855, 40.87887209186412, -124.0782451657542, 40.87911139595486, -124.07865822594249],
   "Cypress": [40.87818609176301, -124.07890691320519, 40.87854302328025, -124.07842411558251, 40.87832399735009, -124.07807542841057, 40.87791839186204, -124.07850994627098],
@@ -301,9 +300,9 @@ export const humboldtPOIs = {
   "Campus Events Field": [40.87440986131338, -124.07852599690956, 40.87439769246541, -124.07701323102516, 40.87382169776997, -124.07704541753334, 40.87382169776997, -124.07850990365547],
   "BSS": [40.872403722347585, -124.07771440677251, 40.87314604033667, -124.0777465932807, 40.87317849120643, -124.07644840411749, 40.8723834403185, -124.07651814155187],
   "Forestry": [40.873369735739, -124.07759248444609, 40.87341029918665, -124.07654642293028, 40.87375103116581, -124.07661616036467, 40.87372669322545, -124.07760321328215],
-};
+}
 
-export const schoolInfo = {
+export const schoolInfo : Record<string, number[]> = {
   "Cal Poly Humboldt": [40.87649434150835, -124.07918370203882, 15.5],
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
   "UC Davis": [38.53906813693881, -121.7519863294826, 15],
@@ -341,9 +340,9 @@ export const schoolInfo = {
 export const zoomControlButtonsStyleDark = {
   width: "50px",
   height: '50px',
-  borderRadius: '7.5px',
+  borderRadius: '5px',
   boxShadow: '0 1px 4px -1px rgba(0,0,0,.3)',
-  background: '#2f2f2f',
+  background: '#0D1117',
   lineHeight: '50px',
   fontSize: '25PX',
   fontWeight: '500',
@@ -353,7 +352,7 @@ export const zoomControlButtonsStyleDark = {
   display: 'block',
   outline: 'none',
   textIndent: '0px',
-}; // +/- buttons that appear on map can be styled here
+} // +/- buttons that appear on map can be styled here
 
 export const zoomControlButtonsStyle = {
   width: "50px",

@@ -109,7 +109,7 @@ export const PollModal = (props: any) => {
       <IonContent>
         <div>
           <div style={{ width: "100%" }}>
-            <IonToolbar mode="md">
+            <IonToolbar mode="ios">
               <IonButtons>
                 <IonButton
                   color={"primary"}
@@ -126,7 +126,7 @@ export const PollModal = (props: any) => {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton color="light" onClick={submitPoll} className={"post-button"} fill="clear">Post</IonButton>
+                <IonButton color="light" onClick={submitPoll} expand='block' className={"post-button"} fill="clear">Post</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
