@@ -23,6 +23,10 @@ const locationOptions: GeolocationOptions = {
   timeout: 5000
 };
 
+function area(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): number {
+  return Math.abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
+}
+
 export const LocationPinModal = (props: any) => {
 
   /* props */
@@ -170,10 +174,6 @@ export const LocationPinModal = (props: any) => {
     messageAdd();
   };
 
-  function area(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): number {
-    return Math.abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
-  }
-
   /**
    * @description sees if the user is currently in a POI based on their location
    * 
@@ -189,7 +189,7 @@ export const LocationPinModal = (props: any) => {
       const A2 = area(lat, long, arr[2], arr[3], arr[4], arr[5]);
       const A3 = area(lat, long, arr[4], arr[5], arr[6], arr[7]);
       const A4 = area(lat, long, arr[0], arr[1], arr[6], arr[7]);
-      if (Math.abs(A - (A1 + A2 + A3 + A4)) < 0.0000000000000001 ) {
+      if (Math.abs(A - (A1 + A2 + A3 + A4)) < 0.0000000000000001) {
         console.log("Post is in POI: " + key);
         return key;
       }
@@ -209,14 +209,14 @@ export const LocationPinModal = (props: any) => {
       const pos = await Geolocation.getCurrentPosition(locationOptions);
       const poi: string = checkPOI(pos.coords.latitude, pos.coords.longitude);
       if ((poi === "") || (!poi) || (poi.length < 0)) {
-        const toast = Toast.create({ message: 'Location not in a POI', duration: 2000, color: 'toast-error' });
+        const toast = Toast.create({ message: 'Looks like you are not near a pinned location!', duration: 2000, color: 'toast-error' });
         toast.present();
         dismiss();
         return;
       }
       setPOI(poi.trim());
       setPosition(pos);
-      const toast = Toast.create({ message: 'POI: ' + poi + ' added!', duration: 2000, color: 'toast-success' });
+      const toast = Toast.create({ message: 'Location: ' + poi + ' added!', duration: 2000, color: 'toast-success' });
       toast.present();
       toast.dismiss();
       dismiss();
@@ -311,10 +311,10 @@ export const LocationPinModal = (props: any) => {
         </IonItem>
       </IonList>
 
-      {POI.length > 0 ?
+      {POI.length > 0 && locationChecked ?
         <IonNote style={{ textAlign: "center" }}>Location: {POI}</IonNote>
         :
-        <IonNote style={{ textAlign: "center" }}>*Clicking this will use your current location to link your post to one of many POIs on campus.</IonNote>
+        <IonNote style={{ textAlign: "center" }}>*Will add your post to the map pin corresponding to your location on campus</IonNote>
       }
 
       <br />
