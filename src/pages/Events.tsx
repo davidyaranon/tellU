@@ -64,7 +64,7 @@ const Events = React.memo(() => {
     }
     await Share.share({
       title: title,
-      text: text,
+      text: title + text,
       url: url,
       dialogTitle: dialogTitle
     });

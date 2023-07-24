@@ -15,7 +15,7 @@ export const PostType = (props: any) => {
 
   if (type) {
     return (
-      <IonFab vertical="top" horizontal="end" onClick={(e) => {
+      <IonFab vertical="top" horizontal="end" style={{paddingRight : "1%", paddingTop : "1%"}} onClick={(e) => {
         if(type === "buy/Sell") {
           type = "buySell";
         }
