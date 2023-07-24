@@ -24,7 +24,7 @@ export const PostMessage = (props: any) => {
               e.stopPropagation();
               history.push("/class/" + schoolName + "/" + className);
             }}
-            color="medium"
+            color="primary"
             style={{ fontWeight: "400" }}
           >
             &nbsp; — {className}{classNumber || ''}
