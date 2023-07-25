@@ -145,12 +145,18 @@
   --ion-color-buysell-tint: #2ea56a;
 
   --ion-color-tab-bar-background: #1b1b20;
-  ;
   --ion-color-tab-bar-background-rgb: 27, 27, 32;
   --ion-color-tab-bar-background-contrast: #ffffff;
   --ion-color-tab-bar-background-contrast-rgb: 255, 255, 255;
   --ion-color-tab-bar-background-shade: #18181c;
   --ion-color-tab-bar-background-tint: #323236;
+
+  --ion-color-tab-bar-background-light: #f2f1f1;
+	--ion-color-tab-bar-background-light-rgb: 242,241,241;
+	--ion-color-tab-bar-background-light-contrast: #000000;
+	--ion-color-tab-bar-background-light-contrast-rgb: 0,0,0;
+	--ion-color-tab-bar-background-light-shade: #d5d4d4;
+	--ion-color-tab-bar-background-light-tint: #f3f2f2;
 
   --ion-color-toast-success: #61fbce;
   --ion-color-toast-success-rgb: 97, 251, 206;
@@ -308,6 +314,7 @@ body {
   --ion-toolbar-background: #ffffff;
 
   --ion-item-background: #f2f1f1;
+  --ion-tab-bar-background: #f2f1f1;
 
   --ion-card-background: #e5e5e5;
 }
@@ -578,4 +585,13 @@ body {
 	--ion-color-contrast-rgb: var(--ion-color-medium-light-contrast-rgb);
 	--ion-color-shade: var(--ion-color-medium-light-shade);
 	--ion-color-tint: var(--ion-color-medium-light-tint);
+}
+
+.ion-color-tab-bar-background-light {
+	--ion-color-base: var(--ion-color-tab-bar-background-light);
+	--ion-color-base-rgb: var(--ion-color-tab-bar-background-light-rgb);
+	--ion-color-contrast: var(--ion-color-tab-bar-background-light-contrast);
+	--ion-color-contrast-rgb: var(--ion-color-tab-bar-background-light-contrast-rgb);
+	--ion-color-shade: var(--ion-color-tab-bar-background-light-shade);
+	--ion-color-tint: var(--ion-color-tab-bar-background-light-tint);
 }

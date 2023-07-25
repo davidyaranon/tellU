@@ -300,11 +300,11 @@ const Home: React.FC = () => {
     SplashScreen.hide();
   }, []);
 
-  useIonViewWillEnter(() => {
-    if (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'ios') {
-      StatusBar.setStyle({ style: Style.Dark })
-    }
-  });
+  // useIonViewWillEnter(() => {
+  //   if (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'ios') {
+  //     StatusBar.setStyle({ style: Style.Dark })
+  //   }
+  // });
 
   useIonViewWillEnter(() => {
     if (context.showTabs === false) {

@@ -18,7 +18,6 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useToast } from "@agney/ir-toast";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Dialog } from "@capacitor/dialog";
-import { navigateBack } from "../components/Shared/Navigation";
 
 interface MatchUserPostParams {
   school: string;
@@ -114,9 +113,9 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
     getPosts();
   }, []);
 
-  useIonViewWillEnter(() => {
-    StatusBar.setStyle({ style: Style.Dark })
-  });
+  // useIonViewWillEnter(() => {
+  //   StatusBar.setStyle({ style: Style.Dark })
+  // });
 
   return (
     <IonPage>

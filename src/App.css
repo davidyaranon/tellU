@@ -662,7 +662,7 @@ ion-tab-button[aria-selected=true].tab-light {
 
 .overlaySearch {
   position: absolute;
-  z-index: 2;
+  z-index: 100;
   width: 70%;
   height: 3rem;
   text-align: center;

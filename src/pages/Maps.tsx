@@ -224,6 +224,7 @@ function Maps() {
               setOverlayIndex(-1);
               updateMarkers(e.detail.value);
             }}
+            style={{fontWeight: "bold"}}
           >
             <IonSelectOption value="A">All</IonSelectOption>
             <IonSelectOption value="Dining">Dining</IonSelectOption>

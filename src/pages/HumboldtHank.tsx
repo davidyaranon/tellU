@@ -85,10 +85,10 @@ export const HumboldtHank = () => {
   /**
   * Sets the status bar to dark mode on iOS
   */
-  useIonViewWillEnter(() => {
-    if (Capacitor.getPlatform() === 'ios')
-      StatusBar.setStyle({ style: Style.Dark });
-  }, []);
+  // useIonViewWillEnter(() => {
+  //   if (Capacitor.getPlatform() === 'ios')
+  //     StatusBar.setStyle({ style: Style.Dark });
+  // }, []);
 
 
   // useEffect(() => {
@@ -114,7 +114,7 @@ export const HumboldtHank = () => {
   return (
     <IonPage>
       <IonHeader collapse="fade" className='ion-no-border'>
-        <IonToolbar mode='ios' color='tab-bar-background' className='ion-no-border'>
+        <IonToolbar mode='ios' color={context.darkMode ? 'tab-bar-background' : 'tab-bar-background-light'} className='ion-no-border'>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ height: "1vh" }} />
             <IonAvatar onClick={openImage}>
