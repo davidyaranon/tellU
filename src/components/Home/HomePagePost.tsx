@@ -14,6 +14,7 @@ import { useToast } from "@agney/ir-toast";
 import '../../App.css';
 import { Dialog } from "@capacitor/dialog";
 import { warningSharp } from "ionicons/icons";
+import FadeIn from "react-fade-in/lib/FadeIn";
 
 export const HomePagePost = (props: any) => {
   const post = props.post;
@@ -57,21 +58,22 @@ export const HomePagePost = (props: any) => {
   }, [])
 
   return (
-    <IonList key={index} inset mode="ios" >
-      <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
-        <IonLabel>
-          <IonRow>
-            <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); if (profileClickable !== false) history.push("/about/" + schoolName + "/" + post.uid); }} >
-              <ProfilePhoto uid={post.uid} />
-            </IonAvatar>
-            <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
-          </IonRow>
-          <PostType schoolName={schoolName} type={post.postType} marker={post.marker} POI={post.POI} timestamp={post.timestamp} />
-          <PostMessage schoolName={schoolName} message={post.message} classNumber={post.classNumber} className={post.className} reports={post.reports || 0} />
-          <PostImages userName={post.userName} imgSrc={post.imgSrc || []} reports={post.reports || 0} />
-        </IonLabel>
-      </IonItem>
-      {likes && dislikes && Object.keys(likes).length - 1 !== -1 &&
+    <FadeIn key={index}>
+      <IonList inset mode="ios" >
+        <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+          <IonLabel>
+            <IonRow>
+              <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); if (profileClickable !== false) history.push("/about/" + schoolName + "/" + post.uid); }} >
+                <ProfilePhoto uid={post.uid} />
+              </IonAvatar>
+              <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+            </IonRow>
+            <PostType schoolName={schoolName} type={post.postType} marker={post.marker} POI={post.POI} timestamp={post.timestamp} />
+            <PostMessage schoolName={schoolName} message={post.message} classNumber={post.classNumber} className={post.className} reports={post.reports || 0} />
+            <PostImages userName={post.userName} imgSrc={post.imgSrc || []} reports={post.reports || 0} />
+          </IonLabel>
+        </IonItem>
+        {likes && dislikes && Object.keys(likes).length - 1 !== -1 &&
           <IonItem lines="none" mode="ios">
             <IonButton
               onAnimationEnd={() => { setLikeAnimation(-1); }}
@@ -139,6 +141,7 @@ export const HomePagePost = (props: any) => {
             }
           </IonItem>
         }
-    </IonList>
+      </IonList>
+    </FadeIn>
   )
 }

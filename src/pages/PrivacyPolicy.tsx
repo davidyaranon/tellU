@@ -101,7 +101,7 @@ export const PrivacyPolicy = () => {
 
   return (
     <IonPage>
-      <Toolbar deleteButton={true} text={'\n'} deleteAccount={handleDeleteUser} />
+      <Toolbar deleteButton={true} text={'Back'} deleteAccount={handleDeleteUser} />
       <IonContent>
         <IonCard>
           <IonCardContent>

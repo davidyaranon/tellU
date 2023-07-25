@@ -106,7 +106,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       "title": "Checkout this post on tellU",
       "url": "https://quantum-61b84.firebaseapp.com" + window.location.pathname
     });
-  }
+  };
 
   /**
    * @description Sends an image to Firestore storage under /commentImages/{uuid}

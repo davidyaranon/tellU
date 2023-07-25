@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@agney/ir-toast";
 import { useContext } from "../my-context";
 import { dynamicNavigate } from "../components/Shared/Navigation";
+import { timeout } from "../helpers/timeout";
 
 
 interface MatchUserPostParams {
@@ -231,7 +232,9 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
    */
   useEffect(() => {
     if (messages) {
-      contentRef.current && contentRef.current.scrollToBottom(1000);
+      timeout(750).then(() => {
+        contentRef.current && contentRef.current.scrollToBottom(1000);
+      })
     }
   }, [messages])
 
@@ -421,9 +424,9 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   </>
                   :
                   <FadeIn delay={1000}>
-                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", transform : "translateY(25vh)"}}>
-                      <p style={{ textAlign: "center",}}>Send a DM!</p>
-                      </div>
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", transform: "translateY(25vh)" }}>
+                      <p style={{ textAlign: "center", }}>Send a DM!</p>
+                    </div>
                   </FadeIn>
             }
             {kbHeight !== 0 || kbHeight > 0 ?
