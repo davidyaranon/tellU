@@ -21,8 +21,6 @@ const AppUrlListener: React.FC<any> = () => {
             history.push(path);
           }
         });
-      } else {
-        history.push()
       }
     }
   }, [loading, user]);
