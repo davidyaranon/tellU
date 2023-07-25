@@ -377,20 +377,6 @@ const Events = React.memo(() => {
     context.setShowTabs(true);
   }, [context]);
 
-  React.useEffect(() => {
-    const eventListener: any = (ev: CustomEvent<any>) => {
-      ev.detail.register(10, () => {
-        CapacitorApp.exitApp();
-      });
-    };
-
-    document.addEventListener('ionBackButton', eventListener);
-
-    return () => {
-      document.removeEventListener('ionBackButton', eventListener);
-    };
-  }, []);
-
   const setSchool = React.useCallback(async () => {
     const school = await Preferences.get({ key: 'school' });
     console.log(school);

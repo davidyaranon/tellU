@@ -118,21 +118,6 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
     StatusBar.setStyle({ style: Style.Dark })
   });
 
-  useEffect(() => {
-    const eventListener: any = (ev: CustomEvent<any>) => {
-      ev.detail.register(10, () => {
-        console.log("BACK BUTTON POST\n");
-        navigateBack(router);
-      });
-    };
-
-    document.addEventListener('ionBackButton', eventListener);
-
-    return () => {
-      document.removeEventListener('ionBackButton', eventListener);
-    };
-  }, [router]);
-
   return (
     <IonPage>
       <Toolbar text={'Back'} title={markerTitle} />

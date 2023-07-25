@@ -112,20 +112,6 @@ export const HumboldtHank = () => {
     context.setShowTabs(true);
   }, []);
 
-  useEffect(() => {
-    const eventListener: any = (ev: CustomEvent<any>) => {
-      ev.detail.register(10, () => {
-        CapacitorApp.exitApp();
-      });
-    };
-
-    document.addEventListener('ionBackButton', eventListener);
-
-    return () => {
-      document.removeEventListener('ionBackButton', eventListener);
-    };
-  }, []);
-
 
   return (
     <IonPage>

@@ -113,21 +113,6 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
     )
   };
 
-  useEffect(() => {
-    const eventListener: any = (ev: CustomEvent<any>) => {
-      ev.detail.register(10, () => {
-        console.log("BACK BUTTON classes page\n");
-        navigateBack(router);
-      });
-    };
-
-    document.addEventListener('ionBackButton', eventListener);
-
-    return () => {
-      document.removeEventListener('ionBackButton', eventListener);
-    };
-  }, [router]);
-
   return (
     <IonPage >
       <>
