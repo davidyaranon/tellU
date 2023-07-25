@@ -10,7 +10,7 @@ import {
   RouterDirection, useIonViewWillEnter, IonText
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
-import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
+import {  KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
 
 /* Firebase */
 import auth from "../fbConfig";
@@ -160,14 +160,14 @@ function Maps() {
   }, []);
 
 
-  useEffect(() => {
-    context.setDarkMode(true);
-    document.body.classList.toggle("dark");
-    context.setDarkMode(true);
-    if (Capacitor.getPlatform() === "md") {
-      Keyboard.setStyle(keyStyleOptionsDark);
-    }
-  }, [context]);
+  // useEffect(() => {
+  //   context.setDarkMode(true);
+  //   document.body.classList.toggle("dark");
+  //   context.setDarkMode(true);
+  //   if (Capacitor.getPlatform() === "ios") {
+  //     Keyboard.setStyle(keyStyleOptionsDark);
+  //   }
+  // }, [context]);
 
 
   useEffect(() => {
@@ -213,7 +213,7 @@ function Maps() {
   return (
     <IonPage className={className}>
       <IonContent fullscreen={true} className="no-scroll-content">
-        <div className={context.darkMode ? "overlaySearchDark" : "overlaySearch"}>
+        <div className={!context.darkMode ? "overlaySearch" : "overlaySearchDark"}>
           <IonSelect
             interface="action-sheet"
             okText="Filter"
@@ -234,7 +234,7 @@ function Maps() {
         </div>
 
         <Map
-          provider={(x, y, z, dpr) => mapTiler(context.mapTilerId, x, y, z, dpr)}
+          provider={(x, y, z, dpr) => mapTiler(context.darkMode, x, y, z, dpr)}
           center={center}
           zoom={mapZoom}
           minZoom={5}
@@ -249,7 +249,7 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
-          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={context.darkMode ? zoomControlButtonsStyleDark : zoomControlButtonsStyle} />
+          <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={!context.darkMode ? zoomControlButtonsStyle : zoomControlButtonsStyleDark} />
 
           {filteredMarkers[schoolName] && filteredMarkers[schoolName].map((marker, index) => {
             return (
@@ -289,13 +289,13 @@ function Maps() {
               offset={[110, 25]}
             >
               <IonCard
-                onClick={() => { setClassName("ion-page-md-notch"); dynamicNavigate("markerInfo/" + schoolName + "/" + filteredMarkers[schoolName][overlayIndex].title, "forward"); }}
-                style={context.mapTilerId === 'streets' ? { width: "55vw", opacity: "90%" } : { width: "55vw", opacity: "95%" }}
-                mode="md"
+                onClick={() => { setClassName("ion-page-ios-notch"); dynamicNavigate("markerInfo/" + schoolName + "/" + filteredMarkers[schoolName][overlayIndex].title, "forward"); }}
+                style={!context.darkMode ? { width: "55vw", opacity: "90%" } : { width: "55vw", opacity: "95%" }}
+                mode="ios"
               >
                 <IonCardContent>
                   <div style={{ height: "1vh" }} />
-                  <IonCardTitle style={{ fontSize: "medium" }} mode="md">
+                  <IonCardTitle style={{ fontSize: "medium" }} mode="ios">
                     {filteredMarkers[schoolName][overlayIndex].title}
                   </IonCardTitle>
                   <IonFab horizontal="end" vertical="top">
@@ -323,16 +323,17 @@ function Maps() {
             </Overlay>
           ) : null}
           <IonFab horizontal="start" vertical="bottom" style={{ transform: 'translateY(15%)' }}>
-            <p style={context.mapTilerId === 'streets' ? { fontSize: "1em", color: "#0D1117", fontWeight: "bold" } : { fontSize: "1em", color: "#FFFFFF", fontWeight: "bold" }}>
+            <p style={!context.darkMode ? { fontSize: "1em", color: "#0D1117", fontWeight: "bold" } : { fontSize: "1em", color: "#FFFFFF", fontWeight: "bold" }}>
               {schoolName}
             </p>
           </IonFab>
           <IonFab horizontal="end" vertical="bottom" style={{ transform: 'translateX(15%) translateY(-15%)' }}>
-            <IonButton color="light-item" onClick={setDefaultCenter} mode="md" style={{ borderRadius: '7.5px' }}>
-              {context.darkMode ?
-                <img style={{ width: "20px", borderRadius: '7.5px' }} src={schoolOutlineWhite} />
-                :
+            <IonButton color={!context.darkMode ? "light" : "light-item"} onClick={setDefaultCenter} mode="ios" style={{ borderRadius: '7.5px' }}>
+              {!context.darkMode ?
                 <IonIcon icon={schoolOutline} />
+                :
+                <img style={{ width: "20px", borderRadius: '7.5px' }} src={schoolOutlineWhite} />
+
               }
             </IonButton>
           </IonFab>

@@ -32,7 +32,7 @@ interface MatchUserPostParams {
 
 const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   let postType = match.params.type;
-  if(postType === "buySell") {
+  if (postType === "buySell") {
     postType = "buy/Sell";
   }
   const schoolName = match.params.schoolName;
@@ -100,22 +100,14 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonList inset={true} mode="ios">
                     <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate(router, "/post/" + schoolName + "/" + post.userName + "/" + post.key, 'forward') }}>
                       <IonLabel class="ion-text-wrap">
-                        <IonText color="medium">
+                        <IonRow>
                           <FadeIn>
-                            <IonAvatar
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                dynamicNavigate(router, '/about/' + schoolName + "/" + post.uid, 'forward');
-                              }}
-                              class="posts-avatar"
-                            >
+                            <IonAvatar onClick={(e) => { e.stopPropagation(); dynamicNavigate(router, '/about/' + schoolName + "/" + post.uid, 'forward'); }} class="posts-avatar">
                               <ProfilePhoto uid={post.uid}></ProfilePhoto>
                             </IonAvatar>
                           </FadeIn>
-                          <p>
-                            {post.userName}
-                          </p>
-                        </IonText>
+                          <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}>{post.userName}</p>
+                        </IonRow>
                         {post.postType ? (
                           <IonFab vertical="top" horizontal="end">
                             {post.postType !== "general" ?
@@ -167,7 +159,7 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           )}
                         <div style={{ height: "0.75vh" }}>{" "}</div>
                         {"className" in post && "classNumber" in post && post.className.length > 0 ?
-                          <Linkify tagName="h3" className="h2-message">
+                          <Linkify tagName="h3" className={context.darkMode ? "h2-message" : "h2-message-light"}>
                             {post.message}
                             <IonNote
                               color="medium"
@@ -177,7 +169,7 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             </IonNote>
                           </Linkify>
                           :
-                          <Linkify tagName="h3" className="h2-message">
+                          <Linkify tagName="h3" className={context.darkMode ? "h2-message" : "h2-message-light"}>
                             {post.message}
                           </Linkify>
                         }

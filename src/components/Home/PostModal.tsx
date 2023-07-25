@@ -156,7 +156,7 @@ export const PostModal = (props: any) => {
               <IonButton
                 fill="clear"
                 onClick={takePicture}
-                color="light"
+                color={context.darkMode ? "light" : "dark"}
                 disabled={prevPostUploading}
               >
                 <IonIcon icon={cameraOutline} />

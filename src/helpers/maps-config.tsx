@@ -39,8 +39,9 @@ import WeekendIcon from '@mui/icons-material/Weekend';
 
 /* Pigeon Map Details */
 export const MAP_TILER_KEY = 'c9MoaJaVglEims9riUks';
-export function mapTiler(ID: string, x: any, y: any, z: any, dpr: any) {
-  return `https://api.maptiler.com/maps/${ID}/256/${z}/${x}/${y}.png?key=${MAP_TILER_KEY}`
+export function mapTiler(darkMode: boolean, x: any, y: any, z: any, dpr: any) {
+  let MAP_TILER_ID = darkMode ? 'streets-v2-dark' : 'streets';
+  return `https://api.maptiler.com/maps/${MAP_TILER_ID}/256/${z}/${x}/${y}.png?key=${MAP_TILER_KEY}`
 }
 
 export interface MapMarker {

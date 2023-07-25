@@ -29,12 +29,13 @@ import { PostType } from '../components/Shared/PostType';
 import ProfilePhoto from '../components/Shared/ProfilePhoto';
 import { PostMessage } from '../components/Home/PostMessage';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { logoInstagram, logoSnapchat, logoTiktok, map, refreshOutline, warningSharp } from 'ionicons/icons';
+import { logoInstagram, logoSnapchat, logoTiktok, map, moon, refreshOutline, warningSharp } from 'ionicons/icons';
 import FadeIn from 'react-fade-in/lib/FadeIn';
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { timeout } from '../helpers/timeout';
 import Spotify from 'react-spotify-embed';
+import { Capacitor } from '@capacitor/core';
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
@@ -168,15 +169,15 @@ const Settings: React.FC = () => {
    * 
    * @param {boolean} isChecked whether the checkbox is checked or not
    */
-  const handleChangeMapTile = async (isChecked: boolean): Promise<void> => {
-    if (isChecked) {
-      context.setMapTilerId('streets-v2-dark');
-      await Preferences.set({ key: "mapTilerId", value: "streets-v2-dark" });
-    } else {
-      context.setMapTilerId('streets');
-      await Preferences.set({ key: "mapTilerId", value: "streets" });
-    }
-  };
+  // const handleChangeMapTile = async (isChecked: boolean): Promise<void> => {
+  //   if (isChecked) {
+  //     context.setMapTilerId('streets-v2-dark');
+  //     await Preferences.set({ key: "mapTilerId", value: "streets-v2-dark" });
+  //   } else {
+  //     context.setMapTilerId('streets');
+  //     await Preferences.set({ key: "mapTilerId", value: "streets" });
+  //   }
+  // };
 
   /**
    * @description Loads user's liked posts
@@ -187,7 +188,6 @@ const Settings: React.FC = () => {
       hasLoaded.then((res) => {
         if (res) {
           setUserLikedPosts(res.userLikes);
-          // setLastLikesKey(res.lastKey);
         }
       });
       hasLoaded.catch((err) => {
@@ -195,6 +195,27 @@ const Settings: React.FC = () => {
       });
     }
   };
+
+  /**
+   * @description Enables/disables dark mode and sets/unsets Keyboard and StatusBar style
+   * 
+   * @param {boolean} isChecked whether dark mode toggled is enabled or disabled (checked or unchecked)
+   */
+  const toggleDarkMode = async (isChecked: boolean) => {
+    console.log("dark mode: ", isChecked);
+    document.body.classList.toggle("dark");
+    context.setDarkMode(isChecked);
+    await Preferences.set({ key: "darkMode", value: JSON.stringify(isChecked) });
+    if (Capacitor.getPlatform() === 'ios') {
+      if (isChecked) {
+        await Keyboard.setStyle(keyStyleOptionsDark);
+        await StatusBar.setStyle({ style: Style.Dark });
+      } else {
+        await Keyboard.setStyle(keyStyleOptionsLight);
+        await StatusBar.setStyle({ style: Style.Light });
+      }
+    }
+  }
 
   /**
    * @description Enables/disables school colors throughout app
@@ -476,13 +497,13 @@ const Settings: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    context.setDarkMode(true);
-    document.body.classList.toggle("dark");
-    context.setDarkMode(true);
-    Keyboard.setStyle(keyStyleOptionsDark);
-    StatusBar.setStyle({ style: Style.Dark });
-  }, [context]);
+  // React.useEffect(() => {
+  //   context.setDarkMode(true);
+  //   document.body.classList.toggle("dark");
+  //   context.setDarkMode(true);
+  //   Keyboard.setStyle(keyStyleOptionsDark);
+  //   StatusBar.setStyle({ style: Style.Dark });
+  // }, [context]);
 
   React.useEffect(() => {
     context.setShowTabs(true);
@@ -592,7 +613,7 @@ const Settings: React.FC = () => {
 
                   }
                 </IonRow>
-                <IonButton color="medium" slot="end" onClick={() => setShowEditEmailModal(true)}>
+                <IonButton color={context.darkMode ? "medium" : "medium-light"} slot="end" onClick={() => setShowEditEmailModal(true)}>
                   Edit
                 </IonButton>
               </IonItem>
@@ -613,7 +634,7 @@ const Settings: React.FC = () => {
 
                   }
                 </IonRow>
-                <IonButton color="medium" slot="end" onClick={() => setShowEditUsernameModal(true)}>
+                <IonButton color={context.darkMode ? "medium" : "medium-light"} slot="end" onClick={() => setShowEditUsernameModal(true)}>
                   Edit
                 </IonButton>
               </IonItem>
@@ -629,13 +650,13 @@ const Settings: React.FC = () => {
                 <IonRow>
                   <p style={{ fontSize: "0.85em" }}>...</p>
                 </IonRow>
-                <IonButton color="medium" slot="end" onClick={handleEditAbout}>
+                <IonButton color={context.darkMode ? "medium" : "medium-light"} slot="end" onClick={handleEditAbout}>
                   Edit
                 </IonButton>
               </IonItem>
             </IonList>
             <IonList mode="ios" inset={true}>
-              {/* <IonItem mode="ios">
+              <IonItem mode="ios">
                 <p style={{ fontSize: "0.85em" }}> Dark mode </p>&nbsp;&nbsp;
                 <IonIcon color="medium" icon={moon} slot="end" />
                 <IonToggle
@@ -646,7 +667,7 @@ const Settings: React.FC = () => {
                   color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   onIonChange={(e) => { toggleDarkMode(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                 />
-              </IonItem> */}
+              </IonItem>
               {/* {schoolName === "Cal Poly Humboldt" &&
                 <IonItem mode="ios">
                   <p style={{ fontSize: "0.85em" }}> School Color Palette </p>&nbsp;&nbsp;
@@ -673,7 +694,7 @@ const Settings: React.FC = () => {
                   onIonChange={(e) => { toggleSensitivity(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                 />
               </IonItem>
-              <IonItem>
+              {/* <IonItem>
                 <p style={{ fontSize: "0.85em" }}>Dark Maps</p>&nbsp;&nbsp;
                 <IonIcon color="medium" icon={map} slot='end' />
                 <IonToggle
@@ -684,7 +705,7 @@ const Settings: React.FC = () => {
                   color={"primary"}
                   onIonChange={(e) => { handleChangeMapTile(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                 />
-              </IonItem>
+              </IonItem> */}
             </IonList>
           </SwiperSlide>
           <SwiperSlide>
@@ -791,7 +812,7 @@ const Settings: React.FC = () => {
           </IonToolbar>
           <br />
           <IonToolbar mode="ios" >
-            <IonSearchbar color={context.darkMode ? "" : "light"} debounce={0} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} ref={spotifyTextSearch} showCancelButton="focus" animated={true}></IonSearchbar>
+            <IonSearchbar color={context.darkMode ? "" : "medium-light"} debounce={0} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} ref={spotifyTextSearch} showCancelButton="focus" animated={true}></IonSearchbar>
           </IonToolbar>
           <hr style={{ opacity: "50%", width: "85vw" }}></hr>
           {spotifyLoading &&
@@ -807,7 +828,7 @@ const Settings: React.FC = () => {
                         <Spotify allow="encrypted-media" style={{ width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }} wide link={"https://open.spotify.com/track/" + track.uri.toString().substring(14)} />
                         <IonButton style={{ alignItems: "center", textAlign: "center", width: "25vw" }} key={track.id + index.toString()} color="medium" mode="ios" fill="clear" onClick={() => { setEditableSpotifyUri(track.uri); setSpotifyModal(false); if (spotifyTextSearch && spotifyTextSearch.current) { spotifyTextSearch.current.value = ""; } setSpotifyResults([]); }}>Select</IonButton>
                       </IonItem>
-                      <div style={{ height: "20px", backgroundColor: "#0D1117" }}> </div>
+                      <div style={{ height: "20px", backgroundColor: context.darkMode ? "#0D1117" : "#FFFFFF" }}> </div>
                     </FadeIn>
                   )
                 })}

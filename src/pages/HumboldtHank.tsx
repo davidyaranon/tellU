@@ -5,11 +5,9 @@ import {
 } from "@ionic/react";
 import { arrowUpOutline } from "ionicons/icons";
 import { Capacitor } from "@capacitor/core";
-import { App as CapacitorApp } from "@capacitor/app";
 import { Preferences } from "@capacitor/preferences";
 import { StatusBar, Style } from "@capacitor/status-bar";
-import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
-import { Image as CapacitorImage, PhotoViewer as CapacitorPhotoViewer } from '@capacitor-community/photoviewer';
+import { KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
 
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { useToast } from "@agney/ir-toast";
@@ -93,14 +91,14 @@ export const HumboldtHank = () => {
   }, []);
 
 
-  useEffect(() => {
-    context.setDarkMode(true);
-    document.body.classList.toggle("dark");
-    context.setDarkMode(true);
-    if (Capacitor.getPlatform() === "ios") {
-      Keyboard.setStyle(keyStyleOptionsDark);
-    }
-  }, [context]);
+  // useEffect(() => {
+  //   context.setDarkMode(true);
+  //   document.body.classList.toggle("dark");
+  //   context.setDarkMode(true);
+  //   if (Capacitor.getPlatform() === "ios") {
+  //     Keyboard.setStyle(keyStyleOptionsDark);
+  //   }
+  // }, [context]);
 
 
   useEffect(() => {
@@ -122,7 +120,7 @@ export const HumboldtHank = () => {
             <IonAvatar onClick={openImage}>
               <img src={aiImage[schoolName]} />
             </IonAvatar>
-            <IonLabel>{aiName[schoolName]}</IonLabel>
+            <IonLabel color={context.darkMode ? "" : "black"}>{aiName[schoolName]}</IonLabel>
           </div>
         </IonToolbar>
       </IonHeader>
@@ -144,7 +142,8 @@ export const HumboldtHank = () => {
             disabled={loadingAnswer}
             placeholder={"Ask me anything!"}
             id="commentModal"
-            className={"text-area-dark"}
+            color={context.darkMode ? "" : 'black'}
+            className={context.darkMode ? "text-area-dark" : "text-area-light"}
           />
           <IonFab horizontal="end" vertical="top">
             <IonRow>

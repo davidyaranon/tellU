@@ -15,6 +15,7 @@ import '../../App.css';
 import { Dialog } from "@capacitor/dialog";
 import { warningSharp } from "ionicons/icons";
 import FadeIn from "react-fade-in/lib/FadeIn";
+import { useContext } from "../../my-context";
 
 export const HomePagePost = (props: any) => {
   const post = props.post;
@@ -37,6 +38,7 @@ export const HomePagePost = (props: any) => {
   // hooks
   const history = useHistory();
   const Toast = useToast();
+  const context = useContext();
 
   /**
    * Loads school from local storage (Preferences API)
@@ -66,7 +68,7 @@ export const HomePagePost = (props: any) => {
               <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); if (profileClickable !== false) history.push("/about/" + schoolName + "/" + post.uid); }} >
                 <ProfilePhoto uid={post.uid} />
               </IonAvatar>
-              <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+              <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "black", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
             </IonRow>
             <PostType schoolName={schoolName} type={post.postType} marker={post.marker} POI={post.POI} timestamp={post.timestamp} />
             <PostMessage schoolName={schoolName} message={post.message} classNumber={post.classNumber} className={post.className} reports={post.reports || 0} />
@@ -100,8 +102,8 @@ export const HomePagePost = (props: any) => {
               <p>{Object.keys(likes).length - 1} </p>
             </IonButton>
             <p>&nbsp;</p>
-            <IonButton mode="ios" color="medium" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
-              <ForumIcon />
+            <IonButton mode="ios" color="medium-light" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+              <ForumIcon/>
               <p>&nbsp; {post.commentAmount} </p>
             </IonButton>
             <IonButton

@@ -28,13 +28,13 @@ const LoadingPage = () => {
   const router = useIonRouter();
   const [isOffline, setIsOffline] = React.useState<boolean>(false);
 
-  React.useEffect(() => {
-    context.setDarkMode(true);
-    document.body.classList.toggle("dark");
-    context.setDarkMode(true);
-    Keyboard.setStyle(keyStyleOptionsDark);
-    StatusBar.setStyle({ style: Style.Dark });
-  }, [context]);
+  // React.useEffect(() => {
+  //   context.setDarkMode(true);
+  //   document.body.classList.toggle("dark");
+  //   context.setDarkMode(true);
+  //   Keyboard.setStyle(keyStyleOptionsDark);
+  //   StatusBar.setStyle({ style: Style.Dark });
+  // }, [context]);
 
   /**
    * Auth state listener for Firebase auth

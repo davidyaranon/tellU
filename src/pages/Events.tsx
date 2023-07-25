@@ -366,6 +366,7 @@ const Events = React.memo(() => {
         });
     }
   }, [schoolName]);
+
   React.useEffect(() => {
     getEventInfo();
   }, [schoolName]);
@@ -437,14 +438,14 @@ const Events = React.memo(() => {
             return (
               <FadeIn key={htmlString}>
                 <IonCard style={{ padding: "10px" }}>
-                  <IonItem style={{ width: "85vw", margin: "auto", transform: "translateX(-5%)" }}>
+                  <IonItem lines='none' style={{ width: "85vw", margin: "auto", transform: "translateX(-5%)", '--ion-item-background': 'transparent' }}>
                     <IonLabel>{date}</IonLabel>
                     <span style={{ textAlign: 'right' }}><IonText color="toast-error">{getMessage(date)}</IonText></span>
                   </IonItem>
                   <div>{decodedString}</div>
                   <IonFab vertical="bottom" horizontal="end" >
-                    <IonButton mode='md' fill='clear' style={{ transform: "translateY(10%)" }} onClick={() => { shareEvent(decodedString) }}>
-                      <IonIcon color='light' src={shareOutline} />
+                    <IonButton mode='ios' fill='clear' style={{ transform: "translateY(10%)" }} onClick={() => { shareEvent(decodedString) }}>
+                      <IonIcon color={context.darkMode ? 'light' : "black"} src={shareOutline} />
                     </IonButton>
                   </IonFab>
                 </IonCard>

@@ -58,7 +58,7 @@ const PostPagePost = (props: any) => {
                   <ProfilePhoto uid={post.uid} />
                 </IonAvatar>
               </FadeIn>
-              <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+              <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
             </IonRow>
             <PostType schoolName={schoolName} type={post.postType} marker={post.marker} POI={post.POI} timestamp={post.timestamp} />
             <PostMessage schoolName={schoolName} message={post.message} classNumber={post.classNumber} className={post.className} reports={post.reports || 0} />

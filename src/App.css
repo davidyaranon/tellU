@@ -976,6 +976,15 @@ hr {
   padding-left: 1%;
 }
 
+.h2-message-light {
+  white-space: pre-line;
+  font-weight: bold;
+  color: black;
+  padding-top: 2.5%;
+  width: 90%;
+  padding-left: 1%;
+}
+
 .navbar_label {
   zoom: 1.5;
 }
@@ -1347,12 +1356,12 @@ img.chat_avatar {
 .events-h1 {
   font-size: 1.75em;
   padding: 15px;
-  color: white;
+  color: rgb(152, 152, 152);
 }
 
 .event-p {
   font-size: .95em;
-  color: #c3c3c3;
+  color: rgb(152, 152, 152);
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
@@ -1392,6 +1401,15 @@ a[href="hank"] span {
   white-space: pre-line;
   font-weight: bold;
   color: var(--ion-color-light);
+  padding-top: 2.5%;
+  width: 90%;
+  padding-left: 1%;
+}
+
+.h2-message-comment-light {
+  white-space: pre-line;
+  font-weight: bold;
+  color: var(--ion-color-black);
   padding-top: 2.5%;
   width: 90%;
   padding-left: 1%;

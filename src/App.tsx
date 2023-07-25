@@ -74,9 +74,12 @@ SplashScreen.show({
   fadeInDuration: 300,
   fadeOutDuration: 300
 });
+const keyStyleOptionsLight: KeyboardStyleOptions = {
+  style: KeyboardStyle.Light
+};
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
-}
+};
 
 /**
  * Handles routing in app
@@ -191,7 +194,7 @@ const RoutingSystem: React.FunctionComponent = () => {
 
         {/* Bottom Tabs / Tab Bar */}
         <IonTabBar style={tabBarStyle ? {} : { display: "none" }} slot="bottom">
-          <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="home" href="/home">
+          <IonTabButton tab="home" href="/home">
             <IonIcon size='large' style={{ bottom: "-20px" }} icon={selectedTab === 'home' ? homeSharp : homeOutline} color={selectedTab === 'hank' ? "primary" : "primary"} />
           </IonTabButton>
 
@@ -200,7 +203,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           </IonTabButton>
 
           <IonTabButton tab="hank" href="/hank">
-            {selectedTab === 'hank' ? <IonIcon style={{ transform: "scale(1.1)" }} src={aiIconFilled} /> : <IonIcon style={{ transform: "scale(1.1)" }} src={aiIconUnfilled} />}
+            {selectedTab === 'hank' ? <IonIcon style={{ transform: "scale(1.1)", stroke: "transparent", strokeWidth: "0px" }} src={aiIconFilled} /> : <IonIcon style={{ transform: "scale(1.1)", stroke: "transparent", strokeWidth: "0px" }} src={aiIconUnfilled} />}
           </IonTabButton>
 
           <IonTabButton className={context.darkMode ? "tab-dark" : "tab-light"} tab="maps" href="/maps">
@@ -233,22 +236,22 @@ const App: React.FC = () => {
    * Dark mode is enabled by default on iOS devices.
    */
   const handleDarkMode = React.useCallback(async () => {
-    // const isChecked = await Preferences.get({ key: "darkMode" });
-    // console.log(isChecked);
-    // if (isChecked.value === "false") {
-    //   context.setDarkMode(false);
-    //   if (Capacitor.getPlatform() === 'ios') {
-    //     Keyboard.setStyle(keyStyleOptionsLight);
-    //     StatusBar.setStyle({ style: Style.Light });
-    //   }
-    // } else if (!isChecked || !isChecked.value) {
-    document.body.classList.toggle("dark");
-    context.setDarkMode(true);
-    if (Capacitor.getPlatform() === 'ios') {
-      Keyboard.setStyle(keyStyleOptionsDark);
-      StatusBar.setStyle({ style: Style.Dark });
+    const isChecked = await Preferences.get({ key: "darkMode" });
+    console.log(isChecked);
+    if (isChecked.value === "false") {
+      context.setDarkMode(false);
+      if (Capacitor.getPlatform() === 'ios') {
+        Keyboard.setStyle(keyStyleOptionsLight);
+        StatusBar.setStyle({ style: Style.Light });
+      }
+    } else if (!isChecked || !isChecked.value) {
+      document.body.classList.toggle("dark");
+      context.setDarkMode(true);
+      if (Capacitor.getPlatform() === 'ios') {
+        Keyboard.setStyle(keyStyleOptionsDark);
+        StatusBar.setStyle({ style: Style.Dark });
+      }
     }
-    // }
   }, []);
 
   /**
@@ -263,15 +266,6 @@ const App: React.FC = () => {
     //   context.setSchoolColorToggled(true);
     // }
     context.setSchoolColorToggled(false);
-  }, []);
-
-  const handleMapTiler = React.useCallback(async () => {
-    const mapId = await Preferences.get({ key: "mapTilerId" });
-    if (!mapId.value) {
-      context.setMapTilerId('streets');
-    } else {
-      context.setMapTilerId(mapId.value);
-    }
   }, []);
 
   /**
@@ -326,7 +320,6 @@ const App: React.FC = () => {
     setSchoolName().catch((err) => console.log(err));
     handleDarkMode().catch((err) => { console.log(err); })
     handleSchoolColorToggle().catch((err) => { console.log(err); })
-    handleMapTiler().catch((err) => { console.log(err); });
     handleSensitivityToggle().catch((err) => { console.log(err); })
     if (Capacitor.getPlatform() === 'ios') {
       registerNotifications();

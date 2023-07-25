@@ -17,7 +17,7 @@ export const PostMessage = (props: any) => {
     return (
       <>
         <div style={{ height: "0.75vh", }}>{" "}</div>
-        <Linkify style={context.sensitivityToggled && reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message">
+        <Linkify style={context.sensitivityToggled && reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className={context.darkMode ? "h2-message" : "h2-message-light"}>
           {message}
           <IonNote
             onClick={(e) => {
@@ -36,7 +36,7 @@ export const PostMessage = (props: any) => {
     return (
       <>
         <div style={{ height: "0.75vh", }}>{" "}</div>
-        <Linkify style={context.sensitivityToggled && reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className="h2-message"> {message} </Linkify>
+        <Linkify style={context.sensitivityToggled && reports > 1 ? { filter: "blur(0.25em)" } : {}} tagName="h3" className={context.darkMode ? "h2-message" : "h2-message-light"}> {message} </Linkify>
       </>
     )
   }

@@ -350,7 +350,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             rows={3}
             style={photo === null ? { width: "80vw", marginLeft: "2.5vw" }
               : { width: "69vw", marginLeft: "2.5vw" }}
-            color="light"
+            color={context.darkMode ? "light" : "black"}
             spellcheck={true}
             maxlength={300}
             value={currMessage}
@@ -370,11 +370,11 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
                 {!photo ?
-                  <IonFabButton onClick={() => { Keyboard.hide(); takePicture(); }} color="medium" size="small" mode="ios">
+                  <IonFabButton onClick={() => { Keyboard.hide(); takePicture(); }} color={context.darkMode ? "medium" : "medium-light"} size="small" mode="ios">
                     <IonIcon size="small" icon={cameraOutline} />
                   </IonFabButton>
                   :
-                  <IonFabButton onClick={() => { setPhoto(null); setBlob(null) }} color="medium" size="small" mode="ios">
+                  <IonFabButton onClick={() => { setPhoto(null); setBlob(null) }} color={context.darkMode ? "medium" : "medium-light"} size="small" mode="ios">
                     <IonIcon size="small" icon={banOutline} />
                   </IonFabButton>
                 }

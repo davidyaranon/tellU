@@ -4,7 +4,7 @@ import {
   IonAvatar, IonBackButton, IonButtons, IonCol, IonContent, IonFab,
   IonHeader, IonItem, IonLabel, IonList,
   IonNote, IonPage, IonRow, IonSelect, IonSelectOption,
-  IonSpinner, IonTitle, IonToolbar, useIonRouter,
+  IonSpinner, IonTitle, IonToolbar
 } from "@ionic/react";
 import { chevronBackOutline } from "ionicons/icons";
 import { Virtuoso } from "react-virtuoso";
@@ -26,6 +26,7 @@ import { getColor } from "../helpers/getColor";
 import { getDate } from "../helpers/timeago";
 import { classSelections, selectEmoji } from "../helpers/class-selections-config";
 import { navigateBack } from "../components/Shared/Navigation";
+import { useContext } from "../my-context";
 
 const selectOptions = {
   header: 'Pin Filters',
@@ -41,8 +42,8 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postClassName = match.params.className;
   const schoolName = match.params.schoolName;
   const history = useHistory();
-  const router = useIonRouter();
   const [user] = useAuthState(auth);
+  const context = useContext();
   const Toast = useToast();
   const [classPosts, setClassPosts] = useState<any[]>();
   const [classPostsCopy, setClassPostsCopy] = useState<any[]>();
@@ -118,7 +119,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       <>
         <IonHeader className='ion-no-border'>
           <IonToolbar mode='ios' className='ion-no-border'>
-            {postClassName && classNumberFilter && <IonTitle>{postClassName} {classNumberFilter} Posts {emoji}</IonTitle>}
+            {postClassName && classNumberFilter && <IonTitle color={context.darkMode ? "" : "black"}>{postClassName} {classNumberFilter} Posts {emoji}</IonTitle>}
             <IonButtons>
               <IonBackButton defaultHref="/home" className="back-button" icon={chevronBackOutline} text={"Back"} color={"primary"} >
               </IonBackButton>
@@ -176,7 +177,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                               <ProfilePhoto uid={post.uid} />
                             </IonAvatar>
                           </FadeIn>
-                          <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+                          <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
                         </IonRow>
                         {post.postType ? (
                           <IonFab vertical="top" horizontal="end">
@@ -229,7 +230,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                           )}
                         <div style={{ height: "0.75vh" }}>{" "}</div>
                         {"className" in post && "classNumber" in post ?
-                          <Linkify tagName="h3" className="h2-message">
+                          <Linkify tagName="h3" className={context.darkMode ? "h2-message" : "h2-message-light"}>
                             {post.message}
                             <IonNote
                               color="medium"
@@ -239,7 +240,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                             </IonNote>
                           </Linkify>
                           :
-                          <Linkify tagName="h3" className="h2-message">
+                          <Linkify tagName="h3" className={context.darkMode ? "h2-message" : "h2-message-light"}>
                             {post.message}
                           </Linkify>
                         }

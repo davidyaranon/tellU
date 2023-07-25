@@ -9,6 +9,7 @@ import ProfilePhoto from "../Shared/ProfilePhoto";
 import { useToast } from "@agney/ir-toast";
 import { pollVote, promiseTimeout } from "../../fbConfig";
 import FadeIn from "react-fade-in/lib/FadeIn";
+import { useContext } from "../../my-context";
 
 export const HomePagePoll = (props: any) => {
   const postIndex = props.index;
@@ -21,6 +22,7 @@ export const HomePagePoll = (props: any) => {
   // hooks
   const history = useHistory();
   const Toast = useToast();
+  const context = useContext();
 
   // state variables
   const [voteBeingCasted, setVoteBeingCasted] = React.useState<boolean>(false);
@@ -92,9 +94,9 @@ export const HomePagePoll = (props: any) => {
             >
               <ProfilePhoto uid={post.uid}></ProfilePhoto>
             </IonAvatar>
-            <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+            <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
           </IonRow>
-          <IonCardTitle style={{ fontSize: "1.35em", width: "95%", padding: "7.5px", color: "var(--ion-color-light)" }}>{poll.question}</IonCardTitle>
+          <IonCardTitle style={{ fontSize: "1.35em", width: "95%", padding: "7.5px", color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)" }}>{poll.question}</IonCardTitle>
           <br />
           <IonList lines="full" mode="ios">
             {poll.options.map((option: any, pollIndex: number) => {

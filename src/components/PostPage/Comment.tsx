@@ -192,9 +192,9 @@ export const PostComment = (props: any) => {
               >
                 <ProfilePhoto uid={comment.uid}></ProfilePhoto>
               </IonAvatar>
-              <p style={{ color: "var(--ion-color-light)", padding: "10px", fontWeight: 'bold' }}> {comment.userName} </p>
+              <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}> {comment.userName} </p>
             </IonRow>
-            <Linkify tagName="h3" className="h2-message-comment">
+            <Linkify tagName="h3" className={context.darkMode ? "h2-message-comment" : "h2-message-comment-light"}>
               {comment.comment}
             </Linkify>
             {"imgSrc" in comment && comment.imgSrc && comment.imgSrc.length > 0 ? (

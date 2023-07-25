@@ -285,15 +285,15 @@ const Home: React.FC = () => {
     }
   }, [posts]);
 
-  React.useEffect(() => {
-    context.setDarkMode(true);
-    document.body.classList.toggle("dark");
-    context.setDarkMode(true);
-    if (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'ios') {
-      Keyboard.setStyle(keyStyleOptionsDark);
-      StatusBar.setStyle({ style: Style.Dark });
-    }
-  }, []);
+  // React.useEffect(() => {
+  //   context.setDarkMode(true);
+  //   document.body.classList.toggle("dark");
+  //   context.setDarkMode(true);
+  //   if (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'ios') {
+  //     Keyboard.setStyle(keyStyleOptionsDark);
+  //     StatusBar.setStyle({ style: Style.Dark });
+  //   }
+  // }, []);
 
   const hideSplashScreen = React.useCallback(async () => {
     await timeout(250);

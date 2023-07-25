@@ -430,7 +430,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             <IonRow>
               <IonCol></IonCol>
               {!photo ?
-                <IonFabButton disabled={deleted || previousCommentLoading || !post} size="small" color="medium" onClick={() => { takePicture(); }} style={{ transform: "translateY(-25%)" }}>
+                <IonFabButton disabled={deleted || previousCommentLoading || !post} size="small" color={context.darkMode ? "medium" : "medium-light"} onClick={() => { takePicture(); }} style={{ transform: "translateY(-25%)" }}>
                   <IonIcon icon={cameraOutline} size="small" />
                 </IonFabButton>
                 :
