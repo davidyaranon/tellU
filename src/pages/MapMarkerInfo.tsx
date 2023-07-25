@@ -18,6 +18,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useToast } from "@agney/ir-toast";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Dialog } from "@capacitor/dialog";
+import { useContext } from "../my-context";
 
 interface MatchUserPostParams {
   school: string;
@@ -32,7 +33,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
   // hooks 
   const [user, loading, error] = useAuthState(auth);
   const Toast = useToast();
-  const router = useIonRouter();
+  const context = useContext();
 
   // state variables
   const [posts, setPosts] = useState<any>(null);
@@ -171,7 +172,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
           {images.map((image: string, index: number) => {
             return (
               <SwiperSlide key={image + index.toString()} onClick={handleUploadImage}>
-                <IonCard style={{ backgroundColor: "#0D1117" }}>
+                <IonCard style={{ backgroundColor: context.darkMode ? "#0D1117" : "" }}>
                   <img src={image} style={{ borderRadius: "10px" }} />
                 </IonCard>
               </SwiperSlide>

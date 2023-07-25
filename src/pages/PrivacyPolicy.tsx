@@ -49,7 +49,7 @@ export const PrivacyPolicy = () => {
         dismiss();
         history.replace('/landing-page');
         context.setShowTabs(false);
-        const toast = Toast.create({ message: 'Account deleted', duration: 2000, color: 'toast-success' });
+        const toast = Toast.create({ message: 'Account deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
         toast.present();
         toast.dismiss();
       }

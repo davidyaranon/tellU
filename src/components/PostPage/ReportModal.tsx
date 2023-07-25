@@ -44,7 +44,7 @@ export const ReportModal = (props: any) => {
                   sendReportStatus(reportMessageRef.current.value, schoolName, postKey).then((reportStatus) => {
                     if (reportStatus) {
                       handleShowReportModal(false);
-                      const toast = Toast.create({ message: 'Post reported', duration: 2000, color: 'toast-success' });
+                      const toast = Toast.create({ message: 'Post reported', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
                       toast.present();
                       toast.dismiss();
                     } else {

@@ -405,7 +405,7 @@ const Events = React.memo(() => {
           <IonRow style={{ margin: "5px" }} class="ion-justify-content-center">
             {today && months.map((month, index) => {
               return (
-                <IonChip onClick={() => { let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }} key={index.toString()} color={selectedMonth === index ? 'primary' : 'ion-chip-blue'} style={selectedMonth === index ? { width: "21vw", justifyContent: 'center', fontWeight: 'bold' } : { width: "21vw", justifyContent: 'center' }}>
+                <IonChip onClick={() => { let m = getMonthStr(today.getMonth() + index); filterEvents(m, index) }} key={index.toString()} color={'primary'} style={selectedMonth === index ? { width: "21vw", justifyContent: 'center', fontWeight: 'bold', color: 'var(--ion-color-ion-blue)'} : { width: "21vw", justifyContent: 'center', fontWeight : 100, opacity : ".75" }}>
                   <IonLabel>
                     {getMonthStr(today.getMonth() + index)}
                   </IonLabel>

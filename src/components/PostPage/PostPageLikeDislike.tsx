@@ -2,15 +2,15 @@ import { IonButton, IonFab, IonIcon, IonItem } from "@ionic/react";
 import { memo, useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import ForumIcon from "@mui/icons-material/Forum";
 import { useHistory } from "react-router";
-import { warningSharp } from "ionicons/icons";
+import { chatboxOutline, warningSharp } from "ionicons/icons";
 import { Dialog } from "@capacitor/dialog";
 import { useToast } from "@agney/ir-toast";
 import { downVote, removePost, upVote } from "../../fbConfig";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { timeout } from "../../helpers/timeout";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useContext } from "../../my-context";
 
 /**
  * Handles upvoting and downvoting of posts on Home page
@@ -19,6 +19,7 @@ export const PostPageLikeDislike = memo((props: any) => {
 
   // hooks
   const history = useHistory();
+  const context = useContext();
 
   // state variables
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
@@ -129,16 +130,7 @@ export const PostPageLikeDislike = memo((props: any) => {
         disabled={disabledLikeButtons === index || Object.keys(likes).length - 1 === -1}
         mode="ios"
         fill="outline"
-        color={
-          user &&
-            likes[user.uid] !== undefined && schoolName !== "Cal Poly Humboldt"
-            ? "toast-success"
-            : user && likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt" && schoolColorToggled
-              ? "tertiary"
-              : user && likes[user.uid] !== undefined && schoolName === "Cal Poly Humboldt" && !schoolColorToggled
-                ? "toast-success"
-                : "medium"
-        }
+        color={user && likes[user.uid] !== undefined && context.darkMode ? "toast-success" : user && likes[user.uid] !== undefined && !context.darkMode ? "toast-success-light" : "medium"}
         onClick={() => {
           setLikeAnimation(post.key);
           setDisabledLikeButtons(index);
@@ -151,8 +143,8 @@ export const PostPageLikeDislike = memo((props: any) => {
       </IonButton>
       <p>&nbsp;</p>
       {!postKeyMatch &&
-        <IonButton mode="ios" color="medium" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
-          <ForumIcon />
+        <IonButton mode="ios" color="medium" fill='outline' onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+          <IonIcon icon={chatboxOutline} />
           <p>&nbsp; {post.commentAmount} </p>
         </IonButton>
       }
@@ -222,7 +214,7 @@ export const PostPageLikeDislike = memo((props: any) => {
                   setDeletingComment(true);
                   const didDelete = await removePost(postKeyMatch, schoolName, post.url);
                   if (didDelete !== undefined) {
-                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: 'toast-success' });
+                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
                     toast.present();
                     toast.dismiss();
                   } else {
@@ -240,7 +232,7 @@ export const PostPageLikeDislike = memo((props: any) => {
                   setDeletingComment(true);
                   const didDelete = await removePost(postKeyMatch, schoolName, []);
                   if (didDelete !== undefined) {
-                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: 'toast-success' });
+                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
                     toast.present();
                     toast.dismiss();
                   } else {

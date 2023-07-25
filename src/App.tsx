@@ -244,7 +244,7 @@ const App: React.FC = () => {
         Keyboard.setStyle(keyStyleOptionsLight);
         StatusBar.setStyle({ style: Style.Light });
       }
-    } else if (!isChecked || !isChecked.value) {
+    } else if (!isChecked || !isChecked.value || isChecked.value === 'true') {
       document.body.classList.toggle("dark");
       context.setDarkMode(true);
       if (Capacitor.getPlatform() === 'ios') {

@@ -36,7 +36,7 @@ const headerInfo: Record<string, { url: string; backgroundSize: string, backgrou
     backgroundSize: "",
     backgroundPosition: ""
   }
-}
+};
 
 /**
  * tellU Header Component containing logo, school name, and (possible) background photo

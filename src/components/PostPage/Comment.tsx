@@ -245,23 +245,7 @@ export const PostComment = (props: any) => {
             disabled={disabledLikeButtonsComments === index || deleted || (Object.keys(comment.likes).length - 1) === -1}
             mode="ios"
             fill="outline"
-            color={
-              comment &&
-                user &&
-                "likes" in comment &&
-                comment.likes[user.uid] !==
-                undefined &&
-                schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ?
-                "tertiary"
-                : comment &&
-                  user &&
-                  "likes" in comment &&
-                  comment.likes[user.uid] !==
-                  undefined &&
-                  schoolName === "Cal Poly Humboldt" && !context.schoolColorToggled ?
-                  "toast-success"
-                  : "medium"
-            }
+            color={comment && user && "likes" in comment && comment.likes[user.uid] !== undefined && context.darkMode ? "toast-success" : user && "likes" in comment && comment.likes[user.uid] !== undefined && !context.darkMode ? "toast-success-light" : "medium"}
             onClick={() => {
               setLikeAnimationComments(comment.key);
               setDisabledLikeButtonsComments(index);

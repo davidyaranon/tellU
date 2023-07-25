@@ -6,14 +6,13 @@ import { PostMessage } from "./PostMessage";
 import PostImages from "../Shared/PostImages";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import ForumIcon from "@mui/icons-material/Forum";
 import { useCallback, useEffect, useState } from "react";
 import { Preferences } from "@capacitor/preferences";
 import { useToast } from "@agney/ir-toast";
 
 import '../../App.css';
 import { Dialog } from "@capacitor/dialog";
-import { warningSharp } from "ionicons/icons";
+import { chatboxOutline, warningSharp } from "ionicons/icons";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { useContext } from "../../my-context";
 
@@ -83,12 +82,7 @@ export const HomePagePost = (props: any) => {
               disabled={isLiking || disabledLikeButtons === index || Object.keys(likes).length - 1 === -1}
               mode="ios"
               fill="outline"
-              color={
-                user &&
-                  likes[user.uid] !== undefined
-                  ? "toast-success"
-                  : "medium"
-              }
+              color={user && likes[user.uid] !== undefined && context.darkMode ? "toast-success" : user && likes[user.uid] !== undefined && !context.darkMode ? "toast-success-light" : "medium"}
               onClick={() => {
                 setLikeAnimation(post.key);
                 setDisabledLikeButtons(index);
@@ -102,8 +96,8 @@ export const HomePagePost = (props: any) => {
               <p>{Object.keys(likes).length - 1} </p>
             </IonButton>
             <p>&nbsp;</p>
-            <IonButton mode="ios" color="medium-light" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
-              <ForumIcon/>
+            <IonButton mode="ios" color="medium" fill="outline" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+              <IonIcon icon={chatboxOutline} />
               <p>&nbsp; {post.commentAmount} </p>
             </IonButton>
             <IonButton
