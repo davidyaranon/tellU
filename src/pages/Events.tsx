@@ -13,7 +13,7 @@ import { Preferences } from "@capacitor/preferences";
 import { useToast } from "@agney/ir-toast";
 import { Virtuoso } from "react-virtuoso";
 import FadeIn from "react-fade-in/lib/FadeIn";
-import { shareSocialOutline } from "ionicons/icons";
+import { shareOutline } from "ionicons/icons";
 import { Share } from "@capacitor/share";
 
 const truncatedMonths: Record<string, string> = {
@@ -458,7 +458,7 @@ const Events = React.memo(() => {
                   <div>{decodedString}</div>
                   <IonFab vertical="bottom" horizontal="end" >
                     <IonButton mode='md' fill='clear' style={{ transform: "translateY(10%)" }} onClick={() => { shareEvent(decodedString) }}>
-                      <IonIcon color='light' src={shareSocialOutline} />
+                      <IonIcon color='light' src={shareOutline} />
                     </IonButton>
                   </IonFab>
                 </IonCard>

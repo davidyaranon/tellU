@@ -7,11 +7,10 @@ import { useHistory } from "react-router";
 import {
   IonContent, IonCardTitle, IonCard, IonButton, IonIcon,
   IonFab, IonCardContent, IonSelect, IonSelectOption, IonPage, useIonViewDidEnter,
-  RouterDirection, useIonViewWillEnter, IonText, IonCheckbox
+  RouterDirection, useIonViewWillEnter, IonText
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
-import { App as CapacitorApp } from "@capacitor/app";
 
 /* Firebase */
 import auth from "../fbConfig";
@@ -170,21 +169,6 @@ function Maps() {
     }
   }, [context]);
 
-  useEffect(() => {
-    const eventListener: any = (ev: CustomEvent<any>) => {
-      ev.detail.register(10, () => {
-        console.log("BACK BUTTON MAPS PAGE");
-        CapacitorApp.exitApp();
-      });
-    };
-
-    document.addEventListener('ionBackButton', eventListener);
-
-    return () => {
-      document.removeEventListener('ionBackButton', eventListener);
-    };
-  }, []);
-
 
   useEffect(() => {
     setSchool();
@@ -253,6 +237,7 @@ function Maps() {
           provider={(x, y, z, dpr) => mapTiler(context.mapTilerId, x, y, z, dpr)}
           center={center}
           zoom={mapZoom}
+          minZoom={5}
           animate={true}
           zoomSnap={false}
           attributionPrefix={false}

@@ -11,6 +11,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import { arrowUpOutline, banOutline, cameraOutline } from "ionicons/icons";
+import { Share } from "@capacitor/share";
 
 /* CSS */
 import "../App.css";
@@ -97,7 +98,15 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   const handleShowReportModal = React.useCallback((show: boolean) => {
     setShowReportModal(show)
-  }, [])
+  }, []);
+
+  const handleShare = async () => {
+    await Share.share({
+      "text": "Checkout this post on tellU",
+      "title": "Checkout this post on tellU",
+      "url": "https://quantum-61b84.firebaseapp.com" + window.location.pathname
+    });
+  }
 
   /**
    * @description Sends an image to Firestore storage under /commentImages/{uuid}
@@ -400,7 +409,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   //TO-DO: Replace comments with Virtuoso component
   return (
     <IonPage>
-      <Toolbar setShowReportModal={handleShowReportModal} schoolName={schoolName} title={userName + '\'s Post'} text={"Back"} />
+      <Toolbar share={true} handleShare={handleShare} setShowReportModal={handleShowReportModal} schoolName={schoolName} title={userName + '\'s Post'} text={"Back"} />
       <IonContent fullscreen ref={contentRef} scrollEvents>
         <IonLoading isOpen={deletingComment} duration={0} message={"Deleting post..."} />
         <ReportModal schoolName={schoolName} postKey={postKey} handleShowReportModal={handleShowReportModal} isOpen={showReportModal} />
@@ -414,18 +423,18 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                   <IonImg className="ion-img-comment" src={photo?.webPath} />
                 ) : null}
               </IonCol>
-              <IonFabButton disabled={deleted || previousCommentLoading || !post || (comment.length === 0 && !photo)} size="small" color={context.schoolColorToggled ? "tertiary" : "primary"} onClick={() => { handleCommentSubmit(); }}>
+              <IonFabButton disabled={deleted || previousCommentLoading || !post || (comment.length === 0 && !photo)} size="small" color={context.schoolColorToggled ? "tertiary" : "primary"} onClick={() => { handleCommentSubmit(); }} style={{ transform: "translateY(-25%)" }}>
                 <IonIcon icon={arrowUpOutline} color={!context.darkMode ? "light" : ""} size="small" mode="ios" />
               </IonFabButton>
             </IonRow>
             <IonRow>
               <IonCol></IonCol>
               {!photo ?
-                <IonFabButton disabled={deleted || previousCommentLoading || !post} size="small" color="medium" onClick={() => { takePicture(); }}>
+                <IonFabButton disabled={deleted || previousCommentLoading || !post} size="small" color="medium" onClick={() => { takePicture(); }} style={{ transform: "translateY(-25%)" }}>
                   <IonIcon icon={cameraOutline} size="small" />
                 </IonFabButton>
                 :
-                <IonFabButton disabled={deleted || previousCommentLoading || !post} onClick={() => { setPhoto(null); setBlob(null) }} color="medium" size="small">
+                <IonFabButton disabled={deleted || previousCommentLoading || !post} onClick={() => { setPhoto(null); setBlob(null) }} color="medium" size="small" style={{ transform: "translateY(-25%)" }}>
                   <IonIcon size="small" icon={banOutline} />
                 </IonFabButton>
               }

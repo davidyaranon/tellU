@@ -5,6 +5,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
 import { IonContent, IonPage } from "@ionic/react";
+import { Share } from "@capacitor/share";
 
 /* Firebase */
 import auth, { getLikes, getUserPosts, getNextBatchUserPosts, getUserData, storage, downVote, upVote } from '../fbConfig';
@@ -52,6 +53,17 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [lastKey, setLastKey] = useState<any>();
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
+
+  /**
+   * @description handles the share modal when a user wants to share the about page
+   */
+  const handleShare = async () => {
+    await Share.share({
+      "text": "Checkout this user on tellU",
+      "title": "Checkout this user on tellU",
+      "url": "https://quantum-61b84.firebaseapp.com" + window.location.pathname
+    });
+  }
 
   /**
    * @description upvotes a post and updates the state
@@ -291,7 +303,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
   return (
     <IonPage >
-      <Toolbar user={user} uid={uid} dm={true} schoolName={schoolName} title={""} text={"Back"} />
+      <Toolbar share={true} handleShare={handleShare} user={user} uid={uid} dm={true} schoolName={schoolName} title={""} text={"Back"} />
       <IonContent fullscreen scrollY={false}>
         <Virtuoso
           overscan={1000}

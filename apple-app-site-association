@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "X7VLB6LCP6.com.example.v3.quantum",
+        "paths": ["*"]
+      }
+    ]
+  }
+}

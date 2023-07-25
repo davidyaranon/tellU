@@ -5,7 +5,7 @@
 import { useToast } from "@agney/ir-toast";
 import { Dialog } from "@capacitor/dialog";
 import { IonBackButton, IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar } from "@ionic/react";
-import { alertCircleOutline, chatbubbleOutline, chevronBackOutline } from "ionicons/icons";
+import { alertCircleOutline, chatbubbleOutline, chevronBackOutline, shareOutline } from "ionicons/icons";
 import { useHistory } from "react-router";
 import '../../App.css';
 import { useContext } from "../../my-context";
@@ -21,6 +21,8 @@ export const Toolbar = (props: any) => {
   const dm = props.dm;
   const user = props.user;
   const uid = props.uid;
+  const share = props.share;
+  const handleShare = props.handleShare;
 
   const Toast = useToast();
   const history = useHistory();
@@ -56,6 +58,13 @@ export const Toolbar = (props: any) => {
             >
             </IonBackButton>
           </IonButtons>
+          {share &&
+            <IonButtons slot='end'>
+              <IonButton color={"primary"} slot="end" onClick={() => { handleShare() }}>
+                <IonIcon icon={shareOutline} />
+              </IonButton>
+            </IonButtons>
+          }
           {schoolName && setShowReportModal &&
             <IonButtons slot='end'>
               <IonButton color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={() => { reportPost(); }}>
@@ -79,7 +88,7 @@ export const Toolbar = (props: any) => {
                       elements.push(user.uid);
                       elements.push(uid);
                     }
-                    history.push("/chatroom/" + schoolName + "/" +  elements[0] + '_' + elements[1], 'forward');
+                    history.push("/chatroom/" + schoolName + "/" + elements[0] + '_' + elements[1], 'forward');
                   } else {
                     console.log(user.uid)
                     console.log(user);

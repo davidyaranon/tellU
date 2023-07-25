@@ -261,7 +261,7 @@ const Home: React.FC = () => {
         }
       }
       setPostLikes(likes);
-      console.log(likes);
+      // console.log(likes);
     }
   }, [posts]);
 
@@ -351,7 +351,7 @@ const Home: React.FC = () => {
       console.log("USER LOADED " + user?.displayName);
       if (user && "uid" in user && user.uid && user.uid.length > 0) {
         getDownloadURL(ref(storage, "profilePictures/" + user.uid + "photoURL")).then((res) => {
-          console.log(res);
+          // console.log(res);
           setProfilePhoto(res);
         }).catch(() => {
           setProfilePhoto("https://firebasestorage.googleapis.com/v0/b/quantum-61b84.appspot.com/o/profilePictures%2F301-3012952_this-free-clipart-png-design-of-blank-avatar.png?alt=media&token=90117292-9497-4b30-980e-2b17986650cd",
@@ -363,7 +363,7 @@ const Home: React.FC = () => {
     if (schoolName) {
       school = schoolName.toString().replace(/\s+/g, "");
     }
-    console.log(school);
+    // console.log(school);
     const q = query(collection(db, "schoolPosts", school, "allPosts"), orderBy("timestamp", "desc"), limit(15));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const data: any = [];
@@ -386,7 +386,7 @@ const Home: React.FC = () => {
             justAdded[0].dislikes = { 'null': true };
             justAdded[0].commentAmount = 0;
             const finalData: any[] = justAdded.concat(datasCopy);
-            console.log(finalData);
+            // console.log(finalData);
             await timeout(500);
             // try {
             if (postsRef.current)
@@ -432,7 +432,7 @@ const Home: React.FC = () => {
           }
           setNewPostsLoaded(true);
         } else { // on initial load
-          console.log("INIT LOAD")
+          // console.log("INIT LOAD")
           for (let i = 0; i < data.length; ++i) {
             const likesData = await getLikes(data[i].key);
             if (likesData) {

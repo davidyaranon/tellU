@@ -304,8 +304,8 @@ export const LocationPinModal = (props: any) => {
             checked={locationChecked}
             onIonChange={(e) => {
               setLocationChecked(e.detail.checked);
-              if (e.detail.checked) getLocation();
-              else setPosition(null);
+              if (e.detail.checked) { getLocation(); }
+              else { setPosition(null); setPOI(''); }
             }}
           />
         </IonItem>
