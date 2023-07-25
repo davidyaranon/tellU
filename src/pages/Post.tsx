@@ -184,7 +184,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       );
       hasTimedOut.then(async (commentSent: any) => {
         if (commentSent) {
-          const toast = Toast.create({ message: 'Comment added', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+          const toast = Toast.create({ message: 'Comment added', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
           toast.present();
           toast.dismiss();
           if (comments) {

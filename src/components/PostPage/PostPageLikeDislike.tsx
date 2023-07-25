@@ -214,7 +214,7 @@ export const PostPageLikeDislike = memo((props: any) => {
                   setDeletingComment(true);
                   const didDelete = await removePost(postKeyMatch, schoolName, post.url);
                   if (didDelete !== undefined) {
-                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
                     toast.present();
                     toast.dismiss();
                   } else {
@@ -232,7 +232,7 @@ export const PostPageLikeDislike = memo((props: any) => {
                   setDeletingComment(true);
                   const didDelete = await removePost(postKeyMatch, schoolName, []);
                   if (didDelete !== undefined) {
-                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+                    const toast = Toast.create({ message: 'Post deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
                     toast.present();
                     toast.dismiss();
                   } else {

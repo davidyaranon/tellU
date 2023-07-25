@@ -80,7 +80,7 @@ export const SettingsHeader = (props: any) => {
                     })
                       .then(() => {
                         setProfilePhoto(url);
-                        const toast = Toast.create({ message: 'Photo uploaded', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+                        const toast = Toast.create({ message: 'Photo uploaded', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
                         toast.present();
                         toast.dismiss();
                         localStorage.setItem("profilePhoto", JSON.stringify(url));

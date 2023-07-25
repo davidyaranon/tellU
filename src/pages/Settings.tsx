@@ -260,7 +260,7 @@ const Settings: React.FC = () => {
     await logout();
     context.setSchoolColorToggled(false);
     context.setShowTabs(false);
-    const toast = Toast.create({ message: 'Logged out', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+    const toast = Toast.create({ message: 'Logged out', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
     toast.present();
     toast.dismiss();
   }
@@ -296,7 +296,7 @@ const Settings: React.FC = () => {
         }).catch((err) => {
           setTimeout(() => setShowAboutModal(false), 100);
         })
-        const toast = Toast.create({ message: 'Updated!', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+        const toast = Toast.create({ message: 'Updated!', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
         toast.present();
         toast.dismiss();
       } else {
@@ -339,7 +339,7 @@ const Settings: React.FC = () => {
                     userEmail: editableEmail,
                   })
                     .then(() => {
-                      const toast = Toast.create({ message: 'Updated email!', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+                      const toast = Toast.create({ message: 'Updated email!', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
                       toast.present();
                       toast.dismiss();
                       setEmail(editableEmail);
@@ -420,7 +420,7 @@ const Settings: React.FC = () => {
                   })
                 );
                 usernameDocChange.then(() => {
-                  const toast = Toast.create({ message: 'Updated username!', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-succcess-light' });
+                  const toast = Toast.create({ message: 'Updated username!', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
                   toast.present();
                   toast.dismiss();
                   setUserName(editableUserName);
