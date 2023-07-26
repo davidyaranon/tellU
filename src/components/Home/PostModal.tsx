@@ -107,8 +107,8 @@ export const PostModal = (props: any) => {
           <IonRow class="ion-padding-top">
             {profilePhoto ? (
               <>
-                <IonCol size="2.75" style={{ paddingLeft: "20px", paddingTop: "10px" }}>
-                  <IonAvatar style={{ padding: "1px" }}>
+                <IonCol size="2.75" style={{ paddingRight: "10px", paddingTop: "10px" }}>
+                  <IonAvatar style={{ marginLeft: "15%" }}>
                     <img src={profilePhoto} />
                   </IonAvatar>
                 </IonCol>
@@ -117,9 +117,9 @@ export const PostModal = (props: any) => {
                     aria-label=""
                     spellcheck={true}
                     ref={inputRef}
-                    rows={4}
+                    rows={3}
                     maxlength={500}
-                    style={context.darkMode ? { color: "white" } : { color: "black" }}
+                    style={context.darkMode ? { color: "white", height: "80px", fontSize: "large", paddingLeft: '5px', paddingRight: '15px' } : { color: "black", height: "80px", fontSize: "large", paddingLeft: '5px', paddingRight: '15px' }}
                     disabled={prevPostUploading}
                     placeholder="Start typing..."
                     id="message"
@@ -133,10 +133,9 @@ export const PostModal = (props: any) => {
                     aria-label=""
                     spellcheck={true}
                     ref={inputRef}
-                    rows={4}
-                    color="secondary"
+                    rows={3}
                     maxlength={500}
-                    style={ionInputStyle}
+                    style={context.darkMode ? { color: "white", height: "80px", fontSize: "large", paddingLeft: '5px', paddingRight: '15px' } : { color: "black", height: "80px", fontSize: "large", paddingLeft: '5px', paddingRight: '15px' }}
                     disabled={prevPostUploading}
                     placeholder="Start typing..."
                     id="message"
@@ -144,7 +143,7 @@ export const PostModal = (props: any) => {
                 </>
               )}
           </IonRow>
-          <br /> <br /> <br />
+          <br /> <br />
           <IonRow>
 
             <ClassSelections setPostClassName={setPostClassName} setPostClassNumber={setPostClassNumber} schoolName={schoolName} postClassNumber={postClassNumber} postClassName={postClassName} />
