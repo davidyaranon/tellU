@@ -32,17 +32,17 @@ import j_1 from "../images/j_1.jpeg";
 import j_3 from "../images/j_3.jpg";
 
 /* Icons */
-import ShowerIcon from '@mui/icons-material/Shower';
-import SchoolIcon from '@mui/icons-material/School';
-import HotelIcon from '@mui/icons-material/Hotel';
-import WeekendIcon from '@mui/icons-material/Weekend';
+import ShowerIconOutlined from '@mui/icons-material/ShowerOutlined';
+import SchoolIconOutlined from '@mui/icons-material/SchoolOutlined';
+import HotelIconOutlined from '@mui/icons-material/HotelOutlined';
+import WeekendIconOutlined from '@mui/icons-material/WeekendOutlined';
 
 /* Pigeon Map Details */
 export const MAP_TILER_KEY = 'c9MoaJaVglEims9riUks';
 export function mapTiler(darkMode: boolean, x: any, y: any, z: any, dpr: any) {
   let MAP_TILER_ID = darkMode ? 'streets-v2-dark' : 'streets';
   return `https://api.maptiler.com/maps/${MAP_TILER_ID}/256/${z}/${x}/${y}.png?key=${MAP_TILER_KEY}`
-}
+};
 
 export interface MapMarker {
   location: number[];
@@ -66,12 +66,12 @@ export let markers: Record<string, MapMarker[]> =
         color: "var(--ion-color-housing)",
         tag: "Housing",
         chip: [
-          { title: 'Freshmen', color: "ion-blue", icon: SchoolIcon, image: null },
-          { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Canyon_Bathroom },
-          { title: 'Single', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-single_0.jpg' },
-          { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-double_0.jpg' },
-          { title: 'Triple', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-triple.jpg' },
-          { title: 'Suite', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/canyon-suite.png' }
+          { title: 'Freshmen', color: "primary", icon: SchoolIconOutlined, image: null },
+          { title: 'Communal Bathrooms', color: "primary", icon: ShowerIconOutlined, local: true, image: Canyon_Bathroom },
+          { title: 'Single', color: "primary", icon: HotelIconOutlined, local: false, image: 'mapImages/canyon-single_0.jpg' },
+          { title: 'Double', color: "primary", icon: HotelIconOutlined, local: false, image: 'mapImages/canyon-double_0.jpg' },
+          { title: 'Triple', color: "primary", icon: HotelIconOutlined, local: false, image: 'mapImages/canyon-triple.jpg' },
+          { title: 'Suite', color: "primary", icon: HotelIconOutlined, local: false, image: 'mapImages/canyon-suite.png' }
         ]
       },
       {
@@ -92,12 +92,12 @@ export let markers: Record<string, MapMarker[]> =
           "Each room is furnished with a bed, dresser, desk and closet or wardrobe for each resident. All beds are twin extra long. Each floor has a study area and a TV lounge.On the first floor of each building, there is a kitchen, laundry and lounge area with vending machines and ping pong tables. Custodial services clean the hallways, bathrooms and lounges."
         ],
         chip: [
-          { title: 'Freshmen', color: "ion-blue", icon: SchoolIcon, image: null },
-          { title: 'Communal Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Bathroom },
-          { title: 'Gender Neutral Private Bathroom ', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Gender_Neutral_Bathroom },
-          { title: 'Double', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/hill-double_0.jpg' },
-          { title: 'Triple', color: "primary", icon: HotelIcon, local: false, image: 'mapImages/hill-triple.jpg' },
-          { title: 'Lounge Area', color: "primary", icon: WeekendIcon, local: true, image: '' },
+          { title: 'Freshmen', color: "primary", icon: SchoolIconOutlined, image: null },
+          { title: 'Communal Bathrooms', color: "primary", icon: ShowerIconOutlined, local: true, image: Hill_Bathroom },
+          { title: 'Gender Neutral Private Bathroom ', color: "primary", icon: ShowerIconOutlined, local: true, image: Hill_Gender_Neutral_Bathroom },
+          { title: 'Double', color: "primary", icon: HotelIconOutlined, local: false, image: 'mapImages/hill-double_0.jpg' },
+          { title: 'Triple', color: "primary", icon: HotelIconOutlined, local: false, image: 'mapImages/hill-triple.jpg' },
+          { title: 'Lounge Area', color: "primary", icon: WeekendIconOutlined, local: true, image: '' },
         ],
         color: "var(--ion-color-housing)",
         tag: "Housing"
@@ -121,9 +121,9 @@ export let markers: Record<string, MapMarker[]> =
         color: "var(--ion-color-housing)",
         tag: "Housing",
         chip: [
-          { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
-          { title: "Single", color: "primary", icon: HotelIcon, image: null },
-          { title: "Double", color: "primary", icon: HotelIcon, image: null },
+          { title: "Freshman", color: "primary", icon: SchoolIconOutlined, image: null },
+          { title: "Single", color: "primary", icon: HotelIconOutlined, image: null },
+          { title: "Double", color: "primary", icon: HotelIconOutlined, image: null },
         ]
       },
       {
@@ -161,9 +161,9 @@ export let markers: Record<string, MapMarker[]> =
         color: "var(--ion-color-housing)",
         tag: "Housing",
         chip: [
-          { title: "Freshman", color: "ion-blue", icon: SchoolIcon, image: null },
-          { title: 'Double', color: "primary", icon: HotelIcon, local: true, image: null },
-          { title: 'Private Bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Hill_Bathroom },
+          { title: "Freshman", color: "primary", icon: SchoolIconOutlined, image: null },
+          { title: 'Double', color: "primary", icon: HotelIconOutlined, local: true, image: null },
+          { title: 'Private Bathrooms', color: "primary", icon: ShowerIconOutlined, local: true, image: Hill_Bathroom },
         ]
       },
       {
@@ -185,10 +185,10 @@ export let markers: Record<string, MapMarker[]> =
         color: "var(--ion-color-housing)",
         tag: "Housing",
         chip: [
-          { title: 'Freshman & Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
-          { title: 'Private bathrooms', color: "ion-blue", icon: ShowerIcon, local: true, image: Creekview_Bathroom },
-          { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview-6.jpg' },
-          { title: '6 Person Suite', color: "primary", icon: HotelIcon, local: false, image: '/mapImages/creekview_suite.jpeg' },
+          { title: 'Freshman & Upperclassmen', color: "primary", icon: SchoolIconOutlined, image: null },
+          { title: 'Private bathrooms', color: "primary", icon: ShowerIconOutlined, local: true, image: Creekview_Bathroom },
+          { title: '6 Person Apartment', color: "primary", icon: HotelIconOutlined, local: false, image: '/mapImages/creekview-6.jpg' },
+          { title: '6 Person Suite', color: "primary", icon: HotelIconOutlined, local: false, image: '/mapImages/creekview_suite.jpeg' },
         ]
       },
       {
@@ -248,9 +248,9 @@ export let markers: Record<string, MapMarker[]> =
         color: "var(--ion-color-housing)",
         tag: "Housing",
         chip: [
-          { title: 'Upperclassmen', color: "ion-blue", icon: SchoolIcon, image: null },
-          { title: '6 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
-          { title: '4-5 Person Apartment', color: "primary", icon: HotelIcon, local: true, image: null },
+          { title: 'Upperclassmen', color: "primary", icon: SchoolIconOutlined, image: null },
+          { title: '6 Person Apartment', color: "primary", icon: HotelIconOutlined, local: true, image: null },
+          { title: '4-5 Person Apartment', color: "primary", icon: HotelIconOutlined, local: true, image: null },
         ]
       },
       {

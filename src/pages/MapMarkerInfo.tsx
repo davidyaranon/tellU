@@ -16,7 +16,6 @@ import auth, { getLikes, getPOIPosts, getStorageUrl } from "../fbConfig";
 import { HomePagePost } from "../components/Home/HomePagePost";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useToast } from "@agney/ir-toast";
-import { StatusBar, Style } from "@capacitor/status-bar";
 import { Dialog } from "@capacitor/dialog";
 import { useContext } from "../my-context";
 

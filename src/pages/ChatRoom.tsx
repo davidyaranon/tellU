@@ -416,7 +416,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                     />
                   </div>
                 </>
-                : !contactInfo ?
+                : !contactInfo && !loading ?
                   <>
                     <div className="ion-spinner">
                       <p style={{ textAlign: "center" }}>ERROR</p>

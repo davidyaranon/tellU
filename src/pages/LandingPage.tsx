@@ -11,12 +11,11 @@ import {
 /* Firebase */
 import { doc, getDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { db, } from '../fbConfig';
+import auth, { db } from '../fbConfig';
 
 /* CSS + Other components */
 import '../App.css';
 import Header from "../components/Shared/Header";
-import tellU_png from '../images/tellU_logo_transparent.png';
 import { dynamicNavigate } from '../components/Shared/Navigation';
 import { Preferences } from '@capacitor/preferences';
 import { useContext } from '../my-context';
@@ -41,6 +40,7 @@ const LandingPage = () => {
 
 
   const setSchool = React.useCallback(async (school: string) => {
+    console.log('setting ' + school + " \n on ladning page");
     await Preferences.set({ key: "school", value: school });
   }, []);
 
@@ -115,12 +115,12 @@ const LandingPage = () => {
   }
 
   return (
-    <IonPage >
+    <IonPage>
       <IonContent>
         <div style={{ height: "15vh" }} />
 
-        <IonHeader class="ion-no-border" style={{ paddingBottom: "5vh" }}>
-          <Header darkMode={context.darkMode} schoolName="" zoom={1.1} />
+        <IonHeader className="ion-no-border" style={{ paddingBottom: "5vh" }}>
+          <Header darkMode={context.darkMode} schoolName="" zoom={1.1} style={{ fontWeight: "bold", margin: 0 }} />
           <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'Arial' }}>University Chats</p>
         </IonHeader>
 

@@ -1356,12 +1356,13 @@ img.chat_avatar {
 .events-h1 {
   font-size: 1.75em;
   padding: 15px;
-  color: rgb(152, 152, 152);
+  color: rgb(127, 131, 131);
+  font-weight: bold;
 }
 
 .event-p {
   font-size: .95em;
-  color: rgb(152, 152, 152);
+  color: rgb(127, 131, 131);
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;

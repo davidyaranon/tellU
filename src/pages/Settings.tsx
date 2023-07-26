@@ -202,8 +202,11 @@ const Settings: React.FC = () => {
    * @param {boolean} isChecked whether dark mode toggled is enabled or disabled (checked or unchecked)
    */
   const toggleDarkMode = async (isChecked: boolean) => {
-    console.log("dark mode: ", isChecked);
-    document.body.classList.toggle("dark");
+    if (isChecked) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
     context.setDarkMode(isChecked);
     await Preferences.set({ key: "darkMode", value: JSON.stringify(isChecked) });
     if (Capacitor.getPlatform() === 'ios') {
@@ -238,32 +241,6 @@ const Settings: React.FC = () => {
     context.setSensitivityToggled(isChecked);
     await Preferences.set({ key: 'sensitivityToggled', value: JSON.stringify(isChecked) });
   };
-
-  /**
-   * @description Logs authenticated user out of application
-   * Redirects to Register page upon success
-   */
-  const handleLogout = async () => {
-    const value = await Dialog.confirm({
-      title: 'Logout',
-      message: `Are you sure you want to logout of your account?`,
-      okButtonTitle: 'Logout'
-    });
-    if (!value.value) { return; }
-    present({
-      duration: 2500,
-      message: "Logging out..."
-    });
-    // if (user && (Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'md')) {
-    //   await GoogleAuth.signOut();
-    // }
-    await logout();
-    context.setSchoolColorToggled(false);
-    context.setShowTabs(false);
-    const toast = Toast.create({ message: 'Logged out', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
-    toast.present();
-    toast.dismiss();
-  }
 
   /**
    * @description updates user info in Firestore database
@@ -565,7 +542,7 @@ const Settings: React.FC = () => {
   return (
     <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} scrollY={false}>
-        <SettingsHeader schoolName={schoolName} logout={handleLogout} user={user} editableUsername={editableUserName} />
+        <SettingsHeader schoolName={schoolName} user={user} editableUsername={editableUserName} />
 
         <Swiper
           id="settings-swiper"

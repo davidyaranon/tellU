@@ -42,7 +42,6 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 // CSS
 import "./App.css";
 import './theme/variables.css';
-import './theme/custom-tab-bar.css';
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
@@ -309,15 +308,15 @@ const App: React.FC = () => {
   /**
    * temp function to set school name to Cal Poly Humboldt
    */
-  const setSchoolName = React.useCallback(async () => {
-    await Preferences.set({ key: "school", value: "Cal Poly Humboldt" });
-  }, []);
+  // const setSchoolName = React.useCallback(async () => {
+  //   await Preferences.set({ key: "school", value: "Cal Poly Humboldt" });
+  // }, []);
 
   /**
    * Dark mode use effect
    */
   useEffect(() => {
-    setSchoolName().catch((err) => console.log(err));
+    // setSchoolName().catch((err) => console.log(err));
     handleDarkMode().catch((err) => { console.log(err); })
     handleSchoolColorToggle().catch((err) => { console.log(err); })
     handleSensitivityToggle().catch((err) => { console.log(err); })

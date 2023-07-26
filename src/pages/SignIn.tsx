@@ -27,10 +27,10 @@ import { Toolbar } from '../components/Shared/Toolbar';
 
 /* global variables */
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }
-const inputNote : React.CSSProperties = {
+const inputNote: React.CSSProperties = {
   fontSize: "0.85em",
   textAlign: "right",
-  color : "gray",
+  color: "gray",
   fontFamily: "Arial",
   marginTop: "-1.5vh",
   marginRight: "7.5vw"
@@ -57,6 +57,7 @@ export const SignIn = () => {
   * Toasts error upon incorrect credentials
   */
   const login = async () => {
+    await Preferences.clear();
     const emailRefValue = emailRef.current;
     const passwordRefValue = passwordRef.current;
     if (emailRefValue && passwordRefValue) {
@@ -81,7 +82,9 @@ export const SignIn = () => {
         Toast.error(err);
       });
       if (res) {
+        console.log(res.email);
         const info = await getUserInfo(res.uid);
+        console.log(info);
         if (info && "school" in info && info.school.length > 0) {
           await Preferences.set({ key: "school", value: info.school });
         }
@@ -89,6 +92,7 @@ export const SignIn = () => {
         toast.present();
         toast.dismiss();
         dynamicNavigate(router, "/home", "root");
+        window.location.reload();
         dismiss();
       } else {
         const toast = Toast.create({ message: 'Invalid credentials', duration: 2000, color: 'toast-error' });
@@ -167,15 +171,15 @@ export const SignIn = () => {
   });
 
   if (busy) {
-    return (<IonSpinner class='ion-spinner' name="dots" color="primary" />);
+    return (<IonSpinner className='ion-spinner' name="dots" color="primary" />);
   }
 
   return (
     <IonPage>
-      <Toolbar color="primary"/>
+      <Toolbar color="primary" text={'Back'}/>
       <IonContent >
-        <IonHeader style={{ padding: "5vh" }}>
-          <Header darkMode={context.darkMode} schoolName="" zoom={1.1} />
+        <IonHeader className='ion-no-border' style={{ padding: "5vh" }}>
+          <Header darkMode={context.darkMode} schoolName="" zoom={1.1} style={{ fontWeight: "bold", margin: 0 }} />
           <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'Arial' }}>Sign In</p>
         </IonHeader>
 
@@ -197,8 +201,6 @@ export const SignIn = () => {
 
         <IonButton className="login-button" onClick={() => { login(); }} fill="clear" expand="block" id="signInButton" >Sign In</IonButton>
         <div style={{ height: "1%" }} />
-
-        {/* <p className='sign-in-sign-up-list'> Don't have an account? <IonText color="primary" onClick={() => { dynamicNavigate(router, '/register', 'forward') }}>Register</IonText></p> */}
 
       </IonContent>
     </IonPage>

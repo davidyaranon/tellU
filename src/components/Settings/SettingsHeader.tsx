@@ -6,14 +6,14 @@ import { updateProfile } from "firebase/auth";
 import { getDownloadURL, ref } from "firebase/storage";
 import { cameraReverseOutline, chatbubblesOutline, informationCircleOutline, notificationsOutline } from "ionicons/icons";
 import { useCallback, useEffect, useState } from "react";
-import { getUserPhotoUrl, storage, uploadImage } from "../../fbConfig";
+import { getUserPhotoUrl, logout, storage, uploadImage } from "../../fbConfig";
 import { useContext } from "../../my-context";
 import { dynamicNavigate } from "../Shared/Navigation";
 import FadeIn from "react-fade-in/lib/FadeIn";
+import { Dialog } from "@capacitor/dialog";
 
 export const SettingsHeader = (props: any) => {
   const schoolName = props.schoolName;
-  const logout = props.logout;
   const user = props.user;
   const editableUsername = props.editableUsername;
 
@@ -23,6 +23,30 @@ export const SettingsHeader = (props: any) => {
   const [present, dismiss] = useIonLoading();
 
   const [profilePhoto, setProfilePhoto] = useState<string>("");
+
+  /**
+   * @description Logs authenticated user out of application
+   * Redirects to Register page upon success
+   */
+  const handleLogout = async () => {
+    const value = await Dialog.confirm({
+      title: 'Logout',
+      message: `Are you sure you want to logout of your account?`,
+      okButtonTitle: 'Logout'
+    });
+    if (!value.value) { return; }
+    present({
+      duration: 2500,
+      message: "Logging out..."
+    });
+    context.setShowTabs(false);
+    await Preferences.clear();
+    await logout();
+    context.setShowTabs(false);
+    const toast = Toast.create({ message: 'Logged out', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
+    toast.present();
+    toast.dismiss();
+  }
 
   const handleSetProfilePhoto = useCallback(async () => {
     if (user) {
@@ -116,7 +140,7 @@ export const SettingsHeader = (props: any) => {
       <IonToolbar mode="ios" style={{ height: "5vh" }}>
         <IonButtons slot="start">
           <IonButton
-            onClick={logout}
+            onClick={handleLogout}
             color="toast-error"
             mode="ios"
             fill="clear"

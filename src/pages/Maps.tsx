@@ -24,6 +24,7 @@ import schoolOutlineWhite from '../images/school-outline-white.png';
 import { useContext } from "../my-context";
 import { Preferences } from "@capacitor/preferences";
 import { Capacitor } from "@capacitor/core";
+import FadeIn from "react-fade-in/lib/FadeIn";
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
@@ -250,6 +251,7 @@ function Maps() {
             setOverlayIndex(-1);
           }}
         >
+
           <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={!context.darkMode ? zoomControlButtonsStyle : zoomControlButtonsStyleDark} />
 
           {filteredMarkers[schoolName] && filteredMarkers[schoolName].map((marker, index) => {
