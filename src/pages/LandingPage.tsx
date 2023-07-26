@@ -116,7 +116,7 @@ const LandingPage = () => {
 
   return (
     <IonPage>
-      <IonContent>
+      <IonContent scrollY={false}>
         <div style={{ height: "15vh" }} />
 
         <IonHeader className="ion-no-border" style={{ paddingBottom: "5vh" }}>

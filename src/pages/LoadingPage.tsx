@@ -66,7 +66,7 @@ const LoadingPage = () => {
   if (isOffline) { // TODO: return an offline image / animation
     return (
       <IonPage>
-        <IonContent className="ion-padding">
+        <IonContent className="ion-padding" scrollY={false}>
           <div className="centered">
             <IonNote> You are offline. </IonNote>
           </div>
@@ -80,7 +80,7 @@ const LoadingPage = () => {
    */
   return (
     <IonPage>
-      <IonContent fullscreen style={{ "--background": "var(--ion-color-splash-screen-background)" }}>
+      <IonContent scrollY={false} fullscreen style={{ "--background": "var(--ion-color-splash-screen-background)" }}>
         <div className="centered">
           <img style={{ scale: "2" }} src={tellU_logo} />
         </div>

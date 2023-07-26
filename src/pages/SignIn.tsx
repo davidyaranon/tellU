@@ -177,7 +177,7 @@ export const SignIn = () => {
   return (
     <IonPage>
       <Toolbar color="primary" text={'Back'}/>
-      <IonContent >
+      <IonContent scrollY={false}>
         <IonHeader className='ion-no-border' style={{ padding: "5vh" }}>
           <Header darkMode={context.darkMode} schoolName="" zoom={1.1} style={{ fontWeight: "bold", margin: 0 }} />
           <p style={{ textAlign: "center", fontSize: "1.5em", fontFamily: 'Arial' }}>Sign In</p>
