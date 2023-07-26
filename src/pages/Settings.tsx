@@ -7,7 +7,6 @@ import {
 } from '@ionic/react';
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from '@capacitor/keyboard';
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { Dialog } from '@capacitor/dialog';
 import { Preferences } from '@capacitor/preferences';
 
 // Firebase/Google
@@ -43,7 +42,7 @@ const keyStyleOptionsDark: KeyboardStyleOptions = {
 const keyStyleOptionsLight: KeyboardStyleOptions = {
   style: KeyboardStyle.Light
 }
-const versionNum: string = '3.2.2';
+const versionNum: string = '4.0';
 
 
 const Settings: React.FC = () => {

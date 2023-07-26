@@ -1,6 +1,6 @@
 {
   "name": "tellU",
-  "version": "3.2.2",
+  "version": "4.0",
   "private": true,
   "dependencies": {
     "@agney/ir-toast": "^0.3.0",
@@ -112,5 +112,5 @@
     "@types/react-mentions": "^4.1.8",
     "react-scripts": "^5.0.0"
   },
-  "description": "An Ionic project"
+  "description": "Social media app for university students"
 }

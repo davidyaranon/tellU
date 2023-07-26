@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 import Map from "@mui/icons-material/Map";
 import { useToast } from "@agney/ir-toast";
 import { useContext } from "../../my-context";
-import { humboldtPOIs } from "../../helpers/maps-config";
+import { davisPOIs, humboldtPOIs } from "../../helpers/maps-config";
 
 /* options for getting user's location using {@awesome-cordova-plugins/geolocation} */
 const locationOptions: GeolocationOptions = {
@@ -181,7 +181,8 @@ export const LocationPinModal = (props: any) => {
    * @param {number} long the longitude of the user's current position
    */
   const checkPOI = (lat: number, long: number) => {
-    for (const [key, value] of Object.entries(humboldtPOIs)) {
+    let poiToCheck = schoolName === "UC Davis" ? davisPOIs : humboldtPOIs;
+    for (const [key, value] of Object.entries(poiToCheck)) {
       const arr: number[] = value;
       const A = area(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]) +
         area(arr[0], arr[1], arr[6], arr[7], arr[4], arr[5]);

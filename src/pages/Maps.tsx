@@ -10,7 +10,6 @@ import {
   RouterDirection, useIonViewWillEnter, IonText
 } from "@ionic/react";
 import { schoolOutline } from "ionicons/icons";
-import {  KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
 
 /* Firebase */
 import auth from "../fbConfig";
@@ -23,12 +22,8 @@ import { Map, Marker, ZoomControl, Overlay } from "pigeon-maps";
 import schoolOutlineWhite from '../images/school-outline-white.png';
 import { useContext } from "../my-context";
 import { Preferences } from "@capacitor/preferences";
-import { Capacitor } from "@capacitor/core";
-import FadeIn from "react-fade-in/lib/FadeIn";
-
-const keyStyleOptionsDark: KeyboardStyleOptions = {
-  style: KeyboardStyle.Dark
-}
+// import locations from '../locations';
+// import buildings from '../locations';
 
 const getIonColor = (color: string) => {
   let c: string = "";
@@ -45,6 +40,76 @@ const selectOptions = {
   header: 'Pin Filters',
   subHeader: 'Select which type of pin to display on the map'
 };
+
+// function parseXml(xml: string): void {
+//   return;
+//   const parser = new DOMParser();
+//   const xmlDoc = parser.parseFromString(xml, "text/xml");
+
+//   const markers: MapMarker[] = [];
+
+//   const categories = xmlDoc.getElementsByTagName("category");
+//   for (let i = 0; i < categories.length; i++) {
+//     const category = categories[i];
+//     const categoryType = category.getAttribute("type");
+//     if (categoryType === "SR" || categoryType === "HD") {
+//       const subcategories = category.getElementsByTagName("subcategory");
+//       for (let j = 0; j < subcategories.length; j++) {
+//         const subcategory = subcategories[j];
+//         const locations = subcategory.getElementsByTagName("location");
+//         for (let k = 0; k < locations.length; k++) {
+//           const location = locations[k];
+//           let title = location.getAttribute("name") || "";
+//           title = decodeURIComponent(title.replace(/\+/g, ' '));
+//           const description = location.getAttribute("description") || "";
+//           const tab1 = location.getAttribute("tab1") || "";
+//           const marker: MapMarker = {
+//             location: [parseFloat(location.getAttribute("lat") || "0"), parseFloat(location.getAttribute("lng") || "0")],
+//             title: title,
+//             imgSrc: [""],
+//             description: [description, tab1],
+//             tag: subcategory.getAttribute("name") || "",
+//             color: "",
+//             chip: [],
+//           };
+//           markers.push(marker);
+//         }
+//       }
+//     }
+//   }
+
+//   const markerStr = JSON.stringify(markers, null, 2);
+
+//   console.log(`export const markers = ${markerStr};`);
+// }
+
+// function parseXml(xml: string): void {
+//   const parser = new DOMParser();
+//   const xmlDoc = parser.parseFromString(xml, "text/xml");
+  
+//   const markers: MapMarker[] = [];
+  
+//   const buildings = xmlDoc.getElementsByTagName("building");
+//   for(let i = 0; i < buildings.length; i++) {
+//     const building = buildings[i];
+//     let title = building.getAttribute("name") || "";
+//     title = decodeURIComponent(title.replace(/\+/g, ' '));
+//     const marker: MapMarker = {
+//       location: [parseFloat(building.getAttribute("lat") || "0"), parseFloat(building.getAttribute("lng") || "0")],
+//       title: title,
+//       imgSrc: [""],
+//       description: [""],
+//       tag: "Academics (Building)",
+//       color: "var(--ion-color-primary)",
+//       chip: [],
+//     };
+//     markers.push(marker);
+//   }
+  
+//   const markerStr = JSON.stringify(markers, null, 2);
+  
+//   console.log(`export const markers = ${markerStr};`);
+// }
 
 function Maps() {
   /* Hooks */
@@ -161,14 +226,10 @@ function Maps() {
   }, []);
 
 
-  // useEffect(() => {
-  //   context.setDarkMode(true);
-  //   document.body.classList.toggle("dark");
-  //   context.setDarkMode(true);
-  //   if (Capacitor.getPlatform() === "ios") {
-  //     Keyboard.setStyle(keyStyleOptionsDark);
-  //   }
-  // }, [context]);
+  useEffect(() => {
+    // parseXml(locations);
+    // parseXml(buildings);
+  }, [])
 
 
   useEffect(() => {
@@ -225,11 +286,16 @@ function Maps() {
               setOverlayIndex(-1);
               updateMarkers(e.detail.value);
             }}
-            style={{fontWeight: "bold"}}
+            style={{ fontWeight: "bold" }}
           >
             <IonSelectOption value="A">All</IonSelectOption>
             <IonSelectOption value="Dining">Dining</IonSelectOption>
             <IonSelectOption value="Housing">Housing</IonSelectOption>
+            {schoolName && schoolName === "UC Davis" &&
+              <>
+                <IonSelectOption value="Stores">Stores</IonSelectOption>
+              </>
+            }
             <IonSelectOption value="Academics">Academics</IonSelectOption>
             <IonSelectOption value="Recreation">Recreation</IonSelectOption>
           </IonSelect>
@@ -248,6 +314,7 @@ function Maps() {
             setZoom(zoom);
           }}
           onClick={(e) => {
+            console.log(e.latLng)
             setOverlayIndex(-1);
           }}
         >
@@ -259,7 +326,7 @@ function Maps() {
               <Marker
                 color={marker.color}
                 style={{ opacity: "85%" }}
-                key={marker.title}
+                key={marker.title + index.toString()}
                 anchor={[marker.location[0], marker.location[1]]}
                 width={35}
                 offset={[0, -5]}

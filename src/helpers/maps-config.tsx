@@ -270,6 +270,1897 @@ export let markers: Record<string, MapMarker[]> =
         tag: "Academics"
       },
     ],
+  "UC Davis": [
+    {
+      location: [
+        38.543132,
+        -121.747517
+      ],
+      title: "Agricultural & Resource Economics Library",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Academics (Library)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.533489,
+        -121.763429
+      ],
+      title: "Carlson Health Sciences Library",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Academics (Library)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.535978,
+        -121.74973
+      ],
+      title: "Law Library",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Academics (Library)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.53974,
+        -121.749113
+      ],
+      title: "Peter J. Shields Library",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        "The Peter J. Shields Library supports the teaching, research, and instruction needs for academic departments and programs in the Arts, Humanities, Social Sciences, Biological & Agricultural Sciences, Computer Sciences, and Mathematics/Statistics.<br/>",
+        "http://www.lib.ucdavis.edu/ul/libcoll/shields.php"
+      ],
+      tag: "Academics (Library)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.537312,
+        -121.75084
+      ],
+      title: "Physical Sciences & Engineering Library",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Academics (Library)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.541793,
+        -121.748273
+      ],
+      title: "Women's Resources & Research Center ",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Academics (Library)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.542848,
+        -121.74938
+      ],
+      title: "Amazon @ UC Davis",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Stores",
+      color: "var(--ion-color-buysell)",
+      chip: []
+    },
+    {
+      location: [
+        38.542754,
+        -121.749193
+      ],
+      title: "Campus Store",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Stores",
+      color: "var(--ion-color-buysell)",
+      chip: []
+    },
+    {
+      location: [
+        38.543373,
+        -121.740219
+      ],
+      title: "Downtown Store",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Stores",
+      color: "var(--ion-color-buysell)",
+      chip: []
+    },
+    {
+      location: [
+        38.542435,
+        -121.749233
+      ],
+      title: "The Market",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Stores",
+      color: "var(--ion-color-buysell)",
+      chip: []
+    },
+    {
+      location: [
+        38.534379,
+        -121.747242
+      ],
+      title: "Welcome Center Store",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Stores",
+      color: "var(--ion-color-buysell)",
+      chip: []
+    },
+    {
+      location: [
+        38.547244,
+        -121.763255
+      ],
+      title: "Cuarto Dining Commons",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.547246,
+        -121.763027
+      ],
+      title: "Cuarto Market",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.538064,
+        -121.756434
+      ],
+      title: "Latitude Dining Commons",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.53792,
+        -121.756279
+      ],
+      title: "Latitude Market",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.545036,
+        -121.758272
+      ],
+      title: "Segundo Market",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.543936,
+        -121.758088
+      ],
+      title: "Segundo Dining Commons",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.536192,
+        -121.757503
+      ],
+      title: "Tercero Dining Commons",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.536102,
+        -121.757106
+      ],
+      title: "Tercero Market",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.539815,
+        -121.754787
+      ],
+      title: "Bio Brew",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.540882,
+        -121.752912
+      ],
+      title: "California Coffee",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.542061,
+        -121.749853
+      ],
+      title: "Coffee House",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.539527,
+        -121.751609
+      ],
+      title: "CoHo South Cafe",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.538534,
+        -121.753203
+      ],
+      title: "Gunrock Pub",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.535413,
+        -121.746331
+      ],
+      title: "Hyatt Place Gallery",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.536234,
+        -121.750222
+      ],
+      title: "King Hall Coffee",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.538064,
+        -121.756434
+      ],
+      title: "Latitude Dining Commons",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.541812,
+        -121.759624
+      ],
+      title: "Peet's at the ARC",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.538776,
+        -121.752788
+      ],
+      title: "Peet's at the Silo",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.541317,
+        -121.771848
+      ],
+      title: "Sage Street Market Cafe",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.531837,
+        -121.761797
+      ],
+      title: "Scrubs Cafe",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.538789,
+        -121.753043
+      ],
+      title: "Silo",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Dining",
+      color: "var(--ion-color-dining)",
+      chip: []
+    },
+    {
+      location: [
+        38.547231,
+        -121.763612
+      ],
+      title: "Cuarto Residence Halls",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.544237,
+        -121.755798
+      ],
+      title: "Regan Residence Halls",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.54492,
+        -121.757908
+      ],
+      title: "Segundo Residence Halls",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.5383,
+        -121.744
+      ],
+      title: "Solano Park Apartments",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.536121,
+        -121.757141
+      ],
+      title: "Tercero Residence Halls",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.542499,
+        -121.77353
+      ],
+      title: "The Green",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.549371,
+        -121.76704
+      ],
+      title: "8th & Wake",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.545606,
+        -121.761236
+      ],
+      title: "Atriums at La Rue Park",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.543345,
+        -121.764981
+      ],
+      title: "Baggins End (Domes)",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.54117,
+        -121.762198
+      ],
+      title: "The Colleges at La Rue",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.544283,
+        -121.761079
+      ],
+      title: "Living Groups at La Rue Parkway",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.54538,
+        -121.755597
+      ],
+      title: "Primero Grove Apartments",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.540194,
+        -121.770623
+      ],
+      title: "The Ramble Apartments",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.545005,
+        -121.763171
+      ],
+      title: "Russell Park Apartments",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.54146,
+        -121.772557
+      ],
+      title: "Solstice",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.5432,
+        -121.755412
+      ],
+      title: "Tri-Cooperatives",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.541407,
+        -121.770971
+      ],
+      title: "Viridian",
+      imgSrc: [
+        ""
+      ],
+      description: [""],
+      tag: "Housing (Private)",
+      color: "var(--ion-color-housing)",
+      chip: []
+    },
+    {
+      location: [
+        38.535269,
+        -121.753024
+      ],
+      title: "Academic Surge",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.54291,
+        -121.759651
+      ],
+      title: "Activities & Recreation Center (ARC)",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Recreation",
+      color: "var(--ion-color-toast-success)",
+      chip: []
+    },
+    {
+      location: [
+        38.542632,
+        -121.76441
+      ],
+      title: "Agriculture Field Station",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.537502,
+        -121.760505
+      ],
+      title: "Animal Sciences Teaching Facility",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.529221,
+        -121.782744
+      ],
+      title: "Aquatic Biology & Environmental Science Bldg",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.524462,
+        -121.784803
+      ],
+      title: "Aquatic Weed Laboratory",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.533929,
+        -121.753233
+      ],
+      title: "Arboretum Headquarters (Valley Oak Cottage)",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.538964,
+        -121.748536
+      ],
+      title: "Art Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.541846,
+        -121.753228
+      ],
+      title: "Asmundson Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.537197,
+        -121.753252
+      ],
+      title: "Bainer Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.540173,
+        -121.756137
+      ],
+      title: "Briggs Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.5412832,
+        -121.752998
+      ],
+      title: "California Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.518019,
+        -121.752345
+      ],
+      title: "California Raptor Museum",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.538232,
+        -121.751178
+      ],
+      title: "Chemistry",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.531096,
+        -121.776179
+      ],
+      title: "Civil & Industrial Services",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.544399,
+        -121.754
+      ],
+      title: "Cowell Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.543292,
+        -121.754145
+      ],
+      title: "Cruess Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.551548,
+        -121.711945
+      ],
+      title: "Design & Construction Management (DCM)",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.54157,
+        -121.747704
+      ],
+      title: "Dutton Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.535159,
+        -121.751604
+      ],
+      title: "Earth and Physical Sciences Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.536479,
+        -121.751008
+      ],
+      title: "Earth & Planetary Sciences Shockwave Lab",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.53801,
+        -121.762246
+      ],
+      title: "Edwards Family Athletics Center",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Recreation",
+      color: "var(--ion-color-toast-success)",
+      chip: []
+    },
+    {
+      location: [
+        38.538494,
+        -121.750235
+      ],
+      title: "Everson Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.542584,
+        -121.750214
+      ],
+      title: "Freeborn Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.534808,
+        -121.747233
+      ],
+      title: "Gallagher Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.536124,
+        -121.753522
+      ],
+      title: "Ghausi Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.537721,
+        -121.755458
+      ],
+      title: "Giedt Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.53961,
+        -121.756743
+      ],
+      title: "Green Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539814,
+        -121.753498
+      ],
+      title: "Haring Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.54063,
+        -121.75085
+      ],
+      title: "Hart Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.543801,
+        -121.748684
+      ],
+      title: "Hickey Gym",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Recreation",
+      color: "var(--ion-color-toast-success)",
+      chip: []
+    },
+    {
+      location: [
+        38.542039,
+        -121.754525
+      ],
+      title: "Hoagland Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.537604,
+        -121.791059
+      ],
+      title: "Hopkins Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.543486,
+        -121.750707
+      ],
+      title: "Hunt Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.540962,
+        -121.753678
+      ],
+      title: "Hutchison Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539815,
+        -121.754787
+      ],
+      title: "Katherine Esau Science Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.536994,
+        -121.754909
+      ],
+      title: "Kemper Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.541561,
+        -121.751996
+      ],
+      title: "Kerr Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.535978,
+        -121.74973
+      ],
+      title: "King Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.540801,
+        -121.755232
+      ],
+      title: "Kleiber Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.535875,
+        -121.752731
+      ],
+      title: "Mathematical Sciences Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.5335,
+        -121.763491
+      ],
+      title: "Medical Sciences",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.53477,
+        -121.754508
+      ],
+      title: "Meyer Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.534401,
+        -121.749163
+      ],
+      title: "Mondavi Center for the Performing Arts",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.537044,
+        -121.749164
+      ],
+      title: "Mrak Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539163,
+        -121.747428
+      ],
+      title: "Music Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539053,
+        -121.734647
+      ],
+      title: "Neurosciences Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.541793,
+        -121.748273
+      ],
+      title: "North Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.54001,
+        -121.747623
+      ],
+      title: "Olson Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.538702,
+        -121.751509
+      ],
+      title: "Peter A. Rock Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.536598,
+        -121.751303
+      ],
+      title: "Physics Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.543427,
+        -121.752028
+      ],
+      title: "Plant & Environmental Sciences",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.540558,
+        -121.751837
+      ],
+      title: "Robbins Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.537037,
+        -121.751798
+      ],
+      title: "Roessler Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.533504,
+        -121.763894
+      ],
+      title: "Schalm Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.540516,
+        -121.746933
+      ],
+      title: "School of Education Building",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539455,
+        -121.755868
+      ],
+      title: "Sciences Lecture Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.536654,
+        -121.756698
+      ],
+      title: "Scrub Oak Hall (Auditorium)",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.538724,
+        -121.753095
+      ],
+      title: "Silo",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.543132,
+        -121.747517
+      ],
+      title: "Social Sciences & Humanities",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.541188,
+        -121.748093
+      ],
+      title: "South Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539992,
+        -121.747023
+      ],
+      title: "Sproul Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.540827,
+        -121.754596
+      ],
+      title: "Storer Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539527,
+        -121.751609
+      ],
+      title: "Student Community Center",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.542689,
+        -121.761542
+      ],
+      title: "Student Health & Wellness Center",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Recreation",
+      color: "var(--ion-color-toast-success)",
+      chip: []
+    },
+    {
+      location: [
+        38.533978,
+        -121.764782
+      ],
+      title: "Tupper Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.536057,
+        -121.7466
+      ],
+      title: "Urban Forestry",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.532823,
+        -121.763704
+      ],
+      title: "Valley Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.542947,
+        -121.752287
+      ],
+      title: "Veihmeyer Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.541216,
+        -121.746955
+      ],
+      title: "Voorhies Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.539654,
+        -121.750731
+      ],
+      title: "Walker Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.541337,
+        -121.751393
+      ],
+      title: "Wellman Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.542042,
+        -121.75159
+      ],
+      title: "Wickson Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.538748,
+        -121.747897
+      ],
+      title: "Wright Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+    {
+      location: [
+        38.542401,
+        -121.747709
+      ],
+      title: "Young Hall",
+      imgSrc: [
+        ""
+      ],
+      description: [
+        ""
+      ],
+      tag: "Academics (Building)",
+      color: "var(--ion-color-primary)",
+      chip: []
+    },
+  ],
   "": [{ location: [], title: "", color: "", imgSrc: [""], description: [""], tag: "" }]
 };
 
@@ -303,10 +2194,10 @@ export const humboldtPOIs: Record<string, number[]> = {
   "Forestry": [40.873369735739, -124.07759248444609, 40.87341029918665, -124.07654642293028, 40.87375103116581, -124.07661616036467, 40.87372669322545, -124.07760321328215],
 }
 
-export const schoolInfo : Record<string, number[]> = {
+export const schoolInfo: Record<string, number[]> = {
   "Cal Poly Humboldt": [40.87649434150835, -124.07918370203882, 15.5],
   "UC Berkeley": [37.87196553251828, -122.25832234237413, 15.5],
-  "UC Davis": [38.53906813693881, -121.7519863294826, 15],
+  "UC Davis": [38.539058013776575, -121.7560062230687, 14.5],
   "UC Irvine": [33.642798513829284, -117.83657521816043, 14.5],
   "UCLA": [34.068060230062784, -118.4450963024167, 15.5],
   "UC Merced": [37.362385, -120.427911, 15],
@@ -353,7 +2244,7 @@ export const zoomControlButtonsStyleDark = {
   display: 'block',
   outline: 'none',
   textIndent: '0px',
-} // +/- buttons that appear on map can be styled here
+} //  /- buttons that appear on map can be styled here
 
 export const zoomControlButtonsStyle = {
   width: "50px",
@@ -370,4 +2261,4 @@ export const zoomControlButtonsStyle = {
   display: 'block',
   outline: 'none',
   textIndent: '0px',
-}; // +/- buttons that appear on map can be styled here
+}; //  /- buttons that appear on map can be styled here
