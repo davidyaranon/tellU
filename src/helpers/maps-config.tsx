@@ -1890,22 +1890,6 @@ export let markers: Record<string, MapMarker[]> =
     },
     {
       location: [
-        38.538724,
-        -121.753095
-      ],
-      title: "Silo",
-      imgSrc: [
-        ""
-      ],
-      description: [
-        ""
-      ],
-      tag: "Academics (Building)",
-      color: "var(--ion-color-primary)",
-      chip: []
-    },
-    {
-      location: [
         38.543132,
         -121.747517
       ],
