@@ -1282,22 +1282,6 @@ export let markers: Record<string, MapMarker[]> =
     },
     {
       location: [
-        38.536479,
-        -121.751008
-      ],
-      title: "Earth & Planetary Sciences Shockwave Lab",
-      imgSrc: [
-        ""
-      ],
-      description: [
-        ""
-      ],
-      tag: "Academics (Building)",
-      color: "var(--ion-color-primary)",
-      chip: []
-    },
-    {
-      location: [
         38.53801,
         -121.762246
       ],
@@ -1510,22 +1494,6 @@ export let markers: Record<string, MapMarker[]> =
         -121.753678
       ],
       title: "Hutchison Hall",
-      imgSrc: [
-        ""
-      ],
-      description: [
-        ""
-      ],
-      tag: "Academics (Building)",
-      color: "var(--ion-color-primary)",
-      chip: []
-    },
-    {
-      location: [
-        38.539815,
-        -121.754787
-      ],
-      title: "Katherine Esau Science Hall",
       imgSrc: [
         ""
       ],

@@ -1,13 +1,34 @@
 import {
   IonCard, IonCardContent, IonRow, IonAvatar,
-  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip, IonBadge
+  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip, IonBadge, IonButton, IonItem, IonList
 } from "@ionic/react";
 import { useToast } from "@agney/ir-toast";
-import { logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
+import { logoInstagram, logoSnapchat, logoTiktok, trophyOutline } from "ionicons/icons";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import { useContext } from "../../my-context";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import Spotify from "react-spotify-embed";
+import { Swiper, SwiperSlide } from "swiper/react";
+
+import empty_achievement from '../../images/empty_achievement.png';
+import tellU_sovereign from '../../images/tellU_sovereign.png';
+interface iAchievement {
+  icon: string;
+  description: string;
+  title: string;
+}
+
+const achievements: iAchievement[] = [
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+  { title: "1one", icon: logoInstagram, description: "User likes a post" },
+
+]
 
 export const UserAboutCard = (props: any) => {
 
@@ -58,7 +79,7 @@ export const UserAboutCard = (props: any) => {
             </>
           ) : (
             <>
-              <FadeIn>      
+              <FadeIn>
                 <IonRow class="ion-justify-content-start">
                   <IonCol size="4">
                     <IonAvatar className="user-avatar">
@@ -111,7 +132,7 @@ export const UserAboutCard = (props: any) => {
                     <>
                       <IonCol>
                         <IonChip outline color="instagram-hex">
-                          <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@','')); }} style={{ fontSize: "0.75em" }}>
+                          <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@', '')); }} style={{ fontSize: "0.75em" }}>
                             <IonIcon style={{}} icon={logoInstagram} />
                             {'\u00A0'}
                             {userInstagram}
@@ -124,7 +145,7 @@ export const UserAboutCard = (props: any) => {
                     <>
                       <IonCol>
                         <IonChip outline color="tik-tok-hex">
-                          <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@','') + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
+                          <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@', '') + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
                             <IonIcon style={{}} icon={logoTiktok} />
                             {'\u00A0'}
                             {userTiktok}
@@ -134,11 +155,72 @@ export const UserAboutCard = (props: any) => {
                     </>
                   ) : null}
                 </IonRow>
-                {userTiktok && userSnapchat && userInstagram && (userTiktok.length > 0 || userSnapchat.length > 0 || userInstagram.length > 0) ? (
-                  <>
-                    <br />
-                  </>
-                ) : null}
+
+                <Swiper>
+                  <SwiperSlide>
+                    <IonRow>
+                      <IonCol>
+                        <IonItem button disabled aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center', opacity: '99%' }} onClick={() => { }}>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={empty_achievement} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={empty_achievement} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }}src={empty_achievement} />
+                          </IonCol>
+                        </IonItem>
+                      </IonCol>
+                    </IonRow>
+                  </SwiperSlide>
+                  <SwiperSlide>
+                    <IonRow>
+                      <IonCol>
+                        <IonItem button disabled aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center', opacity: '99%' }} onClick={() => { }}>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                        </IonItem>
+                      </IonCol>
+                    </IonRow>
+                  </SwiperSlide>
+                  <SwiperSlide>
+                    <IonRow>
+                      <IonCol>
+                        <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center' }} onClick={() => { }}>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                          <IonCol>
+                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
+                          </IonCol>
+                        </IonItem>
+                      </IonCol>
+                    </IonRow>
+                  </SwiperSlide>
+                </Swiper>
+
+
+
                 {userBio && userBio.length > 0 ? (
                   <>
                     <IonRow class="ion-justify-content-start">
@@ -146,6 +228,7 @@ export const UserAboutCard = (props: any) => {
                     </IonRow>
                   </>
                 ) : null}
+
                 {spotifyUri &&
                   <FadeIn delay={250} transitionDuration={750}>
                     <br />
@@ -165,11 +248,13 @@ export const UserAboutCard = (props: any) => {
           )}
         </IonCardContent>
       </IonCard>
+
       {!noPostsYet &&
         <div style={{ textAlign: "center", alignItems: "center" }}>
           <IonLabel>Posts</IonLabel>
         </div>
       }
+
     </FadeIn>
   );
 }
