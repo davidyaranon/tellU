@@ -1,10 +1,10 @@
 import { useToast } from "@agney/ir-toast";
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import { Preferences } from "@capacitor/preferences";
-import { IonToolbar, IonButtons, IonButton, IonIcon, IonAvatar, IonImg, IonHeader, useIonRouter, useIonLoading, IonTitle, IonText } from "@ionic/react";
+import { IonToolbar, IonButtons, IonButton, IonIcon, IonAvatar, IonImg, IonHeader, useIonRouter, useIonLoading, IonTitle, IonText, useIonToast } from "@ionic/react";
 import { updateProfile } from "firebase/auth";
 import { getDownloadURL, ref } from "firebase/storage";
-import { cameraReverseOutline, chatbubblesOutline, informationCircleOutline, notificationsOutline } from "ionicons/icons";
+import { cameraReverseOutline, chatbubblesOutline, informationCircleOutline, notificationsOutline, trophyOutline } from "ionicons/icons";
 import { useCallback, useEffect, useState } from "react";
 import { getUserPhotoUrl, logout, storage, uploadImage } from "../../fbConfig";
 import { useContext } from "../../my-context";
@@ -21,6 +21,29 @@ export const SettingsHeader = (props: any) => {
   const context = useContext();
   const Toast = useToast();
   const [present, dismiss] = useIonLoading();
+  // const [presentToast] = useIonToast();
+
+  // const testToast = () => {
+  //   presentToast({
+  //     color: 'toast-success',
+  //     message: "You just unlocked the Heart Warmer Acheivement!",
+  //     duration: 3500,
+  //     position: 'top',
+  //     buttons: [
+  //       {
+  //         text: 'Open',
+  //         role: 'info',
+  //         handler: () => {  }
+  //       },
+  //       {
+  //         text: 'Dismiss',
+  //         role: 'cancel',
+  //         handler: () => { }
+  //       }
+  //     ],
+  //     cssClass: 'toast-options',
+  //   });
+  // }
 
   const [profilePhoto, setProfilePhoto] = useState<string>("");
 
@@ -157,6 +180,10 @@ export const SettingsHeader = (props: any) => {
             }}
           >
             <IonIcon icon={chatbubblesOutline}>
+            </IonIcon>
+          </IonButton>
+          <IonButton onClick={() => { dynamicNavigate(router, 'achievements', 'forward') }}>
+            <IonIcon icon={trophyOutline}>
             </IonIcon>
           </IonButton>
           <IonButton

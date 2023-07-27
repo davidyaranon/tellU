@@ -23,6 +23,7 @@ import { UserAboutCard } from '../components/Shared/UserAboutCard';
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { timeout } from "../helpers/timeout";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { NUM_ACHIEVEMENTS } from "../helpers/achievements-config";
 
 interface MatchParams {
   uid: string;
@@ -49,6 +50,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [userTiktok, setUserTiktok] = useState<string>("");
   const [userSnapchat, setUserSnapchat] = useState<string>("");
   const [userInstagram, setUserInstagram] = useState<string>("");
+  const [userAchievements, setUserAchievements] = useState<string[]>([]);
+  const [showAchievements, setShowAchievements] = useState<boolean>(false);
   const [spotifyUri, setSpotifyUri] = useState<string>("");
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [lastKey, setLastKey] = useState<any>();
@@ -223,6 +226,10 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             if ("spotify" in res) {
               setSpotifyUri(res.spotify);
             }
+            if("showA" in res && res.showA == true && "achievements" in res && res.achievements){
+              setShowAchievements(true);
+              setUserAchievements(res.achievements);
+            }
             getUserPosts(schoolName, uid)
               .then(async (res: any) => {
                 // first batch
@@ -276,12 +283,20 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     }
   }, [user, loading, uid, schoolName, match.params.uid]);
 
+  useEffect(() => {
+    const currentLength = userAchievements.length;
+    if (currentLength < NUM_ACHIEVEMENTS) {
+      const padding = Array(NUM_ACHIEVEMENTS - currentLength).fill("Hidden");
+      setUserAchievements([...userAchievements, ...padding]);
+    }
+  }, [userAchievements]);
+
   /**
    * The header component containing the user's profile picture and bio in an IonCard
    */
   const Header = React.useCallback(() => {
     return (
-      <UserAboutCard busy={busy} noPostsYet={noPostsYet} profilePhoto={profilePhoto}
+      <UserAboutCard busy={busy} noPostsYet={noPostsYet} profilePhoto={profilePhoto} userAchievements={userAchievements} showAchievements={showAchievements}
         userName={userName} spotifyUri={spotifyUri} userMajor={userMajor} userTiktok={userTiktok} userBio={userBio} userInstagram={userInstagram} userSnapchat={userSnapchat} />);
   }, [busy]);
 

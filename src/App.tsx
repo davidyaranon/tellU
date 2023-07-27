@@ -64,6 +64,7 @@ import { FCM } from '@capacitor-community/fcm';
 import aiIconFilled from './images/aiFilled.svg';
 import aiIconUnfilled from './images/aiUnfilled.svg';
 import AppUrlListener from './AppUrlListener';
+import { Achievements } from './pages/Achievements';
 
 // Global variables
 setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
@@ -187,6 +188,7 @@ const RoutingSystem: React.FunctionComponent = () => {
           <Route path="/chatroom/:schoolName/:collectionPath" component={ChatRoom} />
           <Route path="/privacy-policy" exact component={PrivacyPolicy} />
           <Route path="/notifications" exact component={Notifications} />
+          <Route path="/achievements" exact component={Achievements} />
           <Route path="/class/:schoolName/:className" component={Class} />
           <Route path="/type/:schoolName/:type" exact component={Posttypes} />
         </IonRouterOutlet>

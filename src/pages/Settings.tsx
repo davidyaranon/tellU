@@ -28,7 +28,7 @@ import { PostType } from '../components/Shared/PostType';
 import ProfilePhoto from '../components/Shared/ProfilePhoto';
 import { PostMessage } from '../components/Home/PostMessage';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { logoInstagram, logoSnapchat, logoTiktok, map, moon, refreshOutline, warningSharp } from 'ionicons/icons';
+import { logoInstagram, logoSnapchat, logoTiktok, map, moon, refreshOutline, trophy, trophyOutline, warningSharp } from 'ionicons/icons';
 import FadeIn from 'react-fade-in/lib/FadeIn';
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -56,6 +56,7 @@ const Settings: React.FC = () => {
   const [loadedSlidesArr, setLoadedSlidesArr] = React.useState<boolean[]>([false, false])
   const [userLikedPosts, setUserLikedPosts] = React.useState<any[] | null>(null);
   const [userBio, setUserBio] = React.useState<string>("");
+  const [showA, setShowA] = React.useState<boolean>(false);
   const [userMajor, setUserMajor] = React.useState<string>("");
   const [userTiktok, setUserTiktok] = React.useState<string>("");
   const [userInstagram, setUserInstagram] = React.useState<string>("");
@@ -946,6 +947,20 @@ const Settings: React.FC = () => {
                 }}
               />
             </IonCardContent>
+          </IonCard>
+          <IonCard mode="ios">
+            <IonItem mode="ios" lines='none'>
+              <p style={{ fontSize: "0.85em" }}> Show Achievements </p>&nbsp;&nbsp;
+              <IonIcon color="medium" icon={trophy} slot="end" />
+              <IonToggle
+                id="achievementsToggle"
+                slot="end"
+                checked={showA}
+                enableOnOffLabels={true}
+                color={"primary"}
+              // onIonChange={(e) => { toggleDarkMode(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+              />
+            </IonItem>
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>

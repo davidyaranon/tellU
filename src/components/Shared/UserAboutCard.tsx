@@ -8,27 +8,23 @@ import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@c
 import { useContext } from "../../my-context";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import Spotify from "react-spotify-embed";
+import "swiper/css";
+import 'swiper/css/scrollbar';
+import { Scrollbar } from 'swiper';
 import { Swiper, SwiperSlide } from "swiper/react";
+import { AchievementIcons } from "../../helpers/achievements-config";
 
-import empty_achievement from '../../images/empty_achievement.png';
-import tellU_sovereign from '../../images/tellU_sovereign.png';
-interface iAchievement {
-  icon: string;
-  description: string;
-  title: string;
+
+const chunkArray = (myArray: string[], chunk_size: number) => {
+  var results = [];
+
+  while (myArray.length) {
+    results.push(myArray.splice(0, chunk_size));
+  }
+
+  return results;
 }
 
-const achievements: iAchievement[] = [
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-  { title: "1one", icon: logoInstagram, description: "User likes a post" },
-
-]
 
 export const UserAboutCard = (props: any) => {
 
@@ -42,6 +38,9 @@ export const UserAboutCard = (props: any) => {
   const userTiktok = props.userTiktok;
   const userMajor = props.userMajor;
   const spotifyUri = props.spotifyUri;
+  const achievements = props.userAchievements;
+  console.log(achievements);
+  const show = props.showAchievements;
 
   const Toast = useToast();
   const context = useContext();
@@ -156,68 +155,33 @@ export const UserAboutCard = (props: any) => {
                   ) : null}
                 </IonRow>
 
-                <Swiper>
-                  <SwiperSlide>
-                    <IonRow>
-                      <IonCol>
-                        <IonItem button disabled aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center', opacity: '99%' }} onClick={() => { }}>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={empty_achievement} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={empty_achievement} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }}src={empty_achievement} />
-                          </IonCol>
-                        </IonItem>
-                      </IonCol>
-                    </IonRow>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <IonRow>
-                      <IonCol>
-                        <IonItem button disabled aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center', opacity: '99%' }} onClick={() => { }}>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                        </IonItem>
-                      </IonCol>
-                    </IonRow>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                    <IonRow>
-                      <IonCol>
-                        <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center' }} onClick={() => { }}>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                          <IonCol>
-                            <IonImg aria-hidden="true" style={{ height: "75%" }} src={tellU_sovereign} />
-                          </IonCol>
-                        </IonItem>
-                      </IonCol>
-                    </IonRow>
-                  </SwiperSlide>
-                </Swiper>
+                {show &&
+                  <Swiper
+                    scrollbar={{
+                      hide: true,
+                    }}
+                    modules={[Scrollbar]}
+                  >
+                    {
+                      chunkArray(achievements, 4).map((achievementChunk, index) => (
+                        <SwiperSlide key={index}>
+                          <IonRow>
+                            <IonCol key={index}>
+                              <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center', opacity: '99%' }} onClick={() => { }}>
+                                {achievementChunk.map((achievement: string, index) => (
+                                  <IonCol key={achievement + index}>
+                                    <IonImg aria-hidden="true" style={{ height: "75%" }} src={AchievementIcons[achievement]} />
+                                  </IonCol>
+                                ))}
+                              </IonItem>
+                            </IonCol>
+                          </IonRow>
+                        </SwiperSlide>
+                      ))
+                    }
+                  </Swiper>
+                }
+
 
 
 

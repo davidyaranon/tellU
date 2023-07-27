@@ -89,6 +89,7 @@ export async function registerWithEmailAndPassword(name, email, password, school
           uid: user.uid,
           school: school,
           notifs: [],
+          achievements: [],
           timestamp: serverTimestamp(),
           notificationsToken: "",
         });
