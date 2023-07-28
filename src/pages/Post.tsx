@@ -3,11 +3,11 @@ import React from "react";
 import {
   IonCol, IonContent, IonFab,
   IonFabButton, IonIcon, IonImg, IonInfiniteScroll,
-  IonInfiniteScrollContent, IonLoading, IonNote, IonPage, IonRow
+  IonInfiniteScrollContent, IonLoading, IonNote, IonPage, IonRow, useIonToast
 } from "@ionic/react";
 import { memo, useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import { Keyboard, KeyboardResize, KeyboardResizeOptions } from "@capacitor/keyboard";
 import { Camera, CameraResultType, CameraSource, Photo } from "@capacitor/camera";
 import { arrowUpOutline, banOutline, cameraOutline } from "ionicons/icons";
@@ -19,7 +19,7 @@ import "../App.css";
 /* Firebase */
 import auth, {
   addCommentNew, getLikes, promiseTimeout, getOnePost,
-  loadCommentsNew, loadCommentsNewNextBatch, uploadImage
+  loadCommentsNew, loadCommentsNewNextBatch, uploadImage, updateAchievements
 } from '../fbConfig';
 import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
 
@@ -36,6 +36,7 @@ import PostPagePost from "../components/PostPage/PostPagePost";
 import { CommentLoading, PostLoading } from "../components/PostPage/PostLoading";
 import { ReportModal } from "../components/PostPage/ReportModal";
 import { PostComment } from "../components/PostPage/Comment";
+import { Preferences } from "@capacitor/preferences";
 
 interface MatchUserPostParams {
   school: string;
@@ -58,6 +59,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   /* Hooks */
   const [user] = useAuthState(auth);
+  const [present] = useIonToast();
+  const history = useHistory();
   const Toast = useToast();
   const context = useContext();
   const db = getDatabase();
@@ -65,6 +68,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   /* State Variables */
   const connectedRef = ref(db, ".info/connected");
   const [post, setPost] = useState<any | null>(null);
+  const [firstCommenter, setFirstCommenter] = useState<boolean>(false);
   const [commentUsers, setCommentUsers] = useState<SuggestionDataItem[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
@@ -79,6 +83,29 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [notificationsToken, setNotificationsToken] = useState<string>("");
   const [deletingComment, setDeletingComment] = useState<boolean>(false);
+
+  const presentAchievement = async (achievement: string): Promise<void> => {
+    const achStr = achievement.replace(/\s+/g, '');
+    await Preferences.set({ "key": achStr, value: "true" });
+    present({
+      message: 'You just unlocked the ' + achievement + ' achievement!',
+      duration: 3500,
+      position: 'top',
+      buttons: [
+        {
+          text: 'Open',
+          role: 'info',
+          handler: () => { history.push('/achievements'); }
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          handler: () => { }
+        }
+      ],
+      cssClass: 'toast-options',
+    });
+  }
 
   const handleSetComment = React.useCallback((com: string) => {
     setComment(com);
@@ -187,6 +214,11 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           const toast = Toast.create({ message: 'Comment added', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
           toast.present();
           toast.dismiss();
+          if (firstCommenter) {
+            await updateAchievements('Early Bird');
+            await presentAchievement('Early Bird');
+            setFirstCommenter(false);
+          }
           if (comments) {
             commentSent.likes = { "null": true };
             commentSent.dislikes = { "null": true };
@@ -199,11 +231,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         }
         setCommentsLoading(false);
         setPreviousCommentLoading(false);
+        setFirstCommenter(false);
         contentRef && contentRef.current && contentRef.current.scrollToBottom(750);
       });
       hasTimedOut.catch((err) => {
         Toast.warning('Slow internet connection, comment will be uploaded soon...');
         setCommentsLoading(false);
+        setFirstCommenter(false);
         setPreviousCommentLoading(false);
       });
     }
@@ -322,6 +356,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           }
           setComments(res.comments);
           setLastKey(res.lastKey);
+        }
+        if ("comments" in res && res.comments && res.comments.length === 0) {
+          setFirstCommenter(true);
         }
         setCommentsLoading(false);
       });

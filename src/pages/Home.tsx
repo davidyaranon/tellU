@@ -1,12 +1,10 @@
 // Ionic/Capacitor + React
 import React from 'react';
 import { useHistory } from 'react-router';
-import { IonAvatar, IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonRow, IonSkeletonText, IonSpinner, useIonRouter, useIonViewWillEnter } from '@ionic/react';
+import { IonAvatar, IonContent, IonHeader, IonItem, IonLabel, IonList, IonPage, IonRow, IonSkeletonText, IonSpinner, useIonRouter, useIonToast, useIonViewWillEnter } from '@ionic/react';
 import { Preferences } from '@capacitor/preferences';
 import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
-import { StatusBar, Style } from "@capacitor/status-bar";
 import { Dialog } from '@capacitor/dialog';
-import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -47,6 +45,7 @@ const Home: React.FC = () => {
   const context = useContext();
   const router = useIonRouter();
   const history = useHistory();
+  const [present] = useIonToast();
   const virtuosoRef = React.useRef<any>(null);
   const [user, loading, error] = useAuthState(auth);
 
@@ -67,6 +66,29 @@ const Home: React.FC = () => {
   const newDataRef = React.useRef<any>();
   newDataRef.current = newData;
 
+  const presentAchievement = async (achievement: string): Promise<void> => {
+    const achStr = achievement.replace(/\s+/g, '');
+    await Preferences.set({ "key": achStr, value: "true" });
+    present({
+      message: 'You just unlocked the ' + achievement + ' achievement!',
+      duration: 3500,
+      position: 'top',
+      buttons: [
+        {
+          text: 'Open',
+          role: 'info',
+          handler: () => { history.push('/achievements'); }
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          handler: () => { }
+        }
+      ],
+      cssClass: 'toast-options',
+    });
+  }
+
   /**
    * @description upvotes a post and updates the state
    * 
@@ -75,7 +97,12 @@ const Home: React.FC = () => {
    * @param {any} post the post object used for updating user's likes document
   */
   const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(postKey, post);
+    let checkLikeAchievement = true;
+    const likeALotAchievement = await Preferences.get({ key: "Like-a-Lot" });
+    if (likeALotAchievement && likeALotAchievement.value === "true") {
+      checkLikeAchievement = false;
+    }
+    const { inc: val, upVoteAchievement } = await upVote(postKey, post, checkLikeAchievement);
     if (val && (val === 1 || val === -1)) {
       if (val === 1) {
         Haptics.impact({ style: ImpactStyle.Light });
@@ -98,6 +125,9 @@ const Home: React.FC = () => {
     } else {
       const toast = Toast.create({ message: 'Unable to like post', duration: 2000, color: 'toast-error' });
       toast.present();
+    }
+    if (upVoteAchievement) {
+      await presentAchievement("Like-a-Lot");
     }
   };
 

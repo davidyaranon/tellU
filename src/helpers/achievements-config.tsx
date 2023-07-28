@@ -17,9 +17,6 @@ import post_a_lot from '../images/post-a-lot.png';
 import memory_collector from '../images/memory_collector.png';
 
 
-
-export const NUM_ACHIEVEMENTS: number = 24;
-
 export interface IAchievement {
   description: string;
   title: string;
@@ -67,10 +64,10 @@ export const AchievementIcons: Record<string, string> = {
 };
 
 export const AchievementDescriptions: Record<string, string> = {
-  "Like-a-Lot": "Like any 25 posts on tellU.",
+  "Like-a-Lot": "Like any 25 posts on tellU.", // implemented
   "tellU Sovereign": "Use tellU for over a year!",
-  "Early Bird": "Be the first person to comment on a post.",
-  "Hidden": "Keep using tellU to unlock more achievements!",
+  "Early Bird": "Be the first person to comment on a post.", // implemented
+  "Hidden": "Keep using tellU to unlock more achievements!", // implemented
   "Tech Whisperer": "Talk to the tellU AI chatbot",
   "Party Starter": "Use the event tag to promote something in a post",
   "Celebrity": "Get 50 likes on a post",

@@ -1,17 +1,13 @@
-import { useToast } from "@agney/ir-toast";
-import { IonCardTitle, IonContent, IonItem, IonList, IonNote, IonPage, IonThumbnail } from "@ionic/react";
+import { Preferences } from "@capacitor/preferences";
+import { IonContent, IonItem, IonList, IonNote, IonPage, IonThumbnail } from "@ionic/react";
 import { useCallback, useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { Toolbar } from "../components/Shared/Toolbar";
-import auth, { promiseTimeout, getCurrentUserData } from "../fbConfig";
-import { AchievementIcons, AchievementDescriptions, NUM_ACHIEVEMENTS, listOfAchievements } from "../helpers/achievements-config";
+import { AchievementIcons, AchievementDescriptions, listOfAchievements } from "../helpers/achievements-config";
 import { useContext } from "../my-context";
 
 export const Achievements = () => {
 
   const context = useContext();
-  const Toast = useToast();
-  const [user, loading, error] = useAuthState(auth);
 
   const [achievements, setAchievements] = useState<string[]>([]);
 
@@ -29,30 +25,22 @@ export const Achievements = () => {
     return AchievementIcons['Hidden'];
   };
 
-  const loadAchievements = useCallback(() => {
-    if (user && user.uid) {
-      const gotUserData = promiseTimeout(7500, getCurrentUserData());
-      gotUserData.then((res: any) => {
-        if (res) {
-          if ("achievements" in res && res.achievements.length > 0) {
-            setAchievements(res.achievements);
-            console.log(res.achievements)
-          }
-        } else {
-          const toast = Toast.create({ message: 'Trouble getting data', duration: 2000, color: 'toast-error' });
-          toast.present();
-        }
-      });
-      gotUserData.catch((err) => {
-        Toast.error(err);
-      });
+  const loadAchievements = useCallback(async () => {
+    const keysResult = await Preferences.keys();
+    const listOfKeys: string[] = keysResult.keys;
+    let tempAchievements: string[] = [];
+    for (let i = 0; i < listOfAchievements.length; ++i) {
+      const achStr: string = listOfAchievements[i].replace(/\s+/g, '');
+      if (listOfKeys.includes(achStr)) {
+        tempAchievements.push(listOfAchievements[i]);
+      }
     }
-  }, [user]);
+    setAchievements(tempAchievements);
+  }, []);
 
   useEffect(() => {
-    if (!loading)
-      loadAchievements();
-  }, [user, loading])
+    loadAchievements();
+  }, [])
 
 
   return (

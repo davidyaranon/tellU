@@ -3,7 +3,7 @@ import {
   addDoc, collection, deleteDoc,
   doc, getDoc, getDocs, getFirestore, increment, limit, orderBy,
   query, runTransaction, serverTimestamp, setDoc, startAfter,
-  updateDoc, where, writeBatch,
+  updateDoc, where, writeBatch, getCountFromServer, arrayUnion
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword, getAuth, indexedDBLocalPersistence,
@@ -328,10 +328,11 @@ export const getLikes = async (key) => {
  * @param {object} post the post object containing the post's data
  * @returns either +1 or -1 depending on the user's previous like/dislike value(s)
  */
-export const upVote = async (postKey, post) => {
+export const upVote = async (postKey, post, checkForLikesAchievement = false) => {
+  let inc = null;
+  let upVoteAchievement = false;
   try {
     if (db && database && auth && auth.currentUser) {
-      let inc = null;
       const userUid = auth.currentUser.uid;
       const userLikesDocRef = doc(
         db,
@@ -340,6 +341,18 @@ export const upVote = async (postKey, post) => {
         "likes",
         postKey
       );
+
+
+      if (checkForLikesAchievement) {
+        const userLikesColl = collection(db, "userData", userUid, "likes");
+        const userLikesSnapshot = await getCountFromServer(userLikesColl);
+        const amount = userLikesSnapshot.data().count;
+        if (amount >= 25) {
+          upVoteAchievement = true;
+          updateAchievements("Like-a-Lot");
+        }
+      }
+
       let deleteLike = false;
       const likesRef = rtdbRef(database, postKey);
       await rtdbRunTransaction(likesRef, (post) => {
@@ -375,11 +388,12 @@ export const upVote = async (postKey, post) => {
           postType: post.postType,
         });
       }
-      return inc;
     }
   } catch (err) {
     console.log(err);
   }
+  return { inc, upVoteAchievement };
+
 };
 
 /**
@@ -1732,4 +1746,21 @@ export const testOpenAi = async (schoolName, msg) => {
   console.log(answer);
 
   return answer.data.content;
+};
+
+export const updateAchievements = async (achievement) => {
+  try {
+    if (!achievement || achievement.length <= 0) { return; }
+    if (db && auth && auth.currentUser) {
+      const uid = auth.currentUser.uid;
+      const batch = writeBatch(db);
+      const userDocRef = doc(db, "userData", uid);
+      batch.update(userDocRef, {
+        achievements: arrayUnion(achievement)
+      });
+      await batch.commit().catch((err) => console.log(err));
+    }
+  } catch (err) {
+    console.log(err);
+  }
 };

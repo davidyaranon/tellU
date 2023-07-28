@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
-import { IonContent, IonPage } from "@ionic/react";
+import { IonContent, IonPage, useIonToast } from "@ionic/react";
 import { Share } from "@capacitor/share";
 
 /* Firebase */
@@ -20,10 +20,9 @@ import { Toolbar } from '../components/Shared/Toolbar';
 import { HomePagePoll } from '../components/Home/HomePagePoll';
 import { HomePagePost } from '../components/Home/HomePagePost';
 import { UserAboutCard } from '../components/Shared/UserAboutCard';
-import FadeIn from "react-fade-in/lib/FadeIn";
 import { timeout } from "../helpers/timeout";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { NUM_ACHIEVEMENTS } from "../helpers/achievements-config";
+import { Preferences } from "@capacitor/preferences";
 
 interface MatchParams {
   uid: string;
@@ -37,6 +36,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const Toast = useToast();
   const db = getDatabase();
   const history = useHistory();
+  const [present] = useIonToast();
 
   const [postLikes, setPostLikes] = React.useState<any[]>([]);
   const [postDislikes, setPostDislikes] = React.useState<any[]>([]);
@@ -57,6 +57,29 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const [lastKey, setLastKey] = useState<any>();
   const [noMorePosts, setNoMorePosts] = useState<boolean>(false);
 
+  const presentAchievement = async (achievement: string): Promise<void> => {
+    const achStr = achievement.replace(/\s+/g, '');
+    await Preferences.set({ "key": achStr, value: "true" });
+    present({
+      message: 'You just unlocked the ' + achievement + ' achievement!',
+      duration: 3500,
+      position: 'top',
+      buttons: [
+        {
+          text: 'Open',
+          role: 'info',
+          handler: () => { history.push('/achievements'); }
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          handler: () => { }
+        }
+      ],
+      cssClass: 'toast-options',
+    });
+  }
+
   /**
    * @description handles the share modal when a user wants to share the about page
    */
@@ -76,7 +99,12 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
    * @param {any} post the post object used for updating user's likes document
   */
   const handleUpVote = async (postKey: string, index: number, post: any) => {
-    const val = await upVote(postKey, post);
+    let checkLikeAchievement = true;
+    const likeALotAchievement = await Preferences.get({ key: "Like-a-Lot" });
+    if (likeALotAchievement && likeALotAchievement.value === "true") {
+      checkLikeAchievement = false;
+    }
+    const { inc: val, upVoteAchievement } = await upVote(postKey, post, checkLikeAchievement);
     if (val && (val === 1 || val === -1)) {
       if (val === 1) {
         Haptics.impact({ style: ImpactStyle.Light });
@@ -99,6 +127,9 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
     } else {
       const toast = Toast.create({ message: 'Unable to like post', duration: 2000, color: 'toast-error' });
       toast.present();
+    }
+    if (upVoteAchievement) {
+      presentAchievement("Like-a-Lot");
     }
   };
 

@@ -1,4 +1,4 @@
-import { IonButton, IonFab, IonIcon, IonItem } from "@ionic/react";
+import { IonButton, IonFab, IonIcon, IonItem, useIonToast } from "@ionic/react";
 import { memo, useEffect, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -11,6 +11,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { timeout } from "../../helpers/timeout";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useContext } from "../../my-context";
+import { Preferences } from "@capacitor/preferences";
 
 /**
  * Handles upvoting and downvoting of posts on Home page
@@ -20,6 +21,7 @@ export const PostPageLikeDislike = memo((props: any) => {
   // hooks
   const history = useHistory();
   const context = useContext();
+  const [present] = useIonToast();
 
   // state variables
   const [disabledLikeButtons, setDisabledLikeButtons] = useState<number>(-1);
@@ -36,6 +38,29 @@ export const PostPageLikeDislike = memo((props: any) => {
   const user = props.user;
   const schoolName = props.schoolName;
   const schoolColorToggled = props.schoolColorToggled;
+
+  const presentAchievement = async (achievement: string): Promise<void> => {
+    const achStr = achievement.replace(/\s+/g, '');
+    await Preferences.set({ "key": achStr, value: "true" });
+    present({
+      message: 'You just unlocked the ' + achievement + ' achievement!',
+      duration: 3500,
+      position: 'top',
+      buttons: [
+        {
+          text: 'Open',
+          role: 'info',
+          handler: () => { history.push('/achievements'); }
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          handler: () => { }
+        }
+      ],
+      cssClass: 'toast-options',
+    });
+  }
 
   useEffect(() => {
     if (props.likes) {
@@ -60,7 +85,7 @@ export const PostPageLikeDislike = memo((props: any) => {
     if (postKeyMatch && postKeyMatch.length > 0) {
       postKey = postKeyMatch;
     }
-    const val = await upVote(postKey, post);
+    const { inc: val, upVoteAchievement } = await upVote(postKey, post);
     if (val && (val === 1 || val === -1)) {
       if (val === 1) {
         Haptics.impact({ style: ImpactStyle.Light });
@@ -83,6 +108,9 @@ export const PostPageLikeDislike = memo((props: any) => {
     } else {
       const toast = Toast.create({ message: 'Unable to like post', duration: 2000, color: 'toast-error' });
       toast.present();
+    }
+    if (upVoteAchievement) {
+      presentAchievement("Like-a-Lot");
     }
   };
 

@@ -6,7 +6,7 @@ import { Keyboard, KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboa
 import { StatusBar, Style } from "@capacitor/status-bar";
 
 // Firebase/Google
-import auth from "../fbConfig";
+import auth, { getCurrentUserData } from "../fbConfig";
 
 // Other imports/components
 import { dynamicNavigate } from "../components/Shared/Navigation";
@@ -15,6 +15,7 @@ import tellU_logo from "../images/tellU_splash_2_1_2048x2048.png";
 // CSS
 import "../App.css";
 import { useContext } from "../my-context";
+import { Preferences } from "@capacitor/preferences";
 
 const keyStyleOptionsDark: KeyboardStyleOptions = {
   style: KeyboardStyle.Dark
@@ -28,13 +29,16 @@ const LoadingPage = () => {
   const router = useIonRouter();
   const [isOffline, setIsOffline] = React.useState<boolean>(false);
 
-  // React.useEffect(() => {
-  //   context.setDarkMode(true);
-  //   document.body.classList.toggle("dark");
-  //   context.setDarkMode(true);
-  //   Keyboard.setStyle(keyStyleOptionsDark);
-  //   StatusBar.setStyle({ style: Style.Dark });
-  // }, [context]);
+  const handleAchievements = async (): Promise<void> => {
+    const userData = await getCurrentUserData();
+    if (userData && "achievements" in userData) {
+      const listOfAchievements: string[] = userData["achievements"];
+      for (let i = 0; i < listOfAchievements.length; ++i) {
+        const achStr = listOfAchievements[i].replace(/\s+/g, '');
+        await Preferences.set({ key: achStr, value: "true" });
+      }
+    }
+  }
 
   /**
    * Auth state listener for Firebase auth
@@ -45,6 +49,7 @@ const LoadingPage = () => {
       if (user) {
         console.log("logged in");
         context.setShowTabs(true);
+        await handleAchievements();
         dynamicNavigate(router, '/home', 'root');
       } else {
         const isOffline = await Network.getStatus();

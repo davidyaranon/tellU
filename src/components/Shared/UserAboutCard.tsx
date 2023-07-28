@@ -3,7 +3,7 @@ import {
   IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip, IonBadge, IonButton, IonItem, IonList, IonContent, IonPopover
 } from "@ionic/react";
 import { useToast } from "@agney/ir-toast";
-import { logoInstagram, logoSnapchat, logoTiktok, trophyOutline } from "ionicons/icons";
+import { logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import { useContext } from "../../my-context";
 import FadeIn from "react-fade-in/lib/FadeIn";
@@ -13,7 +13,6 @@ import 'swiper/css/scrollbar';
 import { Scrollbar } from 'swiper';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { AchievementDescriptions, AchievementIcons } from "../../helpers/achievements-config";
-import { useEffect } from "react";
 
 export const UserAboutCard = (props: any) => {
 
@@ -122,7 +121,7 @@ export const UserAboutCard = (props: any) => {
                     <>
                       <IonCol>
                         <IonChip outline color="snapchat-yellow">
-                          <IonText style={{ fontSize: "0.75em" }}>
+                          <IonText style={{ fontSize: "0.65em" }}>
                             <IonIcon style={{}} icon={logoSnapchat} />
                             {'\u00A0'}
                             {userSnapchat}
@@ -136,7 +135,7 @@ export const UserAboutCard = (props: any) => {
                     <>
                       <IonCol>
                         <IonChip outline color="instagram-hex">
-                          <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@', '')); }} style={{ fontSize: "0.75em" }}>
+                          <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@', '')); }} style={{ fontSize: "0.65em" }}>
                             <IonIcon style={{}} icon={logoInstagram} />
                             {'\u00A0'}
                             {userInstagram}
@@ -150,7 +149,7 @@ export const UserAboutCard = (props: any) => {
                     <>
                       <IonCol>
                         <IonChip outline color="tik-tok-hex">
-                          <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@', '') + '?lang=en'); }} style={{ fontSize: "0.75em" }}>
+                          <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@', '') + '?lang=en'); }} style={{ fontSize: "0.65em" }}>
                             <IonIcon style={{}} icon={logoTiktok} />
                             {'\u00A0'}
                             {userTiktok}
@@ -173,8 +172,8 @@ export const UserAboutCard = (props: any) => {
                                   return (
                                     <IonCol key={achievement + index}>
                                       <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
-                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
-                                        <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
+                                      <IonPopover style={{ '--backdrop-opacity': '0.33' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                        <IonContent style={context.darkMode ? { '--background': '#000000' } : { '--background': '#FFFFFF' }} scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
                                       </IonPopover>
                                     </IonCol>
                                   )
@@ -196,7 +195,7 @@ export const UserAboutCard = (props: any) => {
                                   return (
                                     <IonCol key={achievement + index}>
                                       <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
-                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                      <IonPopover style={{ '--backdrop-opacity': '0.33' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
                                         <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
                                       </IonPopover>
                                     </IonCol>
@@ -219,7 +218,7 @@ export const UserAboutCard = (props: any) => {
                                   return (
                                     <IonCol key={achievement + index}>
                                       <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
-                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                      <IonPopover style={{ '--backdrop-opacity': '0.33' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
                                         <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
                                       </IonPopover>
                                     </IonCol>
@@ -242,7 +241,7 @@ export const UserAboutCard = (props: any) => {
                                   return (
                                     <IonCol key={achievement + index}>
                                       <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
-                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                      <IonPopover style={{ '--backdrop-opacity': '0.33' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
                                         <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
                                       </IonPopover>
                                     </IonCol>
