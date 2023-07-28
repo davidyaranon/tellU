@@ -68,7 +68,7 @@ export const AchievementDescriptions: Record<string, string> = {
   "tellU Sovereign": "Use tellU for over a year!",
   "Early Bird": "Be the first person to comment on a post.", // implemented
   "Hidden": "Keep using tellU to unlock more achievements!", // implemented
-  "Tech Whisperer": "Talk to the tellU AI chatbot",
+  "Tech Whisperer": "Talk to the tellU AI chatbot", // implemented
   "Party Starter": "Use the event tag to promote something in a post",
   "Celebrity": "Get 50 likes on a post",
   "Backpacker": "Make a post at 2 different map pin locations on campus",

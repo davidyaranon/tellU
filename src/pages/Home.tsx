@@ -34,9 +34,6 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 
 const versionNum: string = '3.2.2';
-const keyStyleOptionsDark: KeyboardStyleOptions = {
-  style: KeyboardStyle.Dark
-};
 
 const Home: React.FC = () => {
 
