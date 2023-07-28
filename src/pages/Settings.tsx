@@ -57,6 +57,7 @@ const Settings: React.FC = () => {
   const [userLikedPosts, setUserLikedPosts] = React.useState<any[] | null>(null);
   const [userBio, setUserBio] = React.useState<string>("");
   const [showA, setShowA] = React.useState<boolean>(false);
+  const [editableShowA, setEditableShowA] = React.useState<boolean>(false);
   const [userMajor, setUserMajor] = React.useState<string>("");
   const [userTiktok, setUserTiktok] = React.useState<string>("");
   const [userInstagram, setUserInstagram] = React.useState<string>("");
@@ -107,7 +108,10 @@ const Settings: React.FC = () => {
             setEditableUserInstagram(res.instagram);
             setEditableUserSnapchat(res.snapchat);
             setEditableUserTiktok(res.tiktok);
-            setEditableSpotifyUri(res.spotify);
+            if ("spotify" in res && res.spotify)
+              setEditableSpotifyUri(res.spotify);
+            if ("showA" in res && res.showA)
+              setEditableShowA(true);
           } else {
             const toast = Toast.create({ message: 'Trouble loading data', duration: 2000, color: 'toast-error' });
             toast.present();
@@ -253,13 +257,14 @@ const Settings: React.FC = () => {
       && String(editableUserSnapchat).trim() == String(userSnapchat).trim()
       && String(editableUserMajor).trim() == String(userMajor).trim()
       && String(editableUserTiktok).trim() == String(userTiktok).trim()
-      && String(editableSpotifyUri).trim() == String(spotifyUri).trim()) {
+      && String(editableSpotifyUri).trim() == String(spotifyUri).trim()
+      && editableShowA === showA) {
       const toast = Toast.create({ message: 'No changes made', duration: 2000, color: 'toast-error' });
       toast.present();
       setUserDataHasLoaded(true);
       return;
     }
-    let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok, editableSpotifyUri));
+    let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok, editableSpotifyUri, editableShowA));
     userDataUpdated.then((res) => {
       if (res) {
         setUserBio(editableUserBio);
@@ -268,6 +273,7 @@ const Settings: React.FC = () => {
         setUserTiktok(editableUserTiktok);
         setUserMajor(editableUserMajor);
         setSpotifyUri(editableSpotifyUri);
+        setShowA(editableShowA);
         Keyboard.hide().then(() => {
           setTimeout(() => setShowAboutModal(false), 100);
         }).catch((err) => {
@@ -833,6 +839,7 @@ const Settings: React.FC = () => {
                         setEditableUserTiktok(userTiktok);
                         setEditableUserSnapchat(userSnapchat);
                         setEditableSpotifyUri(spotifyUri);
+                        setEditableShowA(showA);
                       }, 100);
                     }).catch((err) => {
                       setTimeout(() => {
@@ -843,6 +850,7 @@ const Settings: React.FC = () => {
                         setEditableUserTiktok(userTiktok);
                         setEditableUserSnapchat(userSnapchat);
                         setEditableSpotifyUri(spotifyUri);
+                        setEditableShowA(showA);
                       }, 100);
                     })
 
@@ -869,7 +877,7 @@ const Settings: React.FC = () => {
           </div>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel>About</IonLabel>
+              <IonLabel color='light'>About</IonLabel>
               <IonTextarea
                 style={{ fontWeight: "bold" }}
                 rows={4}
@@ -886,7 +894,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel>Major</IonLabel>
+              <IonLabel color='light'>Major</IonLabel>
               <IonInput
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -902,7 +910,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel>Snapchat <IonIcon icon={logoSnapchat} /> </IonLabel>
+              <IonLabel color='light'>Snapchat <IonIcon icon={logoSnapchat} /> </IonLabel>
               <IonInput
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -918,7 +926,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel>Instagram <IonIcon icon={logoInstagram} /> </IonLabel>
+              <IonLabel color='light'>Instagram <IonIcon icon={logoInstagram} /> </IonLabel>
               <IonTextarea
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -934,7 +942,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel>TikTok <IonIcon icon={logoTiktok} /> </IonLabel>
+              <IonLabel color='light'>TikTok <IonIcon icon={logoTiktok} /> </IonLabel>
               <IonTextarea
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -955,16 +963,16 @@ const Settings: React.FC = () => {
               <IonToggle
                 id="achievementsToggle"
                 slot="end"
-                checked={showA}
+                checked={editableShowA}
                 enableOnOffLabels={true}
                 color={"primary"}
-              // onIonChange={(e) => { toggleDarkMode(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
+                onIonChange={(e) => { setEditableShowA(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
               />
             </IonItem>
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel>Spotify Song Spotlight</IonLabel>
+              <IonLabel color='light'>Spotify Song Spotlight</IonLabel>
               <br /><br />
               {editableSpotifyUri && editableSpotifyUri.length > 0 &&
                 <Spotify allow="encrypted-media" style={{ width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }} wide link={"https://open.spotify.com/track/" + editableSpotifyUri.substring(14)} />

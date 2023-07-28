@@ -90,6 +90,7 @@ export async function registerWithEmailAndPassword(name, email, password, school
           school: school,
           notifs: [],
           achievements: [],
+          showA: false,
           timestamp: serverTimestamp(),
           notificationsToken: "",
         });
@@ -1472,7 +1473,7 @@ export const updateDmList = async (message, contactUid, contactUserName) => {
  * @param {string} tiktok 
  * @param {string} spotifyUri 
  */
-export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, spotifyUri) => {
+export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, spotifyUri, showA) => {
   try {
     if (db && auth && auth.currentUser) {
       const uid = auth.currentUser.uid;
@@ -1491,6 +1492,7 @@ export const updateUserInfo = async (bio, instagram, major, snapchat, tiktok, sp
         snapchat: snapchat,
         tiktok: tiktok,
         spotify: spotifyUri,
+        showA: showA
       });
       await batch.commit().catch((err) => console.log(err));
       return true;

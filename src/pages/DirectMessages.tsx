@@ -1,34 +1,31 @@
 import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
-import auth, { db,  getUserPhotoUrl } from "../fbConfig";
+import auth, { db, getUserPhotoUrl } from "../fbConfig";
 import { collection, limit, orderBy, query } from "firebase/firestore";
 import { useToast } from "@agney/ir-toast";
 import { IonCol, IonContent, IonPage, IonSpinner } from "@ionic/react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import "../App.css";
-import TimeAgo from "javascript-time-ago";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { useCallback, useEffect, useState } from "react";
-import { useContext } from "../my-context";
 import { Toolbar } from "../components/Shared/Toolbar";
 import { getDate } from "../helpers/timeago";
+import { Virtuoso } from "react-virtuoso";
 
 interface MatchUserPostParams {
   directMessageId: string;
-  schoolName : string;
+  schoolName: string;
 }
 
 const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const userUid = match.params.directMessageId;
   const schoolName = match.params.schoolName;
-  const context = useContext();
   const history = useHistory();
   const [user] = useAuthState(auth);
   const messagesRef = collection(db, 'userData', user?.uid || "", 'messages');
   const q = query(messagesRef, orderBy("date", "desc"), limit(100));
   const [messages, loading] = useCollectionData(q);
   const [contactPhotoUrls, setContactPhotoUrls] = useState<string[]>([]);
-  const timeAgo = new TimeAgo("en-US");
   const Toast = useToast();
 
 
@@ -43,14 +40,14 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
       setContactPhotoUrls([...urls]);
     } else {
       console.log("messages null");
-      console.log({messages});
+      console.log({ messages });
       setContactPhotoUrls([]);
     }
   }, [messages]);
 
   useEffect(() => {
-    console.log({loading})
-    console.log({messages})
+    console.log({ loading })
+    console.log({ messages })
     if (!loading && messages && messages.length > 0) {
       console.log("running");
       handlePhotoUrls().catch((err) => { console.log(err); })
@@ -62,24 +59,15 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
       <Toolbar title={"DMs"} schoolName={schoolName} />
       <IonContent scrollEvents>
 
-        <div >
-          {loading &&
-            <div className="ion-spinner">
-              <IonSpinner
-                color={
-                  schoolName === "Cal Poly Humboldt"
-                    && context.schoolColorToggled
-                    ? "tertiary"
-                    : "primary"
-                }
-              />
-            </div>
-          }
-          <FadeIn>
-            {
-              messages && messages.length > 0 &&
-              messages.map((msg: any, index: number) => {
-                return (
+        {messages &&
+          <Virtuoso
+            overscan={1000}
+            className="ion-content-scroll-host"
+            totalCount={messages.length}
+            itemContent={(index: number) => {
+              let msg = messages[index];
+              return (
+                <FadeIn delay={index * 10}>
                   <div className="chat" key={msg.contactUid + '-' + index.toString()} onClick={() => {
                     let elements: any[] = [];
                     if (userUid && msg.contactUid) {
@@ -117,16 +105,30 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
                       {"read" in msg && msg.read == false && <div className="chat_new grad_pb">Reply</div>}
                     </IonCol>
                   </div>
-                )
-              })
-            }
-          </FadeIn>
+                </FadeIn>
+              )
+
+            }}
+            style={{ height: "100%" }}
+          />
+        }
+
+        <div>
+
+          {loading &&
+            <div className="ion-spinner">
+              <IonSpinner color={'primary'} />
+            </div>
+          }
+
           {messages && messages.length == 0 &&
             <div className="ion-spinner">
               <p>Send a DM!</p>
             </div>
           }
+
         </div>
+
       </IonContent>
     </IonPage>
   )

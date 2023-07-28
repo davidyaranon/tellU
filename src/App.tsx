@@ -238,7 +238,7 @@ const App: React.FC = () => {
    */
   const handleDarkMode = React.useCallback(async () => {
     const isChecked = await Preferences.get({ key: "darkMode" });
-    console.log(isChecked);
+    // console.log(isChecked);
     if (isChecked.value === "false") {
       context.setDarkMode(false);
       if (Capacitor.getPlatform() === 'ios') {

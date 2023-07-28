@@ -139,7 +139,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
    * Gets the next batch of posts from Firestore once the user scrolls to the bottom of the page
    */
   const fetchMorePosts = () => {
-    console.log("fetching more posts");
+    // console.log("fetching more posts");
     if (lastKey) {
       getNextBatchUserPosts(schoolName, uid, lastKey)
         .then(async (res: any) => {
@@ -179,7 +179,6 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
         }
       }
       setPostLikes(likes);
-      console.log(likes);
     }
   }, [userPosts]);
 
@@ -217,6 +216,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       if (uid && schoolName) {
         getUserData(uid)
           .then((res: any) => {
+            console.log(res);
             setUserName(res.userName);
             setUserBio(res.bio);
             setUserMajor(res.major);
@@ -226,9 +226,10 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             if ("spotify" in res) {
               setSpotifyUri(res.spotify);
             }
-            if("showA" in res && res.showA == true && "achievements" in res && res.achievements){
+            if ("showA" in res && res.showA == true && "achievements" in res && res.achievements) {
               setShowAchievements(true);
               setUserAchievements(res.achievements);
+              console.log(res.showA);
             }
             getUserPosts(schoolName, uid)
               .then(async (res: any) => {
@@ -285,8 +286,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
 
   useEffect(() => {
     const currentLength = userAchievements.length;
-    if (currentLength < NUM_ACHIEVEMENTS) {
-      const padding = Array(NUM_ACHIEVEMENTS - currentLength).fill("Hidden");
+    const remainder = currentLength % 4;
+
+    if (remainder !== 0) {
+      const paddingLength = 4 - remainder;
+      const padding = Array(paddingLength).fill("Hidden");
       setUserAchievements([...userAchievements, ...padding]);
     }
   }, [userAchievements]);

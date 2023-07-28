@@ -50,7 +50,7 @@ const AppUrlListener: React.FC<any> = () => {
    */
   useEffect(() => {
     if (!loading) {
-      console.log('done loading, checking permissions');
+      // console.log('done loading, checking permissions');
       checkPermissions();
     }
   }, [loading, checkPermissions]);

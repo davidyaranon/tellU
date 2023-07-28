@@ -1,6 +1,6 @@
 import {
   IonCard, IonCardContent, IonRow, IonAvatar,
-  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip, IonBadge, IonButton, IonItem, IonList
+  IonLabel, IonSkeletonText, IonFab, IonCol, IonImg, IonNote, IonText, IonIcon, IonChip, IonBadge, IonButton, IonItem, IonList, IonContent, IonPopover
 } from "@ionic/react";
 import { useToast } from "@agney/ir-toast";
 import { logoInstagram, logoSnapchat, logoTiktok, trophyOutline } from "ionicons/icons";
@@ -12,19 +12,8 @@ import "swiper/css";
 import 'swiper/css/scrollbar';
 import { Scrollbar } from 'swiper';
 import { Swiper, SwiperSlide } from "swiper/react";
-import { AchievementIcons } from "../../helpers/achievements-config";
-
-
-const chunkArray = (myArray: string[], chunk_size: number) => {
-  var results = [];
-
-  while (myArray.length) {
-    results.push(myArray.splice(0, chunk_size));
-  }
-
-  return results;
-}
-
+import { AchievementDescriptions, AchievementIcons } from "../../helpers/achievements-config";
+import { useEffect } from "react";
 
 export const UserAboutCard = (props: any) => {
 
@@ -44,6 +33,20 @@ export const UserAboutCard = (props: any) => {
 
   const Toast = useToast();
   const context = useContext();
+
+  const getDescription = (achievement: string): string => {
+    if (achievements.includes(achievement)) {
+      return AchievementDescriptions[achievement];
+    }
+    return "Keep using tellU to unlock this achievement!";
+  };
+
+  const getIcon = (achievement: string): string => {
+    if (achievements.includes(achievement)) {
+      return AchievementIcons[achievement];
+    }
+    return AchievementIcons['Hidden'];
+  };
 
   return (
     <FadeIn>
@@ -114,6 +117,7 @@ export const UserAboutCard = (props: any) => {
                   </IonCol>}
                 </IonRow>
                 <IonRow>
+
                   {userSnapchat && userSnapchat.length > 0 ? (
                     <>
                       <IonCol>
@@ -127,6 +131,7 @@ export const UserAboutCard = (props: any) => {
                       </IonCol>
                     </>
                   ) : null}
+
                   {userInstagram && userInstagram.length > 0 ? (
                     <>
                       <IonCol>
@@ -140,6 +145,7 @@ export const UserAboutCard = (props: any) => {
                       </IonCol>
                     </>
                   ) : null}
+
                   {userTiktok && userTiktok.length > 0 ? (
                     <>
                       <IonCol>
@@ -156,33 +162,101 @@ export const UserAboutCard = (props: any) => {
                 </IonRow>
 
                 {show &&
-                  <Swiper
-                    scrollbar={{
-                      hide: true,
-                    }}
-                    modules={[Scrollbar]}
-                  >
-                    {
-                      chunkArray(achievements, 4).map((achievementChunk, index) => (
-                        <SwiperSlide key={index}>
-                          <IonRow>
-                            <IonCol key={index}>
-                              <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px", textAlign: 'center', opacity: '99%' }} onClick={() => { }}>
-                                {achievementChunk.map((achievement: string, index) => (
-                                  <IonCol key={achievement + index}>
-                                    <IonImg aria-hidden="true" style={{ height: "75%" }} src={AchievementIcons[achievement]} />
-                                  </IonCol>
-                                ))}
-                              </IonItem>
-                            </IonCol>
-                          </IonRow>
-                        </SwiperSlide>
-                      ))
+                  <Swiper scrollbar={{ hide: true }} modules={[Scrollbar]}>
+                    {achievements.length > 0 &&
+                      <SwiperSlide>
+                        <IonRow>
+                          <IonCol>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                              {achievements.map((achievement: string, index: number) => {
+                                if (index <= 3) {
+                                  return (
+                                    <IonCol key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                        <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
+                                      </IonPopover>
+                                    </IonCol>
+                                  )
+                                }
+                                return <></>
+                              })}
+                            </IonItem>
+                          </IonCol>
+                        </IonRow>
+                      </SwiperSlide>
+                    }
+                    {achievements.length > 4 &&
+                      <SwiperSlide>
+                        <IonRow>
+                          <IonCol>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                              {achievements.map((achievement: string, index: number) => {
+                                if (index >= 4 && index <= 7) {
+                                  return (
+                                    <IonCol key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                        <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
+                                      </IonPopover>
+                                    </IonCol>
+                                  )
+                                }
+                                return <></>
+                              })}
+                            </IonItem>
+                          </IonCol>
+                        </IonRow>
+                      </SwiperSlide>
+                    }
+                    {achievements.length > 8 &&
+                      <SwiperSlide>
+                        <IonRow>
+                          <IonCol>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                              {achievements.map((achievement: string, index: number) => {
+                                if (index >= 8 && index <= 11) {
+                                  return (
+                                    <IonCol key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                        <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
+                                      </IonPopover>
+                                    </IonCol>
+                                  )
+                                }
+                                return <></>
+                              })}
+                            </IonItem>
+                          </IonCol>
+                        </IonRow>
+                      </SwiperSlide>
+                    }
+                    {achievements.length > 12 &&
+                      <SwiperSlide>
+                        <IonRow>
+                          <IonCol>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                              {achievements.map((achievement: string, index: number) => {
+                                if (index >= 12 && index <= 15) {
+                                  return (
+                                    <IonCol key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                      <IonPopover trigger={"click-trigger-" + index.toString()} triggerAction="click">
+                                        <IonContent scrollY={false} class="ion-padding">{getDescription(achievement)}</IonContent>
+                                      </IonPopover>
+                                    </IonCol>
+                                  )
+                                }
+                                return <></>
+                              })}
+                            </IonItem>
+                          </IonCol>
+                        </IonRow>
+                      </SwiperSlide>
                     }
                   </Swiper>
                 }
-
-
 
 
                 {userBio && userBio.length > 0 ? (
@@ -207,6 +281,7 @@ export const UserAboutCard = (props: any) => {
                     }
                   </FadeIn>
                 }
+
               </FadeIn>
             </>
           )}
