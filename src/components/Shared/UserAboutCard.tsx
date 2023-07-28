@@ -27,7 +27,6 @@ export const UserAboutCard = (props: any) => {
   const userMajor = props.userMajor;
   const spotifyUri = props.spotifyUri;
   const achievements = props.userAchievements;
-  console.log(achievements);
   const show = props.showAchievements;
 
   const Toast = useToast();

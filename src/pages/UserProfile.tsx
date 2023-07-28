@@ -256,11 +256,16 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
             setUserTiktok(res.tiktok);
             if ("spotify" in res) {
               setSpotifyUri(res.spotify);
+            } else {
+              setSpotifyUri("");
             }
             if ("showA" in res && res.showA == true && "achievements" in res && res.achievements) {
               setShowAchievements(true);
               setUserAchievements(res.achievements);
               console.log(res.showA);
+            } else {
+              setShowAchievements(false);
+              setUserAchievements([]);
             }
             getUserPosts(schoolName, uid)
               .then(async (res: any) => {
