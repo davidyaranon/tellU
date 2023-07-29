@@ -14,8 +14,7 @@ import dining from '../images/dining.png';
 import music from '../images/music.png';
 import second_thoughts from '../images/second_thoughts.png';
 import post_a_lot from '../images/post-a-lot.png';
-import memory_collector from '../images/memory_collector.png';
-
+import class_act from '../images/class_act.png';
 
 export interface IAchievement {
   description: string;
@@ -35,8 +34,7 @@ export const listOfAchievements: string[] = [
   "Foodie",
   "Music Maestro",
   "Second Thoughts",
-  "Memory Collector",
-  "Post-a-Lot",
+  "Picture This",
   "Celebrity",
   "tellU Sovereign",
 ];
@@ -58,8 +56,8 @@ export const AchievementIcons: Record<string, string> = {
   "Foodie": dining,
   "Music Maestro": music,
   "Second Thoughts": second_thoughts,
-  "Memory Collector": memory_collector,
-  "Post-a-Lot": post_a_lot,
+  "Picture This": post_a_lot,
+  "Class Act": class_act,
   "": "",
 };
 
@@ -79,7 +77,7 @@ export const AchievementDescriptions: Record<string, string> = {
   "Foodie": "Use the dining tag when making a post",
   "Music Maestro": "Showcase a Spotify song on your user profile", // implemented
   "Second Thoughts": "Delete a comment or a post",
-  "Memory Collector": "Make 5 posts containing an image",
-  "Post-a-Lot": "Post 25 times on tellU",
+  "Picture This": "Make a post containing 3 images",
+  "Class Act": "Make a post about a specific class",
   "": "",
 }
