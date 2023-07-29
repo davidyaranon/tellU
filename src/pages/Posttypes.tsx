@@ -18,12 +18,12 @@ import "../App.css";
 import Linkify from 'linkify-react';
 import { Virtuoso } from "react-virtuoso";
 import { useContext } from "../my-context";
-import ProfilePhoto from "../../resources/components/Shared/ProfilePhoto";
+import ProfilePhoto from "../components/Shared/ProfilePhoto";
 import { getColor } from "../helpers/getColor";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import { getDate } from "../helpers/timeago";
-import { Toolbar } from "../../resources/components/Shared/Toolbar";
-import { dynamicNavigate } from "../../resources/components/Shared/Navigation";
+import { Toolbar } from "../components/Shared/Toolbar";
+import { dynamicNavigate } from "../components/Shared/Navigation";
 
 interface MatchUserPostParams {
   type: string;

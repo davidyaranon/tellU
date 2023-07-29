@@ -1,7 +1,7 @@
 import { Preferences } from "@capacitor/preferences";
 import { IonContent, IonItem, IonList, IonNote, IonPage, IonThumbnail } from "@ionic/react";
 import { useCallback, useEffect, useState } from "react";
-import { Toolbar } from "../../resources/components/Shared/Toolbar";
+import { Toolbar } from "../components/Shared/Toolbar";
 import { AchievementIcons, AchievementDescriptions, listOfAchievements } from "../helpers/achievements-config";
 import { useContext } from "../my-context";
 

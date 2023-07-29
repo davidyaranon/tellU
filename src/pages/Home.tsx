@@ -15,14 +15,14 @@ import { getDownloadURL, ref } from 'firebase/storage';
 
 // Other imports/components
 import { useContext } from '../my-context';
-import { MakePost } from '../../resources/components/Home/MakePost';
-import { NewPostsButton } from '../../resources/components/Home/NewPostsButton';
-import { ProgressBar } from '../../resources/components/Home/ProgressBar';
-import { dynamicNavigate } from '../../resources/components/Shared/Navigation';
+import { MakePost } from '../components/Home/MakePost';
+import { NewPostsButton } from '../components/Home/NewPostsButton';
+import { ProgressBar } from '../components/Home/ProgressBar';
+import { dynamicNavigate } from '../components/Shared/Navigation';
 import { timeout } from '../helpers/timeout';
-import { HomePagePost } from '../../resources/components/Home/HomePagePost';
-import { HomePagePoll } from '../../resources/components/Home/HomePagePoll';
-import TellUHeader, { ionHeaderStyle } from "../../resources/components/Shared/Header";
+import { HomePagePost } from '../components/Home/HomePagePost';
+import { HomePagePoll } from '../components/Home/HomePagePoll';
+import TellUHeader, { ionHeaderStyle } from "../components/Shared/Header";
 
 import { Virtuoso } from 'react-virtuoso';
 import { useToast } from '@agney/ir-toast';
