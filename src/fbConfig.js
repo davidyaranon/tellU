@@ -1748,6 +1748,12 @@ export const testOpenAi = async (schoolName, msg) => {
   return answer.data.content;
 };
 
+/**
+ * @description updates the user's achievements array in Firestore.
+ * 
+ * @param {string} achievement the corresponding achievement earned by the user
+ * @returns {Promise<void>}
+ */
 export const updateAchievements = async (achievement) => {
   try {
     if (!achievement || achievement.length <= 0) { return; }
