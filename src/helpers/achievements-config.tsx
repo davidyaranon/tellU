@@ -2,7 +2,7 @@ import empty_achievement from '../images/empty_achievement.png';
 import tellU_sovereign from '../images/tellU_sovereign.png';
 import Like_a_Lot from '../images/like-a-lot.png';
 import early_bird from '../images/early_bird.png';
-import tech_whisperer from '../images/tech_whisperer.png';
+import tech_whisperer from '../images/tech_whisperer_.png';
 import party_starter from '../images/party_starter.png';
 import backpacker from '../images/backpacker.png';
 import social_butterfly from '../images/social_butterfly.png';
@@ -36,6 +36,7 @@ export const listOfAchievements: string[] = [
   "Second Thoughts",
   "Picture This",
   "Celebrity",
+  "Class Act",
   "tellU Sovereign",
 ];
 
@@ -78,6 +79,6 @@ export const AchievementDescriptions: Record<string, string> = {
   "Music Maestro": "Showcase a Spotify song on your user profile", // implemented
   "Second Thoughts": "Delete a comment or a post",
   "Picture This": "Make a post containing 3 images",
-  "Class Act": "Make a post about a specific class",
+  "Class Act": "Make a post about a specific class", // implemented
   "": "",
 }

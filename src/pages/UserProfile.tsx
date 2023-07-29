@@ -129,7 +129,7 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       toast.present();
     }
     if (upVoteAchievement) {
-      presentAchievement("Like-a-Lot");
+      await presentAchievement("Like-a-Lot");
     }
   };
 

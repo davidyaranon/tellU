@@ -1,5 +1,5 @@
 import React from "react";
-import { IonFab, IonFabButton, IonFabList, IonIcon, IonImg } from "@ionic/react";
+import { IonFab, IonFabButton, IonFabList, IonIcon } from "@ionic/react";
 import { useContext } from "../../my-context"
 import GifIcon from '@mui/icons-material/Gif';
 import { add, chatboxEllipsesOutline, statsChartOutline } from "ionicons/icons";
@@ -8,7 +8,6 @@ import { GifModal } from "./GifModal";
 import { PostModal } from "./PostModal";
 import { PollModal } from "./PollModal";
 import { LocationPinModal } from "./LocationPinModal";
-import DynamicFormIcon from '@mui/icons-material/DynamicForm';
 
 export const MakePost = (props: any) => {
 

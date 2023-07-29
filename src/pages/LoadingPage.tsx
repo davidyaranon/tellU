@@ -58,7 +58,7 @@ const LoadingPage = () => {
     if (!musicMaestro || (musicMaestro.value !== 'true')) {
       if ("spotify" in userData && userData.spotify && userData.spotify.length > 0) {
         await updateAchievements('Music Maestro');
-        presentAchievement('Music Maestro');
+        await presentAchievement('Music Maestro');
       }
     }
 
@@ -73,7 +73,7 @@ const LoadingPage = () => {
         if (timeDifference >= millisecondsPerYear) {
           console.log("A year or more has passed since the creation of the account");
           await updateAchievements('tellU Sovereign');
-          presentAchievement("tellU Sovereign");
+          await presentAchievement("tellU Sovereign");
         } else {
           console.log("Less than a year has passed since the creation of the account");
         }

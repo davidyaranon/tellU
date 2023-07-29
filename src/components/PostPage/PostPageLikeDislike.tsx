@@ -110,7 +110,7 @@ export const PostPageLikeDislike = memo((props: any) => {
       toast.present();
     }
     if (upVoteAchievement) {
-      presentAchievement("Like-a-Lot");
+      await presentAchievement("Like-a-Lot");
     }
   };
 

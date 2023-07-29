@@ -1,14 +1,14 @@
 /* Ionic/React + Capacitor */
 import {
   IonButton, IonButtons, IonCheckbox, IonHeader,
-  IonItem, IonLabel, IonList, IonModal, IonNote, IonRadio, IonRadioGroup, IonTitle, IonToolbar, useIonLoading
+  IonItem, IonLabel, IonList, IonModal, IonNote, IonRadio, IonRadioGroup, IonTitle, IonToolbar, useIonLoading, useIonToast
 } from "@ionic/react";
 import { useState } from "react";
 import { Geolocation, GeolocationOptions, Geoposition } from "@awesome-cordova-plugins/geolocation";
 
 /* Firebase/Google */
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { addMessage, storage } from "../../fbConfig";
+import { addMessage, storage, updateAchievements } from "../../fbConfig";
 
 /* Other Components */
 import { v4 as uuidv4 } from "uuid";
@@ -16,6 +16,8 @@ import Map from "@mui/icons-material/Map";
 import { useToast } from "@agney/ir-toast";
 import { useContext } from "../../my-context";
 import { davisPOIs, humboldtPOIs } from "../../helpers/maps-config";
+import { Preferences } from "@capacitor/preferences";
+import { useHistory } from "react-router";
 
 /* options for getting user's location using {@awesome-cordova-plugins/geolocation} */
 const locationOptions: GeolocationOptions = {
@@ -51,13 +53,38 @@ export const LocationPinModal = (props: any) => {
   /* hooks */
   const context = useContext();
   const Toast = useToast();
+  const history = useHistory();
   const [present, dismiss] = useIonLoading();
+  const [presentToast] = useIonToast();
 
   /* state variables */
   const [locationChecked, setLocationChecked] = useState<boolean>(false);
   const [position, setPosition] = useState<Geoposition | null>();
   const [POI, setPOI] = useState<string>("");
   const [checkboxSelection, setCheckboxSelection] = useState<string>("general");
+
+  const presentAchievement = async (achievement: string): Promise<void> => {
+    const achStr = achievement.replace(/\s+/g, '');
+    await Preferences.set({ "key": achStr, value: "true" });
+    presentToast({
+      message: 'You just unlocked the ' + achievement + ' achievement!',
+      duration: 3500,
+      position: 'top',
+      buttons: [
+        {
+          text: 'Open',
+          role: 'info',
+          handler: () => { history.push('/achievements'); }
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          handler: () => { }
+        }
+      ],
+      cssClass: 'toast-options',
+    });
+  }
 
   /**
    * @description Adds a message as a doc in Firestore
@@ -97,6 +124,13 @@ export const LocationPinModal = (props: any) => {
           const photos = await Promise.all(promises);
           const notificationsToken = localStorage.getItem("notificationsToken") || "";
           console.log(notificationsToken);
+          const classActAchievement = await Preferences.get({ key: "PictureThis" });
+          if (!classActAchievement || (classActAchievement.value !== 'true')) {
+            if (postClassName && postClassName.length > 0) {
+              await updateAchievements('Class Act');
+              await presentAchievement('Class Act');
+            }
+          }
           const res = await addMessage(
             message,
             photos,
@@ -326,7 +360,7 @@ export const LocationPinModal = (props: any) => {
           }}
           className={context.schoolColorToggled ? "location-post-button-humboldt" : "login-button"} fill="clear" expand="block"
           id="message"
-          style={{ width: "75vw", fontSize: "1.25em", marginBottom : "10px" }}
+          style={{ width: "75vw", fontSize: "1.25em", marginBottom: "10px" }}
         >
           Post
         </IonButton>

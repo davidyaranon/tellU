@@ -309,7 +309,7 @@ const Settings: React.FC = () => {
           const musicMaestro = await Preferences.get({ key: "MusicMaestro" });
           if (!musicMaestro || (musicMaestro.value !== "true")) {
             await updateAchievements('Music Maestro');
-            presentAchievement('Music Maestro');
+            await presentAchievement('Music Maestro');
           }
         }
 
