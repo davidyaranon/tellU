@@ -21,11 +21,11 @@ import "../App.css";
 import { useToast } from "@agney/ir-toast";
 import FadeIn from 'react-fade-in/lib/FadeIn';
 import RoomIcon from '@mui/icons-material/Room';
-import ProfilePhoto from "../components/Shared/ProfilePhoto";
+import ProfilePhoto from "../../resources/components/Shared/ProfilePhoto";
 import { getColor } from "../helpers/getColor";
 import { getDate } from "../helpers/timeago";
 import { classSelections, selectEmoji } from "../helpers/class-selections-config";
-import { navigateBack } from "../components/Shared/Navigation";
+import { navigateBack } from "../../resources/components/Shared/Navigation";
 import { useContext } from "../my-context";
 
 const selectOptions = {

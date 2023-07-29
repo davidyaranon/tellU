@@ -6,11 +6,11 @@ import { useHistory } from "react-router";
 import { chatboxOutline, warningSharp } from "ionicons/icons";
 import { Dialog } from "@capacitor/dialog";
 import { useToast } from "@agney/ir-toast";
-import { downVote, removePost, upVote } from "../../fbConfig";
+import { downVote, removePost, upVote } from "../../../src/fbConfig";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { timeout } from "../../helpers/timeout";
+import { timeout } from "../../../src/helpers/timeout";
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useContext } from "../../my-context";
+import { useContext } from "../../../src/my-context";
 import { Preferences } from "@capacitor/preferences";
 
 /**

@@ -15,8 +15,8 @@ import auth, { db } from '../fbConfig';
 
 /* CSS + Other components */
 import '../App.css';
-import Header from "../components/Shared/Header";
-import { dynamicNavigate } from '../components/Shared/Navigation';
+import Header from "../../resources/components/Shared/Header";
+import { dynamicNavigate } from '../../resources/components/Shared/Navigation';
 import { Preferences } from '@capacitor/preferences';
 import { useContext } from '../my-context';
 import { SplashScreen } from '@capacitor/splash-screen';

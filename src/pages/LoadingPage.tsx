@@ -7,7 +7,7 @@ import { Network } from '@capacitor/network';
 import auth, { getCurrentUserData, updateAchievements } from "../fbConfig";
 
 // Other imports/components
-import { dynamicNavigate } from "../components/Shared/Navigation";
+import { dynamicNavigate } from "../../resources/components/Shared/Navigation";
 import tellU_logo from "../images/tellU_splash_2_1_2048x2048.png";
 
 // CSS

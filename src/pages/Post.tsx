@@ -31,11 +31,11 @@ import { useContext } from "../my-context";
 import mentionInputStyles from "../helpers/mentionInputStyles";
 import mentionInputStylesLight from "../helpers/mentionInputStylesLight";
 import { Mention, MentionsInput, SuggestionDataItem } from 'react-mentions';
-import { Toolbar } from "../components/Shared/Toolbar";
-import PostPagePost from "../components/PostPage/PostPagePost";
-import { CommentLoading, PostLoading } from "../components/PostPage/PostLoading";
-import { ReportModal } from "../components/PostPage/ReportModal";
-import { PostComment } from "../components/PostPage/Comment";
+import { Toolbar } from "../../resources/components/Shared/Toolbar";
+import PostPagePost from "../../resources/components/PostPage/PostPagePost";
+import { CommentLoading, PostLoading } from "../../resources/components/PostPage/PostLoading";
+import { ReportModal } from "../../resources/components/PostPage/ReportModal";
+import { PostComment } from "../../resources/components/PostPage/Comment";
 import { Preferences } from "@capacitor/preferences";
 
 interface MatchUserPostParams {

@@ -35,7 +35,7 @@ import "../App.css";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@agney/ir-toast";
 import { useContext } from "../my-context";
-import { dynamicNavigate } from "../components/Shared/Navigation";
+import { dynamicNavigate } from "../../resources/components/Shared/Navigation";
 import { timeout } from "../helpers/timeout";
 
 

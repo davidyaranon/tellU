@@ -9,8 +9,8 @@ import { deleteUserDataAndAccount } from "../fbConfig";
 import { useToast } from "@agney/ir-toast";
 import { useHistory } from "react-router";
 import { useContext } from "../my-context";
-import { Toolbar } from "../components/Shared/Toolbar";
-import { navigateBack } from "../components/Shared/Navigation";
+import { Toolbar } from "../../resources/components/Shared/Toolbar";
+import { navigateBack } from "../../resources/components/Shared/Navigation";
 
 export const PrivacyPolicy = () => {
 

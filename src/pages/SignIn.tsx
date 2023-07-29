@@ -17,13 +17,13 @@ import auth, { logInWithEmailAndPassword, db, getUserInfo } from '../fbConfig';
 
 /* CSS + Other components */
 import '../App.css';
-import Header from "../components/Shared/Header";
+import Header from "../../resources/components/Shared/Header";
 import { useToast } from "@agney/ir-toast";
-import { dynamicNavigate } from '../components/Shared/Navigation';
+import { dynamicNavigate } from '../../resources/components/Shared/Navigation';
 import { Preferences } from '@capacitor/preferences';
 import { useContext } from '../my-context';
 import { SplashScreen } from '@capacitor/splash-screen';
-import { Toolbar } from '../components/Shared/Toolbar';
+import { Toolbar } from '../../resources/components/Shared/Toolbar';
 
 /* global variables */
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }

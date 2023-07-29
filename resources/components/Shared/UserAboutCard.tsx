@@ -6,14 +6,14 @@ import {
 import { useToast } from "@agney/ir-toast";
 import { logoInstagram, logoSnapchat, logoTiktok } from "ionicons/icons";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
-import { useContext } from "../../my-context";
+import { useContext } from "../../../src/my-context";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import Spotify from "react-spotify-embed";
 import "swiper/css";
 import 'swiper/css/scrollbar';
 import { Scrollbar } from 'swiper';
 import { Swiper, SwiperSlide } from "swiper/react";
-import { AchievementDescriptions, AchievementIcons } from "../../helpers/achievements-config";
+import { AchievementDescriptions, AchievementIcons } from "../../../src/helpers/achievements-config";
 
 export const UserAboutCard = (props: any) => {
 

@@ -3,11 +3,11 @@ import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonPage 
 import { KeyboardResizeOptions, Keyboard, KeyboardResize } from "@capacitor/keyboard";
 
 import { useToast } from "@agney/ir-toast";
-import Header from "../components/Shared/Header";
+import Header from "../../resources/components/Shared/Header";
 import { timeout } from "../helpers/timeout";
 import { sendPasswordReset } from "../fbConfig";
 import { useContext } from "../my-context";
-import { Toolbar } from "../components/Shared/Toolbar";
+import { Toolbar } from "../../resources/components/Shared/Toolbar";
 
 // global variables
 const defaultResizeOptions: KeyboardResizeOptions = { mode: KeyboardResize.Body }

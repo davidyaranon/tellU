@@ -9,7 +9,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import auth, { getCurrentUserData, promiseTimeout } from '../fbConfig';
 import { useToast } from '@agney/ir-toast';
 import { Virtuoso } from 'react-virtuoso';
-import { Toolbar } from '../components/Shared/Toolbar';
+import { Toolbar } from '../../resources/components/Shared/Toolbar';
 import { getDate } from '../helpers/timeago';
 import { useContext } from '../my-context';
 

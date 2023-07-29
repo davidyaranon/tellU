@@ -8,7 +8,7 @@ import FadeIn from "react-fade-in/lib/FadeIn";
 import "../App.css";
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { useCallback, useEffect, useState } from "react";
-import { Toolbar } from "../components/Shared/Toolbar";
+import { Toolbar } from "../../resources/components/Shared/Toolbar";
 import { getDate } from "../helpers/timeago";
 import { Virtuoso } from "react-virtuoso";
 
