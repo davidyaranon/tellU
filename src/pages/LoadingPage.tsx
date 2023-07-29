@@ -2,7 +2,6 @@
 import { IonContent, IonNote, IonPage, useIonRouter, useIonToast } from "@ionic/react";
 import React from "react";
 import { Network } from '@capacitor/network';
-import { KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
 
 // Firebase/Google
 import auth, { getCurrentUserData, updateAchievements } from "../fbConfig";
@@ -51,8 +50,21 @@ const LoadingPage = () => {
 
   const handleAchievements = async (): Promise<void> => {
     const userData = await getCurrentUserData();
+    if (!userData) return;
+    await Preferences.set({ key: 'school', value: userData.school });
+
+    // Music Maestro Achievement
+    const musicMaestro = await Preferences.get({ key: "MusicMaestro" });
+    if (!musicMaestro || (musicMaestro.value !== 'true')) {
+      if ("spotify" in userData && userData.spotify && userData.spotify.length > 0) {
+        await updateAchievements('Music Maestro');
+        presentAchievement('Music Maestro');
+      }
+    }
+
+    // tellU Sovereign Achievement
     const tellUSovereignAchievement = await Preferences.get({ key: "tellUSovereign" });
-    if (tellUSovereignAchievement && tellUSovereignAchievement.value !== 'true') {
+    if (!tellUSovereignAchievement || (tellUSovereignAchievement.value !== 'true')) {
       if (userData && "timestamp" in userData) {
         const serverTimestamp = Timestamp.now().toDate();
         const userTimestamp = new Timestamp(userData.timestamp.seconds, userData.timestamp.nanoseconds).toDate();
@@ -60,14 +72,14 @@ const LoadingPage = () => {
         const millisecondsPerYear = 1000 * 60 * 60 * 24 * 365;
         if (timeDifference >= millisecondsPerYear) {
           console.log("A year or more has passed since the creation of the account");
-          await Preferences.set( { key: "tellUSovereign", value: "true" } );
-          updateAchievements('tellU Sovereign');
+          await updateAchievements('tellU Sovereign');
           presentAchievement("tellU Sovereign");
         } else {
           console.log("Less than a year has passed since the creation of the account");
         }
       }
     }
+
     if (userData && "achievements" in userData) {
       const listOfAchievements: string[] = userData["achievements"];
       for (let i = 0; i < listOfAchievements.length; ++i) {
@@ -85,8 +97,8 @@ const LoadingPage = () => {
     const unsub = auth.onAuthStateChanged(async (user) => {
       if (user) {
         console.log("logged in");
-        context.setShowTabs(true);
         await handleAchievements();
+        context.setShowTabs(true);
         dynamicNavigate(router, '/home', 'root');
       } else {
         const isOffline = await Network.getStatus();

@@ -65,7 +65,7 @@ export const AchievementIcons: Record<string, string> = {
 
 export const AchievementDescriptions: Record<string, string> = {
   "Like-a-Lot": "Like any 25 posts on tellU.", // implemented
-  "tellU Sovereign": "Use tellU for over a year!",
+  "tellU Sovereign": "Use tellU for over a year!", // implemented
   "Early Bird": "Be the first person to comment on a post.", // implemented
   "Hidden": "Keep using tellU to unlock more achievements!", // implemented
   "Tech Whisperer": "Talk to the tellU AI chatbot", // implemented
@@ -77,7 +77,7 @@ export const AchievementDescriptions: Record<string, string> = {
   "Pen Pal": "Send a DM to someone",
   "Picky Scholar": "Dislike a post",
   "Foodie": "Use the dining tag when making a post",
-  "Music Maestro": "Showcase a Spotify song on your user profile",
+  "Music Maestro": "Showcase a Spotify song on your user profile", // implemented
   "Second Thoughts": "Delete a comment or a post",
   "Memory Collector": "Make 5 posts containing an image",
   "Post-a-Lot": "Post 25 times on tellU",

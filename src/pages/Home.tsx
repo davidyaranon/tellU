@@ -276,6 +276,9 @@ const Home: React.FC = () => {
     const school = await Preferences.get({ key: 'school' });
     if (school && school.value) {
       setSchoolName(school.value);
+    } else {
+      const toast = Toast.create({ message: "Error connecting to tellU servers, try logging out and logging back in", color: "toast-error" });
+      toast.present();
     }
   }, []);
 

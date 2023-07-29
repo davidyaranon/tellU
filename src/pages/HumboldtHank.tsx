@@ -5,7 +5,6 @@ import {
 } from "@ionic/react";
 import { arrowUpOutline } from "ionicons/icons";
 import { Preferences } from "@capacitor/preferences";
-import { KeyboardStyle, KeyboardStyleOptions } from "@capacitor/keyboard";
 
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { useToast } from "@agney/ir-toast";
