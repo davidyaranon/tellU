@@ -78,7 +78,7 @@ export const AchievementDescriptions: Record<string, string> = {
   "Foodie": "Use the dining tag when making a post", // implemented
   "Music Maestro": "Showcase a Spotify song on your user profile", // implemented
   "Second Thoughts": "Delete a comment or a post",
-  "Picture This": "Make a post containing 3 images",
+  "Picture This": "Make a post containing 3 images", // implemented
   "Class Act": "Make a post about a specific class", // implemented
   "": "",
 }

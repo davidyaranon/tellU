@@ -214,6 +214,13 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           const toast = Toast.create({ message: 'Comment added', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
           toast.present();
           toast.dismiss();
+          if (containsAt) {
+            const socialButterflyAchievement = await Preferences.get({ key: "SocialButterfly" });
+            if ((!socialButterflyAchievement) || socialButterflyAchievement.value !== "true") {
+              await updateAchievements("Social Butterfly");
+              await presentAchievement("Social Butterfly");
+            }
+          }
           if (firstCommenter) {
             await updateAchievements('Early Bird');
             await presentAchievement('Early Bird');
