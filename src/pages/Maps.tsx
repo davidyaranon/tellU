@@ -86,9 +86,9 @@ const selectOptions = {
 // function parseXml(xml: string): void {
 //   const parser = new DOMParser();
 //   const xmlDoc = parser.parseFromString(xml, "text/xml");
-  
+
 //   const markers: MapMarker[] = [];
-  
+
 //   const buildings = xmlDoc.getElementsByTagName("building");
 //   for(let i = 0; i < buildings.length; i++) {
 //     const building = buildings[i];
@@ -105,9 +105,9 @@ const selectOptions = {
 //     };
 //     markers.push(marker);
 //   }
-  
+
 //   const markerStr = JSON.stringify(markers, null, 2);
-  
+
 //   console.log(`export const markers = ${markerStr};`);
 // }
 
@@ -374,9 +374,11 @@ function Maps() {
                     </p>
                   </IonFab>
                   <div style={{ height: "1vh" }} />
-                  <p>
-                    {filteredMarkers[schoolName][overlayIndex].description[0].substring(0, 110) + " ... "} <IonText color={getIonColor(filteredMarkers[schoolName][overlayIndex].color)}>(more)</IonText>
-                  </p>
+                  {filteredMarkers[schoolName][overlayIndex].description[0] &&
+                    <p>
+                      {filteredMarkers[schoolName][overlayIndex].description[0].substring(0, 110) + " ... "} <IonText color={getIonColor(filteredMarkers[schoolName][overlayIndex].color)}>(more)</IonText>
+                    </p>
+                  }
                   {filteredMarkers[schoolName][overlayIndex].imgSrc &&
                     filteredMarkers[schoolName][overlayIndex].imgSrc.length > 0 ? (
                     <>

@@ -124,7 +124,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
         <div style={{ height: "1vh" }} />
         {chip && chip.map(({ title, color, icon: Icon, local, image }, index: number) => {
           return (
-            <IonChip outline color={color} key={index} style={{ marginLeft: '7.5px'}}
+            <IonChip outline color={color} key={index} style={{ marginLeft: '7.5px' }}
               onClick={async () => {
                 if (image) {
                   let url = "";
@@ -172,11 +172,12 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
             return (
               <SwiperSlide key={image + index.toString()} onClick={handleUploadImage}>
                 <IonCard style={{ backgroundColor: context.darkMode ? "#0D1117" : "" }}>
-                  <img src={image} style={{ borderRadius: "10px" }} />
+                  <img src={image} style={{ borderRadius: "10px", width: '100%' }} />
                 </IonCard>
               </SwiperSlide>
             );
           })}
+
         </Swiper>
 
         <div style={{ padding: "10px", transform: "translateY(-5%)" }}>

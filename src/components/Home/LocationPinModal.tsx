@@ -242,6 +242,7 @@ export const LocationPinModal = (props: any) => {
     });
     try {
       const pos = await Geolocation.getCurrentPosition(locationOptions);
+      console.log({pos})
       const poi: string = checkPOI(pos.coords.latitude, pos.coords.longitude);
       if ((poi === "") || (!poi) || (poi.length < 0)) {
         const toast = Toast.create({ message: 'Looks like you are not near a pinned location!', duration: 2000, color: 'toast-error' });
