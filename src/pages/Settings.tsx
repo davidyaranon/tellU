@@ -908,7 +908,7 @@ const Settings: React.FC = () => {
           </div>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel color='light'>About</IonLabel>
+              <IonLabel color={context.darkMode ? 'light' : 'black'}>About</IonLabel>
               <IonTextarea
                 style={{ fontWeight: "bold" }}
                 rows={4}
@@ -925,7 +925,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel color='light'>Major</IonLabel>
+              <IonLabel color={context.darkMode ? 'light' : 'black'}>Major</IonLabel>
               <IonInput
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -941,7 +941,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel color='light'>Snapchat <IonIcon icon={logoSnapchat} /> </IonLabel>
+              <IonLabel color={context.darkMode ? 'light' : 'black'}>Snapchat <IonIcon icon={logoSnapchat} /> </IonLabel>
               <IonInput
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -957,7 +957,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel color='light'>Instagram <IonIcon icon={logoInstagram} /> </IonLabel>
+              <IonLabel color={context.darkMode ? 'light' : 'black'}>Instagram <IonIcon icon={logoInstagram} /> </IonLabel>
               <IonTextarea
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -973,7 +973,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel color='light'>TikTok <IonIcon icon={logoTiktok} /> </IonLabel>
+              <IonLabel color={context.darkMode ? 'light' : 'black'}>TikTok <IonIcon icon={logoTiktok} /> </IonLabel>
               <IonTextarea
                 style={{ fontWeight: "bold" }}
                 mode="ios"
@@ -1003,7 +1003,7 @@ const Settings: React.FC = () => {
           </IonCard>
           <IonCard mode="ios">
             <IonCardContent>
-              <IonLabel color='light'>Spotify Song Spotlight</IonLabel>
+              <IonLabel color={context.darkMode ? 'light' : 'black'}>Spotify Song Spotlight</IonLabel>
               <br /><br />
               {editableSpotifyUri && editableSpotifyUri.length > 0 &&
                 <Spotify allow="encrypted-media" style={{ width: "82.5vw", backgroundColor: "#2f2f2f", borderRadius: "15px", maxHeight: "80px", opacity: 100, colorScheme: "normal" }} wide link={"https://open.spotify.com/track/" + editableSpotifyUri.substring(14)} />

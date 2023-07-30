@@ -8,7 +8,7 @@ import backpacker from '../images/backpacker.png';
 import social_butterfly from '../images/social_butterfly.png';
 import night_owl from '../images/night_owl.png';
 import pen_pal from '../images/pen_pal.png';
-import picky from '../images/picky.png';
+import picky from '../images/picky_.png';
 import celebrity from '../images/celebrity.png';
 import dining from '../images/dining.png';
 import music from '../images/music.png';

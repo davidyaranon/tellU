@@ -116,6 +116,13 @@ export const LocationPinModal = (props: any) => {
         if (user) {
           const promises = [];
           const currentUserUid = user.uid;
+          if (blob.length >= 3) {
+            const pictureThisAchievement = await Preferences.get({ key: "PictureThis" });
+            if ((!pictureThisAchievement) || pictureThisAchievement.value !== 'true') {
+              await updateAchievements('Picture This');
+              await presentAchievement('Picture This');
+            }
+          }
           for (var i = 0; i < blob.length; i++) {
             const file = blob[i];
             let storageRef = ref(storage, "images/" + currentUserUid.toString() + uniqueId + i.toString());

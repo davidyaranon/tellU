@@ -524,8 +524,8 @@ const Home: React.FC = () => {
           :
           <>
             <Header />
-            <IonList inset mode="md" >
-              <IonItem lines="none" mode="md">
+            <IonList inset mode="ios" >
+              <IonItem lines="none" mode="ios">
                 <IonLabel>
                   <IonRow>
                     <IonAvatar class="posts-avatar">
@@ -544,8 +544,8 @@ const Home: React.FC = () => {
                 </IonLabel>
               </IonItem>
             </IonList>
-            <IonList inset mode="md" >
-              <IonItem lines="none" mode="md">
+            <IonList inset mode="ios" >
+              <IonItem lines="none" mode="ios">
                 <IonLabel>
                   <IonRow>
                     <IonAvatar class="posts-avatar">
@@ -564,8 +564,8 @@ const Home: React.FC = () => {
                 </IonLabel>
               </IonItem>
             </IonList>
-            <IonList inset mode="md" >
-              <IonItem lines="none" mode="md">
+            <IonList inset mode="ios" >
+              <IonItem lines="none" mode="ios">
                 <IonLabel>
                   <IonRow>
                     <IonAvatar class="posts-avatar">
@@ -584,8 +584,8 @@ const Home: React.FC = () => {
                 </IonLabel>
               </IonItem>
             </IonList>
-            <IonList inset mode="md" >
-              <IonItem lines="none" mode="md">
+            <IonList inset mode="ios" >
+              <IonItem lines="none" mode="ios">
                 <IonLabel>
                   <IonRow>
                     <IonAvatar class="posts-avatar">
@@ -604,8 +604,8 @@ const Home: React.FC = () => {
                 </IonLabel>
               </IonItem>
             </IonList>
-            <IonList inset mode="md" >
-              <IonItem lines="none" mode="md">
+            <IonList inset mode="ios" >
+              <IonItem lines="none" mode="ios">
                 <IonLabel>
                   <IonRow>
                     <IonAvatar class="posts-avatar">

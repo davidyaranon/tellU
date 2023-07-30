@@ -147,7 +147,7 @@ export const PollModal = (props: any) => {
             }}
           ></IonInput>
           {pollOptions && pollOptions.length > 0 ? (
-            <IonList mode="md" inset={true} lines="none">
+            <IonList mode="ios" inset={true} lines="none">
               {pollOptions?.map((option, index) => {
                 return (
                   <IonItem key={index}><p style={{ alignSelf: "center" }} slot="start">{(index + 1).toString() + ". "}</p>
@@ -158,8 +158,8 @@ export const PollModal = (props: any) => {
             </IonList>
           ) : (null)}
           <div style={{ textAlign: "center", }}>
-            <IonButton color="medium" fill="clear" disabled={pollOptions.length >= 6} onClick={addPollAnswer} mode="md">Add Option</IonButton>
-            <IonButton fill="clear" color="toast-error" disabled={pollOptions.length <= 2} onClick={removePollAnswer} mode="md">Remove Option</IonButton>
+            <IonButton color="medium" fill="clear" disabled={pollOptions.length >= 6} onClick={addPollAnswer} mode="ios">Add Option</IonButton>
+            <IonButton fill="clear" color="toast-error" disabled={pollOptions.length <= 2} onClick={removePollAnswer} mode="ios">Remove Option</IonButton>
           </div>
           <br />
           <div style={{ textAlign: "center", }}>

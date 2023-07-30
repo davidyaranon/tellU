@@ -64,7 +64,7 @@ export const ClassSelections = memo((props: classInfo) => {
         {postClassName && postClassName.length > 0 &&
           <>
             <div style={{ width: "1%" }}></div>
-            <IonItem className='class-number-selection' color={context.darkMode ? "light-item" : ""}>
+            <IonItem className='class-number-selection' color={context.darkMode ? "light-item" : "light"}>
               <IonSelect interface="action-sheet" interfaceOptions={selectOptionsNumber} okText="Select" cancelText="Cancel" mode="ios" value={postClassNumber} placeholder="#:"
                 onIonChange={(e: any) => {
                   setPostClassNumber(e.detail.value);
