@@ -4,7 +4,7 @@ import {
   IonButton, IonButtons, IonCard, IonContent, IonFab,
   IonFabButton, IonGrid, IonHeader, IonIcon, IonImg,
   IonItem, IonModal, IonNote, IonPage, IonRow, IonSpinner, IonTextarea,
-  IonTitle, IonToolbar, RouterDirection, useIonRouter
+  IonTitle, IonToolbar, RouterDirection, useIonRouter, useIonToast
 } from "@ionic/react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { useEffect, useRef, useState } from "react";
@@ -22,7 +22,7 @@ import {
   query, serverTimestamp,
 } from "firebase/firestore";
 import auth, {
-  getUserData, db, sendDm, storage, updateDmList, uploadImage,
+  getUserData, db, sendDm, storage, updateDmList, uploadImage, updateAchievements,
 } from '../fbConfig';
 import { getDownloadURL, ref } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -37,6 +37,7 @@ import { useToast } from "@agney/ir-toast";
 import { useContext } from "../my-context";
 import { dynamicNavigate } from "../components/Shared/Navigation";
 import { timeout } from "../helpers/timeout";
+import { Preferences } from "@capacitor/preferences";
 
 
 interface MatchUserPostParams {
@@ -57,6 +58,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
 
   /* Hooks */
   const [user] = useAuthState(auth);
+  const [present] = useIonToast();
   const router = useIonRouter();
   const Toast = useToast();
   const context = useContext();
@@ -76,6 +78,29 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const [reportMessage, setReportMessage] = useState<string>("");
   const [contactInfo, setContactInfo] = useState<any>();
   const [contactPhoto, setContactPhoto] = useState<string>("");
+
+  const presentAchievement = async (achievement: string): Promise<void> => {
+    const achStr = achievement.replace(/\s+/g, '');
+    await Preferences.set({ "key": achStr, value: "true" });
+    present({
+      message: 'You just unlocked the ' + achievement + ' achievement!',
+      duration: 3500,
+      position: 'top',
+      buttons: [
+        {
+          text: 'Open',
+          role: 'info',
+          handler: () => { dynamicNavigate(router, "/achievements", 'forward') }
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel',
+          handler: () => { }
+        }
+      ],
+      cssClass: 'toast-options',
+    });
+  }
 
   /**
    * @description This function is used to select a photo from the user's photo gallery
@@ -156,12 +181,17 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         photoURL
       });
       await updateDmList(tempComment, contactInfo.uid, contactInfo.userName).catch((err) => {
-        const toast = Toast.create({ message: 'DM List not updated, messages will stil be stored', duration: 2000, color: 'toast-error' });
+        const toast = Toast.create({ message: 'DM List not updated, messages will still be stored', duration: 2000, color: 'toast-error' });
         toast.present();
       });
       if (contactInfo && "notificationsToken" in contactInfo && schoolName) {
         console.log('sending dm to: ', contactInfo.notificationsToken);
         await sendDm(collectionPath, contactInfo.notificationsToken, tempComment, contactInfo.uid, schoolName);
+      }
+      const penPalAchievement = await Preferences.get({ key: "PenPal" });
+      if ((!penPalAchievement) || penPalAchievement.value !== "true") {
+        await updateAchievements("Pen Pal");
+        await presentAchievement("Pen Pal");
       }
     }
   };

@@ -6,7 +6,7 @@ import { useHistory } from "react-router";
 import { chatboxOutline, warningSharp } from "ionicons/icons";
 import { Dialog } from "@capacitor/dialog";
 import { useToast } from "@agney/ir-toast";
-import { downVote, removePost, upVote } from "../../../src/fbConfig";
+import { downVote, removePost, updateAchievements, upVote } from "../../../src/fbConfig";
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { timeout } from "../../../src/helpers/timeout";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -142,6 +142,11 @@ export const PostPageLikeDislike = memo((props: any) => {
         }
         setLikes(likesCopy);
         setDisLikes(dislikesCopy);
+        const pickyScholarAchievement = await Preferences.get({ key: "PickyScholar" });
+        if((!pickyScholarAchievement) || pickyScholarAchievement.value !== 'true') {
+          await updateAchievements("Picky Scholar");
+          await presentAchievement("Picky Scholar");
+        }
         await timeout(100);
       }
     } else {

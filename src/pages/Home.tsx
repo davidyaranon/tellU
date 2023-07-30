@@ -9,7 +9,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 // Firebase/Google
-import auth, { db, downVote, getAllPostsNextBatch, getAppVersionNum, getLikes, promiseTimeout, storage, upVote } from '../fbConfig';
+import auth, { db, downVote, getAllPostsNextBatch, getAppVersionNum, getLikes, promiseTimeout, storage, updateAchievements, upVote } from '../fbConfig';
 import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 
@@ -153,6 +153,11 @@ const Home: React.FC = () => {
         }
         setPostLikes(likesCopy);
         setPostDislikes(dislikesCopy);
+        const pickyScholarAchievement = await Preferences.get({ key: "PickyScholar" });
+        if((!pickyScholarAchievement) || pickyScholarAchievement.value !== 'true') {
+          await updateAchievements("Picky Scholar");
+          await presentAchievement("Picky Scholar");
+        }
         await timeout(250);
       }
     } else {

@@ -8,7 +8,7 @@ import { IonContent, IonPage, useIonToast } from "@ionic/react";
 import { Share } from "@capacitor/share";
 
 /* Firebase */
-import auth, { getLikes, getUserPosts, getNextBatchUserPosts, getUserData, storage, downVote, upVote } from '../fbConfig';
+import auth, { getLikes, getUserPosts, getNextBatchUserPosts, getUserData, storage, downVote, upVote, updateAchievements } from '../fbConfig';
 import { ref, getDownloadURL } from "firebase/storage";
 import { getDatabase, goOffline, goOnline } from "firebase/database";
 
@@ -158,6 +158,11 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
         }
         setPostLikes(likesCopy);
         setPostDislikes(dislikesCopy);
+        const pickyScholarAchievement = await Preferences.get({ key: "PickyScholar" });
+        if((!pickyScholarAchievement) || pickyScholarAchievement.value !== 'true') {
+          await updateAchievements("Picky Scholar");
+          await presentAchievement("Picky Scholar");
+        }
         await timeout(250);
       }
     } else {

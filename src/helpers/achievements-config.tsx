@@ -73,7 +73,7 @@ export const AchievementDescriptions: Record<string, string> = {
   "Backpacker": "Make a post at 2 different map pin locations on campus",
   "Social Butterfly": "Tag someone in the comment section of a post",
   "Night Owl": "Post something between 12am and 4am PST",
-  "Pen Pal": "Send a DM to someone",
+  "Pen Pal": "Send a DM to someone", // implemented
   "Picky Scholar": "Dislike a post",
   "Foodie": "Use the dining tag when making a post",
   "Music Maestro": "Showcase a Spotify song on your user profile", // implemented
