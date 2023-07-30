@@ -68,14 +68,14 @@ export const AchievementDescriptions: Record<string, string> = {
   "Early Bird": "Be the first person to comment on a post.", // implemented
   "Hidden": "Keep using tellU to unlock more achievements!", // implemented
   "Tech Whisperer": "Talk to the tellU AI chatbot", // implemented
-  "Party Starter": "Use the event tag to promote something in a post",
+  "Party Starter": "Use the event tag to promote something in a post", // implemented
   "Celebrity": "Get 50 likes on a post",
   "Backpacker": "Make a post at 2 different map pin locations on campus",
   "Social Butterfly": "Tag someone in the comment section of a post",
   "Night Owl": "Post something between 12am and 4am PST",
   "Pen Pal": "Send a DM to someone", // implemented
-  "Picky Scholar": "Dislike a post",
-  "Foodie": "Use the dining tag when making a post",
+  "Picky Scholar": "Dislike a post", // implemented
+  "Foodie": "Use the dining tag when making a post", // implemented
   "Music Maestro": "Showcase a Spotify song on your user profile", // implemented
   "Second Thoughts": "Delete a comment or a post",
   "Picture This": "Make a post containing 3 images",

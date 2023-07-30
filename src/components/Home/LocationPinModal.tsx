@@ -124,13 +124,6 @@ export const LocationPinModal = (props: any) => {
           const photos = await Promise.all(promises);
           const notificationsToken = localStorage.getItem("notificationsToken") || "";
           console.log(notificationsToken);
-          const classActAchievement = await Preferences.get({ key: "PictureThis" });
-          if (!classActAchievement || (classActAchievement.value !== 'true')) {
-            if (postClassName && postClassName.length > 0) {
-              await updateAchievements('Class Act');
-              await presentAchievement('Class Act');
-            }
-          }
           const res = await addMessage(
             message,
             photos,
@@ -159,6 +152,29 @@ export const LocationPinModal = (props: any) => {
             setPostClassNumber("");
             setPrevPostUploading(false);
             setShowProgressBar(false);
+            const classActAchievement = await Preferences.get({ key: "PictureThis" });
+            if (!classActAchievement || (classActAchievement.value !== 'true')) {
+              if (postClassName && postClassName.length > 0) {
+                await updateAchievements('Class Act');
+                await presentAchievement('Class Act');
+              }
+            }
+
+            const foodieAchievement = await Preferences.get({ key: "Foodie" });
+            if ((!foodieAchievement) || foodieAchievement.value !== 'true') {
+              if (checkboxSelection === 'dining') {
+                await updateAchievements('Foodie');
+                await presentAchievement('Foodie');
+              }
+            }
+
+            const partyStarterAchievement = await Preferences.get({ key: "PartyStarter" });
+            if ((!partyStarterAchievement) || partyStarterAchievement.value !== 'true') {
+              if (checkboxSelection === 'event') {
+                await updateAchievements('Party Starter');
+                await presentAchievement('Party Starter');
+              }
+            }
           }
         }
       } else {
@@ -191,6 +207,29 @@ export const LocationPinModal = (props: any) => {
           setPostClassNumber("");
           setShowProgressBar(false);
           setPrevPostUploading(false);
+          const classActAchievement = await Preferences.get({ key: "PictureThis" });
+          if (!classActAchievement || (classActAchievement.value !== 'true')) {
+            if (postClassName && postClassName.length > 0) {
+              await updateAchievements('Class Act');
+              await presentAchievement('Class Act');
+            }
+          }
+
+          const foodieAchievement = await Preferences.get({ key: "Foodie" });
+          if ((!foodieAchievement) || foodieAchievement.value !== 'true') {
+            if (checkboxSelection === 'dining') {
+              await updateAchievements('Foodie');
+              await presentAchievement('Foodie');
+            }
+          }
+
+          const partyStarterAchievement = await Preferences.get({ key: "PartyStarter" });
+          if ((!partyStarterAchievement) || partyStarterAchievement.value !== 'true') {
+            if (checkboxSelection === 'event') {
+              await updateAchievements('Party Starter');
+              await presentAchievement('Party Starter');
+            }
+          }
         }
       }
     }
@@ -242,7 +281,7 @@ export const LocationPinModal = (props: any) => {
     });
     try {
       const pos = await Geolocation.getCurrentPosition(locationOptions);
-      console.log({pos})
+      console.log({ pos })
       const poi: string = checkPOI(pos.coords.latitude, pos.coords.longitude);
       if ((poi === "") || (!poi) || (poi.length < 0)) {
         const toast = Toast.create({ message: 'Looks like you are not near a pinned location!', duration: 2000, color: 'toast-error' });
