@@ -748,7 +748,7 @@ const Settings: React.FC = () => {
                       {userLikedPosts.map((post, index) => {
                         return (
                           <IonList key={post.key + index.toString()} mode="ios" lines="none" inset>
-                            <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+                            <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + encodeURIComponent(post.userName) + "/" + post.key); }}>
                               <IonLabel>
                                 <IonText color="medium">
                                   <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); history.push("/about/" + schoolName + "/" + post.uid); }} >

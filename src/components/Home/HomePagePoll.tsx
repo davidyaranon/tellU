@@ -94,7 +94,7 @@ export const HomePagePoll = (props: any) => {
             >
               <ProfilePhoto uid={post.uid}></ProfilePhoto>
             </IonAvatar>
-            <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+            <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}> {decodeURIComponent(post.userName)} </p>
           </IonRow>
           <IonCardTitle style={{ fontSize: "1.35em", width: "95%", padding: "7.5px", color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)" }}>{poll.question}</IonCardTitle>
           <br />

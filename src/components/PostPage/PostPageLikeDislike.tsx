@@ -176,7 +176,7 @@ export const PostPageLikeDislike = memo((props: any) => {
       </IonButton>
       <p>&nbsp;</p>
       {!postKeyMatch &&
-        <IonButton mode="ios" color="medium" fill='outline' onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+        <IonButton mode="ios" color="medium" fill='outline' onClick={() => { history.push("/post/" + schoolName + "/" + encodeURIComponent(post.userName) + "/" + post.key); }}>
           <IonIcon icon={chatboxOutline} />
           <p>&nbsp; {post.commentAmount} </p>
         </IonButton>

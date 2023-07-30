@@ -61,7 +61,7 @@ export const HomePagePost = (props: any) => {
   return (
     <FadeIn key={index}>
       <IonList inset mode="ios" >
-        <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+        <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + encodeURIComponent(post.userName) + "/" + post.key); }}>
           <IonLabel>
             <IonRow>
               <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); if (profileClickable !== false) history.push("/about/" + schoolName + "/" + post.uid); }} >
@@ -96,7 +96,7 @@ export const HomePagePost = (props: any) => {
               <p>{Object.keys(likes).length - 1} </p>
             </IonButton>
             <p>&nbsp;</p>
-            <IonButton mode="ios" color="medium" fill="outline" onClick={() => { history.push("/post/" + schoolName + "/" + post.userName + "/" + post.key); }}>
+            <IonButton mode="ios" color="medium" fill="outline" onClick={() => { history.push("/post/" + schoolName + "/" + encodeURIComponent(post.userName) + "/" + post.key); }}>
               <IonIcon icon={chatboxOutline} />
               <p>&nbsp; {post.commentAmount} </p>
             </IonButton>

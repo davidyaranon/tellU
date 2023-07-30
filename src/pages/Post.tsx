@@ -55,7 +55,7 @@ const defaultResizeOptions: KeyboardResizeOptions = {
 const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const postKey = match.params.key;
   const schoolName = match.params.school;
-  const userName = match.params.userName;
+  const userName = decodeURIComponent(match.params.userName);
 
   /* Hooks */
   const [user] = useAuthState(auth);
@@ -207,7 +207,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       }
       const hasTimedOut = promiseTimeout(
         10000,
-        addCommentNew(postKey, schoolName, tempComment, blob, uniqueId.toString(), notificationsToken, post.uid, localStorage.getItem("notificationsToken") || "", attedUsersList, userName)
+        addCommentNew(postKey, schoolName, tempComment, blob, uniqueId.toString(), notificationsToken, post.uid, localStorage.getItem("notificationsToken") || "", attedUsersList, decodeURIComponent(userName))
       );
       hasTimedOut.then(async (commentSent: any) => {
         if (commentSent) {

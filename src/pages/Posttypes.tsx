@@ -98,7 +98,7 @@ const Posttypes = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               return (
                 <FadeIn key={post}>
                   <IonList inset={true} mode="ios">
-                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate(router, "/post/" + schoolName + "/" + post.userName + "/" + post.key, 'forward') }}>
+                    <IonItem lines="none" mode="ios" onClick={() => { dynamicNavigate(router, "/post/" + schoolName + "/" + encodeURIComponent(post.userName) + "/" + post.key, 'forward') }}>
                       <IonLabel class="ion-text-wrap">
                         <IonRow>
                           <FadeIn>
