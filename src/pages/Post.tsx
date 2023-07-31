@@ -224,9 +224,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             }
           }
           if (firstCommenter) {
-            await updateAchievements('Early Bird');
-            await presentAchievement('Early Bird');
-            setFirstCommenter(false);
+            const earlyBirdAchievement = await Preferences.get({ key: "EarlyBird" });
+            if ((!earlyBirdAchievement) || earlyBirdAchievement.value !== 'true') {
+              await updateAchievements('Early Bird');
+              await presentAchievement('Early Bird');
+              setFirstCommenter(false);
+            }
           }
           if (twentyFiveComments) {
             updateAchievementsServer({
