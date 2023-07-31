@@ -57,7 +57,7 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
   return (
     <IonPage>
       <Toolbar title={"DMs"} schoolName={schoolName} />
-      <IonContent scrollEvents>
+      <IonContent fullscreen scrollX={false} scrollY={false}>
 
         {messages &&
           <Virtuoso
@@ -67,29 +67,29 @@ const DirectMessages = ({ match }: RouteComponentProps<MatchUserPostParams>) => 
             itemContent={(index: number) => {
               let msg = messages[index];
               return (
-                <FadeIn delay={index * 10}>
-                  <div className="chat" key={msg.contactUid + '-' + index.toString()} onClick={() => {
-                    let elements: any[] = [];
-                    if (userUid && msg.contactUid) {
-                      if (userUid < msg.contactUid) {
-                        elements.push(msg.contactUid);
-                        elements.push(userUid);
+                <FadeIn key={index}>
+                  <div className="chat" key={msg.contactUid + '-' + index.toString()}
+                    onClick={() => {
+                      let elements: any[] = [];
+                      if (userUid && msg.contactUid) {
+                        if (userUid < msg.contactUid) {
+                          elements.push(msg.contactUid);
+                          elements.push(userUid);
+                        } else {
+                          elements.push(userUid);
+                          elements.push(msg.contactUid);
+                        }
+                        // console.log(elements[0] + '_' + elements[1]);
                       } else {
-                        elements.push(userUid);
-                        elements.push(msg.contactUid);
+                        const toast = Toast.create({ message: 'Unable to open DMs', duration: 2000, color: 'toast-error' });
+                        toast.present();
                       }
-                      // console.log(elements[0] + '_' + elements[1]);
-                    } else {
-                      const toast = Toast.create({ message: 'Unable to open DMs', duration: 2000, color: 'toast-error' });
-                      toast.present();
-                    }
-                    history.push("/chatroom/" + schoolName + "/" + elements[0] + '_' + elements[1])
-                  }
-                  }>
+                      history.push("/chatroom/" + schoolName + "/" + elements[0] + '_' + elements[1])
+                    }}>
                     <IonCol size="2">
                       <img className="chat_avatar" src={!contactPhotoUrls[index] || contactPhotoUrls[index] === "" ? msg.photoURL : contactPhotoUrls[index]} />
                     </IonCol>
-                    <IonCol size="7">
+                    <IonCol size="6.5">
                       <div className="chat_info">
                         <div className="contact_name">{msg.userName}</div>
                         <div className={"read" in msg && msg.read === false ? "contactMsgBold" : "contactMsg"}>{msg.recent.length > 50 ?

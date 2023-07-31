@@ -70,63 +70,61 @@ export const Notifications = () => {
           <Virtuoso
             data={notifs.slice(0).reverse()}
             style={{ height: "100%" }}
+            className="ion-content-scroll-host"
             itemContent={(item) => {
               let notif = notifs[item];
               let index = item;
               if ("message" in notif && "chatroomString" in notif) {
                 return (
                   <FadeIn key={"chatnotif_" + notif.postKey + index.toString()}>
-                    <IonList inset={true} mode="ios">
-                      <IonItem lines="none" mode="ios" onClick={() => {
-                        let url: string = '';
-                        let chatroomString : string = notif.chatroomString;
-                        if (chatroomString.includes("chatroom")) {
-                          url = notif.chatroomString.slice(0, 9) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
-                        } else {
-                          url = notif.chatroomString.slice(0, 5) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
-                        }
-                        history.push(url);
-                      }}>
-                        <IonFab horizontal="end" vertical="top">
-                          <IonNote style={{ fontSize: "0.75em" }}>
-                            {" "}
-                            {getDate(notif.date)}{" "}
-                          </IonNote>
-                        </IonFab>
-                        <IonText>
-                          <div style={{ height: "4vh" }}>{" "}</div>
-                          <div style={{ fontWeight: "bold" }}>
-                            {notif.userName + " sent a DM: "}
-                          </div>
-                          {notif.message}
-                          <div style={{ height: "1vh" }}>{" "}</div>
-                        </IonText>
-                      </IonItem>
-                    </IonList>
+                    <IonItem style={context.darkMode ? { '--background': '#0D1117' } : { '--background': '#FFFFFF' }} lines='full' mode="ios" onClick={() => {
+                      let url: string = '';
+                      let chatroomString: string = notif.chatroomString;
+                      if (chatroomString.includes("chatroom")) {
+                        url = notif.chatroomString.slice(0, 9) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
+                      } else {
+                        url = notif.chatroomString.slice(0, 5) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
+                      }
+                      history.push(url);
+                    }}>
+                      <IonFab horizontal="end" vertical="top">
+                        <IonNote style={{ fontSize: "0.75em" }}>
+                          {" "}
+                          {getDate(notif.date)}{" "}
+                        </IonNote>
+                      </IonFab>
+                      <IonText>
+                        <div style={{ height: "4vh" }}>{" "}</div>
+                        <div style={{ fontWeight: "bold" }}>
+                          {notif.userName + " sent a DM: "}
+                        </div>
+                        {notif.message}
+                        <div style={{ height: "1vh" }}>{" "}</div>
+                      </IonText>
+                    </IonItem>
                   </FadeIn>
                 )
               } else {
                 return (
                   <FadeIn key={"postnotif_" + notif.postKey + index.toString()}>
-                    <IonList inset={true} mode="ios">
-                      <IonItem lines="none" mode="ios" onClick={() => { 
-                        const key = notif.postKey.toString(); history.push("post/Cal%20Poly%20Humboldt/" + encodeURIComponent(notif.userName) + '/' + key); }}>
-                        <IonFab horizontal="end" vertical="top">
-                          <IonNote style={{ fontSize: "0.75em" }}>
-                            {" "}
-                            {getDate(notif.date)}{" "}
-                          </IonNote>
-                        </IonFab>
-                        <IonText>
-                          <div style={{ height: "4vh" }}>{" "}</div>
-                          <div style={{ fontWeight: "bold" }}>
-                            {notif.userName + " commented: "}
-                          </div>
-                          {notif.comment}
-                          <div style={{ height: "1vh" }}>{" "}</div>
-                        </IonText>
-                      </IonItem>
-                    </IonList>
+                    <IonItem style={context.darkMode ? { '--background': '#0D1117' } : { '--background': '#FFFFFF' }} lines='full' mode="ios" onClick={() => {
+                      const key = notif.postKey.toString(); history.push("post/Cal%20Poly%20Humboldt/" + encodeURIComponent(notif.userName) + '/' + key);
+                    }}>
+                      <IonFab horizontal="end" vertical="top">
+                        <IonNote style={{ fontSize: "0.75em" }}>
+                          {" "}
+                          {getDate(notif.date)}{" "}
+                        </IonNote>
+                      </IonFab>
+                      <IonText>
+                        <div style={{ height: "4vh" }}>{" "}</div>
+                        <div style={{ fontWeight: "bold" }}>
+                          {notif.userName + " commented: "}
+                        </div>
+                        {notif.comment}
+                        <div style={{ height: "1vh" }}>{" "}</div>
+                      </IonText>
+                    </IonItem>
                   </FadeIn>
                 )
               }
