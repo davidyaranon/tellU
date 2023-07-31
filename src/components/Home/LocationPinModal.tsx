@@ -187,7 +187,7 @@ export const LocationPinModal = (props: any) => {
             const nightOwlAchievement = await Preferences.get({ key: "NightOwl" });
             if ((!nightOwlAchievement) || nightOwlAchievement.value !== "true") {
               const serverDate: Date = Timestamp.now().toDate();
-              const createdAtHourPST: number = (serverDate.getUTCHours() + 8) % 24;
+              const createdAtHourPST: number = (serverDate.getUTCHours() - 8 + 24) % 24; // Subtract 8 hours to convert to PST
               const isBetween12And4 = createdAtHourPST >= 0 && createdAtHourPST < 4;
               if (isBetween12And4) {
                 await updateAchievements("Night Owl");
@@ -263,7 +263,7 @@ export const LocationPinModal = (props: any) => {
           const nightOwlAchievement = await Preferences.get({ key: "NightOwl" });
           if ((!nightOwlAchievement) || nightOwlAchievement.value !== "true") {
             const serverDate: Date = Timestamp.now().toDate();
-            const createdAtHourPST: number = (serverDate.getUTCHours() + 8) % 24;
+            const createdAtHourPST: number = (serverDate.getUTCHours() - 8 + 24) % 24; // Subtract 8 hours to convert to PST
             const isBetween12And4 = createdAtHourPST >= 0 && createdAtHourPST < 4;
             if (isBetween12And4) {
               await updateAchievements("Night Owl");

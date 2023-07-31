@@ -190,11 +190,11 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
         <div style={{ textAlign: "center" }}>
           {posts && posts.length === 0 ?
             <>
-              <IonCardTitle style={{ textAlign: "center", fontSize: "1.5em" }}>No {markerTitle} Posts Yet</IonCardTitle>
+              <IonCardTitle style={{ textAlign: "center", fontSize: "1em" }}>No {markerTitle} Posts Yet</IonCardTitle>
               <IonNote>Go there and make a post now!</IonNote>
             </>
             :
-            <IonCardTitle style={{ textAlign: "center", fontSize: "1.5em" }}>Posts</IonCardTitle>
+            <IonCardTitle style={{ textAlign: "center", fontSize: "1em" }}>Posts</IonCardTitle>
           }
           {!posts &&
             <>

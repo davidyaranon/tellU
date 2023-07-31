@@ -678,7 +678,7 @@ const Settings: React.FC = () => {
                   slot="end"
                   checked={context.darkMode}
                   enableOnOffLabels={true}
-                  color={'primary'}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   onIonChange={(e) => { toggleDarkMode(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                 />
               </IonItem>
@@ -691,7 +691,7 @@ const Settings: React.FC = () => {
                     id="themeToggle"
                     checked={context.schoolColorToggled}
                     enableOnOffLabels={true}
-                    color={'primary'}
+                    color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                     onIonChange={(e) => { toggleSchoolColor(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                   />
                 </IonItem>
@@ -704,7 +704,7 @@ const Settings: React.FC = () => {
                   slot="end"
                   checked={context.sensitivityToggled}
                   enableOnOffLabels={true}
-                  color={'primary'}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   onIonChange={(e) => { toggleSensitivity(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
                 />
               </IonItem>
@@ -724,7 +724,7 @@ const Settings: React.FC = () => {
           </SwiperSlide>
           <SwiperSlide>
             <IonFab style={{ transform: "translateY(-10%)" }} horizontal="end">
-              <IonButton mode="ios" fill="clear" onClick={loadUserLikes} color={'primary'}>
+              <IonButton mode="ios" fill="clear" onClick={loadUserLikes} color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>
                 <IonIcon icon={refreshOutline} />
               </IonButton>
             </IonFab>
@@ -766,7 +766,7 @@ const Settings: React.FC = () => {
                       })}
                     </>
                   ) :
-                    <IonSpinner color={'primary'} className='ion-spinner'></IonSpinner>
+                    <IonSpinner color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} className='ion-spinner'></IonSpinner>
                   }
                   {userLikedPosts && userLikedPosts.length <= 0 ? (
                     <p style={{ fontWeight: "bold", textAlign: "center" }}>No likes yet!</p>
@@ -797,41 +797,41 @@ const Settings: React.FC = () => {
           Keyboard.hide();
         }}
       >
-        <IonToolbar mode="ios">
-          <IonButtons style={{ marginLeft: "-2.5%" }}>
-            <IonButton
-              color={"primary"}
-              mode="ios"
-              onClick={() => {
-                Keyboard.hide().then(() => {
-                  setSpotifyModal(false);
-                  if (spotifyTextSearch && spotifyTextSearch.current) {
-                    spotifyTextSearch.current.value = "";
-                  }
-                  setSpotifyResults([]);
-                }).catch((err) => {
-                  setSpotifyModal(false);
-                  if (spotifyTextSearch && spotifyTextSearch.current) {
-                    spotifyTextSearch.current.value = "";
-                  }
-                  setSpotifyResults([]);
-                });
-              }}
-            >
-              Back
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Spotify Search</IonTitle>
-        </IonToolbar>
-        <br />
-        <IonToolbar mode="ios" >
-          <IonSearchbar color={context.darkMode ? "" : "medium-light"} debounce={0} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} ref={spotifyTextSearch} showCancelButton="focus" animated={true}></IonSearchbar>
-        </IonToolbar>
-        <hr style={{ opacity: "50%", width: "85vw" }}></hr>
-        {spotifyLoading &&
-          <IonSpinner color={'primary'} className='ion-spinner' />
-        }
-        <IonContent>
+        <IonContent >
+          <IonToolbar mode="ios">
+            <IonButtons style={{ marginLeft: "-2.5%" }}>
+              <IonButton
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+                mode="ios"
+                onClick={() => {
+                  Keyboard.hide().then(() => {
+                    setSpotifyModal(false);
+                    if (spotifyTextSearch && spotifyTextSearch.current) {
+                      spotifyTextSearch.current.value = "";
+                    }
+                    setSpotifyResults([]);
+                  }).catch((err) => {
+                    setSpotifyModal(false);
+                    if (spotifyTextSearch && spotifyTextSearch.current) {
+                      spotifyTextSearch.current.value = "";
+                    }
+                    setSpotifyResults([]);
+                  });
+                }}
+              >
+                Close
+              </IonButton>
+            </IonButtons>
+            <IonTitle>Spotify Search</IonTitle>
+          </IonToolbar>
+          <br />
+          <IonToolbar mode="ios" >
+            <IonSearchbar color={context.darkMode ? "" : "medium-light"} debounce={0} enterkeyhint="search" onKeyDown={e => isEnterPressed(e.key)} ref={spotifyTextSearch} showCancelButton="focus" animated={true}></IonSearchbar>
+          </IonToolbar>
+          <hr style={{ opacity: "50%", width: "85vw" }}></hr>
+          {spotifyLoading &&
+            <IonSpinner color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} className='ion-spinner' />
+          }
           {spotifyResults && spotifyResults.length > 0 &&
             <>
               <IonList style={{ "--background": "#0D1117" }} mode="ios">
@@ -858,7 +858,7 @@ const Settings: React.FC = () => {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
-                  color={'primary'}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -887,12 +887,12 @@ const Settings: React.FC = () => {
 
                   }}
                 >
-                  Close
+                  Back
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
                 <IonButton
-                  color={'primary'}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   disabled={!aboutEdit}
                   slot="end"
                   mode="ios"
@@ -914,7 +914,7 @@ const Settings: React.FC = () => {
                 rows={4}
                 mode="ios"
                 id="bio"
-                color={'primary'}
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                 maxlength={150}
                 value={editableUserBio}
                 onIonChange={(e: any) => {
@@ -930,7 +930,7 @@ const Settings: React.FC = () => {
                 style={{ fontWeight: "bold" }}
                 mode="ios"
                 id="major"
-                color={'primary'}
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                 maxlength={50}
                 value={editableUserMajor}
                 onIonChange={(e: any) => {
@@ -946,7 +946,7 @@ const Settings: React.FC = () => {
                 style={{ fontWeight: "bold" }}
                 mode="ios"
                 id="bio"
-                color={'primary'}
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                 maxlength={50}
                 value={editableUserSnapchat}
                 onIonChange={(e: any) => {
@@ -962,7 +962,7 @@ const Settings: React.FC = () => {
                 style={{ fontWeight: "bold" }}
                 mode="ios"
                 id="bio"
-                color={'primary'}
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                 maxlength={50}
                 value={editableUserInstagram}
                 onIonChange={(e: any) => {
@@ -978,7 +978,7 @@ const Settings: React.FC = () => {
                 style={{ fontWeight: "bold" }}
                 mode="ios"
                 id="bio"
-                color={'primary'}
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                 maxlength={50}
                 value={editableUserTiktok}
                 onIonChange={(e: any) => {
@@ -1024,7 +1024,7 @@ const Settings: React.FC = () => {
                   </IonCol>
                   <IonCol>
                     <IonButton
-                      color={'primary'}
+                      color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                       mode="ios"
                       shape="round"
                       fill="clear"
@@ -1063,7 +1063,7 @@ const Settings: React.FC = () => {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
-                  color={'primary'}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -1078,7 +1078,7 @@ const Settings: React.FC = () => {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color={'primary'} fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
+                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} fill="clear" onClick={handleCheckmark} disabled={!aboutEdit}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1105,7 +1105,7 @@ const Settings: React.FC = () => {
             <IonToolbar mode="ios" >
               <IonButtons style={{ marginLeft: "-2.5%" }}>
                 <IonButton
-                  color={'primary'}
+                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                   mode="ios"
                   onClick={() => {
                     Keyboard.hide().then(() => {
@@ -1120,7 +1120,7 @@ const Settings: React.FC = () => {
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
-                <IonButton mode="ios" color={'primary'} fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
+                <IonButton mode="ios" color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} fill="clear" disabled={!aboutEdit} onClick={handleUserCheckmark}>Save</IonButton>
               </IonButtons>
             </IonToolbar>
           </div>
@@ -1183,7 +1183,7 @@ const Settings: React.FC = () => {
                 Cancel
               </IonButton>
               <IonButton
-                color={'primary'}
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                 mode="ios"
                 onClick={handleEmailChange}
                 fill="clear"
@@ -1242,7 +1242,7 @@ const Settings: React.FC = () => {
                 Cancel
               </IonButton>
               <IonButton
-                color={'primary'}
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
                 mode="ios"
                 fill="clear"
                 onClick={handleUsernameChange}

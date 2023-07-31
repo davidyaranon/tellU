@@ -383,11 +383,15 @@ function Maps() {
                     filteredMarkers[schoolName][overlayIndex].imgSrc.length > 0 ? (
                     <>
                       <div style={{ height: "1vh" }} />
-                      <div
+                      <img
                         className="ion-img-container"
-                        style={{ backgroundImage: `url(${filteredMarkers[schoolName][overlayIndex].imgSrc[0]})`, borderRadius: '10px' }}
-                      >
-                      </div>
+                        style={{ borderRadius: '10px', width: '100%' }}
+                        src={filteredMarkers[schoolName][overlayIndex].imgSrc[0]}
+                        alt=""
+                        onError={() => {
+                          filteredMarkers[schoolName][overlayIndex].imgSrc = [];
+                        }}
+                      />
                     </>
                   ) : null}
                 </IonCardContent>
