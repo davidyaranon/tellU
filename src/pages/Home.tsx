@@ -500,7 +500,7 @@ const Home: React.FC = () => {
         {posts && posts.length > 0 && schoolName ?
           <Virtuoso
             ref={virtuosoRef}
-            overscan={1000}
+            overscan={950}
             endReached={handleLoadPostsNextBatch}
             className="ion-content-scroll-host"
             totalCount={posts.length}

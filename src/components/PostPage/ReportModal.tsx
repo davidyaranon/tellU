@@ -22,7 +22,7 @@ export const ReportModal = (props: any) => {
         <IonToolbar mode="ios">
           <IonButtons slot="start">
             <IonButton
-              color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+              color={"primary"}
               mode="ios"
               onClick={() => {
                 handleShowReportModal(false);
@@ -33,7 +33,7 @@ export const ReportModal = (props: any) => {
           </IonButtons>
           <IonButtons slot="end">
             <IonButton
-              color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+              color={"primary"}
               mode="ios"
               slot="end"
               onClick={() => {

@@ -8,7 +8,7 @@ export const ProgressBar = (props: any) => {
   return (
     <FadeIn>
       <IonFooter mode='ios' slot="bottom">
-        <IonProgressBar type="indeterminate" color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} style={{ height: "0.5vh" }}></IonProgressBar>
+        <IonProgressBar type="indeterminate" color={"primary"} style={{ height: "0.5vh" }}></IonProgressBar>
       </IonFooter>
     </FadeIn>
   )

@@ -368,7 +368,7 @@ export const LocationPinModal = (props: any) => {
           <IonTitle>Post</IonTitle>
           <IonButtons slot="start">
             <IonButton
-              color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+              color={"primary"}
               mode="ios"
               onClick={() => {
                 setLocationPinModal(false);

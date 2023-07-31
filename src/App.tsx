@@ -68,7 +68,6 @@ import { Achievements } from './pages/Achievements';
 
 // Global variables
 setupIonicReact({ mode: 'ios' }); // ios for iPhone, md for Android, affects ALL components
-const historyInstance = createBrowserHistory();
 SplashScreen.show({
   autoHide: true,
   fadeInDuration: 300,
@@ -345,7 +344,7 @@ const App: React.FC = () => {
    */
   return (
     <IonApp>
-      <IonReactRouter history={historyInstance}>
+      <IonReactRouter >
         <RoutingSystem />
       </IonReactRouter>
     </IonApp>

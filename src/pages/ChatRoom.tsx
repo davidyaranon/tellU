@@ -305,7 +305,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             </IonBackButton>
           </IonButtons>
           <IonButtons slot='end'>
-            <IonButton color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} slot="end" onClick={(e: any) => { e.stopPropagation(); reportUser() }}>
+            <IonButton color={"primary"} slot="end" onClick={(e: any) => { e.stopPropagation(); reportUser() }}>
               <IonIcon icon={alertCircleOutline} />
             </IonButton>
           </IonButtons>
@@ -318,7 +318,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             <IonToolbar mode="ios">
               <IonButtons slot="start">
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+                  color={"primary"}
                   mode="ios"
                   onClick={() => {
                     setShowReportModal(false);
@@ -329,7 +329,7 @@ const ChatRoom = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
               </IonButtons>
               <IonButtons slot="end">
                 <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+                  color={"primary"}
                   mode="ios"
                   slot="end"
                   onClick={() => {

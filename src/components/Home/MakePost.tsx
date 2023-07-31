@@ -17,6 +17,7 @@ export const MakePost = (props: any) => {
   const setShowProgressBar = props.handleSetShowProgressBar;
   const profilePhoto = props.profilePhoto;
   const user = props.user;
+  const presentingElement = props.presentingElement;
 
   const [photo, setPhoto] = React.useState<GalleryPhoto[] | null>([]);
   const [blob, setBlob] = React.useState<any | null>(null);
@@ -121,7 +122,7 @@ export const MakePost = (props: any) => {
         postClassName={postClassName} postClassNumber={postClassNumber} setPostClassName={handleSetPostClassName} setPostClassNumber={handleSetPostClassNumber}
         inputRef={inputRef} setShowProgressBar={setShowProgressBar} setPrevPostUploading={handleSetPreviousPostLoading} />
 
-      <PostModal user={user} profilePhoto={profilePhoto} isOpen={showModal} schoolName={schoolName}
+      <PostModal presentingElement={presentingElement} user={user} profilePhoto={profilePhoto} isOpen={showModal} schoolName={schoolName}
         postClassName={postClassName} setPostClassName={handleSetPostClassName} postClassNumber={postClassNumber} setPostClassNumber={handleSetPostClassNumber}
         photos={photo} setPhotos={handleSetPhotos} setBlob={handleSetBlob} inputRef={inputRef}
         setShowModal={handleSetShowModal} setGifModal={handleSetGifModal} setLocationPinModal={handleSetLocationPinModal} />
@@ -133,7 +134,7 @@ export const MakePost = (props: any) => {
         setShowModal={handleSetShowModal} setGifModal={handleSetGifModal} />
 
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
-        <IonFabButton color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}>
+        <IonFabButton color={"primary"}>
           <IonIcon icon={add} />
         </IonFabButton>
         <IonFabList side="top">

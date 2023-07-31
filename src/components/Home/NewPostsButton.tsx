@@ -10,7 +10,7 @@ export const NewPostsButton = (props : any) => {
 
   return (
     <IonFab style={{ top: "5vh" }} horizontal="center" slot="fixed">
-      <IonFabButton color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} className="load-new-posts" mode="ios"
+      <IonFabButton color={"primary"} className="load-new-posts" mode="ios"
         onClick={() => { handleNewPostsButtonClicked() }}>
         New Posts
         <IonIcon icon={refreshCircleOutline} />

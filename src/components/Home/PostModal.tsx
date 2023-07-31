@@ -13,12 +13,6 @@ import { useContext } from "../../my-context";
 import { ClassSelections } from "./ClassSelections";
 import FadeIn from "react-fade-in/lib/FadeIn";
 
-const ionInputStyle = {
-  height: "12.5vh",
-  width: "95vw",
-  marginLeft: "2.5vw",
-};
-
 export const PostModal = (props: any) => {
 
   const photos = props.photos;
@@ -61,48 +55,48 @@ export const PostModal = (props: any) => {
   };
 
   return (
-    <IonModal backdropDismiss={false} isOpen={isOpen} mode='ios' handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-        <div style={{ width: "100%" }}>
-          <IonToolbar mode="ios">
-            <IonButtons slot="start">
-              <IonButton
-                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
-                mode="ios"
-                onClick={() => {
-                  setPhotos([]);
-                  setBlob([]);
-                  setPostClassName("");
-                  setPostClassNumber("");
-                  setGifModal(false);
-                  // handleSetGifs(null);
-                  Keyboard.hide().then(() => {
-                    setTimeout(() => setShowModal(false), 100)
-                  }).catch((err) => {
-                    setTimeout(() => setShowModal(false), 100)
-                  });
-                }}
-              >
-                <IonIcon icon={closeOutline} />
-              </IonButton>
-            </IonButtons>
-            <IonButtons slot="end">
-              <IonButton
-                color="light"
-                onClick={() => {
-                  setLocationPinModal(true);
-                }}
-                className={"post-button"}
-                fill="clear"
-                expand="block"
-                id="message"
-                disabled={prevPostUploading}
-              >
-                Post
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </div>
-        <IonContent>
+    <IonModal backdropDismiss={false} isOpen={isOpen} mode='ios' handle={false}>
+      <div style={{ width: "100%" }}>
+        <IonToolbar mode="ios">
+          <IonButtons slot="start">
+            <IonButton
+              color={"primary"}
+              mode="ios"
+              onClick={() => {
+                setPhotos([]);
+                setBlob([]);
+                setPostClassName("");
+                setPostClassNumber("");
+                setGifModal(false);
+                // handleSetGifs(null);
+                Keyboard.hide().then(() => {
+                  setTimeout(() => setShowModal(false), 100)
+                }).catch((err) => {
+                  setTimeout(() => setShowModal(false), 100)
+                });
+              }}
+            >
+              Close
+            </IonButton>
+          </IonButtons>
+          <IonButtons slot="end">
+            <IonButton
+              color="light"
+              onClick={() => {
+                setLocationPinModal(true);
+              }}
+              className={"post-button"}
+              fill="clear"
+              expand="block"
+              id="message"
+              disabled={prevPostUploading}
+            >
+              Post
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </div>
+      <IonContent>
 
         <IonCard>
           <IonRow class="ion-padding-top">

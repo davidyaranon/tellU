@@ -80,7 +80,7 @@ export const HomePagePoll = (props: any) => {
   }
 
   return (
-    <FadeIn key={postIndex}>
+    <FadeIn delay={postIndex * 10} key={postIndex}>
       <IonCard mode="ios">
         <IonCardContent style={{ minHeight: "50vh" }}>
           <IonRow style={{ width: "100vw" }}>

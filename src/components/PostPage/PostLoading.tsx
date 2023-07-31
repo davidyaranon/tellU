@@ -25,8 +25,8 @@ export const PostLoading = () => {
 }
 
 export const CommentLoading = (props: any) => {
-  const schoolName = props.schoolName;
-  const context = useContext();
+
+  
   return (
     <FadeIn>
       <div
@@ -38,7 +38,7 @@ export const CommentLoading = (props: any) => {
         }
         }
       >
-        <IonSpinner color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} />
+        <IonSpinner color={"primary"} />
       </div >
     </FadeIn>
   );

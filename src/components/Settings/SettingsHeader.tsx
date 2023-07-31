@@ -174,7 +174,7 @@ export const SettingsHeader = (props: any) => {
         </IonButtons>
         <IonButtons slot="end">
           <IonButton
-            color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+            color={"primary"}
             onClick={() => {
               if (user) { dynamicNavigate(router, 'direct/' + schoolName + "/" + user.uid, "forward"); }
             }}
@@ -187,7 +187,7 @@ export const SettingsHeader = (props: any) => {
             </IonIcon>
           </IonButton>
           <IonButton
-            color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+            color={"primary"}
             onClick={() => {
               dynamicNavigate(router, "notifications", "forward");
             }}
@@ -195,7 +195,7 @@ export const SettingsHeader = (props: any) => {
             <IonIcon icon={notificationsOutline}></IonIcon>
           </IonButton>
           <IonButton
-            color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+            color={"primary"}
             onClick={() => {
               dynamicNavigate(router, "privacy-policy", "forward");
             }}
@@ -215,7 +215,7 @@ export const SettingsHeader = (props: any) => {
       <FadeIn delay={500}>
         <p style={{ fontSize: "1.4em", textAlign: "center" }}>
           Hello
-          <IonText color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"} onClick={() => { dynamicNavigate(router, 'about/' + schoolName + "/" + user.uid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
+          <IonText color={"primary"} onClick={() => { dynamicNavigate(router, 'about/' + schoolName + "/" + user.uid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
         </p>
       </FadeIn>
     </>

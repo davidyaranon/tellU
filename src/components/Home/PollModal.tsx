@@ -122,7 +122,7 @@ export const PollModal = (props: any) => {
                     setPollText("");
                   }}
                 >
-                  <IonIcon icon={closeOutline}></IonIcon>
+                  Close
                 </IonButton>
               </IonButtons>
               <IonButtons slot="end">
@@ -137,6 +137,7 @@ export const PollModal = (props: any) => {
             autoCorrect="on"
             aria-label=""
             type="text"
+            color='medium'
             style={{ width: "90vw", left: "5vw", fontWeight: "bold" }}
             maxlength={100}
             value={pollText}
