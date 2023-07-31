@@ -159,7 +159,7 @@ export const LocationPinModal = (props: any) => {
             setPostClassNumber("");
             setPrevPostUploading(false);
             setShowProgressBar(false);
-            const classActAchievement = await Preferences.get({ key: "PictureThis" });
+            const classActAchievement = await Preferences.get({ key: "ClassAct" });
             if (!classActAchievement || (classActAchievement.value !== 'true')) {
               if (postClassName && postClassName.length > 0) {
                 await updateAchievements('Class Act');
@@ -214,7 +214,7 @@ export const LocationPinModal = (props: any) => {
           setPostClassNumber("");
           setShowProgressBar(false);
           setPrevPostUploading(false);
-          const classActAchievement = await Preferences.get({ key: "PictureThis" });
+          const classActAchievement = await Preferences.get({ key: "ClassAct" });
           if (!classActAchievement || (classActAchievement.value !== 'true')) {
             if (postClassName && postClassName.length > 0) {
               await updateAchievements('Class Act');

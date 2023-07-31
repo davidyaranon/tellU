@@ -214,7 +214,8 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
           const toast = Toast.create({ message: 'Comment added', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
           toast.present();
           toast.dismiss();
-          if (containsAt) {
+          if (containsAt || attedUsersList.length > 0) {
+            console.log('containsat');
             const socialButterflyAchievement = await Preferences.get({ key: "SocialButterfly" });
             if ((!socialButterflyAchievement) || socialButterflyAchievement.value !== "true") {
               await updateAchievements("Social Butterfly");
