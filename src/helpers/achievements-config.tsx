@@ -69,7 +69,7 @@ export const AchievementDescriptions: Record<string, string> = {
   "Hidden": "Keep using tellU to unlock more achievements!", // implemented
   "Tech Whisperer": "Talk to the tellU AI chatbot", // implemented
   "Party Starter": "Use the event tag to promote something in a post", // implemented
-  "Celebrity": "Get 25 comments on a post", 
+  "Celebrity": "Get 25 comments on a post", // implemented
   "Backpacker": "Make a post at a map pin location on campus",
   "Social Butterfly": "Tag someone in the comment section of a post", // implemented
   "Night Owl": "Post something between 12am and 4am PST", // implemented

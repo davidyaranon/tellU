@@ -194,6 +194,16 @@ export const LocationPinModal = (props: any) => {
                 await presentAchievement("Night Owl");
               }
             }
+
+            if (position) {
+              const backpackerAchievement = await Preferences.get({ key: "Backpacker" });
+              if ((!backpackerAchievement) || backpackerAchievement.value !== "true") {
+                await updateAchievements("Backpacker");
+                await presentAchievement("Backpacker");
+              }
+            }
+
+            setPosition(null); setPOI('');
           }
         }
       } else {
@@ -260,6 +270,16 @@ export const LocationPinModal = (props: any) => {
               await presentAchievement("Night Owl");
             }
           }
+
+          if (position) {
+            const backpackerAchievement = await Preferences.get({ key: "Backpacker" });
+            if ((!backpackerAchievement) || backpackerAchievement.value !== "true") {
+              await updateAchievements("Backpacker");
+              await presentAchievement("Backpacker");
+            }
+          }
+
+          setPosition(null); setPOI('');
         }
       }
     }
