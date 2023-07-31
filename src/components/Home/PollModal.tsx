@@ -106,7 +106,7 @@ export const PollModal = (props: any) => {
 
   return (
     <IonModal backdropDismiss={false} isOpen={isOpen} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-      <IonContent>
+      <>
         <div>
           <div style={{ width: "100%" }}>
             <IonToolbar mode="ios">
@@ -166,7 +166,7 @@ export const PollModal = (props: any) => {
             {/* <IonCardSubtitle>*Polls are up for 4 days</IonCardSubtitle> */}
           </div>
         </div>
-      </IonContent>
+      </>
     </IonModal>
   )
 }

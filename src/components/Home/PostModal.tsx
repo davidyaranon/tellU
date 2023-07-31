@@ -62,7 +62,6 @@ export const PostModal = (props: any) => {
 
   return (
     <IonModal backdropDismiss={false} isOpen={isOpen} mode='ios' handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-      <IonContent scrollEvents={true}>
         <div style={{ width: "100%" }}>
           <IonToolbar mode="ios">
             <IonButtons slot="start">
@@ -103,7 +102,9 @@ export const PostModal = (props: any) => {
             </IonButtons>
           </IonToolbar>
         </div>
-        <IonCard >
+        <IonContent>
+
+        <IonCard>
           <IonRow class="ion-padding-top">
             {profilePhoto ? (
               <>

@@ -94,37 +94,37 @@ export const GifModal = (props: any) => {
 
   return (
     <IonModal backdropDismiss={false} isOpen={isOpen} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
-      <IonContent>
-        <div style={{ width: "100%" }}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>GIF Search</IonTitle>
-              <IonButtons style={{ marginLeft: "-2.5%" }}>
-                <IonButton
-                  color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
-                  onClick={() => {
-                    Keyboard.hide().then(() => {
-                      setTimeout(() => setGifModal(false), 100);
-                    }).catch((err) => {
-                      setTimeout(() => setGifModal(false), 100);
-                    });
-                    setGifs(null);
-                  }}
-                >
-                  <IonIcon icon={closeOutline} />
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
-            <br />
-            <IonToolbar>
-              <IonSearchbar color={context.darkMode ? "" : "light"} enterkeyhint="search" onKeyDown={e => isEnterPressedGif(e.key)} animated ref={gifSearchRef}></IonSearchbar>
-            </IonToolbar>
-          </IonHeader>
-        </div>
+      <div style={{ width: "100%" }}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>GIF Search</IonTitle>
+            <IonButtons style={{ marginLeft: "-2.5%" }}>
+              <IonButton
+                color={schoolName === "Cal Poly Humboldt" && context.schoolColorToggled ? "tertiary" : "primary"}
+                onClick={() => {
+                  Keyboard.hide().then(() => {
+                    setTimeout(() => setGifModal(false), 100);
+                  }).catch((err) => {
+                    setTimeout(() => setGifModal(false), 100);
+                  });
+                  setGifs(null);
+                }}
+              >
+                <IonIcon icon={closeOutline} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+          <br />
+          <IonToolbar>
+            <IonSearchbar color={context.darkMode ? "" : "light"} enterkeyhint="search" onKeyDown={e => isEnterPressedGif(e.key)} animated ref={gifSearchRef}></IonSearchbar>
+          </IonToolbar>
+        </IonHeader>
+      </div>
 
+      <IonContent>
         {gifs &&
           <IonGrid>
-            {mapInSlices(gifs, 3, (slice: any[], index : number) => {
+            {mapInSlices(gifs, 3, (slice: any[], index: number) => {
               return (
                 <FadeIn key={index}>
                   <IonRow>
