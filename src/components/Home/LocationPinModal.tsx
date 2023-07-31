@@ -18,6 +18,7 @@ import { useContext } from "../../my-context";
 import { davisPOIs, humboldtPOIs } from "../../helpers/maps-config";
 import { Preferences } from "@capacitor/preferences";
 import { useHistory } from "react-router";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 
 /* options for getting user's location using {@awesome-cordova-plugins/geolocation} */
 const locationOptions: GeolocationOptions = {
@@ -182,6 +183,17 @@ export const LocationPinModal = (props: any) => {
                 await presentAchievement('Party Starter');
               }
             }
+
+            const nightOwlAchievement = await Preferences.get({ key: "NightOwl" });
+            if ((!nightOwlAchievement) || nightOwlAchievement.value !== "true") {
+              const serverDate: Date = Timestamp.now().toDate();
+              const createdAtHourPST: number = (serverDate.getUTCHours() + 8) % 24;
+              const isBetween12And4 = createdAtHourPST >= 0 && createdAtHourPST < 4;
+              if (isBetween12And4) {
+                await updateAchievements("Night Owl");
+                await presentAchievement("Night Owl");
+              }
+            }
           }
         }
       } else {
@@ -235,6 +247,17 @@ export const LocationPinModal = (props: any) => {
             if (checkboxSelection === 'event') {
               await updateAchievements('Party Starter');
               await presentAchievement('Party Starter');
+            }
+          }
+
+          const nightOwlAchievement = await Preferences.get({ key: "NightOwl" });
+          if ((!nightOwlAchievement) || nightOwlAchievement.value !== "true") {
+            const serverDate: Date = Timestamp.now().toDate();
+            const createdAtHourPST: number = (serverDate.getUTCHours() + 8) % 24;
+            const isBetween12And4 = createdAtHourPST >= 0 && createdAtHourPST < 4;
+            if (isBetween12And4) {
+              await updateAchievements("Night Owl");
+              await presentAchievement("Night Owl");
             }
           }
         }

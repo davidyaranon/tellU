@@ -547,7 +547,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                 {comments && comments.length > 0 && <IonNote style={{ display: "flex", justifyContent: "center" }}>Comments</IonNote>}
                 {comments && comments.length > 0
                   ? comments?.map((comment: any, index: number) => (
-                    <PostComment key={index} handleSetComments={handleSetComments} handleSetCommentsLoading={handleSetCommentsLoading} handleSetComment={handleSetComment}
+                    <PostComment key={index} handlePresentAchievement={presentAchievement} handleSetComments={handleSetComments} handleSetCommentsLoading={handleSetCommentsLoading} handleSetComment={handleSetComment}
                       post={post} user={user} postKey={postKey} comment={comment} comments={comments} schoolName={schoolName} index={index} deleted={deleted} />
                   ))
                   : null}

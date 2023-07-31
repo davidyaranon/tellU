@@ -71,13 +71,13 @@ export const AchievementDescriptions: Record<string, string> = {
   "Party Starter": "Use the event tag to promote something in a post", // implemented
   "Celebrity": "Get 50 likes on a post",
   "Backpacker": "Make a post at 2 different map pin locations on campus",
-  "Social Butterfly": "Tag someone in the comment section of a post",
+  "Social Butterfly": "Tag someone in the comment section of a post", // implemented
   "Night Owl": "Post something between 12am and 4am PST",
   "Pen Pal": "Send a DM to someone", // implemented
   "Picky Scholar": "Dislike a post", // implemented
   "Foodie": "Use the dining tag when making a post", // implemented
   "Music Maestro": "Showcase a Spotify song on your user profile", // implemented
-  "Second Thoughts": "Delete a comment or a post",
+  "Second Thoughts": "Delete a comment", // implemented
   "Picture This": "Make a post containing 3 images", // implemented
   "Class Act": "Make a post about a specific class", // implemented
   "": "",

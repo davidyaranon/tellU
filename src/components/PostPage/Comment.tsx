@@ -5,7 +5,7 @@ import { IonList, IonItem, IonLabel, IonAvatar, IonText, IonFab, IonNote, IonBut
 import Linkify from "linkify-react";
 import { useState } from "react";
 import { useHistory } from "react-router";
-import { downVoteComment, promiseTimeout, removeCommentNew, upVoteComment } from "../../fbConfig";
+import { downVoteComment, promiseTimeout, removeCommentNew, updateAchievements, upVoteComment } from "../../fbConfig";
 import { PhotoViewer as CapacitorPhotoViewer, Image as CapacitorImage } from '@capacitor-community/photoviewer';
 import { timeout } from "../../helpers/timeout";
 import ProfilePhoto from "../Shared/ProfilePhoto";
@@ -15,6 +15,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useContext } from "../../my-context";
 import FadeIn from "react-fade-in/lib/FadeIn";
+import { Preferences } from "@capacitor/preferences";
 
 export const PostComment = (props: any) => {
 
@@ -29,6 +30,7 @@ export const PostComment = (props: any) => {
   const setComment = props.handleSetComment;
   const setComments = props.handleSetComments;
   const setCommentsLoading = props.handleSetCommentsLoading;
+  const presentAchievement = props.handlePresentAchievement;
 
   const [disabledLikeButtonsComments, setDisabledLikeButtonsComments] = useState<number>(-1);
   const [likeAnimationComments, setLikeAnimationComments] = useState<number>(-1);
@@ -58,8 +60,13 @@ export const PostComment = (props: any) => {
     if (comments && schoolName) {
       const commentBeingDeleted = comments[index];
       const didDelete = promiseTimeout(5000, removeCommentNew(commentBeingDeleted, schoolName, postKey, commentUrl));
-      didDelete.then((res) => {
+      didDelete.then(async (res) => {
         if (res) {
+          const secondThoughtsAchievements = await Preferences.get({ key: "SecondThoughts" });
+          if((!secondThoughtsAchievements) || secondThoughtsAchievements.value !== "true") {
+            await updateAchievements("Second Thoughts");
+            await presentAchievement("Second Thoughts");
+          }
           const toast = Toast.create({ message: 'Comment deleted', duration: 2000, color: 'toast-success' });
           toast.present();
           toast.dismiss();
