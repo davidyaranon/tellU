@@ -106,20 +106,21 @@ export const UserAboutCard = (props: any) => {
                   </IonCol>
                   {userMajor && userMajor.length > 0 ? (
                     <IonCol class="ion-padding-top" size="8">
-                      <p style={{ fontSize: "1.5em" }}>{username}</p>
+                      <p style={{ fontSize: "1.25em" }}>{username}</p>
                       <IonNote style={{ fontSize: "1em" }}>
                         {userMajor}
                       </IonNote>
                     </IonCol>
                   ) : <IonCol class="ion-padding-top" size="8">
-                    <p className="ion-padding-top" style={{ fontSize: "1.5em" }}> {username}</p>
+                    <p className="ion-padding-top" style={{ fontSize: "1.25em" }}> {username}</p>
                   </IonCol>}
                 </IonRow>
+
                 <IonRow>
 
                   {userSnapchat && userSnapchat.length > 0 ? (
                     <>
-                      <IonCol>
+                      <IonCol className='ion-text-center'>
                         <IonChip outline color="snapchat-yellow">
                           <IonText style={{ fontSize: "0.65em" }}>
                             <IonIcon style={{}} icon={logoSnapchat} />
@@ -133,7 +134,7 @@ export const UserAboutCard = (props: any) => {
 
                   {userInstagram && userInstagram.length > 0 ? (
                     <>
-                      <IonCol>
+                      <IonCol className='ion-text-center'>
                         <IonChip outline color="instagram-hex">
                           <IonText onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@', '')); }} style={{ fontSize: "0.65em" }}>
                             <IonIcon style={{}} icon={logoInstagram} />
@@ -147,7 +148,7 @@ export const UserAboutCard = (props: any) => {
 
                   {userTiktok && userTiktok.length > 0 ? (
                     <>
-                      <IonCol>
+                      <IonCol className='ion-text-center'>
                         <IonChip outline color="tik-tok-hex">
                           <IonText onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@', '') + '?lang=en'); }} style={{ fontSize: "0.65em" }}>
                             <IonIcon style={{}} icon={logoTiktok} />
@@ -165,13 +166,13 @@ export const UserAboutCard = (props: any) => {
                     {achievements.length > 0 &&
                       <SwiperSlide>
                         <IonRow>
-                          <IonCol>
-                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                          <IonCol className='ion-text-center'>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }} className="ion-text-center">
                               {achievements.map((achievement: string, index: number) => {
                                 if (index <= 3) {
                                   return (
-                                    <IonCol key={achievement + index}>
-                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                    <IonCol className='ion-text-center' key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "50%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
                                       <IonPopover style={context.darkMode ? { '--backdrop-opacity': '0.33', '--background' : 'black' } : { '--backdrop-opacity': '0.33', '--background' : 'white' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
                                         <IonContent style={context.darkMode ? { '--background': '#000000' } : { '--background': '#FFFFFF' }} scrollY={false} class="ion-padding">
                                           <IonCardTitle style={{ fontSize: "1em" }}><u>{achievement}</u></IonCardTitle><div style={{ height: "5px" }} />{getDescription(achievement)}
@@ -190,13 +191,13 @@ export const UserAboutCard = (props: any) => {
                     {achievements.length > 4 &&
                       <SwiperSlide>
                         <IonRow>
-                          <IonCol>
-                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                          <IonCol className='ion-text-center'>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }} className="ion-text-center">
                               {achievements.map((achievement: string, index: number) => {
                                 if (index >= 4 && index <= 7) {
                                   return (
-                                    <IonCol key={achievement + index}>
-                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                    <IonCol className='ion-text-center' key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "50%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
                                       <IonPopover style={context.darkMode ? { '--backdrop-opacity': '0.33', '--background' : 'black' } : { '--backdrop-opacity': '0.33', '--background' : 'white' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
                                         <IonContent style={context.darkMode ? { '--background': '#000000' } : { '--background': '#FFFFFF' }} scrollY={false} class="ion-padding">
                                           <IonCardTitle style={{ fontSize: "1em" }}><u>{achievement}</u></IonCardTitle><div style={{ height: "5px" }} />{getDescription(achievement)}
@@ -214,13 +215,13 @@ export const UserAboutCard = (props: any) => {
                     {achievements.length > 8 &&
                       <SwiperSlide>
                         <IonRow>
-                          <IonCol>
-                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                          <IonCol className='ion-text-center'>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }} className="ion-text-center">
                               {achievements.map((achievement: string, index: number) => {
                                 if (index >= 8 && index <= 11) {
                                   return (
-                                    <IonCol key={achievement + index}>
-                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                    <IonCol className='ion-text-center' key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "50%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
                                       <IonPopover style={context.darkMode ? { '--backdrop-opacity': '0.33', '--background' : 'black' } : { '--backdrop-opacity': '0.33', '--background' : 'white' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
                                         <IonContent style={context.darkMode ? { '--background': '#000000' } : { '--background': '#FFFFFF' }} scrollY={false} class="ion-padding">
                                           <IonCardTitle style={{ fontSize: "1em" }}><u>{achievement}</u></IonCardTitle><div style={{ height: "5px" }} />{getDescription(achievement)}
@@ -238,13 +239,13 @@ export const UserAboutCard = (props: any) => {
                     {achievements.length > 12 &&
                       <SwiperSlide>
                         <IonRow>
-                          <IonCol>
-                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }}>
+                          <IonCol className='ion-text-center'>
+                            <IonItem aria-label="Recent Achievements" style={{ '--padding-start': "0px" }} className="ion-text-center">
                               {achievements.map((achievement: string, index: number) => {
                                 if (index >= 12 && index <= 15) {
                                   return (
-                                    <IonCol key={achievement + index}>
-                                      <img aria-hidden="true" style={{ width: "85%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
+                                    <IonCol className='ion-text-center' key={achievement + index}>
+                                      <img aria-hidden="true" style={{ width: "50%" }} src={getIcon(achievement)} id={"click-trigger-" + index.toString()} />
                                       <IonPopover style={context.darkMode ? { '--backdrop-opacity': '0.33', '--background' : 'black' } : { '--backdrop-opacity': '0.33', '--background' : 'white' }} trigger={"click-trigger-" + index.toString()} triggerAction="click">
                                         <IonContent style={context.darkMode ? { '--background': '#000000' } : { '--background': '#FFFFFF' }} scrollY={false} class="ion-padding">
                                           <IonCardTitle style={{ fontSize: "1em" }}><u>{achievement}</u></IonCardTitle><div style={{ height: "5px" }} />{getDescription(achievement)}

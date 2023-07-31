@@ -550,7 +550,8 @@ export async function checkUsernameUniqueness(userName) {
 /**
  * Sends password reset email in case user forgets password
  * 
- * @param {string} email email to send paassword reset instructions to
+ * @param {string} email email to send password reset instructions to
+ * @returns {Promise<true | undefined>}
  */
 export const sendPasswordReset = async (email) => {
   try {

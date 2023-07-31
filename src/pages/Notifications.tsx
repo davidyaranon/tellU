@@ -67,6 +67,13 @@ export const Notifications = () => {
       <IonPage>
         <Toolbar title="Notifications" />
         <IonContent fullscreen scrollY={false}>
+
+          {notifs && notifs.length == 0 &&
+            <div className="ion-spinner">
+              <p>No notifications</p>
+            </div>
+          }
+          
           <Virtuoso
             data={notifs.slice(0).reverse()}
             style={{ height: "100%" }}
@@ -129,6 +136,7 @@ export const Notifications = () => {
                 )
               }
             }} />
+
         </IonContent >
       </IonPage >
     )
@@ -137,10 +145,8 @@ export const Notifications = () => {
       <IonPage className="ion-page-ios-notch">
         <Toolbar title="Notifications" />
         <IonContent fullscreen scrollY={false}>
-
-          <br /> <br /> <br />
-          <div style={{ textAlign: "center" }}>
-            <IonSpinner color={context.schoolColorToggled ? "tertiary" : "primary"} />
+          <div className="ion-spinner">
+            <IonSpinner color={"primary"} />
           </div>
         </IonContent>
       </IonPage>

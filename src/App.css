@@ -873,10 +873,19 @@ ion-radio.ios {
 }
 
 .user-avatar {
-  height: 80px;
-  width: 80px;
+  height: 75px;
+  width: 75px;
   display: inline-block;
   margin: 2.5px;
+  border: 1px solid rgb(119, 119, 119);
+  overflow: hidden;
+  text-align: center;
+}
+
+.user-avatar-settings {
+  height: 85px;
+  width: 85px;
+  display: inline-block;
   border: 1px solid rgb(119, 119, 119);
   overflow: hidden;
   text-align: center;

@@ -25,7 +25,6 @@ import ProfilePhoto from "../components/Shared/ProfilePhoto";
 import { getColor } from "../helpers/getColor";
 import { getDate } from "../helpers/timeago";
 import { classSelections, selectEmoji } from "../helpers/class-selections-config";
-import { navigateBack } from "../components/Shared/Navigation";
 import { useContext } from "../my-context";
 
 const selectOptions = {
@@ -119,7 +118,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       <>
         <IonHeader className='ion-no-border'>
           <IonToolbar mode='ios' className='ion-no-border'>
-            {postClassName && classNumberFilter && <IonTitle color={context.darkMode ? "" : "black"}>{postClassName} {classNumberFilter} Posts {emoji}</IonTitle>}
+            {postClassName && <IonTitle color={context.darkMode ? "" : "black"}>{postClassName} {classNumberFilter} Posts {emoji}</IonTitle>}
             <IonButtons>
               <IonBackButton defaultHref="/home" className="back-button" icon={chevronBackOutline} text={"Back"} color={"primary"} >
               </IonBackButton>
@@ -186,6 +185,7 @@ const Class = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
                                 style={{
                                   fontWeight: "bold",
                                   color: getColor(post.postType),
+                                  fontSize: ".65em", margin: 0
                                 }}
                               >
                                 {post.postType.toUpperCase()}
