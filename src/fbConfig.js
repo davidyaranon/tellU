@@ -62,6 +62,7 @@ export const getHumboldtUpdates = httpsCallable(functions, 'getHumboldtUpdates')
 export const getUcDavisUpdates = httpsCallable(functions, 'getUcDavisUpdates');
 export const getUcBerkeleyUpdates = httpsCallable(functions, 'getUcBerkeleyUpdates');
 export const askAI = httpsCallable(functions, 'askAI');
+export const updateAchievementsServer = httpsCallable(functions, 'updateAchievementsServer');
 
 /**
  * Registers user with Firestore auth based on email and password

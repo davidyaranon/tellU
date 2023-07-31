@@ -19,7 +19,7 @@ import "../App.css";
 /* Firebase */
 import auth, {
   addCommentNew, getLikes, promiseTimeout, getOnePost,
-  loadCommentsNew, loadCommentsNewNextBatch, uploadImage, updateAchievements
+  loadCommentsNew, loadCommentsNewNextBatch, uploadImage, updateAchievements, updateAchievementsServer
 } from '../fbConfig';
 import { getDatabase, ref, onValue, goOffline, goOnline } from "firebase/database";
 
@@ -69,6 +69,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
   const connectedRef = ref(db, ".info/connected");
   const [post, setPost] = useState<any | null>(null);
   const [firstCommenter, setFirstCommenter] = useState<boolean>(false);
+  const [twentyFiveComments, setTwentyFiveComments] = useState<boolean>(false);
   const [commentUsers, setCommentUsers] = useState<SuggestionDataItem[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
@@ -227,6 +228,12 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             await presentAchievement('Early Bird');
             setFirstCommenter(false);
           }
+          if (twentyFiveComments) {
+            updateAchievementsServer({
+              postUid: postKey,
+              schoolName: schoolName
+            });
+          }
           if (comments) {
             commentSent.likes = { "null": true };
             commentSent.dislikes = { "null": true };
@@ -240,6 +247,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         setCommentsLoading(false);
         setPreviousCommentLoading(false);
         setFirstCommenter(false);
+        setTwentyFiveComments(false);
         contentRef && contentRef.current && contentRef.current.scrollToBottom(750);
       });
       hasTimedOut.catch((err) => {
@@ -247,6 +255,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
         setCommentsLoading(false);
         setFirstCommenter(false);
         setPreviousCommentLoading(false);
+        setTwentyFiveComments(false);
       });
     }
   };
@@ -327,7 +336,7 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
       })
     } else {
       Toast.error("");
-      console.error("postKey / lastKey / schoolName unavaiable or undefined");
+      console.error("postKey / lastKey / schoolName unavailable or undefined");
     }
   }
 
@@ -363,6 +372,9 @@ const Post = ({ match }: RouteComponentProps<MatchUserPostParams>) => {
             }
           }
           setComments(res.comments);
+          if (res.comments.length === 24) {
+            setTwentyFiveComments(true);
+          }
           setLastKey(res.lastKey);
         }
         if ("comments" in res && res.comments && res.comments.length === 0) {
