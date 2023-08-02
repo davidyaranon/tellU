@@ -121,8 +121,8 @@ export const UserAboutCard = (props: any) => {
                   {userSnapchat && userSnapchat.length > 0 ? (
                     <>
                       <IonCol size='4'>
-                        <IonChip className='ion-no-margin' outline color="snapchat-yellow" style={{ fontSize: "0.45em" }} onClick={() => { window.open('https://www.snapchat.com/add/' + userSnapchat + '?locale=en-US') }}>
-                          <IonIcon style={{ fontSize: "1em" }} icon={logoSnapchat} />
+                        <IonChip outline color="snapchat-yellow" style={{ fontSize: "0.5em", marginLeft: '0px' }} onClick={() => { window.open('https://www.snapchat.com/add/' + userSnapchat + '?locale=en-US') }}>
+                          <IonIcon style={{ fontSize: "1.25em" }} icon={logoSnapchat} />
                           <IonLabel> {userSnapchat.substring(0, 10)} </IonLabel>
                         </IonChip>
                       </IonCol>
@@ -132,8 +132,8 @@ export const UserAboutCard = (props: any) => {
                   {userInstagram && userInstagram.length > 0 ? (
                     <>
                       <IonCol size='4'>
-                        <IonChip className='ion-no-margin' outline color="instagram-hex" style={{ fontSize: "0.45em" }} onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@', '')); }}>
-                          <IonIcon style={{ fontSize: "1em" }} icon={logoInstagram} />
+                        <IonChip  outline color="instagram-hex" style={{ fontSize: "0.5em", marginLeft: '0px' }} onClick={() => { window.open("https://instagram.com/" + userInstagram.replace('@', '')); }}>
+                          <IonIcon style={{ fontSize: "1.25em" }} icon={logoInstagram} />
                           <IonLabel> {userInstagram.substring(0, 11)} </IonLabel>
                         </IonChip>
                       </IonCol>
@@ -143,8 +143,8 @@ export const UserAboutCard = (props: any) => {
                   {userTiktok && userTiktok.length > 0 ? (
                     <>
                       <IonCol size='4'>
-                        <IonChip className='ion-no-margin' outline color="tik-tok-hex" style={{ fontSize: "0.45em" }} onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@', '') + '?lang=en'); }}>
-                          <IonIcon style={{ fontSize: "1em" }} icon={logoTiktok} />
+                        <IonChip outline color="tik-tok-hex" style={{ fontSize: "0.5em", marginLeft: '0px' }} onClick={() => { window.open('https://www.tiktok.com/@' + userTiktok.replace('@', '') + '?lang=en'); }}>
+                          <IonIcon style={{ fontSize: "1.25em" }} icon={logoTiktok} />
                           <IonLabel> {userTiktok.substring(0, 12)} </IonLabel>
                         </IonChip>
                       </IonCol>
