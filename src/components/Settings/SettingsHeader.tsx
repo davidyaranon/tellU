@@ -6,21 +6,23 @@ import { updateProfile } from "firebase/auth";
 import { getDownloadURL, ref } from "firebase/storage";
 import { cameraReverseOutline, chatbubblesOutline, informationCircleOutline, notificationsOutline, trophyOutline } from "ionicons/icons";
 import { useCallback, useEffect, useState } from "react";
-import { getUserPhotoUrl, logout, storage, uploadImage } from "../../fbConfig";
+import auth, { getUserPhotoUrl, logout, storage, uploadImage } from "../../fbConfig";
 import { useContext } from "../../my-context";
 import { dynamicNavigate } from "../Shared/Navigation";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { Dialog } from "@capacitor/dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export const SettingsHeader = (props: any) => {
   const schoolName = props.schoolName;
-  const user = props.user;
   const editableUsername = props.editableUsername;
 
   const router = useIonRouter();
   const context = useContext();
   const Toast = useToast();
   const [present, dismiss] = useIonLoading();
+  const [user, loading, error] = useAuthState(auth);
+
   // const [presentToast] = useIonToast();
 
   // const testToast = () => {
@@ -189,7 +191,7 @@ export const SettingsHeader = (props: any) => {
           <IonButton
             color={"primary"}
             onClick={() => {
-              dynamicNavigate(router, "notifications", "forward");
+              dynamicNavigate(router, "/notifications", "forward");
             }}
           >
             <IonIcon icon={notificationsOutline}></IonIcon>
@@ -197,7 +199,7 @@ export const SettingsHeader = (props: any) => {
           <IonButton
             color={"primary"}
             onClick={() => {
-              dynamicNavigate(router, "privacy-policy", "forward");
+              dynamicNavigate(router, "/privacy-policy", "forward");
             }}
           >
             <IonIcon icon={informationCircleOutline}></IonIcon>
@@ -215,7 +217,7 @@ export const SettingsHeader = (props: any) => {
       <FadeIn delay={500}>
         <p style={{ fontSize: "1.4em", textAlign: "center" }}>
           Hello
-          <IonText color={"primary"} onClick={() => { dynamicNavigate(router, 'about/' + schoolName + "/" + user.uid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
+          <IonText color={"primary"} onClick={() => { dynamicNavigate(router, '/about/' + schoolName + "/" + user?.uid, 'forward'); }} >&nbsp;{editableUsername}</IonText>
         </p>
       </FadeIn>
     </>

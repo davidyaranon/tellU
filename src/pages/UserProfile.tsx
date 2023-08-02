@@ -32,6 +32,7 @@ interface MatchParams {
 export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
   const uid = match.params.uid;
   const schoolName = match.params.school;
+  console.log(match);
 
   const Toast = useToast();
   const db = getDatabase();
@@ -250,6 +251,8 @@ export const UserProfile = ({ match }: RouteComponentProps<MatchParams>) => {
       history.replace("/landing-page");
     } else {
       if (uid && schoolName) {
+        console.log(schoolName);
+        console.log(uid);
         getUserData(uid)
           .then((res: any) => {
             console.log(res);

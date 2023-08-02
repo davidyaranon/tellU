@@ -127,7 +127,7 @@ export const SignIn = () => {
               setSchool(school);
             }
             setBusy(false);
-            dynamicNavigate(router, 'home', 'root');
+            dynamicNavigate(router, '/home', 'root');
           });
         }
       }).catch((err) => {

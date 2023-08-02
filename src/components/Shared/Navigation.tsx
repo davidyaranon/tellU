@@ -12,6 +12,6 @@ export const navigateBack = (router : UseIonRouterResult) => {
   if (router.canGoBack()) {
     router.goBack();
   } else {
-    dynamicNavigate(router, 'home', 'back');
+    dynamicNavigate(router, '/home', 'back');
   }
 }

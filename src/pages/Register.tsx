@@ -170,7 +170,7 @@ const Register: React.FC = () => {
         if (res.value) {
           console.log(res.value);
           setBusy(false);
-          dynamicNavigate(router, 'home', 'root');
+          dynamicNavigate(router, '/home', 'root');
         } else {
           let school = "";
           const userRef = doc(db, "userData", user.uid);
@@ -181,7 +181,7 @@ const Register: React.FC = () => {
               setSchool(school);
             }
             setBusy(false);
-            dynamicNavigate(router, 'home', 'root');
+            dynamicNavigate(router, '/home', 'root');
           });
         }
       }).catch((err) => {

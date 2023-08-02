@@ -579,7 +579,7 @@ const Settings: React.FC = () => {
   return (
     <IonPage className="ion-page-ios-notch">
       <IonContent ref={contentRef} scrollY={false}>
-        <SettingsHeader schoolName={schoolName} user={user} editableUsername={editableUserName} />
+        <SettingsHeader schoolName={schoolName} editableUsername={editableUserName} />
 
         <Swiper
           id="settings-swiper"
@@ -947,7 +947,7 @@ const Settings: React.FC = () => {
                 mode="ios"
                 id="bio"
                 color={"primary"}
-                maxlength={50}
+                maxlength={25}
                 value={editableUserSnapchat}
                 onIonChange={(e: any) => {
                   setEditableUserSnapchat(e.detail.value);
@@ -958,12 +958,12 @@ const Settings: React.FC = () => {
           <IonCard mode="ios">
             <IonCardContent>
               <IonLabel color={context.darkMode ? 'light' : 'black'}>Instagram <IonIcon icon={logoInstagram} /> </IonLabel>
-              <IonTextarea
+              <IonInput
                 style={{ fontWeight: "bold" }}
                 mode="ios"
                 id="bio"
                 color={"primary"}
-                maxlength={50}
+                maxlength={25}
                 value={editableUserInstagram}
                 onIonChange={(e: any) => {
                   setEditableUserInstagram(e.detail.value);
@@ -974,12 +974,12 @@ const Settings: React.FC = () => {
           <IonCard mode="ios">
             <IonCardContent>
               <IonLabel color={context.darkMode ? 'light' : 'black'}>TikTok <IonIcon icon={logoTiktok} /> </IonLabel>
-              <IonTextarea
+              <IonInput
                 style={{ fontWeight: "bold" }}
                 mode="ios"
                 id="bio"
                 color={"primary"}
-                maxlength={50}
+                maxlength={25}
                 value={editableUserTiktok}
                 onIonChange={(e: any) => {
                   setEditableUserTiktok(e.detail.value);
