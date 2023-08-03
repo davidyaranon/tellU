@@ -172,7 +172,7 @@ export const MapMarkerInfo = ({ match }: RouteComponentProps<MatchUserPostParams
             return (
               <SwiperSlide key={image + index.toString()} onClick={handleUploadImage}>
                 <IonCard style={{ backgroundColor: context.darkMode ? "#0D1117" : "" }}>
-                  <img src={image} style={{ borderRadius: "10px", width: '100%' }} />
+                  <img src={image} alt={markerTitle} style={{ borderRadius: "10px", width: '100%' }} />
                 </IonCard>
               </SwiperSlide>
             );
