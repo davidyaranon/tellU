@@ -24,6 +24,7 @@ const AppUrlListener: React.FC<any> = () => {
         const domain: string = 'quantum-61b84.firebaseapp.com'
         const slug: string[] = event.url.split(domain);
         const path: string | undefined = slug.pop();
+        console.log(path);
         if (user && path) {
           const decodedPath: string = decodeURIComponent(path);
           if (decodedPath.includes('post/') || decodedPath.includes('about/')) {
@@ -42,6 +43,8 @@ const AppUrlListener: React.FC<any> = () => {
           }
         }
       });
+    } else {
+      console.log('something went wrong when trying to open app link');
     }
   }, [user]);
 

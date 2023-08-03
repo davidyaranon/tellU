@@ -105,7 +105,7 @@ export const PollModal = (props: any) => {
   }
 
   return (
-    <IonModal backdropDismiss={false} isOpen={isOpen} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+    <IonModal canDismiss={!isOpen} backdropDismiss={false} isOpen={isOpen} handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
       <>
         <div>
           <div style={{ width: "100%" }}>

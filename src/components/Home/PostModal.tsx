@@ -55,7 +55,7 @@ export const PostModal = (props: any) => {
   };
 
   return (
-    <IonModal backdropDismiss={false} isOpen={isOpen} mode='ios' handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
+    <IonModal canDismiss={!isOpen} backdropDismiss={false} isOpen={isOpen} mode='ios' handle={false} breakpoints={[0, 1]} initialBreakpoint={1}>
       <div style={{ width: "100%" }}>
         <IonToolbar mode="ios">
           <IonButtons slot="start">
