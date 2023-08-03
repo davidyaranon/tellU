@@ -93,13 +93,16 @@ export const Notifications = () => {
                     <IonItem style={context.darkMode ? { '--background': '#0D1117' } : { '--background': '#FFFFFF' }} lines='full' mode="ios" onClick={() => {
                       let url: string = '';
                       let chatroomString: string = notif.chatroomString;
+                      console.log("Chatroom string: " + chatroomString);
                       if (chatroomString.includes("chatroom")) {
-                        url = notif.chatroomString.slice(0, 9) + "/" + schoolName + notif.chatroomString.slice(9);
+                        console.log('included');
+                        url = notif.chatroomString.slice(0, 9) + "/" + notif.chatroomString.slice(9);
                       } else {
-                        url = notif.chatroomString.slice(0, 5) + "/" + schoolName + notif.chatroomString.slice(9);
+                        console.log('not included');
+                        url = notif.chatroomString.slice(0, 5) + "/" + notif.chatroomString.slice(9);
                       }
-                      console.log(url);
-                      history.push(url);
+                      console.log("url after: " + url);
+                      history.push(chatroomString);
                     }}>
                       <IonFab horizontal="end" vertical="top">
                         <IonNote style={{ fontSize: "0.75em" }}>

@@ -20,7 +20,7 @@ import { MapMarkerInfo } from './pages/MapMarkerInfo';
 import { HumboldtHank } from './pages/HumboldtHank';
 
 // Ionic/Capacitor + React
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import {
   IonApp, IonIcon, IonRouterOutlet, IonTabBar,
@@ -123,16 +123,9 @@ const RoutingSystem: React.FunctionComponent = () => {
       ],
       cssClass: 'toast-options',
     });
-  }
+  };
 
-  /**
-   * Runs once on app load
-   * Adds a listener to PushNotifications
-   */
-  useEffect(() => {
-    if (Capacitor.getPlatform() !== 'ios') {
-      return;
-    }
+  const handlePushNotificationListeners = useCallback(() => {
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema) => {
@@ -159,6 +152,16 @@ const RoutingSystem: React.FunctionComponent = () => {
       console.log('adding listener for notif action performed');
     });
   }, []);
+
+  /**
+   * Runs once on app load
+   * Adds a listener to PushNotifications
+   */
+  useEffect(() => {
+    if(context.initLoad) {
+      handlePushNotificationListeners();
+    }
+  }, [context.initLoad]);
 
   return (
     /* Allows use of toast popups throughout app using the useToast() hook */

@@ -100,6 +100,7 @@ const LoadingPage = () => {
         await handleAchievements();
         context.setShowTabs(true);
         dynamicNavigate(router, '/home', 'root');
+        context.setInitLoad(true);
       } else {
         const isOffline = await Network.getStatus();
         if (isOffline.connected) {

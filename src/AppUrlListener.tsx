@@ -6,10 +6,12 @@ import { useHistory } from "react-router";
 import auth from "./fbConfig";
 import { useToast } from "@agney/ir-toast";
 import { timeout } from "./helpers/timeout";
+import { useContext } from "./my-context";
 
 const AppUrlListener: React.FC<any> = () => {
 
   const [user, loading, error] = useAuthState(auth);
+  const context = useContext();
   const history = useHistory();
   const Toast = useToast();
 
@@ -30,9 +32,7 @@ const AppUrlListener: React.FC<any> = () => {
           if (decodedPath.includes('post/') || decodedPath.includes('about/')) {
             if (schoolName && schoolName.value && decodedPath.includes(schoolName.value)) {
               console.log('setting path to ' + decodedPath);
-              timeout(1000).then(() => {
-                history.push(decodedPath);
-              })
+              history.push(decodedPath);
             } else {
               const toast = Toast.create({ message: 'Post is from another school!', duration: 2000, color: 'toast-error' });
               toast.present();
@@ -50,10 +50,10 @@ const AppUrlListener: React.FC<any> = () => {
    * @description runs on app load. If the user is logged in, check to see if url listener can be added
    */
   useEffect(() => {
-    if (!loading) {
+    if (!loading && context.initLoad) {
       checkPermissions();
     }
-  }, [loading, checkPermissions]);
+  }, [loading, checkPermissions, context.setInitLoad, context.initLoad]);
 
   return null;
 };

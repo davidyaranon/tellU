@@ -320,6 +320,10 @@ const Home: React.FC = () => {
     }
   }, [posts]);
 
+  React.useEffect(() => {
+    context.setInitLoad(true);
+  }, []);
+
   // React.useEffect(() => {
   //   context.setDarkMode(true);
   //   document.body.classList.toggle("dark");
