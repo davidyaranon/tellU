@@ -5,6 +5,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router";
 import auth from "./fbConfig";
 import { useToast } from "@agney/ir-toast";
+import { timeout } from "./helpers/timeout";
 
 const AppUrlListener: React.FC<any> = () => {
 
@@ -24,27 +25,24 @@ const AppUrlListener: React.FC<any> = () => {
         const domain: string = 'quantum-61b84.firebaseapp.com'
         const slug: string[] = event.url.split(domain);
         const path: string | undefined = slug.pop();
-        console.log(path);
         if (user && path) {
           const decodedPath: string = decodeURIComponent(path);
           if (decodedPath.includes('post/') || decodedPath.includes('about/')) {
             if (schoolName && schoolName.value && decodedPath.includes(schoolName.value)) {
               console.log('setting path to ' + decodedPath);
-              history.push(decodedPath);
+              timeout(1000).then(() => {
+                history.push(decodedPath);
+              })
             } else {
-              console.log('post is from another school');
               const toast = Toast.create({ message: 'Post is from another school!', duration: 2000, color: 'toast-error' });
               toast.present();
             }
           } else {
-            console.log('invalid url');
             const toast = Toast.create({ message: 'Invalid URL', duration: 2000, color: 'toast-error' });
             toast.present();
           }
         }
       });
-    } else {
-      console.log('something went wrong when trying to open app link');
     }
   }, [user]);
 
@@ -53,7 +51,6 @@ const AppUrlListener: React.FC<any> = () => {
    */
   useEffect(() => {
     if (!loading) {
-      // console.log('done loading, checking permissions');
       checkPermissions();
     }
   }, [loading, checkPermissions]);

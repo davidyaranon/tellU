@@ -57,8 +57,8 @@ const Settings: React.FC = () => {
   const [loadedSlidesArr, setLoadedSlidesArr] = React.useState<boolean[]>([false, false])
   const [userLikedPosts, setUserLikedPosts] = React.useState<any[] | null>(null);
   const [userBio, setUserBio] = React.useState<string>("");
-  const [showA, setShowA] = React.useState<boolean>(false);
-  const [editableShowA, setEditableShowA] = React.useState<boolean>(false);
+  // const [showA, setShowA] = React.useState<boolean>(false);
+  // const [editableShowA, setEditableShowA] = React.useState<boolean>(false);
   const [userMajor, setUserMajor] = React.useState<string>("");
   const [userTiktok, setUserTiktok] = React.useState<string>("");
   const [userInstagram, setUserInstagram] = React.useState<string>("");
@@ -133,8 +133,8 @@ const Settings: React.FC = () => {
             setEditableUserTiktok(res.tiktok);
             if ("spotify" in res && res.spotify)
               setEditableSpotifyUri(res.spotify);
-            if ("showA" in res && res.showA)
-              setEditableShowA(true);
+            // if ("showA" in res && res.showA)
+            //   setEditableShowA(true);
           } else {
             const toast = Toast.create({ message: 'Trouble loading data', duration: 2000, color: 'toast-error' });
             toast.present();
@@ -280,14 +280,14 @@ const Settings: React.FC = () => {
       && String(editableUserSnapchat).trim() == String(userSnapchat).trim()
       && String(editableUserMajor).trim() == String(userMajor).trim()
       && String(editableUserTiktok).trim() == String(userTiktok).trim()
-      && String(editableSpotifyUri).trim() == String(spotifyUri).trim()
-      && editableShowA === showA) {
+      && String(editableSpotifyUri).trim() == String(spotifyUri).trim()) {
+      // && editableShowA === showA) {
       const toast = Toast.create({ message: 'No changes made', duration: 2000, color: 'toast-error' });
       toast.present();
       setUserDataHasLoaded(true);
       return;
     }
-    let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok, editableSpotifyUri, editableShowA));
+    let userDataUpdated = promiseTimeout(10000, updateUserInfo(editableUserBio, editableUserInstagram, editableUserMajor, editableUserSnapchat, editableUserTiktok, editableSpotifyUri, /* editableShowA */));
     userDataUpdated.then(async (res) => {
       if (res) {
         setUserBio(editableUserBio);
@@ -296,7 +296,7 @@ const Settings: React.FC = () => {
         setUserTiktok(editableUserTiktok);
         setUserMajor(editableUserMajor);
         setSpotifyUri(editableSpotifyUri);
-        setShowA(editableShowA);
+        // setShowA(editableShowA);
         Keyboard.hide().then(() => {
           setTimeout(() => setShowAboutModal(false), 100);
         }).catch((err) => {
@@ -750,12 +750,12 @@ const Settings: React.FC = () => {
                           <IonList key={post.key + index.toString()} mode="ios" lines="none" inset>
                             <IonItem lines="none" mode="ios" onClick={() => { history.push("/post/" + schoolName + "/" + encodeURIComponent(post.userName) + "/" + post.key); }}>
                               <IonLabel>
-                                <IonText color="medium">
+                                <IonRow>
                                   <IonAvatar class="posts-avatar" onClick={(e) => { e.stopPropagation(); history.push("/about/" + schoolName + "/" + post.uid); }} >
                                     <ProfilePhoto uid={post.uid} />
                                   </IonAvatar>
-                                  <p> {post.userName} </p>
-                                </IonText>
+                                  <p style={{ color: context.darkMode ? "var(--ion-color-light)" : "var(--ion-color-black)", padding: "10px", fontWeight: 'bold' }}> {post.userName} </p>
+                                </IonRow>
                                 <PostType type={post.postType} marker={post.marker} location={post.location} timestamp={post.timestamp} />
                                 <PostMessage message={post.message} classNumber={post.classNumber} classname={post.className} reports={post.reports || 0} />
                                 <PostImages userName={post.userName} imgSrc={post.imgSrc || []} reports={post.reports || 0} />
@@ -870,7 +870,7 @@ const Settings: React.FC = () => {
                         setEditableUserTiktok(userTiktok);
                         setEditableUserSnapchat(userSnapchat);
                         setEditableSpotifyUri(spotifyUri);
-                        setEditableShowA(showA);
+                        // setEditableShowA(showA);
                       }, 100);
                     }).catch((err) => {
                       setTimeout(() => {
@@ -881,7 +881,7 @@ const Settings: React.FC = () => {
                         setEditableUserTiktok(userTiktok);
                         setEditableUserSnapchat(userSnapchat);
                         setEditableSpotifyUri(spotifyUri);
-                        setEditableShowA(showA);
+                        // setEditableShowA(showA);
                       }, 100);
                     })
 
@@ -987,7 +987,7 @@ const Settings: React.FC = () => {
               />
             </IonCardContent>
           </IonCard>
-          <IonCard mode="ios">
+          {/* <IonCard mode="ios">
             <IonItem mode="ios" lines='none'>
               <p style={{ fontSize: "0.85em" }}> Show Achievements </p>&nbsp;&nbsp;
               <IonIcon color="medium" icon={trophy} slot="end" />
@@ -1000,7 +1000,7 @@ const Settings: React.FC = () => {
                 onIonChange={(e) => { setEditableShowA(e.detail.checked); Haptics.impact({ style: ImpactStyle.Light }); }}
               />
             </IonItem>
-          </IonCard>
+          </IonCard> */}
           <IonCard mode="ios">
             <IonCardContent>
               <IonLabel color={context.darkMode ? 'light' : 'black'}>Spotify Song Spotlight</IonLabel>

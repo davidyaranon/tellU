@@ -1,6 +1,6 @@
 import {
   IonContent, IonSpinner, IonNote,
-  IonFab, IonList, IonItem, IonText, IonPage
+  IonFab, IonItem, IonText, IonPage
 } from '@ionic/react';
 import { useCallback, useEffect, useState } from 'react';
 import FadeIn from "react-fade-in/lib/FadeIn";
@@ -12,6 +12,7 @@ import { Virtuoso } from 'react-virtuoso';
 import { Toolbar } from '../components/Shared/Toolbar';
 import { getDate } from '../helpers/timeago';
 import { useContext } from '../my-context';
+import { Preferences } from '@capacitor/preferences';
 
 
 /**
@@ -23,6 +24,7 @@ export const Notifications = () => {
   /* Hooks */
   const history = useHistory();
   const [user, loading, error] = useAuthState(auth);
+  const [schoolName, setSchoolName] = useState<string>('');
   const Toast = useToast();
   const context = useContext();
 
@@ -35,14 +37,18 @@ export const Notifications = () => {
   const loadNotifications = useCallback(() => {
     if (user && user.uid) {
       const gotUserData = promiseTimeout(7500, getCurrentUserData());
-      gotUserData.then((res: any) => {
-        if (res) {
+      gotUserData.then(async (res: any) => {
+        const school = await Preferences.get({ key: "school" });
+        if (school && school.value && res) {
           res.notifs.sort(function (a: any, b: any) {
             var keyA = new Date(a.date), keyB = new Date(b.date);
             if (keyA < keyB) return -1;
             if (keyA > keyB) return 1;
             return 0;
           });
+          console.log(school.value);
+          console.log(encodeURIComponent(school.value));
+          setSchoolName(encodeURIComponent(school.value));
           setNotifs(res.notifs);
         } else {
           const toast = Toast.create({ message: 'Trouble getting data', duration: 2000, color: 'toast-error' });
@@ -73,7 +79,7 @@ export const Notifications = () => {
               <p>No notifications</p>
             </div>
           }
-          
+
           <Virtuoso
             data={notifs.slice(0).reverse()}
             style={{ height: "100%" }}
@@ -88,10 +94,11 @@ export const Notifications = () => {
                       let url: string = '';
                       let chatroomString: string = notif.chatroomString;
                       if (chatroomString.includes("chatroom")) {
-                        url = notif.chatroomString.slice(0, 9) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
+                        url = notif.chatroomString.slice(0, 9) + "/" + schoolName + notif.chatroomString.slice(9);
                       } else {
-                        url = notif.chatroomString.slice(0, 5) + "/Cal%20Poly%20Humboldt" + notif.chatroomString.slice(9);
+                        url = notif.chatroomString.slice(0, 5) + "/" + schoolName + notif.chatroomString.slice(9);
                       }
+                      console.log(url);
                       history.push(url);
                     }}>
                       <IonFab horizontal="end" vertical="top">
@@ -115,7 +122,7 @@ export const Notifications = () => {
                 return (
                   <FadeIn key={"postnotif_" + notif.postKey + index.toString()}>
                     <IonItem style={context.darkMode ? { '--background': '#0D1117' } : { '--background': '#FFFFFF' }} lines='full' mode="ios" onClick={() => {
-                      const key = notif.postKey.toString(); history.push("post/Cal%20Poly%20Humboldt/" + encodeURIComponent(notif.userName) + '/' + key);
+                      const key = notif.postKey.toString(); console.log("/post/" + schoolName + "/" + encodeURIComponent(notif.userName) + '/' + key); history.push("/post/" + schoolName + "/" + encodeURIComponent(notif.userName) + '/' + key);
                     }}>
                       <IonFab horizontal="end" vertical="top">
                         <IonNote style={{ fontSize: "0.75em" }}>

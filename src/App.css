@@ -1425,3 +1425,14 @@ a[href="hank"] span {
   padding-left: 1%;
 }
 
+.avatar-container {
+  position: relative;
+}
+
+.badge-icon-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 5px; /* or the amount of spacing you desire between icons */
+}
