@@ -1,6 +1,6 @@
 {
   "name": "tellU",
-  "version": "4.0",
+  "version": "4.1",
   "private": true,
   "dependencies": {
     "@agney/ir-toast": "^0.3.0",

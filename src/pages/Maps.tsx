@@ -321,7 +321,7 @@ function Maps() {
 
           <ZoomControl style={{ left: "85%", top: "50%", opacity: "95%", zIndex: '100' }} buttonStyle={!context.darkMode ? zoomControlButtonsStyle : zoomControlButtonsStyleDark} />
 
-          {filteredMarkers[schoolName] && filteredMarkers[schoolName].map((marker, index) => {
+          {filteredMarkers[schoolName] && filteredMarkers[schoolName].map((marker : MapMarker, index : number) => {
             return (
               <Marker
                 color={marker.color}

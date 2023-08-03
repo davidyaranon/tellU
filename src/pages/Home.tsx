@@ -33,7 +33,7 @@ import '../App.css';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 
-const versionNum: string = '4.0';
+const versionNum: string = '4.1';
 
 const Home: React.FC = () => {
 

@@ -42,7 +42,7 @@ const keyStyleOptionsDark: KeyboardStyleOptions = {
 const keyStyleOptionsLight: KeyboardStyleOptions = {
   style: KeyboardStyle.Light
 }
-const versionNum: string = '4.0';
+const versionNum: string = '4.1';
 
 
 const Settings: React.FC = () => {
