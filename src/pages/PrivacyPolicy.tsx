@@ -7,20 +7,18 @@ import {
 import { Dialog } from "@capacitor/dialog";
 import { deleteUserDataAndAccount } from "../fbConfig";
 import { useToast } from "@agney/ir-toast";
-import { useHistory } from "react-router";
 import { useContext } from "../my-context";
 import { Toolbar } from "../components/Shared/Toolbar";
-import { navigateBack } from "../components/Shared/Navigation";
+import { dynamicNavigate } from "../components/Shared/Navigation";
 
 export const PrivacyPolicy = () => {
 
-  const history = useHistory();
+  const router = useIonRouter();
   const context = useContext();
   const Toast = useToast();
-  const router = useIonRouter();
   const [present, dismiss] = useIonLoading();
 
-  const [pass, setPass] = React.useState<string>("");
+  const [pass, setPass] = React.useState<string | null | undefined>("");
   const [showPasswordModal, setShowPasswordModal] = React.useState<boolean>(false);
 
   /**
@@ -47,7 +45,7 @@ export const PrivacyPolicy = () => {
         dismiss();
       } else {
         dismiss();
-        history.replace('/landing-page');
+        dynamicNavigate(router, '/landing-page', 'root');
         context.setShowTabs(false);
         const toast = Toast.create({ message: 'Account deleted', duration: 2000, color: context.darkMode ? 'toast-success' : 'toast-success-light' });
         toast.present();
@@ -343,7 +341,7 @@ export const PrivacyPolicy = () => {
                     type="password"
                     placeholder="Enter your password again..."
                     id="passwordSignIn"
-                    onIonInput={(e: any) => setPass(e.detail.value)}
+                    onIonChange={(e) => setPass(e.detail.value)}
                   ></IonInput>
                 </IonItem>
                 <br />

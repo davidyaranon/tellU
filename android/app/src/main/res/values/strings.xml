@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">tellU</string>
-    <string name="title_activity_main">tellU</string>
-    <string name="package_name">com.example.v3.quantum</string>
-    <string name="custom_url_scheme">com.example.v3.quantum</string>
-</resources>
